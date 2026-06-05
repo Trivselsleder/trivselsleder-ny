@@ -4,6 +4,7 @@ import { Link, NavLink } from 'react-router-dom'
 const navLinks = [
   { label: 'Om oss', to: '/om-oss' },
   { label: 'For skoler', to: '/for-skoler' },
+  { label: 'Kulturkortet', to: '/kulturkortet' },
   { label: 'Kontakt', to: '/kontakt' },
 ]
 
