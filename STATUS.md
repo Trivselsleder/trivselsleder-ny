@@ -1,6 +1,6 @@
 # Trivselsleder – prosjektstatus
 
-Sist oppdatert: 2026-06-04
+Sist oppdatert: 2026-06-05
 
 ---
 
@@ -23,6 +23,22 @@ Sist oppdatert: 2026-06-04
 ### Komponenter
 - **Header** – sticky, med logo, navigasjon og «Logg inn»-knapp. Aktiv side markert i oransje. Mobil-meny med hamburger-ikon.
 - **Footer** – mørk, tre-kolonne layout med sidelenker og kontaktinfo.
+
+### Kulturkortet
+- Offentlig partnerside (`/kulturkortet`) med 714 aktive samarbeidspartnere fra CSV
+- Filtrer på fylke, kommune og type – kaskaderende dropdowns
+- Fritekst-søk på navn og sted
+- 638 nettside-URL-er generert automatisk fra e-postdomener
+- Bestillingsskjema (`/kulturkortet/bestill`) med automatisk prisutregning (40 kr/kort + porto basert på vekt), adressefelter og prissammendrag før innsending. Sender til kulturkort@trivselsleder.no
+- Admin-panel (`/admin/kulturkort`) med rediger/slett/aktiver/legg til ny partner
+
+### Flerspråklig støtte (i18n)
+- `react-i18next` installert og konfigurert med `i18next-browser-languagedetector`
+- Norsk som standardspråk (`fallbackLng: 'no'`)
+- Alle hardkodede tekster på alle sider og komponenter flyttet til `src/locales/no/translation.json`
+- Tilsvarende svensk oversettelse i `src/locales/sv/translation.json`
+- Språkvelger (🇳🇴 / 🇸🇪) i Header – lagres i localStorage
+- Sider med i18n: Home, Om oss, For skoler, Kontakt, Kulturkortet, Bestill, Admin, Header, Footer
 
 ### Git og hosting
 - Git-repository initialisert (`main`-branch)

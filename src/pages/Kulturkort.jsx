@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import partnereData from '../data/kulturkort-partnere.json'
 import { Link } from 'react-router-dom'
 
@@ -28,69 +29,66 @@ function typeIkon(type) {
   return TYPE_IKONER[type] || '🎟️'
 }
 
-function normaliserType(type) {
-  if (!type) return 'Annet'
-  if (type.includes(',') || type.includes('/') || type.toLowerCase().includes(' og ')) return 'Kombinert'
-  return type
-}
-
 export default function Kulturkort() {
+  const { t } = useTranslation()
   const aktive = useMemo(() => partnereData.filter(p => p.published), [])
 
-  const fylker = useMemo(() => ['Alle fylker', ...Array.from(new Set(aktive.map(p => p.fylke))).sort()], [aktive])
-  const [valgtFylke, setValgtFylke] = useState('Alle fylker')
+  const fylker = useMemo(() => [t('kulturkort.alleFylker'), ...Array.from(new Set(aktive.map(p => p.fylke))).sort()], [aktive, t])
+  const [valgtFylke, setValgtFylke] = useState('')
 
   const kommunerIFylke = useMemo(() => {
-    const base = valgtFylke === 'Alle fylker' ? aktive : aktive.filter(p => p.fylke === valgtFylke)
-    return ['Alle kommuner', ...Array.from(new Set(base.map(p => p.kommune))).sort()]
-  }, [aktive, valgtFylke])
+    const base = !valgtFylke || valgtFylke === t('kulturkort.alleFylker') ? aktive : aktive.filter(p => p.fylke === valgtFylke)
+    return [t('kulturkort.alleKommuner'), ...Array.from(new Set(base.map(p => p.kommune))).sort()]
+  }, [aktive, valgtFylke, t])
 
-  const [valgtKommune, setValgtKommune] = useState('Alle kommuner')
+  const [valgtKommune, setValgtKommune] = useState('')
 
   const typer = useMemo(() => {
     const base = aktive
-      .filter(p => valgtFylke === 'Alle fylker' || p.fylke === valgtFylke)
-      .filter(p => valgtKommune === 'Alle kommuner' || p.kommune === valgtKommune)
-    return ['Alle typer', ...Array.from(new Set(base.map(p => p.type).filter(Boolean))).sort()]
-  }, [aktive, valgtFylke, valgtKommune])
+      .filter(p => !valgtFylke || valgtFylke === t('kulturkort.alleFylker') || p.fylke === valgtFylke)
+      .filter(p => !valgtKommune || valgtKommune === t('kulturkort.alleKommuner') || p.kommune === valgtKommune)
+    return [t('kulturkort.alleTyper'), ...Array.from(new Set(base.map(p => p.type).filter(Boolean))).sort()]
+  }, [aktive, valgtFylke, valgtKommune, t])
 
-  const [valgtType, setValgtType] = useState('Alle typer')
+  const [valgtType, setValgtType] = useState('')
   const [søk, setSøk] = useState('')
 
   function handleFylke(e) {
     setValgtFylke(e.target.value)
-    setValgtKommune('Alle kommuner')
-    setValgtType('Alle typer')
+    setValgtKommune('')
+    setValgtType('')
   }
   function handleKommune(e) {
     setValgtKommune(e.target.value)
-    setValgtType('Alle typer')
+    setValgtType('')
   }
 
+  const alleFylkerVal = t('kulturkort.alleFylker')
+  const alleKommunerVal = t('kulturkort.alleKommuner')
+  const alleTyperVal = t('kulturkort.alleTyper')
+
   const filtrert = useMemo(() => aktive
-    .filter(p => valgtFylke === 'Alle fylker' || p.fylke === valgtFylke)
-    .filter(p => valgtKommune === 'Alle kommuner' || p.kommune === valgtKommune)
-    .filter(p => valgtType === 'Alle typer' || p.type === valgtType)
+    .filter(p => !valgtFylke || valgtFylke === alleFylkerVal || p.fylke === valgtFylke)
+    .filter(p => !valgtKommune || valgtKommune === alleKommunerVal || p.kommune === valgtKommune)
+    .filter(p => !valgtType || valgtType === alleTyperVal || p.type === valgtType)
     .filter(p => !søk || p.navn.toLowerCase().includes(søk.toLowerCase()) || p.kommune.toLowerCase().includes(søk.toLowerCase()))
-  , [aktive, valgtFylke, valgtKommune, valgtType, søk])
+  , [aktive, valgtFylke, valgtKommune, valgtType, søk, alleFylkerVal, alleKommunerVal, alleTyperVal])
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
       <div className="bg-gradient-to-br from-[#F47920] to-[#D6006E] text-white py-16 px-4">
         <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Kulturkortet</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('kulturkort.title')}</h1>
           <p className="text-xl md:text-2xl opacity-90 mb-2">
-            Over {aktive.length} samarbeidspartnere over hele Norge
+            {t('kulturkort.ingress', { count: aktive.length })}
           </p>
-          <p className="opacity-80 text-lg">
-            Med Kulturkortet får elever rabatt hos disse aktørene
-          </p>
+          <p className="opacity-80 text-lg">{t('kulturkort.underingress')}</p>
           <Link
             to="/kulturkortet/bestill"
             className="inline-block mt-8 bg-white text-[#D6006E] font-bold px-8 py-3 rounded-full hover:bg-gray-100 transition-colors text-lg shadow-lg"
           >
-            Bestill Kulturkort til din skole
+            {t('kulturkort.bestillKnapp')}
           </Link>
         </div>
       </div>
@@ -101,36 +99,36 @@ export default function Kulturkort() {
           <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
             <input
               type="search"
-              placeholder="Søk etter navn eller sted..."
+              placeholder={t('kulturkort.sokPlaceholder')}
               value={søk}
               onChange={e => setSøk(e.target.value)}
               className="border border-gray-300 rounded-lg px-4 py-2 text-sm flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-[#F47920]"
             />
             <select
-              value={valgtFylke}
+              value={valgtFylke || alleFylkerVal}
               onChange={handleFylke}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]"
             >
               {fylker.map(f => <option key={f}>{f}</option>)}
             </select>
             <select
-              value={valgtKommune}
+              value={valgtKommune || alleKommunerVal}
               onChange={handleKommune}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]"
             >
               {kommunerIFylke.map(k => <option key={k}>{k}</option>)}
             </select>
             <select
-              value={valgtType}
+              value={valgtType || alleTyperVal}
               onChange={e => setValgtType(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]"
             >
-              {typer.map(t => <option key={t}>{t}</option>)}
+              {typer.map(tv => <option key={tv}>{tv}</option>)}
             </select>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
-            Viser <span className="font-semibold text-[#F47920]">{filtrert.length}</span> av {aktive.length} partnere
-          </p>
+          <p className="text-xs text-gray-500 mt-2"
+            dangerouslySetInnerHTML={{ __html: t('kulturkort.viser', { antall: filtrert.length, totalt: aktive.length }) }}
+          />
         </div>
       </div>
 
@@ -139,7 +137,7 @@ export default function Kulturkort() {
         {filtrert.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
             <p className="text-4xl mb-4">🔍</p>
-            <p className="text-lg">Ingen partnere funnet med disse filtrene.</p>
+            <p className="text-lg">{t('kulturkort.ingenFunnet')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -167,7 +165,7 @@ export default function Kulturkort() {
                         rel="noopener noreferrer"
                         className="inline-block mt-2 text-xs text-[#D6006E] hover:underline font-medium"
                       >
-                        Besøk nettside →
+                        {t('kulturkort.besokNettside')}
                       </a>
                     )}
                   </div>
