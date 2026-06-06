@@ -52,21 +52,21 @@ export default function KulturkortBestill() {
     setSender(true)
 
     try {
-      const res = await fetch('https://formsubmit.co/ajax/kulturkort@trivselsleder.no', {
+      const res = await fetch('/api/send-bestilling', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          _subject: `Kulturkort-bestilling fra ${form.skolenavn}`,
-          Skolenavn: form.skolenavn,
-          'Antall kort': form.antallKort,
-          Kontaktperson: form.kontaktperson,
-          Epost: form.epost,
-          Leveringsadresse: `${form.gate}, ${form.postnummer} ${form.poststed}`,
-          'Kortpris': pris ? `${pris.kortpris} kr` : '—',
-          'Porto': pris ? `${pris.porto} kr` : '—',
-          'Totalpris (eks. mva)': pris ? `${pris.total} kr` : '—',
-          Melding: form.melding || '(ingen)',
-          _replyto: form.epost,
+          skolenavn: form.skolenavn,
+          antallKort: form.antallKort,
+          kontaktperson: form.kontaktperson,
+          epost: form.epost,
+          gate: form.gate,
+          postnummer: form.postnummer,
+          poststed: form.poststed,
+          melding: form.melding,
+          kortpris: pris?.kortpris ?? 0,
+          porto: pris?.porto ?? 0,
+          total: pris?.total ?? 0,
         }),
       })
       if (!res.ok) throw new Error()
