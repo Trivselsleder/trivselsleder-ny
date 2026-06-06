@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { hentSatser, lagreSatser, STANDARD_SATSER } from '../utils/satser'
 
 const PASSORD = 'trivsel2025'
 const LS_KEY = 'kulturkort_bestillinger'
@@ -95,6 +96,8 @@ export default function AdminBestillinger() {
   )
   const [bestillinger, setBestillinger] = useState(lesBestillinger)
   const [filter, setFilter] = useState('Alle')
+  const [satser, setSatser] = useState(hentSatser)
+  const [satserLagret, setSatserLagret] = useState(false)
 
   const filtrerte = useMemo(() => {
     if (filter === 'Alle') return bestillinger
@@ -259,6 +262,129 @@ export default function AdminBestillinger() {
             Viser {filtrerte.length} av {bestillinger.length} bestillinger · Klikk på status for å endre
           </p>
         )}
+
+        {/* Innstillinger */}
+        <div className="mt-12 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-gray-50 border-b border-gray-100 px-6 py-4">
+            <h2 className="font-semibold text-gray-800 text-base">Prisinnstillinger</h2>
+            <p className="text-xs text-gray-500 mt-0.5">Endringer lagres i nettleseren og påvirker bestillingsskjemaet umiddelbart.</p>
+          </div>
+          <div className="p-6 space-y-6">
+
+            {/* Kortpris */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Kortpris per stk (kr)</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  min="1"
+                  value={satser.kortpris}
+                  onChange={e => setSatser(s => ({ ...s, kortpris: Number(e.target.value) }))}
+                  className="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                />
+                <span className="text-sm text-gray-500">kr / kort</span>
+              </div>
+            </div>
+
+            {/* Portotrapper */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-700">Portotrapper (basert på antall kort)</label>
+                <button
+                  type="button"
+                  onClick={() => setSatser(s => ({
+                    ...s,
+                    portoSatser: [...s.portoSatser, { fraAntall: (s.portoSatser.at(-1)?.tilAntall ?? 0) + 1, tilAntall: null, porto: 99 }]
+                  }))}
+                  className="text-xs text-[#F47920] hover:underline"
+                >
+                  + Legg til trinn
+                </button>
+              </div>
+              <div className="space-y-2">
+                {satser.portoSatser.map((trinn, i) => (
+                  <div key={i} className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-gray-500 w-6 text-right">{i + 1}.</span>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        min="1"
+                        value={trinn.fraAntall}
+                        onChange={e => setSatser(s => {
+                          const ny = [...s.portoSatser]
+                          ny[i] = { ...ny[i], fraAntall: Number(e.target.value) }
+                          return { ...s, portoSatser: ny }
+                        })}
+                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                      />
+                      <span className="text-xs text-gray-400">–</span>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="∞"
+                        value={trinn.tilAntall ?? ''}
+                        onChange={e => setSatser(s => {
+                          const ny = [...s.portoSatser]
+                          ny[i] = { ...ny[i], tilAntall: e.target.value === '' ? null : Number(e.target.value) }
+                          return { ...s, portoSatser: ny }
+                        })}
+                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                      />
+                      <span className="text-xs text-gray-500">kort</span>
+                    </div>
+                    <span className="text-xs text-gray-400">→</span>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        min="0"
+                        value={trinn.porto}
+                        onChange={e => setSatser(s => {
+                          const ny = [...s.portoSatser]
+                          ny[i] = { ...ny[i], porto: Number(e.target.value) }
+                          return { ...s, portoSatser: ny }
+                        })}
+                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                      />
+                      <span className="text-xs text-gray-500">kr porto</span>
+                    </div>
+                    {satser.portoSatser.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setSatser(s => ({ ...s, portoSatser: s.portoSatser.filter((_, j) => j !== i) }))}
+                        className="text-red-400 hover:text-red-600 text-xs ml-1"
+                      >
+                        Slett
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Handlinger */}
+            <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => {
+                  lagreSatser(satser)
+                  setSatserLagret(true)
+                  setTimeout(() => setSatserLagret(false), 2500)
+                }}
+                className="bg-[#F47920] text-white font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm"
+              >
+                {satserLagret ? 'Lagret!' : 'Lagre innstillinger'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSatser(STANDARD_SATSER)}
+                className="border border-gray-300 text-gray-600 px-5 py-2.5 rounded-full hover:bg-gray-50 transition-colors text-sm"
+              >
+                Tilbakestill til standard
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   )

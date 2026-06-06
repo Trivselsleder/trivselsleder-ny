@@ -1,31 +1,11 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-
-const PRIS_PER_KORT = 40
-const VEKT_PER_KORT = 6
-const EMBALLASJE_GRENSE = 36
-const VEKT_EMBALLASJE_LITEN = 9
-const VEKT_EMBALLASJE_STOR = 34
-
-function beregnPorto(vektG) {
-  if (vektG <= 50) return 28
-  if (vektG <= 100) return 46
-  if (vektG <= 350) return 69
-  return 99
-}
-
-function beregnPris(antall) {
-  if (!antall || antall < 1) return null
-  const emballasje = antall <= EMBALLASJE_GRENSE ? VEKT_EMBALLASJE_LITEN : VEKT_EMBALLASJE_STOR
-  const totalVekt = antall * VEKT_PER_KORT + emballasje
-  const porto = beregnPorto(totalVekt)
-  const kortpris = antall * PRIS_PER_KORT
-  return { kortpris, porto, total: kortpris + porto }
-}
+import { beregnPris, hentSatser } from '../utils/satser'
 
 export default function KulturkortBestill() {
   const { t } = useTranslation()
+  const satser = useMemo(() => hentSatser(), [])
   const [form, setForm] = useState({
     skolenavn: '',
     antallKort: '',
@@ -40,7 +20,7 @@ export default function KulturkortBestill() {
   const [sender, setSender] = useState(false)
   const [feil, setFeil] = useState('')
 
-  const pris = useMemo(() => beregnPris(parseInt(form.antallKort, 10)), [form.antallKort])
+  const pris = useMemo(() => beregnPris(parseInt(form.antallKort, 10), satser), [form.antallKort, satser])
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -157,7 +137,7 @@ export default function KulturkortBestill() {
             {pris && (
               <div className="mt-3 rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-sm space-y-1.5">
                 <div className="flex justify-between text-gray-600">
-                  <span>{t('bestill.prisKort', { antall: form.antallKort })}</span>
+                  <span>{form.antallKort} kort × {satser.kortpris} kr</span>
                   <span>{pris.kortpris} kr</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
