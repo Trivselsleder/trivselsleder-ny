@@ -1,6 +1,6 @@
 # Trivselsleder – prosjektstatus
 
-Sist oppdatert: 2026-06-05
+Sist oppdatert: 2026-06-06
 
 ---
 
@@ -37,12 +37,25 @@ Sist oppdatert: 2026-06-05
   - Felt: skolenavn, antall, kontaktperson, e-post, leveringsadresse (gate, postnummer, poststed), tilleggsinfo
   - Automatisk prisutregning live mens antall fylles inn: 40 kr/kort + porto etter vekttrapper (28/46/69/99 kr)
   - Prissammendrag (kortpris + porto + totalt eks. mva) vises under antall-feltet og igjen rett før «Send»-knappen
-  - Sender bestilling til kulturkort@trivselsleder.no via FormSubmit
+  - Sender bestilling via Vercel serverless funksjon (`/api/send-bestilling.js`) med Resend SDK
+  - Sender automatisk to e-poster: intern varsel til kulturkort@trivselsleder.no (reply-to = kunde) og bekreftelse til kunden
+  - Fra-adresse: `noreply@trivselsleder.no` (krever DNS-verifisering i Resend-dashbordet)
+  - API-nøkkel lagres som miljøvariabel (`RESEND_API_KEY`) i Vercel – aldri i kode
+  - Prisutregning byttet til antallsbaserte portotrapper (ikke vektbasert); satser leses fra localStorage via `src/utils/satser.js`
+  - Bestilling lagres i `localStorage` (`kulturkort_bestillinger`) etter vellykket innsending
 - Admin-panel (`/admin/kulturkort`):
   - Tabell med alle 814 partnere, søk og filter på aktiv/inaktiv
   - Rediger/slett/aktiver–deaktiver partner
   - Legg til ny partner med modal (alle felter inkl. nettside-URL)
   - Data lagres foreløpig i minne fra JSON-fil – klar for Supabase
+- Bestillings-admin (`/admin/bestillinger`):
+  - Passordskjerm (passord: `trivsel2025`) med sessionStorage-basert sesjon
+  - Tabell med alle innkomne bestillinger: dato, skole, kontaktperson, e-post, antall, adresse, priser
+  - Statushåndtering per bestilling: Ny → Fakturert → Levert (klikk på chip, lagres i localStorage)
+  - Filtrer på status (Alle / Ny / Fakturert / Levert) med tellere
+  - Statistikk-chips i header viser antall per status
+  - Prisinnstillinger-seksjon: kortpris og portotrapper redigeres direkte og lagres i localStorage
+  - Endringer i satser slår automatisk gjennom i bestillingsskjemaet
 
 ### Flerspråklig støtte (i18n)
 - Norsk som standardspråk (`fallbackLng: 'no'`), valg lagres i localStorage
@@ -69,11 +82,14 @@ Sist oppdatert: 2026-06-05
 
 ### Kulturkortet – videre
 - [ ] Koble admin-panelet til database (Supabase) så endringer lagres permanent
-- [ ] Priser og portosatser konfigurerbare fra admin i stedet for hardkodet
+- [ ] Priser og portosatser synkroniseres mot Supabase (i dag i localStorage)
+- [ ] Bestillinger lagres i Supabase (i dag i localStorage)
 - [ ] Fylke-mapping i CSV kan justeres manuelt for eventuelle feil
+- [ ] Resend: verifiser domenet `trivselsleder.no` og legg inn `RESEND_API_KEY` i Vercel
 
 ### Admin-panel (generelt)
-- [ ] Autentisering – admin-sider er per nå uten tilgangskontroll
+- [ ] Fase 2: Ekte autentisering erstatter midlertidig passord på `/admin/bestillinger`
+- [ ] Tilgangskontroll på `/admin/kulturkort` (per nå åpent)
 - [ ] Administrer brukere og skoler
 
 ### Integrasjoner
