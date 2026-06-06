@@ -70,6 +70,17 @@ export default function KulturkortBestill() {
         }),
       })
       if (!res.ok) throw new Error()
+      const bestilling = {
+        id: Date.now(),
+        dato: new Date().toISOString(),
+        ...form,
+        kortpris: pris?.kortpris ?? 0,
+        porto: pris?.porto ?? 0,
+        total: pris?.total ?? 0,
+        status: 'Ny',
+      }
+      const eksisterende = JSON.parse(localStorage.getItem('kulturkort_bestillinger') || '[]')
+      localStorage.setItem('kulturkort_bestillinger', JSON.stringify([bestilling, ...eksisterende]))
       setSendt(true)
     } catch {
       setFeil(t('bestill.feilmelding'))

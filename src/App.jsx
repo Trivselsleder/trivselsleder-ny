@@ -8,6 +8,7 @@ import Kontakt from './pages/Kontakt'
 import Kulturkort from './pages/Kulturkort'
 import KulturkortBestill from './pages/KulturkortBestill'
 import AdminKulturkort from './pages/AdminKulturkort'
+import AdminBestillinger from './pages/AdminBestillinger'
 import './index.css'
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/kulturkortet" element={<Kulturkort />} />
             <Route path="/kulturkortet/bestill" element={<KulturkortBestill />} />
             <Route path="/admin/kulturkort" element={<AdminKulturkort />} />
+            <Route path="/admin/bestillinger" element={<AdminBestillinger />} />
           </Routes>
         </main>
         <Footer />
