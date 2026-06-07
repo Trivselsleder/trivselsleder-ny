@@ -23,7 +23,7 @@ export default function LoggInn() {
     setLaster(true)
     try {
       await loggInn(epost, passord)
-      navigate('/admin/bestillinger')
+      navigate('/min-side')
     } catch {
       setFeil('Feil e-post eller passord. Prøv igjen.')
     } finally {

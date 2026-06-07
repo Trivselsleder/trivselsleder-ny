@@ -13,6 +13,7 @@ import AdminKulturkort from './pages/AdminKulturkort'
 import AdminBestillinger from './pages/AdminBestillinger'
 import LoggInn from './pages/LoggInn'
 import SettPassord from './pages/SettPassord'
+import MinSide from './pages/MinSide'
 import './index.css'
 
 export default function App() {
@@ -31,6 +32,14 @@ export default function App() {
               <Route path="/kulturkortet/bestill" element={<KulturkortBestill />} />
               <Route path="/logg-inn" element={<LoggInn />} />
               <Route path="/sett-passord" element={<SettPassord />} />
+              <Route
+                path="/min-side"
+                element={
+                  <ProtectedRoute>
+                    <MinSide />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/admin/kulturkort"
                 element={
