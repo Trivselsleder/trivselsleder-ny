@@ -2,6 +2,22 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
+const FEIDE_AUTH_URL = 'https://auth.dataporten.no/oauth/authorization'
+const FEIDE_CLIENT_ID = import.meta.env.VITE_FEIDE_CLIENT_ID
+
+function loggInnMedFeide() {
+  const state = crypto.randomUUID()
+  sessionStorage.setItem('feide_state', state)
+  const params = new URLSearchParams({
+    client_id: FEIDE_CLIENT_ID,
+    response_type: 'code',
+    scope: 'openid email profile',
+    redirect_uri: `${window.location.origin}/auth/feide/callback`,
+    state,
+  })
+  window.location.href = `${FEIDE_AUTH_URL}?${params}`
+}
+
 export default function LoggInn() {
   const { loggInn, glemmtPassord } = useAuth()
   const navigate = useNavigate()
@@ -96,6 +112,30 @@ export default function LoggInn() {
             >
               Glemt passord?
             </button>
+
+            {FEIDE_CLIENT_ID && (
+              <>
+                <div className="relative my-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-white px-3 text-xs text-gray-400">eller</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={loggInnMedFeide}
+                  className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-700 font-medium py-2.5 rounded-full hover:bg-gray-50 transition-colors text-sm"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  </svg>
+                  Logg inn med Feide
+                </button>
+              </>
+            )}
           </form>
         ) : (
           <div>
