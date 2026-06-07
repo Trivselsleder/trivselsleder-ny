@@ -102,11 +102,16 @@ export default async function handler(req, res) {
   const mangler = påkrevde.filter(f => !d[f])
   if (mangler.length) return res.status(400).json({ error: `Mangler påkrevde felter: ${mangler.join(', ')}` })
 
-  const supabase = createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
+  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseUrl || !serviceKey) {
+    console.error('Mangler env-var:', { supabaseUrl: !!supabaseUrl, serviceKey: !!serviceKey })
+    return res.status(500).json({ error: 'Serverkonfigurasjon mangler (SUPABASE_SERVICE_ROLE_KEY).' })
+  }
+
+  const supabase = createClient(supabaseUrl, serviceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
 
   const { error: dbError } = await supabase.from('paameldinger').insert({
     status: 'påmeldt',
@@ -136,8 +141,8 @@ export default async function handler(req, res) {
   })
 
   if (dbError) {
-    console.error('DB-feil:', dbError.message)
-    return res.status(500).json({ error: 'Kunne ikke lagre påmeldingen.' })
+    console.error('DB-feil:', dbError)
+    return res.status(500).json({ error: `DB-feil: ${dbError.message} (kode: ${dbError.code})` })
   }
 
   await resend.emails.send({
