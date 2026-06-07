@@ -47,10 +47,12 @@ export function AuthProvider({ children }) {
   }
 
   async function glemmtPassord(epost) {
-    const { error } = await supabase.auth.resetPasswordForEmail(epost, {
-      redirectTo: `${window.location.origin}/sett-passord`,
+    const res = await fetch('/api/auth/glemt-passord', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ epost }),
     })
-    if (error) throw error
+    if (!res.ok) throw new Error('Sending feilet')
   }
 
   async function settNyttPassord(passord) {
