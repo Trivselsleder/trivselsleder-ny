@@ -1,6 +1,6 @@
 # Trivselsleder – prosjektstatus
 
-Sist oppdatert: 2026-06-06
+Sist oppdatert: 2026-06-07
 
 ---
 
@@ -68,32 +68,89 @@ Sist oppdatert: 2026-06-06
 - Koblet til GitHub: `https://github.com/Trivselsleder/trivselsleder-ny`
 - Kode pushet og oppdatert
 
+### Fase 2 – Innlogging og brukersystem (2026-06-07)
+
+#### Supabase-oppsett
+- `@supabase/supabase-js` installert
+- Databaseskjema (`supabase/migrations/001_initial_schema.sql`):
+  - `profiles` – knyttet til Supabase auth.users, med roller: `superadmin`, `administrator`, `ansatt`
+  - `skoler` – med `org_nr UNIQUE` som idempotent nøkkel for fremtidig Excel/CSV-import
+  - `bruker_skole` – mange-til-mange mellom brukere og skoler med rolle per skole
+  - RLS-policyer på alle tabeller
+- Databaseskjema (`supabase/migrations/002_paameldinger.sql`):
+  - `paameldinger` – lagrer innkomne skolepåmeldinger med alle kontaktfelter og status
+  - RLS: kun superadmin har tilgang
+
+#### Autentisering
+- `src/lib/supabase.js` – Supabase-klient
+- `src/contexts/AuthContext.jsx` – React context med `loggInn`, `loggUt`, `glemmtPassord`, `settNyttPassord`, `bruker` (inkl. rolle), `session`, `laster`
+- `src/components/ProtectedRoute.jsx` – vaktkomponent med valgfri `kreverRolle`-prop
+- Eksisterende hardkodet passord i AdminBestillinger fjernet og erstattet med ekte auth
+
+#### Sider
+| Side | Rute | Status |
+|------|------|--------|
+| Innlogging | `/logg-inn` | Ferdig |
+| Sett/tilbakestill passord | `/sett-passord` | Ferdig |
+| Min side (dashbord) | `/min-side` | Ferdig |
+| Feide OIDC callback | `/auth/feide/callback` | Ferdig |
+| Påmelding nye skoler | `/paamelding` | Ferdig |
+
+#### Innloggingsmetoder
+- **E-post/passord** – Supabase Auth med sesjonshåndtering
+- **Glemt passord** – serverless funksjon (`api/auth/glemt-passord.js`) genererer Supabase recovery-lenke og sender branded e-post via Resend
+- **Feide OIDC** – knapp på innloggingssiden; `api/auth/feide/exchange.js` bytter kode mot tokens server-side (client_secret aldri i nettleserbunten), henter brukerinfo, oppretter Supabase-bruker og returnerer magic link
+- Selvregistrering er deaktivert – brukere opprettes av superadmin
+
+#### Min side (`/min-side`)
+- Viser brukerens navn og rolle etter innlogging
+- Superadmin-lenker til bestillingsadmin og kulturkort-admin
+- Fallback-henting av profil direkte fra Supabase hvis konteksten ikke er klar ennå
+- Viser tydelig advarsel hvis profilrad mangler i databasen
+
+#### Header
+- Viser brukerens navn og «Logg ut»-knapp når innlogget
+- Viser «Logg inn»-knapp for ikke-innloggede
+
+#### Påmeldingsskjema (`/paamelding`)
+- Offentlig tilgjengelig (ingen innlogging)
+- Felter: skolenavn, type, antall elever, adresse, fakturainformasjon, rektor / HTLA / TLA, merknader
+- `api/paamelding.js`: lagrer i `paameldinger`-tabellen med status `påmeldt` og sender formatert HTML-e-post til `post@trivselsleder.no` via Resend (reply-to = rektors e-post)
+
+#### E-post via Resend
+- Glemt passord: branded tilbakestillingslenke
+- Påmelding: fullstendig HTML-e-post med alle skoledata til post@trivselsleder.no
+- (Velkomst-e-post fjernet da selvregistrering ble deaktivert)
+
 ---
 
 ## Gjenstår
 
-### Hosting
-- [ ] Koble GitHub-repo til Vercel for automatisk publisering
+### Brukeradmin (Fase 2 Steg 2)
+- [ ] Superadmin kan invitere brukere via e-post (Supabase invite + Resend)
+- [ ] Superadmin kan opprette og administrere skoler
+- [ ] Administrator kan legge til ansatte på sin skole
+- [ ] Excel/CSV-import av skolelister (tabellen er klar med `org_nr` som upsert-nøkkel)
+- [ ] Velg enhet for brukere med tilgang til flere skoler
 
-### Innlogget del
-- [ ] Pålogging med Feide OIDC og/eller brukernavn/passord
-- [ ] Ressursbibliotek (leker, Move it, læringsopplegg)
-- [ ] Bestillingsskjema kun tilgjengelig for innloggede (per nå åpent)
+### Feide
+- [ ] Sett `VITE_FEIDE_CLIENT_ID`, `FEIDE_CLIENT_ID` og `FEIDE_CLIENT_SECRET` i Vercel
+- [ ] Registrer `https://trivselsleder.no/auth/feide/callback` som redirect URI hos Sikt
+
+### Supabase – gjenstående oppsett
+- [ ] Kjør `002_paameldinger.sql` i SQL Editor
+- [ ] Sett `SUPABASE_SERVICE_ROLE_KEY` i Vercel (påkrevd for glemt passord, Feide og påmelding)
+- [ ] Opprett første superadmin-bruker manuelt og INSERT i `profiles`
 
 ### Kulturkortet – videre
-- [ ] Koble admin-panelet til database (Supabase) så endringer lagres permanent
-- [ ] Priser og portosatser synkroniseres mot Supabase (i dag i localStorage)
+- [ ] Koble admin-panelet til Supabase så endringer lagres permanent
 - [ ] Bestillinger lagres i Supabase (i dag i localStorage)
-- [ ] Fylke-mapping i CSV kan justeres manuelt for eventuelle feil
-- [ ] Resend: verifiser domenet `trivselsleder.no` og legg inn `RESEND_API_KEY` i Vercel
+- [ ] Priser og portosatser synkroniseres mot Supabase
 
-### Admin-panel (generelt)
-- [ ] Fase 2: Ekte autentisering erstatter midlertidig passord på `/admin/bestillinger`
-- [ ] Tilgangskontroll på `/admin/kulturkort` (per nå åpent)
-- [ ] Administrer brukere og skoler
+### Innlogget del
+- [ ] Ressursbibliotek (leker, Move it, læringsopplegg)
 
 ### Integrasjoner
-- [ ] Supabase (database)
 - [ ] HubSpot (CRM) – koble kontaktskjema
 
 ### Annet
