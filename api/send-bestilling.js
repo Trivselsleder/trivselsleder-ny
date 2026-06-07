@@ -111,15 +111,6 @@ function kundeBekreftelse({ kontaktperson, skolenavn, antallKort, leveringsadres
     </table>
   </div>
 
-  <div style="background:#fff8f0;border:1px solid #F47920;border-radius:8px;padding:16px 20px;font-size:14px;color:#444;">
-    <strong>Hva skjer nå?</strong>
-    <ol style="margin:8px 0 0;padding-left:20px;line-height:1.8;">
-      <li>Vi kontrollerer bestillingen og sender deg en faktura</li>
-      <li>Kortene pakkes og sendes til leveringsadressen</li>
-      <li>Du mottar en e-post med sporingsinformasjon</li>
-    </ol>
-  </div>
-
   <p style="margin-top:24px;font-size:14px;color:#666;">
     Spørsmål? Ta kontakt på
     <a href="mailto:kulturkort@trivselsleder.no" style="color:#F47920;">kulturkort@trivselsleder.no</a>
