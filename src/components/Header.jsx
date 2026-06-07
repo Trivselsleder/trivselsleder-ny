@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Header() {
   const { t, i18n } = useTranslation()
+  const { session, bruker, loggUt } = useAuth()
+  const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const navLinks = [
@@ -18,6 +21,11 @@ export default function Header() {
 
   const otherLang = i18n.language === 'sv' ? 'no' : 'sv'
   const langLabel = i18n.language === 'sv' ? '🇳🇴 NO' : '🇸🇪 SV'
+
+  async function handleLoggUt() {
+    await loggUt()
+    navigate('/logg-inn')
+  }
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -46,12 +54,26 @@ export default function Header() {
             >
               {langLabel}
             </button>
-            <Link
-              to="/logg-inn"
-              className="bg-magenta text-white px-4 py-2 rounded-full font-medium hover:bg-magenta/90 transition-colors"
-            >
-              {t('nav.loggInn')}
-            </Link>
+            {session ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 font-medium">
+                  {bruker?.navn ?? session.user.email}
+                </span>
+                <button
+                  onClick={handleLoggUt}
+                  className="text-sm border border-gray-300 text-gray-600 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors"
+                >
+                  Logg ut
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/logg-inn"
+                className="bg-magenta text-white px-4 py-2 rounded-full font-medium hover:bg-magenta/90 transition-colors"
+              >
+                {t('nav.loggInn')}
+              </Link>
+            )}
           </nav>
 
           <button
@@ -92,13 +114,22 @@ export default function Header() {
           >
             {langLabel}
           </button>
-          <Link
-            to="/logg-inn"
-            className="bg-magenta text-white px-4 py-3 rounded-full font-medium text-center hover:bg-magenta/90 transition-colors"
-            onClick={() => setMenuOpen(false)}
-          >
-            {t('nav.loggInn')}
-          </Link>
+          {session ? (
+            <button
+              onClick={() => { handleLoggUt(); setMenuOpen(false) }}
+              className="text-left text-gray-600 font-medium text-lg hover:text-orange"
+            >
+              Logg ut
+            </button>
+          ) : (
+            <Link
+              to="/logg-inn"
+              className="bg-magenta text-white px-4 py-3 rounded-full font-medium text-center hover:bg-magenta/90 transition-colors"
+              onClick={() => setMenuOpen(false)}
+            >
+              {t('nav.loggInn')}
+            </Link>
+          )}
         </div>
       )}
     </header>

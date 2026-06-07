@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { hentSatser, lagreSatser, STANDARD_SATSER } from '../utils/satser'
+import { useAuth } from '../contexts/AuthContext'
 
-const PASSORD = 'trivsel2025'
 const LS_KEY = 'kulturkort_bestillinger'
 const STATUSER = ['Ny', 'Fakturert', 'Levert']
 
@@ -35,65 +36,10 @@ function lagreBestillinger(liste) {
   localStorage.setItem(LS_KEY, JSON.stringify(liste))
 }
 
-function Passordskjerm({ onInn }) {
-  const { t } = useTranslation()
-  const [input, setInput] = useState('')
-  const [feil, setFeil] = useState(false)
-
-  function handleSubmit(e) {
-    e.preventDefault()
-    if (input === PASSORD) {
-      sessionStorage.setItem('admin_bestillinger_auth', '1')
-      onInn()
-    } else {
-      setFeil(true)
-      setInput('')
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm">
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#F47920]/10 mb-3">
-            <svg className="w-7 h-7 text-[#F47920]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold text-gray-900">{t('adminBestillinger.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">Kun for Trivselsleder-ansatte</p>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('adminBestillinger.passordLabel')}
-            </label>
-            <input
-              type="password"
-              value={input}
-              onChange={e => { setInput(e.target.value); setFeil(false) }}
-              autoFocus
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
-            />
-            {feil && <p className="text-red-500 text-xs mt-1">{t('adminBestillinger.passordFeil')}</p>}
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-[#F47920] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors"
-          >
-            {t('adminBestillinger.loggInn')}
-          </button>
-        </form>
-      </div>
-    </div>
-  )
-}
-
 export default function AdminBestillinger() {
   const { t } = useTranslation()
-  const [autentisert, setAutentisert] = useState(
-    () => sessionStorage.getItem('admin_bestillinger_auth') === '1'
-  )
+  const { loggUt } = useAuth()
+  const navigate = useNavigate()
   const [bestillinger, setBestillinger] = useState(lesBestillinger)
   const [filter, setFilter] = useState('Alle')
   const [satser, setSatser] = useState(hentSatser)
@@ -118,13 +64,9 @@ export default function AdminBestillinger() {
     lagreBestillinger(oppdatert)
   }
 
-  function loggUt() {
-    sessionStorage.removeItem('admin_bestillinger_auth')
-    setAutentisert(false)
-  }
-
-  if (!autentisert) {
-    return <Passordskjerm onInn={() => setAutentisert(true)} />
+  async function handleLoggUt() {
+    await loggUt()
+    navigate('/logg-inn')
   }
 
   const filterKnapper = [
@@ -158,7 +100,7 @@ export default function AdminBestillinger() {
             </div>
           </div>
           <button
-            onClick={loggUt}
+            onClick={handleLoggUt}
             className="text-sm border border-gray-300 text-gray-600 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors"
           >
             {t('adminBestillinger.loggUt')}
