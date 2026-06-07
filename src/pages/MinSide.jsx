@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const rolleLabel = {
   superadmin: 'Superadmin (Trivselsleder AS)',
@@ -11,9 +12,29 @@ const rolleLabel = {
 export default function MinSide() {
   const { bruker, session, loggUt } = useAuth()
   const navigate = useNavigate()
+  const [lokalProfil, setLokalProfil] = useState(null)
+  const [profilFeil, setProfilFeil] = useState(null)
 
-  const navn = bruker?.navn ?? session?.user?.email ?? 'Bruker'
-  const rolle = bruker?.rolle
+  useEffect(() => {
+    if (bruker || !session) return
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('MinSide profil-feil:', error.message, error.code)
+          setProfilFeil(error.message)
+        } else {
+          setLokalProfil(data)
+        }
+      })
+  }, [bruker, session])
+
+  const profil = bruker ?? lokalProfil
+  const navn = profil?.navn ?? session?.user?.email ?? 'Bruker'
+  const rolle = profil?.rolle
 
   async function handleLoggUt() {
     await loggUt()
@@ -28,19 +49,37 @@ export default function MinSide() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Velkommen, {navn.split(' ')[0]}
+                Velkommen, {profil?.navn ? profil.navn.split(' ')[0] : navn}
               </h1>
               <p className="text-gray-500 mt-1 text-sm">
-                Du er innlogget som{' '}
-                <span className="font-medium text-[#F47920]">
-                  {rolleLabel[rolle] ?? rolle}
-                </span>
+                {rolle ? (
+                  <>
+                    Du er innlogget som{' '}
+                    <span className="font-medium text-[#F47920]">
+                      {rolleLabel[rolle] ?? rolle}
+                    </span>
+                  </>
+                ) : profilFeil ? (
+                  <span className="text-red-500">
+                    Kunne ikke hente profil: {profilFeil}
+                  </span>
+                ) : (
+                  <span className="text-amber-600">
+                    Profil ikke funnet — kjør INSERT i Supabase SQL Editor (se migrasjonsnotater).
+                  </span>
+                )}
               </p>
             </div>
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 shrink-0">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+            <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full shrink-0 ${rolle ? 'bg-green-100' : 'bg-amber-100'}`}>
+              {rolle ? (
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
             </div>
           </div>
         </div>
