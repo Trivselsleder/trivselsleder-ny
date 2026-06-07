@@ -15,6 +15,7 @@ import LoggInn from './pages/LoggInn'
 import SettPassord from './pages/SettPassord'
 import MinSide from './pages/MinSide'
 import FeideCallback from './pages/FeideCallback'
+import Registrer from './pages/Registrer'
 import './index.css'
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
               <Route path="/logg-inn" element={<LoggInn />} />
               <Route path="/sett-passord" element={<SettPassord />} />
               <Route path="/auth/feide/callback" element={<FeideCallback />} />
+              <Route path="/registrer" element={<Registrer />} />
               <Route
                 path="/min-side"
                 element={

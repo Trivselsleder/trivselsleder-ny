@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const FEIDE_AUTH_URL = 'https://auth.dataporten.no/oauth/authorization'
@@ -112,6 +112,13 @@ export default function LoggInn() {
             >
               Glemt passord?
             </button>
+
+            <p className="text-center text-sm text-gray-500">
+              Ingen konto?{' '}
+              <Link to="/registrer" className="text-[#F47920] hover:underline font-medium">
+                Opprett konto
+              </Link>
+            </p>
 
             {FEIDE_CLIENT_ID && (
               <>
