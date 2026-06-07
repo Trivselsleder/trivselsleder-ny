@@ -16,6 +16,7 @@ import SettPassord from './pages/SettPassord'
 import MinSide from './pages/MinSide'
 import FeideCallback from './pages/FeideCallback'
 import Paamelding from './pages/Paamelding'
+import AdminPaameldinger from './pages/AdminPaameldinger'
 import './index.css'
 
 export default function App() {
@@ -41,6 +42,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <MinSide />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/paameldinger"
+                element={
+                  <ProtectedRoute kreverRolle="superadmin">
+                    <AdminPaameldinger />
                   </ProtectedRoute>
                 }
               />
