@@ -241,7 +241,7 @@ function SkoleadminSeksjon({ brukerId }) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ skoleId: skoleLink.skoler.id, ...form }),
+        body: JSON.stringify({ skoleId: skoleLink.skoler.id, ...form, antall_elever: form.antall_elever !== '' ? Number(form.antall_elever) : null }),
       })
       const data = await res.json()
       if (!res.ok) { setLagreFeil(data.error || 'Noe gikk galt.'); return }
