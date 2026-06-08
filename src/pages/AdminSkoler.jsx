@@ -1,13 +1,17 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import { ALLE_FYLKER, FYLKER_KOMMUNER, ALLE_KOMMUNER } from '../data/norgeKommuner'
 
 const TYPE_LABEL = {
-  barnehage: 'Barnehage',
-  barnetrinn: 'Barnetrinn',
+  barnehage:    'Barnehage',
+  barnetrinn:   'Barnetrinn',
   ungdomstrinn: 'Ungdomstrinn',
-  kombinert: 'Kombinert',
-  SFO: 'SFO',
+  kombinert:    'Kombinertskole',
+  SFO:          'SFO',
 }
+const TYPE_VALG = ['barnehage', 'barnetrinn', 'ungdomstrinn', 'kombinert', 'SFO']
+
+const STATUS_VALG = ['Påmeldt', 'Aktiv', 'Aktiv sagt opp', 'Pause', 'Tidligere', 'Potensielle']
 
 const STATUS_STIL = {
   'Påmeldt':        'bg-yellow-100 text-yellow-700',
@@ -16,12 +20,6 @@ const STATUS_STIL = {
   'Pause':          'bg-blue-100 text-blue-700',
   'Tidligere':      'bg-gray-100 text-gray-600',
   'Potensielle':    'bg-purple-100 text-purple-700',
-}
-
-const STATUS_VALG = ['Påmeldt', 'Aktiv', 'Aktiv sagt opp', 'Pause', 'Tidligere', 'Potensielle']
-
-function unike(liste, felt) {
-  return [...new Set(liste.map(r => r[felt]).filter(Boolean))].sort()
 }
 
 function eksporterCSV(skoler) {
@@ -34,16 +32,114 @@ function eksporterCSV(skoler) {
     s.status ?? '',
     s.ansvarlig ?? '',
   ])
-  const csvInnhold = [kolonner, ...rader]
-    .map(rad => rad.map(celle => `"${String(celle).replace(/"/g, '""')}"`).join(';'))
+  const csv = [kolonner, ...rader]
+    .map(rad => rad.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';'))
     .join('\n')
-  const blob = new Blob(['﻿' + csvInnhold], { type: 'text/csv;charset=utf-8;' })
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = `skoler-${new Date().toISOString().slice(0, 10)}.csv`
   a.click()
   URL.revokeObjectURL(url)
+}
+
+// Søkbar combobox-komponent
+function Combobox({ label, value, onChange, alternativer, labelFn, disabled = false }) {
+  const [aapen, setAapen] = useState(false)
+  const [soek, setSoek] = useState('')
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function handleKlikk(e) {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setAapen(false)
+        setSoek('')
+      }
+    }
+    document.addEventListener('mousedown', handleKlikk)
+    return () => document.removeEventListener('mousedown', handleKlikk)
+  }, [])
+
+  const visNavn = value ? (labelFn ? labelFn(value) : value) : ''
+
+  const filtrerte = soek
+    ? alternativer.filter(a =>
+        (labelFn ? labelFn(a) : a).toLowerCase().includes(soek.toLowerCase())
+      )
+    : alternativer
+
+  function velg(v) {
+    onChange(v)
+    setAapen(false)
+    setSoek('')
+  }
+
+  function nullstill(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    onChange('')
+    setAapen(false)
+    setSoek('')
+  }
+
+  return (
+    <div className={`flex flex-col gap-1 min-w-44 ${disabled ? 'opacity-40 pointer-events-none' : ''}`} ref={ref}>
+      <label className="text-xs font-medium text-gray-500">{label}</label>
+      <div className="relative">
+        <input
+          type="text"
+          value={aapen ? soek : visNavn}
+          placeholder="Alle"
+          onFocus={() => { setAapen(true); setSoek('') }}
+          onChange={e => { setSoek(e.target.value); setAapen(true) }}
+          className="w-full border border-gray-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920] cursor-pointer"
+        />
+        {value && !aapen ? (
+          <button
+            onMouseDown={nullstill}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            tabIndex={-1}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        ) : (
+          <svg
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d={aapen ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'} />
+          </svg>
+        )}
+
+        {aapen && (
+          <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+            {filtrerte.length === 0 ? (
+              <li className="px-3 py-2 text-sm text-gray-400">Ingen treff</li>
+            ) : (
+              filtrerte.map(a => (
+                <li key={a}>
+                  <button
+                    onMouseDown={() => velg(a)}
+                    className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                      value === a
+                        ? 'bg-[#F47920]/10 text-[#F47920] font-medium'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {labelFn ? labelFn(a) : a}
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function AdminSkoler() {
@@ -69,22 +165,36 @@ export default function AdminSkoler() {
       })
   }, [])
 
+  // Kommuneliste: alle kommuner i valgt fylke, eller alle norske kommuner
+  const kommuneAlternativer = useMemo(() =>
+    filterFylke ? (FYLKER_KOMMUNER[filterFylke] ?? []) : ALLE_KOMMUNER,
+    [filterFylke]
+  )
+
+  // Ansvarlig-alternativer fra databasedata
+  const ansvarligAlternativer = useMemo(() =>
+    [...new Set(skoler.map(s => s.ansvarlig).filter(Boolean))].sort(),
+    [skoler]
+  )
+
+  function settFylke(v) {
+    setFilterFylke(v)
+    // Tilbakestill kommune hvis den ikke finnes i nytt fylke
+    if (v && filterKommune && !(FYLKER_KOMMUNER[v] ?? []).includes(filterKommune)) {
+      setFilterKommune('')
+    }
+  }
+
   const filtrerte = useMemo(() => skoler.filter(s => {
-    if (filterStatus && s.status !== filterStatus) return false
-    if (filterFylke && s.fylke !== filterFylke) return false
-    if (filterKommune && s.kommunenavn !== filterKommune) return false
-    if (filterType && s.type !== filterType) return false
-    if (filterAnsvarlig && s.ansvarlig !== filterAnsvarlig) return false
+    if (filterStatus    && s.status     !== filterStatus)    return false
+    if (filterFylke     && s.fylke      !== filterFylke)     return false
+    if (filterKommune   && s.kommunenavn !== filterKommune)  return false
+    if (filterType      && s.type       !== filterType)      return false
+    if (filterAnsvarlig && s.ansvarlig  !== filterAnsvarlig) return false
     return true
   }), [skoler, filterStatus, filterFylke, filterKommune, filterType, filterAnsvarlig])
 
-  const fylker = useMemo(() => unike(skoler, 'fylke'), [skoler])
-  const kommuner = useMemo(() => {
-    const base = filterFylke ? skoler.filter(s => s.fylke === filterFylke) : skoler
-    return unike(base, 'kommunenavn')
-  }, [skoler, filterFylke])
-  const typer = useMemo(() => unike(skoler, 'type'), [skoler])
-  const ansvarlige = useMemo(() => unike(skoler, 'ansvarlig'), [skoler])
+  const harFilter = filterStatus || filterFylke || filterKommune || filterType || filterAnsvarlig
 
   function nullstillFiltre() {
     setFilterStatus('')
@@ -94,12 +204,11 @@ export default function AdminSkoler() {
     setFilterAnsvarlig('')
   }
 
-  const harFilter = filterStatus || filterFylke || filterKommune || filterType || filterAnsvarlig
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
 
+        {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Skoleregister</h1>
@@ -123,41 +232,42 @@ export default function AdminSkoler() {
         {/* Filtre */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5">
           <div className="flex flex-wrap gap-3 items-end">
-            <FilterSelect
+            <Combobox
               label="Status"
               value={filterStatus}
-              onChange={v => setFilterStatus(v)}
+              onChange={setFilterStatus}
               alternativer={STATUS_VALG}
             />
-            <FilterSelect
+            <Combobox
               label="Fylke"
               value={filterFylke}
-              onChange={v => { setFilterFylke(v); setFilterKommune('') }}
-              alternativer={fylker}
+              onChange={settFylke}
+              alternativer={ALLE_FYLKER}
             />
-            <FilterSelect
+            <Combobox
               label="Kommune"
               value={filterKommune}
-              onChange={v => setFilterKommune(v)}
-              alternativer={kommuner}
+              onChange={setFilterKommune}
+              alternativer={kommuneAlternativer}
+              disabled={false}
             />
-            <FilterSelect
+            <Combobox
               label="Type"
               value={filterType}
-              onChange={v => setFilterType(v)}
-              alternativer={typer}
+              onChange={setFilterType}
+              alternativer={TYPE_VALG}
               labelFn={t => TYPE_LABEL[t] ?? t}
             />
-            <FilterSelect
+            <Combobox
               label="Ansvarlig"
               value={filterAnsvarlig}
-              onChange={v => setFilterAnsvarlig(v)}
-              alternativer={ansvarlige}
+              onChange={setFilterAnsvarlig}
+              alternativer={ansvarligAlternativer}
             />
             {harFilter && (
               <button
                 onClick={nullstillFiltre}
-                className="text-sm text-gray-400 hover:text-gray-700 underline pb-0.5"
+                className="self-end pb-2 text-sm text-gray-400 hover:text-gray-700 underline"
               >
                 Nullstill
               </button>
@@ -215,30 +325,12 @@ export default function AdminSkoler() {
           </div>
         )}
 
-        {!laster && filtrerte.length > 0 && (
+        {!laster && !feil && filtrerte.length > 0 && (
           <p className="text-xs text-gray-400 text-center mt-4">
             Viser {filtrerte.length} av {skoler.length} skoler
           </p>
         )}
       </div>
-    </div>
-  )
-}
-
-function FilterSelect({ label, value, onChange, alternativer, labelFn }) {
-  return (
-    <div className="flex flex-col gap-1 min-w-36">
-      <label className="text-xs font-medium text-gray-500">{label}</label>
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
-      >
-        <option value="">Alle</option>
-        {alternativer.map(a => (
-          <option key={a} value={a}>{labelFn ? labelFn(a) : a}</option>
-        ))}
-      </select>
     </div>
   )
 }
