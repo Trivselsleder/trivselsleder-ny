@@ -56,10 +56,10 @@ export default async function handler(req, res) {
     if (!tilgang) return res.status(403).json({ error: 'Du har ikke tilgang til denne skolen.' })
   }
 
-  // Hent nåværende navn (trengs for HubSpot-søk hvis navn endres)
+  // Hent nåværende navn og hubspot_company_id
   const { data: gammel } = await supabase
     .from('skoler')
-    .select('navn')
+    .select('navn, hubspot_company_id')
     .eq('id', skoleId)
     .single()
 
@@ -98,13 +98,33 @@ export default async function handler(req, res) {
     try {
       console.log('[HubSpot] HUBSPOT_API_KEY er satt ✓')
       console.log('[HubSpot] gammel:', JSON.stringify(gammel))
-      console.log('[HubSpot] Søker etter selskap med navn:', gammel?.navn)
-      if (!gammel?.navn) {
-        console.error('[HubSpot] AVBRYTER: gammel.navn er tom/null — kan ikke søke i HubSpot')
-        return res.status(200).json({ ok: true })
+
+      let selskapId = gammel?.hubspot_company_id ?? null
+
+      if (selskapId) {
+        console.log('[HubSpot] Bruker lagret hubspot_company_id:', selskapId)
+      } else {
+        if (!gammel?.navn) {
+          console.error('[HubSpot] AVBRYTER: gammel.navn er tom/null — kan ikke søke i HubSpot')
+          return res.status(200).json({ ok: true })
+        }
+        console.log('[HubSpot] Ingen lagret ID — søker på navn:', gammel.navn)
+        selskapId = await finnSelskapIdPaaNavn(gammel.navn)
+        console.log('[HubSpot] selskapId fra navnesøk:', selskapId ?? 'IKKE FUNNET — hopper over')
+
+        if (selskapId) {
+          // Lagre ID for fremtidige kall
+          const { error: idFeil } = await supabase
+            .from('skoler')
+            .update({ hubspot_company_id: selskapId })
+            .eq('id', skoleId)
+          if (idFeil) {
+            console.error('[HubSpot] Klarte ikke lagre hubspot_company_id:', idFeil.message)
+          } else {
+            console.log('[HubSpot] hubspot_company_id lagret i Supabase:', selskapId)
+          }
+        }
       }
-      const selskapId = await finnSelskapIdPaaNavn(gammel.navn)
-      console.log('[HubSpot] selskapId:', selskapId ?? 'IKKE FUNNET — hopper over')
 
       if (selskapId) {
         // Oppdater Company-felter med riktige interne HubSpot-navn

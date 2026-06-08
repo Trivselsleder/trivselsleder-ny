@@ -82,23 +82,25 @@ export async function oppdaterStatus(hubspotId, status) {
 // Søker etter Company på navn, returnerer HubSpot-ID eller null
 export async function finnSelskapIdPaaNavn(navn) {
   console.log('[HubSpot] finnSelskapIdPaaNavn: søker på navn:', JSON.stringify(navn))
+  const payload = {
+    filterGroups: [{ filters: [{ propertyName: 'name', operator: 'EQ', value: navn }] }],
+    properties: ['name'],
+    limit: 1,
+  }
+  console.log('[HubSpot] finnSelskapIdPaaNavn: payload:', JSON.stringify(payload))
   const res = await fetch(`${BASE_URL}/crm/v3/objects/companies/search`, {
     method: 'POST',
     headers: headers(),
-    body: JSON.stringify({
-      filterGroups: [{ filters: [{ propertyName: 'name', operator: 'EQ', value: navn }] }],
-      properties: ['name'],
-      limit: 1,
-    }),
+    body: JSON.stringify(payload),
   })
-  console.log('[HubSpot] finnSelskapIdPaaNavn: HTTP-status:', res.status)
+  const rawBody = await res.text()
+  console.log('[HubSpot] finnSelskapIdPaaNavn: HTTP-status:', res.status, '| rårespons:', rawBody)
   if (!res.ok) {
-    const feilBody = await res.text()
-    console.error('[HubSpot] finnSelskapIdPaaNavn: søk feilet:', res.status, feilBody)
+    console.error('[HubSpot] finnSelskapIdPaaNavn: søk feilet')
     return null
   }
-  const data = await res.json()
-  console.log('[HubSpot] finnSelskapIdPaaNavn: antall treff:', data.total ?? data.results?.length ?? 0, '| første ID:', data.results?.[0]?.id ?? 'ingen')
+  const data = JSON.parse(rawBody)
+  console.log('[HubSpot] finnSelskapIdPaaNavn: total:', data.total, '| treff:', data.results?.map(r => `${r.id} (${r.properties?.name})`).join(', ') || 'ingen')
   return data.results?.[0]?.id ?? null
 }
 
