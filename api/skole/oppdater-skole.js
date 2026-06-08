@@ -43,6 +43,7 @@ export default async function handler(req, res) {
   } = req.body
 
   if (!skoleId) return res.status(400).json({ error: 'Mangler skoleId.' })
+  console.log('[oppdater-skole] Request body:', JSON.stringify(req.body))
 
   // Skoleadmin kan kun redigere sin egen skole
   if (profil.rolle === 'skoleadmin') {
@@ -95,7 +96,13 @@ export default async function handler(req, res) {
   // HubSpot (ikke-kritisk)
   if (process.env.HUBSPOT_API_KEY) {
     try {
-      console.log('[HubSpot] Søker etter selskap med navn:', gammel.navn)
+      console.log('[HubSpot] HUBSPOT_API_KEY er satt ✓')
+      console.log('[HubSpot] gammel:', JSON.stringify(gammel))
+      console.log('[HubSpot] Søker etter selskap med navn:', gammel?.navn)
+      if (!gammel?.navn) {
+        console.error('[HubSpot] AVBRYTER: gammel.navn er tom/null — kan ikke søke i HubSpot')
+        return res.status(200).json({ ok: true })
+      }
       const selskapId = await finnSelskapIdPaaNavn(gammel.navn)
       console.log('[HubSpot] selskapId:', selskapId ?? 'IKKE FUNNET — hopper over')
 

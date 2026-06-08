@@ -81,6 +81,7 @@ export async function oppdaterStatus(hubspotId, status) {
 
 // Søker etter Company på navn, returnerer HubSpot-ID eller null
 export async function finnSelskapIdPaaNavn(navn) {
+  console.log('[HubSpot] finnSelskapIdPaaNavn: søker på navn:', JSON.stringify(navn))
   const res = await fetch(`${BASE_URL}/crm/v3/objects/companies/search`, {
     method: 'POST',
     headers: headers(),
@@ -90,22 +91,32 @@ export async function finnSelskapIdPaaNavn(navn) {
       limit: 1,
     }),
   })
-  if (!res.ok) return null
+  console.log('[HubSpot] finnSelskapIdPaaNavn: HTTP-status:', res.status)
+  if (!res.ok) {
+    const feilBody = await res.text()
+    console.error('[HubSpot] finnSelskapIdPaaNavn: søk feilet:', res.status, feilBody)
+    return null
+  }
   const data = await res.json()
+  console.log('[HubSpot] finnSelskapIdPaaNavn: antall treff:', data.total ?? data.results?.length ?? 0, '| første ID:', data.results?.[0]?.id ?? 'ingen')
   return data.results?.[0]?.id ?? null
 }
 
 // Oppdaterer vilkårlige felter på et Company
 export async function oppdaterSelskapFelter(hubspotId, felter) {
+  console.log('[HubSpot] oppdaterSelskapFelter: PATCH company', hubspotId, JSON.stringify(felter))
   const res = await fetch(`${BASE_URL}/crm/v3/objects/companies/${hubspotId}`, {
     method: 'PATCH',
     headers: headers(),
     body: JSON.stringify({ properties: felter }),
   })
+  console.log('[HubSpot] oppdaterSelskapFelter: HTTP-status:', res.status)
   if (!res.ok) {
     const feil = await res.json()
+    console.error('[HubSpot] oppdaterSelskapFelter: feil:', JSON.stringify(feil))
     throw new Error(feil.message ?? 'HubSpot PATCH-feil')
   }
+  console.log('[HubSpot] oppdaterSelskapFelter: OK')
 }
 
 function splitNavn(navn) {
@@ -117,6 +128,7 @@ function splitNavn(navn) {
 // Oppretter eller oppdaterer en Contact basert på e-post, returnerer kontakt-ID
 export async function oppdaterEllerOpprettKontakt({ navn, epost, tittel, telefon }) {
   const { firstname, lastname } = splitNavn(navn)
+  console.log('[HubSpot] oppdaterEllerOpprettKontakt: søker kontakt epost:', epost, '| tittel:', tittel)
 
   const soekRes = await fetch(`${BASE_URL}/crm/v3/objects/contacts/search`, {
     method: 'POST',
@@ -127,8 +139,10 @@ export async function oppdaterEllerOpprettKontakt({ navn, epost, tittel, telefon
       limit: 1,
     }),
   })
+  console.log('[HubSpot] oppdaterEllerOpprettKontakt: søk HTTP-status:', soekRes.status)
   const soekData = await soekRes.json()
   const eksisterende = soekData.results?.[0]
+  console.log('[HubSpot] oppdaterEllerOpprettKontakt: eksisterende kontakt-ID:', eksisterende?.id ?? 'ingen — oppretter ny')
 
   const kontaktData = {
     firstname,
