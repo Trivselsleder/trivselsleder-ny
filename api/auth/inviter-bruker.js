@@ -4,10 +4,10 @@ import { createClient } from '@supabase/supabase-js'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const ROLLE_LABEL = {
-  superadmin:    'Superadmin (Trivselsleder AS)',
-  administrator: 'Administrator',
-  HTLA:          'Hoved-TL-ansvarlig (HTLA)',
-  ansatt:        'Ansatt',
+  superadmin:  'Superadmin (Trivselsleder AS)',
+  ansatt:      'Ansatt (Trivselsleder AS)',
+  skoleadmin:  'Skoleadmin',
+  skoleansatt: 'Skoleansatt',
 }
 
 function epostHtml(navn, rolle, skolenavn, inviteLenke) {
@@ -81,7 +81,7 @@ export default async function handler(req, res) {
   // Knytt til skole hvis oppgitt
   let skolenavn = null
   if (skoleId) {
-    const skoleRolle = ['administrator', 'HTLA', 'ansatt'].includes(rolle) ? rolle : 'ansatt'
+    const skoleRolle = ['skoleadmin', 'skoleansatt'].includes(rolle) ? rolle : 'skoleansatt'
     await supabase
       .from('bruker_skole')
       .upsert({ bruker_id: userId, skole_id: skoleId, rolle: skoleRolle }, { onConflict: 'bruker_id,skole_id' })

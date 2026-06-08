@@ -91,5 +91,13 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Kunne ikke opprette innloggingslenke' })
   }
 
+  // Opprett profil for nye Feide-brukere — ignorerer hvis profilen allerede finnes
+  await supabase
+    .from('profiles')
+    .upsert(
+      { id: linkData.user.id, navn: userinfo.name ?? '', epost: email, rolle: 'feide', aktiv: true },
+      { onConflict: 'id', ignoreDuplicates: true }
+    )
+
   return res.status(200).json({ actionLink: linkData.properties.action_link })
 }

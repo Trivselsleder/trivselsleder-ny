@@ -1,20 +1,22 @@
 import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
 
-const ROLLE_VALG = ['superadmin', 'administrator', 'HTLA', 'ansatt']
+const ROLLE_VALG = ['superadmin', 'ansatt', 'skoleadmin', 'skoleansatt', 'feide']
 
 const ROLLE_LABEL = {
-  superadmin:    'Superadmin',
-  administrator: 'Administrator',
-  HTLA:          'HTLA',
-  ansatt:        'Ansatt',
+  superadmin:  'Superadmin',
+  ansatt:      'Ansatt (TL AS)',
+  skoleadmin:  'Skoleadmin',
+  skoleansatt: 'Skoleansatt',
+  feide:       'Feide',
 }
 
 const ROLLE_STIL = {
-  superadmin:    'bg-red-100 text-red-700',
-  administrator: 'bg-blue-100 text-blue-700',
-  HTLA:          'bg-purple-100 text-purple-700',
-  ansatt:        'bg-gray-100 text-gray-600',
+  superadmin:  'bg-red-100 text-red-700',
+  ansatt:      'bg-orange-100 text-orange-700',
+  skoleadmin:  'bg-blue-100 text-blue-700',
+  skoleansatt: 'bg-gray-100 text-gray-600',
+  feide:       'bg-teal-100 text-teal-700',
 }
 
 function formaterDato(iso) {
@@ -24,7 +26,7 @@ function formaterDato(iso) {
 }
 
 function InviterModal({ skoler, onLukk, onInvitert }) {
-  const [form, setForm] = useState({ epost: '', navn: '', rolle: 'ansatt', skoleId: '' })
+  const [form, setForm] = useState({ epost: '', navn: '', rolle: 'skoleansatt', skoleId: '' })
   const [laster, setLaster] = useState(false)
   const [feil, setFeil] = useState('')
 
@@ -33,7 +35,7 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
   async function send(e) {
     e.preventDefault()
     setFeil('')
-    if (form.rolle !== 'superadmin' && !form.skoleId) {
+    if (['skoleadmin', 'skoleansatt'].includes(form.rolle) && !form.skoleId) {
       return setFeil('Velg en skole for denne rollen.')
     }
     setLaster(true)
@@ -108,7 +110,7 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
             </select>
           </div>
 
-          {form.rolle !== 'superadmin' && (
+          {['skoleadmin', 'skoleansatt'].includes(form.rolle) && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Skole *</label>
               <select

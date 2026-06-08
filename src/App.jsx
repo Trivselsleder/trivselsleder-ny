@@ -50,7 +50,7 @@ export default function App() {
               <Route
                 path="/admin/paameldinger"
                 element={
-                  <ProtectedRoute kreverRolle="superadmin">
+                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
                     <AdminPaameldinger />
                   </ProtectedRoute>
                 }
@@ -58,7 +58,7 @@ export default function App() {
               <Route
                 path="/admin/skoler"
                 element={
-                  <ProtectedRoute kreverRolle="superadmin">
+                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
                     <AdminSkoler />
                   </ProtectedRoute>
                 }
@@ -74,7 +74,7 @@ export default function App() {
               <Route
                 path="/admin/kulturkort"
                 element={
-                  <ProtectedRoute kreverRolle="superadmin">
+                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
                     <AdminKulturkort />
                   </ProtectedRoute>
                 }
@@ -82,7 +82,7 @@ export default function App() {
               <Route
                 path="/admin/bestillinger"
                 element={
-                  <ProtectedRoute kreverRolle="superadmin">
+                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
                     <AdminBestillinger />
                   </ProtectedRoute>
                 }

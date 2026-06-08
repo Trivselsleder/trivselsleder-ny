@@ -4,9 +4,11 @@ import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 
 const rolleLabel = {
-  superadmin: 'Superadmin (Trivselsleder AS)',
-  administrator: 'Administrator',
-  ansatt: 'Ansatt',
+  superadmin:  'Superadmin (Trivselsleder AS)',
+  ansatt:      'Ansatt (Trivselsleder AS)',
+  skoleadmin:  'Skoleadmin',
+  skoleansatt: 'Skoleansatt',
+  feide:       'Feide-bruker',
 }
 
 export default function MinSide() {
@@ -84,7 +86,7 @@ export default function MinSide() {
           </div>
         </div>
 
-        {rolle === 'superadmin' && (
+        {['superadmin', 'ansatt'].includes(rolle) && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="font-semibold text-gray-800 mb-4">Admin</h2>
             <div className="flex flex-col gap-3">
