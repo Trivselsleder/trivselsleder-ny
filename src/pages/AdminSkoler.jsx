@@ -44,6 +44,86 @@ function eksporterCSV(skoler) {
   URL.revokeObjectURL(url)
 }
 
+// Multiselect for Type med chips
+function TypeMultiselect({ value, onChange }) {
+  const [aapen, setAapen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function handleKlikk(e) {
+      if (ref.current && !ref.current.contains(e.target)) setAapen(false)
+    }
+    document.addEventListener('mousedown', handleKlikk)
+    return () => document.removeEventListener('mousedown', handleKlikk)
+  }, [])
+
+  function toggle(type) {
+    onChange(value.includes(type) ? value.filter(t => t !== type) : [...value, type])
+  }
+
+  const triggerLabel =
+    value.length === 0 ? 'Alle'
+    : value.length === TYPE_VALG.length ? 'Alle valgt'
+    : `${value.length} valgt`
+
+  return (
+    <div className="flex flex-col gap-1" ref={ref}>
+      <label className="text-xs font-medium text-gray-500">Type</label>
+      <div className="flex flex-wrap gap-1.5 items-center">
+        <div className="relative">
+          <button
+            onMouseDown={() => setAapen(v => !v)}
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 bg-white hover:border-[#F47920] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#F47920]/30"
+          >
+            {triggerLabel}
+            <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d={aapen ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'} />
+            </svg>
+          </button>
+          {aapen && (
+            <ul className="absolute z-50 top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg min-w-44">
+              {TYPE_VALG.map(t => (
+                <li key={t}>
+                  <button
+                    onMouseDown={() => toggle(t)}
+                    className="w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                  >
+                    <span className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                      value.includes(t) ? 'bg-[#F47920] border-[#F47920]' : 'border-gray-300'
+                    }`}>
+                      {value.includes(t) && (
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </span>
+                    {TYPE_LABEL[t]}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {value.map(t => (
+          <span key={t} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F47920]/10 text-[#F47920] border border-[#F47920]/20">
+            {TYPE_LABEL[t]}
+            <button
+              onClick={() => onChange(value.filter(v => v !== t))}
+              className="text-[#F47920]/60 hover:text-[#F47920] ml-0.5"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // Søkbar combobox-komponent
 function Combobox({ label, value, onChange, alternativer, labelFn, disabled = false }) {
   const [aapen, setAapen] = useState(false)
@@ -150,7 +230,7 @@ export default function AdminSkoler() {
   const [filterStatus, setFilterStatus] = useState('')
   const [filterFylke, setFilterFylke] = useState('')
   const [filterKommune, setFilterKommune] = useState('')
-  const [filterType, setFilterType] = useState('')
+  const [filterType, setFilterType] = useState([])
   const [filterAnsvarlig, setFilterAnsvarlig] = useState('')
 
   useEffect(() => {
@@ -189,18 +269,18 @@ export default function AdminSkoler() {
     if (filterStatus    && s.status     !== filterStatus)    return false
     if (filterFylke     && s.fylke      !== filterFylke)     return false
     if (filterKommune   && s.kommunenavn !== filterKommune)  return false
-    if (filterType      && s.type       !== filterType)      return false
+    if (filterType.length > 0 && !filterType.includes(s.type)) return false
     if (filterAnsvarlig && s.ansvarlig  !== filterAnsvarlig) return false
     return true
   }), [skoler, filterStatus, filterFylke, filterKommune, filterType, filterAnsvarlig])
 
-  const harFilter = filterStatus || filterFylke || filterKommune || filterType || filterAnsvarlig
+  const harFilter = filterStatus || filterFylke || filterKommune || filterType.length > 0 || filterAnsvarlig
 
   function nullstillFiltre() {
     setFilterStatus('')
     setFilterFylke('')
     setFilterKommune('')
-    setFilterType('')
+    setFilterType([])
     setFilterAnsvarlig('')
   }
 
@@ -251,12 +331,9 @@ export default function AdminSkoler() {
               alternativer={kommuneAlternativer}
               disabled={false}
             />
-            <Combobox
-              label="Type"
+            <TypeMultiselect
               value={filterType}
               onChange={setFilterType}
-              alternativer={TYPE_VALG}
-              labelFn={t => TYPE_LABEL[t] ?? t}
             />
             <Combobox
               label="Ansvarlig"
