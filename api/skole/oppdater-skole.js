@@ -80,7 +80,10 @@ export default async function handler(req, res) {
   // HubSpot (ikke-kritisk)
   if (process.env.HUBSPOT_API_KEY) {
     try {
+      console.log('[HubSpot] Søker etter selskap med navn:', gammel.navn)
       const selskapId = await finnSelskapIdPaaNavn(gammel.navn)
+      console.log('[HubSpot] selskapId:', selskapId ?? 'IKKE FUNNET — hopper over')
+
       if (selskapId) {
         // Oppdater Company-felter
         const selskapFelter = {
@@ -93,31 +96,42 @@ export default async function handler(req, res) {
           ...(htla_navn   ? { htla_navn }            : {}),
           ...(htla_epost  ? { htla_epost }           : {}),
         }
+        console.log('[HubSpot] Oppdaterer selskap med felter:', JSON.stringify(selskapFelter))
         await oppdaterSelskapFelter(selskapId, selskapFelter)
 
         // Rektor som tilknyttet Contact
+        console.log('[HubSpot] rektor_navn:', rektor_navn, '| rektor_epost:', rektor_epost)
         if (rektor_epost && rektor_navn) {
           const kontaktId = await oppdaterEllerOpprettKontakt({
             navn:   rektor_navn,
             epost:  rektor_epost,
             tittel: 'Rektor',
           })
+          console.log('[HubSpot] Rektor kontakt-ID:', kontaktId)
           await knyttKontaktTilSelskap(selskapId, kontaktId)
+        } else {
+          console.log('[HubSpot] Rektor-kontakt hoppes over (mangler navn eller e-post)')
         }
 
         // HTLA som tilknyttet Contact
+        console.log('[HubSpot] htla_navn:', htla_navn, '| htla_epost:', htla_epost)
         if (htla_epost && htla_navn) {
           const kontaktId = await oppdaterEllerOpprettKontakt({
             navn:   htla_navn,
             epost:  htla_epost,
             tittel: 'Hoved-TL-ansvarlig (HTLA)',
           })
+          console.log('[HubSpot] HTLA kontakt-ID:', kontaktId)
           await knyttKontaktTilSelskap(selskapId, kontaktId)
+        } else {
+          console.log('[HubSpot] HTLA-kontakt hoppes over (mangler navn eller e-post)')
         }
       }
     } catch (e) {
-      console.error('HubSpot-feil ved skole-oppdatering:', e.message)
+      console.error('[HubSpot] Feil ved skole-oppdatering:', e.message, e.stack)
     }
+  } else {
+    console.log('[HubSpot] HUBSPOT_API_KEY ikke satt — synk deaktivert')
   }
 
   return res.status(200).json({ ok: true })
