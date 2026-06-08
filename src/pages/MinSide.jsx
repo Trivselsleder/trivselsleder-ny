@@ -32,7 +32,6 @@ function AdminLenke({ to, label }) {
 }
 
 function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
-  const { session } = useAuth()
   const [form, setForm] = useState({ epost: '', navn: '', rolle: 'skoleansatt' })
   const [laster, setLaster] = useState(false)
   const [feil, setFeil] = useState('')
@@ -44,11 +43,14 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
     setFeil('')
     setLaster(true)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (!token) { setFeil('Sesjonen er utløpt — last inn siden på nytt.'); setLaster(false); return }
       const res = await fetch('/api/auth/inviter-bruker', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ epost: form.epost, navn: form.navn, rolle: form.rolle, skoleId }),
       })
@@ -168,7 +170,6 @@ function RedigerInput({ label, type = 'text', value, onChange, placeholder = '' 
 }
 
 function SkoleadminSeksjon({ brukerId }) {
-  const { session } = useAuth()
   const [skoleLink, setSkoleLink] = useState(null)
   const [ansatte, setAnsatte] = useState([])
   const [laster, setLaster] = useState(true)
@@ -227,11 +228,18 @@ function SkoleadminSeksjon({ brukerId }) {
     setLagreFeil('')
     setLagrer(true)
     try {
+      const { data: { session: freshSession } } = await supabase.auth.getSession()
+      const token = freshSession?.access_token
+      if (!token) {
+        setLagreFeil('Sesjonen er utløpt — last inn siden på nytt.')
+        setLagrer(false)
+        return
+      }
       const res = await fetch('/api/skole/oppdater-skole', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ skoleId: skoleLink.skoler.id, ...form }),
       })
