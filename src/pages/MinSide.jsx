@@ -125,7 +125,7 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
   )
 }
 
-const SKOLE_FELT = 'id, navn, kommunenavn, fylke, gateadresse, postnummer, poststed, antall_elever, rektor_navn, rektor_epost, htla_navn, htla_epost'
+const SKOLE_FELT = 'id, navn, kommunenavn, fylke, gateadresse, postnummer, poststed, telefon, antall_elever, type, nettverk, rektor_navn, rektor_epost, rektor_telefon, hktl_navn, hktl_epost, hktl_telefon, tla_navn, tla_epost, tla_telefon'
 
 function InfoRad({ label, verdi }) {
   if (!verdi) return null
@@ -140,15 +140,21 @@ function InfoRad({ label, verdi }) {
 function SkoleInfoVisning({ skole }) {
   return (
     <div className="space-y-0 text-sm">
-      <InfoRad label="Skolenavn"    verdi={skole.navn} />
-      <InfoRad label="Adresse"      verdi={[skole.gateadresse, skole.postnummer && skole.poststed ? `${skole.postnummer} ${skole.poststed}` : null].filter(Boolean).join(', ')} />
-      <InfoRad label="Kommune"      verdi={[skole.kommunenavn, skole.fylke].filter(Boolean).join(' · ')} />
+      <InfoRad label="Skolenavn"     verdi={skole.navn} />
+      <InfoRad label="Adresse"       verdi={[skole.gateadresse, skole.postnummer && skole.poststed ? `${skole.postnummer} ${skole.poststed}` : null].filter(Boolean).join(', ')} />
+      <InfoRad label="Telefon"       verdi={skole.telefon} />
+      <InfoRad label="Kommune"       verdi={[skole.kommunenavn, skole.fylke].filter(Boolean).join(' · ')} />
       <InfoRad label="Antall elever" verdi={skole.antall_elever} />
+      <InfoRad label="Type skole"    verdi={skole.type} />
+      <InfoRad label="Nettverk"      verdi={skole.nettverk} />
       {(skole.rektor_navn || skole.rektor_epost) && (
-        <InfoRad label="Rektor"     verdi={[skole.rektor_navn, skole.rektor_epost].filter(Boolean).join(' · ')} />
+        <InfoRad label="Rektor" verdi={[skole.rektor_navn, skole.rektor_epost, skole.rektor_telefon].filter(Boolean).join(' · ')} />
       )}
-      {(skole.htla_navn || skole.htla_epost) && (
-        <InfoRad label="HTLA"       verdi={[skole.htla_navn, skole.htla_epost].filter(Boolean).join(' · ')} />
+      {(skole.hktl_navn || skole.hktl_epost) && (
+        <InfoRad label="Hovedkontakt TL" verdi={[skole.hktl_navn, skole.hktl_epost, skole.hktl_telefon].filter(Boolean).join(' · ')} />
+      )}
+      {(skole.tla_navn || skole.tla_epost) && (
+        <InfoRad label="TL-ansvarlig" verdi={[skole.tla_navn, skole.tla_epost, skole.tla_telefon].filter(Boolean).join(' · ')} />
       )}
     </div>
   )
@@ -206,15 +212,23 @@ function SkoleadminSeksjon({ brukerId }) {
   function startRedigering() {
     const s = skoleLink?.skoler
     setForm({
-      navn:          s?.navn ?? '',
-      gateadresse:   s?.gateadresse ?? '',
-      postnummer:    s?.postnummer ?? '',
-      poststed:      s?.poststed ?? '',
-      antall_elever: s?.antall_elever ?? '',
-      rektor_navn:   s?.rektor_navn ?? '',
-      rektor_epost:  s?.rektor_epost ?? '',
-      htla_navn:     s?.htla_navn ?? '',
-      htla_epost:    s?.htla_epost ?? '',
+      navn:           s?.navn ?? '',
+      gateadresse:    s?.gateadresse ?? '',
+      postnummer:     s?.postnummer ?? '',
+      poststed:       s?.poststed ?? '',
+      telefon:        s?.telefon ?? '',
+      antall_elever:  s?.antall_elever ?? '',
+      type:           s?.type ?? '',
+      nettverk:       s?.nettverk ?? '',
+      rektor_navn:    s?.rektor_navn ?? '',
+      rektor_epost:   s?.rektor_epost ?? '',
+      rektor_telefon: s?.rektor_telefon ?? '',
+      hktl_navn:      s?.hktl_navn ?? '',
+      hktl_epost:     s?.hktl_epost ?? '',
+      hktl_telefon:   s?.hktl_telefon ?? '',
+      tla_navn:       s?.tla_navn ?? '',
+      tla_epost:      s?.tla_epost ?? '',
+      tla_telefon:    s?.tla_telefon ?? '',
     })
     setLagreFeil('')
     setLagreOk(false)
@@ -241,14 +255,18 @@ function SkoleadminSeksjon({ brukerId }) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ skoleId: skoleLink.skoler.id, ...form, antall_elever: form.antall_elever !== '' ? Number(form.antall_elever) : null }),
+        body: JSON.stringify({
+          skoleId: skoleLink.skoler.id,
+          ...form,
+          antall_elever: form.antall_elever !== '' ? Number(form.antall_elever) : null,
+        }),
       })
       const data = await res.json()
       if (!res.ok) { setLagreFeil(data.error || 'Noe gikk galt.'); return }
       // Oppdater lokal state
       setSkoleLink(prev => ({
         ...prev,
-        skoler: { ...prev.skoler, ...form, antall_elever: form.antall_elever ? Number(form.antall_elever) : null },
+        skoler: { ...prev.skoler, ...form, antall_elever: form.antall_elever !== '' ? Number(form.antall_elever) : null },
       }))
       setLagreOk(true)
       setRedigerer(false)
@@ -292,23 +310,37 @@ function SkoleadminSeksjon({ brukerId }) {
             <RedigerInput label="Skolenavn" value={form.navn} onChange={v => felt('navn', v)} />
             <div className="grid grid-cols-2 gap-3">
               <RedigerInput label="Gateadresse" value={form.gateadresse} onChange={v => felt('gateadresse', v)} />
-              <RedigerInput label="Antall elever" type="number" value={form.antall_elever} onChange={v => felt('antall_elever', v)} />
+              <RedigerInput label="Telefon" type="tel" value={form.telefon} onChange={v => felt('telefon', v)} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <RedigerInput label="Postnummer" value={form.postnummer} onChange={v => felt('postnummer', v)} />
               <RedigerInput label="Poststed"   value={form.poststed}   onChange={v => felt('poststed', v)} />
             </div>
-
-            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-1">Rektor</p>
             <div className="grid grid-cols-2 gap-3">
-              <RedigerInput label="Navn"   value={form.rektor_navn}  onChange={v => felt('rektor_navn', v)} />
-              <RedigerInput label="E-post" type="email" value={form.rektor_epost} onChange={v => felt('rektor_epost', v)} />
+              <RedigerInput label="Antall elever" type="number" value={form.antall_elever} onChange={v => felt('antall_elever', v)} />
+              <RedigerInput label="Type skole" value={form.type} onChange={v => felt('type', v)} placeholder="f.eks. Barneskole" />
+            </div>
+            <RedigerInput label="Nettverk" value={form.nettverk} onChange={v => felt('nettverk', v)} placeholder="f.eks. Oslo øst" />
+
+            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-2">Rektor</p>
+            <div className="grid grid-cols-3 gap-3">
+              <RedigerInput label="Navn"   value={form.rektor_navn}    onChange={v => felt('rektor_navn', v)} />
+              <RedigerInput label="E-post" type="email" value={form.rektor_epost}   onChange={v => felt('rektor_epost', v)} />
+              <RedigerInput label="Telefon" type="tel" value={form.rektor_telefon} onChange={v => felt('rektor_telefon', v)} />
             </div>
 
-            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-1">HTLA</p>
-            <div className="grid grid-cols-2 gap-3">
-              <RedigerInput label="Navn"   value={form.htla_navn}   onChange={v => felt('htla_navn', v)} />
-              <RedigerInput label="E-post" type="email" value={form.htla_epost}  onChange={v => felt('htla_epost', v)} />
+            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-2">Hovedkontakt TL</p>
+            <div className="grid grid-cols-3 gap-3">
+              <RedigerInput label="Navn"   value={form.hktl_navn}    onChange={v => felt('hktl_navn', v)} />
+              <RedigerInput label="E-post" type="email" value={form.hktl_epost}   onChange={v => felt('hktl_epost', v)} />
+              <RedigerInput label="Telefon" type="tel" value={form.hktl_telefon} onChange={v => felt('hktl_telefon', v)} />
+            </div>
+
+            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-2">TL-ansvarlig</p>
+            <div className="grid grid-cols-3 gap-3">
+              <RedigerInput label="Navn"   value={form.tla_navn}    onChange={v => felt('tla_navn', v)} />
+              <RedigerInput label="E-post" type="email" value={form.tla_epost}   onChange={v => felt('tla_epost', v)} />
+              <RedigerInput label="Telefon" type="tel" value={form.tla_telefon} onChange={v => felt('tla_telefon', v)} />
             </div>
 
             {lagreFeil && <p className="text-sm text-red-500">{lagreFeil}</p>}

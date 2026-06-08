@@ -33,8 +33,13 @@ export default async function handler(req, res) {
   }
 
   const {
-    skoleId, navn, gateadresse, postnummer, poststed,
-    antall_elever, rektor_navn, rektor_epost, htla_navn, htla_epost,
+    skoleId,
+    navn, gateadresse, postnummer, poststed,
+    telefon, antall_elever, type, nettverk,
+    rektor_navn, rektor_epost, rektor_telefon,
+    htla_navn, htla_epost,
+    hktl_navn, hktl_epost, hktl_telefon,
+    tla_navn, tla_epost, tla_telefon,
   } = req.body
 
   if (!skoleId) return res.status(400).json({ error: 'Mangler skoleId.' })
@@ -50,7 +55,7 @@ export default async function handler(req, res) {
     if (!tilgang) return res.status(403).json({ error: 'Du har ikke tilgang til denne skolen.' })
   }
 
-  // Hent nåværende navn (trengs for HubSpot-søk, siden navn kan endres)
+  // Hent nåværende navn (trengs for HubSpot-søk hvis navn endres)
   const { data: gammel } = await supabase
     .from('skoler')
     .select('navn')
@@ -59,15 +64,25 @@ export default async function handler(req, res) {
 
   // Oppdater Supabase (master)
   const oppdatering = {
-    ...(navn          != null ? { navn }          : {}),
-    ...(gateadresse   != null ? { gateadresse }   : {}),
-    ...(postnummer    != null ? { postnummer }     : {}),
-    ...(poststed      != null ? { poststed }       : {}),
-    ...(antall_elever != null ? { antall_elever }  : {}),
-    ...(rektor_navn   != null ? { rektor_navn }    : {}),
-    ...(rektor_epost  != null ? { rektor_epost }   : {}),
-    ...(htla_navn     != null ? { htla_navn }      : {}),
-    ...(htla_epost    != null ? { htla_epost }     : {}),
+    ...(navn           != null ? { navn }           : {}),
+    ...(gateadresse    != null ? { gateadresse }    : {}),
+    ...(postnummer     != null ? { postnummer }      : {}),
+    ...(poststed       != null ? { poststed }        : {}),
+    ...(telefon        != null ? { telefon }         : {}),
+    ...(antall_elever  != null ? { antall_elever }   : {}),
+    ...(type           != null ? { type }            : {}),
+    ...(nettverk       != null ? { nettverk }        : {}),
+    ...(rektor_navn    != null ? { rektor_navn }     : {}),
+    ...(rektor_epost   != null ? { rektor_epost }    : {}),
+    ...(rektor_telefon != null ? { rektor_telefon }  : {}),
+    ...(htla_navn      != null ? { htla_navn }       : {}),
+    ...(htla_epost     != null ? { htla_epost }      : {}),
+    ...(hktl_navn      != null ? { hktl_navn }       : {}),
+    ...(hktl_epost     != null ? { hktl_epost }      : {}),
+    ...(hktl_telefon   != null ? { hktl_telefon }    : {}),
+    ...(tla_navn       != null ? { tla_navn }        : {}),
+    ...(tla_epost      != null ? { tla_epost }       : {}),
+    ...(tla_telefon    != null ? { tla_telefon }     : {}),
   }
 
   const { error: dbFeil } = await supabase
@@ -85,46 +100,57 @@ export default async function handler(req, res) {
       console.log('[HubSpot] selskapId:', selskapId ?? 'IKKE FUNNET — hopper over')
 
       if (selskapId) {
-        // Oppdater Company-felter
+        // Oppdater Company-felter med riktige interne HubSpot-navn
         const selskapFelter = {
-          ...(navn        ? { name:    navn }        : {}),
-          ...(gateadresse ? { address: gateadresse } : {}),
-          ...(postnummer  ? { zip:     postnummer }  : {}),
-          ...(poststed    ? { city:    poststed }    : {}),
-          ...(rektor_navn ? { rektor_navn }          : {}),
-          ...(rektor_epost? { rektor_epost }         : {}),
-          ...(htla_navn   ? { htla_navn }            : {}),
-          ...(htla_epost  ? { htla_epost }           : {}),
+          ...(navn          ? { name:            navn }                       : {}),
+          ...(gateadresse   ? { address:          gateadresse }               : {}),
+          ...(postnummer    ? { zip:              postnummer }                 : {}),
+          ...(poststed      ? { city:             poststed }                  : {}),
+          ...(telefon       ? { phone:            telefon }                   : {}),
+          ...(antall_elever != null ? { number_of_pupils: String(antall_elever) } : {}),
+          ...(type          ? { school_type:      type }                      : {}),
+          ...(nettverk      ? { nettverk:         nettverk }                  : {}),
         }
         console.log('[HubSpot] Oppdaterer selskap med felter:', JSON.stringify(selskapFelter))
         await oppdaterSelskapFelter(selskapId, selskapFelter)
 
-        // Rektor som tilknyttet Contact
+        // Rektor
         console.log('[HubSpot] rektor_navn:', rektor_navn, '| rektor_epost:', rektor_epost)
         if (rektor_epost && rektor_navn) {
-          const kontaktId = await oppdaterEllerOpprettKontakt({
-            navn:   rektor_navn,
-            epost:  rektor_epost,
-            tittel: 'Rektor',
+          const id = await oppdaterEllerOpprettKontakt({
+            navn: rektor_navn, epost: rektor_epost,
+            tittel: 'Rektor', telefon: rektor_telefon,
           })
-          console.log('[HubSpot] Rektor kontakt-ID:', kontaktId)
-          await knyttKontaktTilSelskap(selskapId, kontaktId)
+          console.log('[HubSpot] Rektor kontakt-ID:', id)
+          await knyttKontaktTilSelskap(selskapId, id)
         } else {
-          console.log('[HubSpot] Rektor-kontakt hoppes over (mangler navn eller e-post)')
+          console.log('[HubSpot] Rektor hoppes over (mangler navn eller e-post)')
         }
 
-        // HTLA som tilknyttet Contact
-        console.log('[HubSpot] htla_navn:', htla_navn, '| htla_epost:', htla_epost)
-        if (htla_epost && htla_navn) {
-          const kontaktId = await oppdaterEllerOpprettKontakt({
-            navn:   htla_navn,
-            epost:  htla_epost,
-            tittel: 'Hoved-TL-ansvarlig (HTLA)',
+        // Hovedkontakt TL
+        console.log('[HubSpot] hktl_navn:', hktl_navn, '| hktl_epost:', hktl_epost)
+        if (hktl_epost && hktl_navn) {
+          const id = await oppdaterEllerOpprettKontakt({
+            navn: hktl_navn, epost: hktl_epost,
+            tittel: 'Hovedkontakt TL', telefon: hktl_telefon,
           })
-          console.log('[HubSpot] HTLA kontakt-ID:', kontaktId)
-          await knyttKontaktTilSelskap(selskapId, kontaktId)
+          console.log('[HubSpot] Hovedkontakt TL kontakt-ID:', id)
+          await knyttKontaktTilSelskap(selskapId, id)
         } else {
-          console.log('[HubSpot] HTLA-kontakt hoppes over (mangler navn eller e-post)')
+          console.log('[HubSpot] Hovedkontakt TL hoppes over (mangler navn eller e-post)')
+        }
+
+        // TL-ansvarlig
+        console.log('[HubSpot] tla_navn:', tla_navn, '| tla_epost:', tla_epost)
+        if (tla_epost && tla_navn) {
+          const id = await oppdaterEllerOpprettKontakt({
+            navn: tla_navn, epost: tla_epost,
+            tittel: 'TL-ansvarlig', telefon: tla_telefon,
+          })
+          console.log('[HubSpot] TL-ansvarlig kontakt-ID:', id)
+          await knyttKontaktTilSelskap(selskapId, id)
+        } else {
+          console.log('[HubSpot] TL-ansvarlig hoppes over (mangler navn eller e-post)')
         }
       }
     } catch (e) {

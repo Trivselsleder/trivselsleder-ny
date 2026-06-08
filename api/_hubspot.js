@@ -7,35 +7,6 @@ function headers() {
   }
 }
 
-// Egendefinerte egenskaper som må finnes i HubSpot Companies
-const EGENSKAPER = [
-  { name: 'organisasjonsnummer',  label: 'Organisasjonsnummer' },
-  { name: 'rektor_navn',          label: 'Rektors navn' },
-  { name: 'rektor_epost',         label: 'Rektors e-post' },
-  { name: 'htla_navn',            label: 'HTLA navn' },
-  { name: 'htla_epost',           label: 'HTLA e-post' },
-  { name: 'trivselsleder_status', label: 'Trivselsleder-status' },
-]
-
-async function opprettEgenskaper() {
-  await Promise.all(
-    EGENSKAPER.map(e =>
-      fetch(`${BASE_URL}/crm/v3/properties/companies`, {
-        method: 'POST',
-        headers: headers(),
-        body: JSON.stringify({
-          name:       e.name,
-          label:      e.label,
-          type:       'string',
-          fieldType:  'text',
-          groupName:  'companyinformation',
-        }),
-      })
-      // 409 = egenskap finnes allerede, ignorer
-    )
-  )
-}
-
 // Returnerer HubSpot Company-ID (string), eller kaster Error ved feil
 export async function opprettSelskap(p) {
   const egenskaper = {
@@ -45,13 +16,14 @@ export async function opprettSelskap(p) {
     city:                 p.poststed,
     state:                p.fylke,
     country:              'Norge',
-    ...(p.kontortelefon  ? { phone:   p.kontortelefon } : {}),
-    ...(p.hjemmeside     ? { website: p.hjemmeside }    : {}),
+    ...(p.telefon          ? { phone:           p.telefon }          : {}),
+    ...(p.kontortelefon    ? { phone:           p.kontortelefon }    : {}),
+    ...(p.hjemmeside       ? { website:         p.hjemmeside }       : {}),
+    ...(p.kommunenavn      ? { municipality:    p.kommunenavn }      : {}),
+    ...(p.antall_elever    ? { number_of_pupils: String(p.antall_elever) } : {}),
+    ...(p.type             ? { school_type:     p.type }             : {}),
+    ...(p.nettverk         ? { nettverk:        p.nettverk }         : {}),
     organisasjonsnummer:  p.organisasjonsnummer ?? '',
-    rektor_navn:          p.rektor_navn ?? '',
-    rektor_epost:         p.rektor_epost ?? '',
-    htla_navn:            p.htla_navn ?? '',
-    htla_epost:           p.htla_epost ?? '',
     trivselsleder_status: 'Påmeldt',
   }
 
@@ -65,13 +37,20 @@ export async function opprettSelskap(p) {
 
   const feil = await res.json()
 
-  // Første gang: egendefinerte egenskaper mangler → opprett dem og prøv igjen
+  // Første gang: trivselsleder_status mangler → opprett og prøv igjen
   const manglerEgenskap =
     feil.category === 'VALIDATION_ERROR' ||
     feil.errors?.some(e => e.error === 'PROPERTY_DOESNT_EXIST')
 
   if (manglerEgenskap) {
-    await opprettEgenskaper()
+    await fetch(`${BASE_URL}/crm/v3/properties/companies`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({
+        name: 'trivselsleder_status', label: 'Trivselsleder-status',
+        type: 'string', fieldType: 'text', groupName: 'companyinformation',
+      }),
+    })
     const retry = await fetch(`${BASE_URL}/crm/v3/objects/companies`, {
       method: 'POST',
       headers: headers(),
@@ -136,10 +115,9 @@ function splitNavn(navn) {
 }
 
 // Oppretter eller oppdaterer en Contact basert på e-post, returnerer kontakt-ID
-export async function oppdaterEllerOpprettKontakt({ navn, epost, tittel }) {
+export async function oppdaterEllerOpprettKontakt({ navn, epost, tittel, telefon }) {
   const { firstname, lastname } = splitNavn(navn)
 
-  // Søk på e-post
   const soekRes = await fetch(`${BASE_URL}/crm/v3/objects/contacts/search`, {
     method: 'POST',
     headers: headers(),
@@ -152,7 +130,13 @@ export async function oppdaterEllerOpprettKontakt({ navn, epost, tittel }) {
   const soekData = await soekRes.json()
   const eksisterende = soekData.results?.[0]
 
-  const kontaktData = { firstname, lastname, email: epost, ...(tittel ? { jobtitle: tittel } : {}) }
+  const kontaktData = {
+    firstname,
+    lastname,
+    email: epost,
+    ...(tittel   ? { jobtitle:    tittel }   : {}),
+    ...(telefon  ? { mobilephone: telefon }  : {}),
+  }
 
   if (eksisterende) {
     await fetch(`${BASE_URL}/crm/v3/objects/contacts/${eksisterende.id}`, {
