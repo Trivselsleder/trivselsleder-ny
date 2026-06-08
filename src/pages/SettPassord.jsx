@@ -13,7 +13,8 @@ export default function SettPassord() {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setKlar(true)
+      // PASSWORD_RECOVERY = tilbakestillingslenke, SIGNED_IN = invitasjonslenke
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') setKlar(true)
     })
     return () => subscription.unsubscribe()
   }, [])

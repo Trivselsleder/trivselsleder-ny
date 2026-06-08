@@ -13,6 +13,7 @@ export default function ProtectedRoute({ children, kreverRolle }) {
   }
 
   if (!session) return <Navigate to="/logg-inn" replace />
+  if (bruker?.aktiv === false) return <Navigate to="/logg-inn" replace />
 
   if (kreverRolle) {
     const tillatte = Array.isArray(kreverRolle) ? kreverRolle : [kreverRolle]

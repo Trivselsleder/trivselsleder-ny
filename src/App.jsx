@@ -18,6 +18,7 @@ import FeideCallback from './pages/FeideCallback'
 import Paamelding from './pages/Paamelding'
 import AdminPaameldinger from './pages/AdminPaameldinger'
 import AdminSkoler from './pages/AdminSkoler'
+import AdminBrukere from './pages/AdminBrukere'
 import './index.css'
 
 export default function App() {
@@ -59,6 +60,14 @@ export default function App() {
                 element={
                   <ProtectedRoute kreverRolle="superadmin">
                     <AdminSkoler />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/brukere"
+                element={
+                  <ProtectedRoute kreverRolle="superadmin">
+                    <AdminBrukere />
                   </ProtectedRoute>
                 }
               />
