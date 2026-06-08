@@ -89,6 +89,15 @@ export default function MinSide() {
             <h2 className="font-semibold text-gray-800 mb-4">Admin</h2>
             <div className="flex flex-col gap-3">
               <Link
+                to="/admin/skoler"
+                className="flex items-center justify-between px-5 py-3 rounded-xl border border-gray-200 hover:border-[#F47920] hover:bg-[#F47920]/5 transition-colors group"
+              >
+                <span className="font-medium text-gray-700 group-hover:text-[#F47920]">Skoleregister</span>
+                <svg className="w-4 h-4 text-gray-400 group-hover:text-[#F47920]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+              <Link
                 to="/admin/paameldinger"
                 className="flex items-center justify-between px-5 py-3 rounded-xl border border-gray-200 hover:border-[#F47920] hover:bg-[#F47920]/5 transition-colors group"
               >
