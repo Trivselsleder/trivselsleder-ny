@@ -41,11 +41,41 @@ function KontaktBlokk({ tittel, navn, epost, telefon }) {
   )
 }
 
+const RESULTAT_LABEL = {
+  invitert:   { tekst: 'invitert', stil: 'text-green-600' },
+  eksisterer: { tekst: 'allerede registrert – knyttet til skolen', stil: 'text-blue-600' },
+  feil:       { tekst: 'feil ved invitasjon', stil: 'text-red-600' },
+}
+
 function Modal({ p, onLukk, onOppdaterStatus }) {
   const [laster, setLaster] = useState(false)
+  const [godkjentResultat, setGodkjentResultat] = useState(null)
 
   async function settStatus(nyStatus) {
     setLaster(true)
+
+    if (nyStatus === 'godkjent') {
+      try {
+        const res = await fetch('/api/admin/godkjenn-paamelding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paameldinId: p.id }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          console.error('Godkjenning feilet:', data.error)
+          setLaster(false)
+          return
+        }
+        onOppdaterStatus(p.id, 'godkjent')
+        setGodkjentResultat(data)
+      } catch (e) {
+        console.error('Nettverksfeil:', e)
+      }
+      setLaster(false)
+      return
+    }
+
     await onOppdaterStatus(p.id, nyStatus)
     setLaster(false)
     onLukk()
@@ -110,31 +140,72 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
         </div>
 
         {/* Handlinger */}
-        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
-          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_STIL[p.status] ?? 'bg-gray-100 text-gray-600'}`}>
-            {p.status}
-          </span>
-          <div className="flex gap-2">
-            {p.status !== 'avvist' && (
-              <button
-                onClick={() => settStatus('avvist')}
-                disabled={laster}
-                className="border border-red-200 text-red-600 text-sm font-medium px-4 py-2 rounded-full hover:bg-red-50 transition-colors disabled:opacity-50"
-              >
-                Avvis
-              </button>
+        {godkjentResultat ? (
+          <div className="px-6 py-5 border-t border-gray-100 space-y-3">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-sm font-semibold text-gray-900">
+                Skole aktivert: {godkjentResultat.skole?.navn}
+              </p>
+            </div>
+            {(godkjentResultat.resultater?.htla || godkjentResultat.resultater?.tla) && (
+              <ul className="text-sm space-y-1 pl-7">
+                {godkjentResultat.resultater.htla && (
+                  <li>
+                    <span className="text-gray-500">HTLA ({p.htla_epost}): </span>
+                    <span className={RESULTAT_LABEL[godkjentResultat.resultater.htla.status]?.stil ?? ''}>
+                      {RESULTAT_LABEL[godkjentResultat.resultater.htla.status]?.tekst ?? godkjentResultat.resultater.htla.status}
+                    </span>
+                  </li>
+                )}
+                {godkjentResultat.resultater.tla && (
+                  <li>
+                    <span className="text-gray-500">TLA ({p.tla_epost}): </span>
+                    <span className={RESULTAT_LABEL[godkjentResultat.resultater.tla.status]?.stil ?? ''}>
+                      {RESULTAT_LABEL[godkjentResultat.resultater.tla.status]?.tekst ?? godkjentResultat.resultater.tla.status}
+                    </span>
+                  </li>
+                )}
+              </ul>
             )}
-            {p.status !== 'godkjent' && (
+            <div className="flex justify-end pt-1">
               <button
-                onClick={() => settStatus('godkjent')}
-                disabled={laster}
-                className="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-green-700 transition-colors disabled:opacity-50"
+                onClick={onLukk}
+                className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors"
               >
-                Godkjenn
+                Lukk
               </button>
-            )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_STIL[p.status] ?? 'bg-gray-100 text-gray-600'}`}>
+              {p.status}
+            </span>
+            <div className="flex gap-2">
+              {p.status !== 'avvist' && (
+                <button
+                  onClick={() => settStatus('avvist')}
+                  disabled={laster}
+                  className="border border-red-200 text-red-600 text-sm font-medium px-4 py-2 rounded-full hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  Avvis
+                </button>
+              )}
+              {p.status !== 'godkjent' && (
+                <button
+                  onClick={() => settStatus('godkjent')}
+                  disabled={laster}
+                  className="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-green-700 transition-colors disabled:opacity-50"
+                >
+                  {laster ? 'Godkjenner…' : 'Godkjenn og aktiver skole'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

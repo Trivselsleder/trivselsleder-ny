@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 
 const ROLLE_VALG = ['superadmin', 'ansatt', 'skoleadmin', 'skoleansatt', 'feide']
 
@@ -26,6 +27,7 @@ function formaterDato(iso) {
 }
 
 function InviterModal({ skoler, onLukk, onInvitert }) {
+  const { session } = useAuth()
   const [form, setForm] = useState({ epost: '', navn: '', rolle: 'skoleansatt', skoleId: '' })
   const [laster, setLaster] = useState(false)
   const [feil, setFeil] = useState('')
@@ -42,7 +44,10 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
     try {
       const res = await fetch('/api/auth/inviter-bruker', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
         body: JSON.stringify({
           epost: form.epost,
           navn:  form.navn,

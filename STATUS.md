@@ -1,6 +1,6 @@
 # Trivselsleder – prosjektstatus
 
-Sist oppdatert: 2026-06-07
+Sist oppdatert: 2026-06-08
 
 ---
 
@@ -68,6 +68,22 @@ Sist oppdatert: 2026-06-07
 - Koblet til GitHub: `https://github.com/Trivselsleder/trivselsleder-ny`
 - Kode pushet og oppdatert
 
+### RLS for ansatt-rollen (2026-06-08)
+
+- Migrasjon `008_rls_ansatt.sql`: ansatt har nå full lese- og skrivetilgang til `paameldinger`, `skoler` og `profiles`
+- `/admin/brukere` er kun tilgjengelig for superadmin – håndheves av `ProtectedRoute kreverRolle="superadmin"` i App.jsx
+- Bruker `get_min_rolle()` (SECURITY DEFINER) for å unngå rekursiv RLS-evaluering på `profiles`
+
+### Aktivering av skole fra påmelding (2026-06-08)
+
+- Ny serverless funksjon `api/admin/godkjenn-paamelding.js`:
+  - Setter påmelding-status til `godkjent`
+  - Upserterer skole i `skoler`-tabellen (org_nr som konflikt-nøkkel, status `Aktiv`)
+  - Inviterer HTLA automatisk som `skoleadmin` og sender branded velkomst-e-post
+  - Inviterer TLA automatisk som `skoleansatt` og sender branded velkomst-e-post
+  - Hvis bruker allerede finnes (samme e-post): knyttes til skolen uten ny invitasjon
+- `AdminPaameldinger`: «Godkjenn»-knappen kaller nå ny funksjon og viser resultatkort i modalen (hvem ble invitert, hvem fantes fra før)
+
 ### Fase 2 – Innlogging og brukersystem (2026-06-07)
 
 #### Supabase-oppsett
@@ -95,6 +111,7 @@ Sist oppdatert: 2026-06-07
 | Min side (dashbord) | `/min-side` | Ferdig |
 | Feide OIDC callback | `/auth/feide/callback` | Ferdig |
 | Påmelding nye skoler | `/paamelding` | Ferdig |
+| Admin – påmeldingsbehandling | `/admin/paameldinger` | Ferdig |
 
 #### Innloggingsmetoder
 - **E-post/passord** – Supabase Auth med sesjonshåndtering
@@ -117,6 +134,28 @@ Sist oppdatert: 2026-06-07
 - Felter: skolenavn, type, antall elever, adresse, fakturainformasjon, rektor / HTLA / TLA, merknader
 - `api/paamelding.js`: lagrer i `paameldinger`-tabellen med status `påmeldt` og sender formatert HTML-e-post til `post@trivselsleder.no` via Resend (reply-to = rektors e-post)
 
+#### Admin-side for påmeldinger (`/admin/paameldinger`) – 2026-06-07 kveld
+- Krever innlogging (ProtectedRoute)
+- Henter alle påmeldinger fra Supabase sortert nyest-først
+- **Oversiktstabell** med kolonner: dato, skolenavn, type, kommune, rektornavn, rektors e-post, status
+  - Klikk på rad åpner detaljmodal
+  - E-postlenker stopper klikk-propagasjon så tabellraden ikke aktiveres
+- **Statusteller-chips** i header: antall påmeldt (gul), godkjent (grønn), avvist (rød)
+- **Filterknapper**: Alle / Påmeldt / Godkjent / Avvist – aktiv filter markert i magenta
+- **Detaljmodal** viser alle felt gruppert i seksjoner:
+  - Skole (type, antall elever, hjemmeside)
+  - Adresse (gate, postnr/poststed, kommune, fylke)
+  - Faktura (org.nr, fakturaadresse, fakturareferanse, kontortelefon)
+  - Rektor, HTLA, TLA – med klikk-bare e-postlenker
+  - Merknader (vises kun hvis utfylt)
+- **Godkjenn/Avvis-knapper** i modalens footer:
+  - Optimistisk oppdatering (UI endres umiddelbart, rulles tilbake ved feil fra Supabase)
+  - Knappene vises kun når det er meningsfylt (ikke «Godkjenn» hvis allerede godkjent)
+  - Laste-tilstand (disabled) mens Supabase-kall pågår
+  - Lukker modal automatisk etter vellykket statusbytte
+- Tomme-tilstander: «Ingen påmeldinger ennå» / «Ingen med valgt filter»
+- Spinner-animasjon under lasting
+
 #### E-post via Resend
 - Glemt passord: branded tilbakestillingslenke
 - Påmelding: fullstendig HTML-e-post med alle skoledata til post@trivselsleder.no
@@ -127,9 +166,10 @@ Sist oppdatert: 2026-06-07
 ## Gjenstår
 
 ### Brukeradmin (Fase 2 Steg 2)
-- [ ] Superadmin kan invitere brukere via e-post (Supabase invite + Resend)
-- [ ] Superadmin kan opprette og administrere skoler
-- [ ] Administrator kan legge til ansatte på sin skole
+- [x] Superadmin kan invitere brukere via e-post (Supabase invite + Resend)
+- [x] Skole opprettes automatisk og HTLA/TLA inviteres ved godkjenning av påmelding
+- [ ] Superadmin kan opprette skoler manuelt (uten påmelding)
+- [ ] Administrator kan legge til ansatte på sin skole (skoleadmin-flyt)
 - [ ] Excel/CSV-import av skolelister (tabellen er klar med `org_nr` som upsert-nøkkel)
 - [ ] Velg enhet for brukere med tilgang til flere skoler
 

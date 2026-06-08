@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { opprettSelskap } from './_hubspot.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -113,36 +114,53 @@ export default async function handler(req, res) {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
-  const { error: dbError } = await supabase.from('paameldinger').insert({
-    status: 'påmeldt',
-    skolenavn: d.skolenavn,
-    type: d.type,
-    antall_elever: d.antall_elever ? Number(d.antall_elever) : null,
-    gateadresse: d.gateadresse,
-    postnummer: d.postnummer,
-    poststed: d.poststed,
-    kommune: d.kommune,
-    fylke: d.fylke,
-    hjemmeside: d.hjemmeside || null,
-    fakturaadresse: d.fakturaadresse || null,
-    organisasjonsnummer: d.organisasjonsnummer,
-    fakturareferanse: d.fakturareferanse || null,
-    kontortelefon: d.kontortelefon || null,
-    rektor_navn: d.rektor_navn,
-    rektor_epost: d.rektor_epost,
-    rektor_telefon: d.rektor_telefon || null,
-    htla_navn: d.htla_navn || null,
-    htla_epost: d.htla_epost || null,
-    htla_telefon: d.htla_telefon || null,
-    tla_navn: d.tla_navn || null,
-    tla_epost: d.tla_epost || null,
-    tla_telefon: d.tla_telefon || null,
-    merknader: d.merknader || null,
-  })
+  const { data: nyRad, error: dbError } = await supabase
+    .from('paameldinger')
+    .insert({
+      status: 'påmeldt',
+      skolenavn: d.skolenavn,
+      type: d.type,
+      antall_elever: d.antall_elever ? Number(d.antall_elever) : null,
+      gateadresse: d.gateadresse,
+      postnummer: d.postnummer,
+      poststed: d.poststed,
+      kommune: d.kommune,
+      fylke: d.fylke,
+      hjemmeside: d.hjemmeside || null,
+      fakturaadresse: d.fakturaadresse || null,
+      organisasjonsnummer: d.organisasjonsnummer,
+      fakturareferanse: d.fakturareferanse || null,
+      kontortelefon: d.kontortelefon || null,
+      rektor_navn: d.rektor_navn,
+      rektor_epost: d.rektor_epost,
+      rektor_telefon: d.rektor_telefon || null,
+      htla_navn: d.htla_navn || null,
+      htla_epost: d.htla_epost || null,
+      htla_telefon: d.htla_telefon || null,
+      tla_navn: d.tla_navn || null,
+      tla_epost: d.tla_epost || null,
+      tla_telefon: d.tla_telefon || null,
+      merknader: d.merknader || null,
+    })
+    .select('id')
+    .single()
 
   if (dbError) {
     console.error('DB-feil:', dbError)
     return res.status(500).json({ error: `DB-feil: ${dbError.message} (kode: ${dbError.code})` })
+  }
+
+  // HubSpot: opprett Company (ikke-kritisk – logger feil men stopper ikke innsending)
+  if (process.env.HUBSPOT_API_KEY) {
+    try {
+      const hubspotId = await opprettSelskap(d)
+      await supabase
+        .from('paameldinger')
+        .update({ hubspot_company_id: hubspotId })
+        .eq('id', nyRad.id)
+    } catch (e) {
+      console.error('HubSpot-feil ved påmelding:', e.message)
+    }
   }
 
   await resend.emails.send({

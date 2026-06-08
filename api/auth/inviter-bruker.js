@@ -59,6 +59,41 @@ export default async function handler(req, res) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
+  // Verifiser at kallet kommer fra en innlogget bruker
+  const authHeader = req.headers.authorization
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Ikke autentisert.' })
+  const token = authHeader.slice(7)
+
+  const { data: { user: caller } } = await supabase.auth.getUser(token)
+  if (!caller) return res.status(401).json({ error: 'Ugyldig sesjon.' })
+
+  const { data: callerProfil } = await supabase
+    .from('profiles')
+    .select('rolle')
+    .eq('id', caller.id)
+    .single()
+
+  const callerRolle = callerProfil?.rolle
+
+  if (!['superadmin', 'ansatt', 'skoleadmin'].includes(callerRolle)) {
+    return res.status(403).json({ error: 'Ingen tilgang.' })
+  }
+
+  // Skoleadmin kan kun invitere til sin egen skole, og kun skolerolle
+  if (callerRolle === 'skoleadmin') {
+    if (!['skoleadmin', 'skoleansatt'].includes(rolle)) {
+      return res.status(403).json({ error: 'Du kan bare invitere skoleadmin eller skoleansatt.' })
+    }
+    if (!skoleId) return res.status(400).json({ error: 'Skole er påkrevd.' })
+    const { data: tilgang } = await supabase
+      .from('bruker_skole')
+      .select('skole_id')
+      .eq('bruker_id', caller.id)
+      .eq('skole_id', skoleId)
+      .maybeSingle()
+    if (!tilgang) return res.status(403).json({ error: 'Du har ikke tilgang til denne skolen.' })
+  }
+
   const origin = req.headers.origin || 'https://trivselsleder.no'
 
   // Generer invitasjonslenke uten at Supabase sender e-post

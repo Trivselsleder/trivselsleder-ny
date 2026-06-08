@@ -32,6 +32,7 @@ function AdminLenke({ to, label }) {
 }
 
 function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
+  const { session } = useAuth()
   const [form, setForm] = useState({ epost: '', navn: '', rolle: 'skoleansatt' })
   const [laster, setLaster] = useState(false)
   const [feil, setFeil] = useState('')
@@ -45,7 +46,10 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
     try {
       const res = await fetch('/api/auth/inviter-bruker', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
         body: JSON.stringify({ epost: form.epost, navn: form.navn, rolle: form.rolle, skoleId }),
       })
       const data = await res.json()
