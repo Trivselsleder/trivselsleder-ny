@@ -123,16 +123,66 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
   )
 }
 
+const SKOLE_FELT = 'id, navn, kommunenavn, fylke, gateadresse, postnummer, poststed, antall_elever, rektor_navn, rektor_epost, htla_navn, htla_epost'
+
+function InfoRad({ label, verdi }) {
+  if (!verdi) return null
+  return (
+    <div className="flex gap-2 py-1.5 border-b border-gray-50 last:border-0">
+      <span className="text-xs text-gray-400 w-32 shrink-0 pt-0.5">{label}</span>
+      <span className="text-sm text-gray-700">{verdi}</span>
+    </div>
+  )
+}
+
+function SkoleInfoVisning({ skole }) {
+  return (
+    <div className="space-y-0 text-sm">
+      <InfoRad label="Skolenavn"    verdi={skole.navn} />
+      <InfoRad label="Adresse"      verdi={[skole.gateadresse, skole.postnummer && skole.poststed ? `${skole.postnummer} ${skole.poststed}` : null].filter(Boolean).join(', ')} />
+      <InfoRad label="Kommune"      verdi={[skole.kommunenavn, skole.fylke].filter(Boolean).join(' · ')} />
+      <InfoRad label="Antall elever" verdi={skole.antall_elever} />
+      {(skole.rektor_navn || skole.rektor_epost) && (
+        <InfoRad label="Rektor"     verdi={[skole.rektor_navn, skole.rektor_epost].filter(Boolean).join(' · ')} />
+      )}
+      {(skole.htla_navn || skole.htla_epost) && (
+        <InfoRad label="HTLA"       verdi={[skole.htla_navn, skole.htla_epost].filter(Boolean).join(' · ')} />
+      )}
+    </div>
+  )
+}
+
+function RedigerInput({ label, type = 'text', value, onChange, placeholder = '' }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
+      <input
+        type={type}
+        value={value ?? ''}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+      />
+    </div>
+  )
+}
+
 function SkoleadminSeksjon({ brukerId }) {
+  const { session } = useAuth()
   const [skoleLink, setSkoleLink] = useState(null)
   const [ansatte, setAnsatte] = useState([])
   const [laster, setLaster] = useState(true)
   const [visInviter, setVisInviter] = useState(false)
+  const [redigerer, setRedigerer] = useState(false)
+  const [form, setForm] = useState(null)
+  const [lagrer, setLagrer] = useState(false)
+  const [lagreFeil, setLagreFeil] = useState('')
+  const [lagreOk, setLagreOk] = useState(false)
 
   useEffect(() => {
     supabase
       .from('bruker_skole')
-      .select('rolle, skoler(id, navn, kommunenavn, fylke)')
+      .select(`rolle, skoler(${SKOLE_FELT})`)
       .eq('bruker_id', brukerId)
       .limit(1)
       .single()
@@ -152,6 +202,55 @@ function SkoleadminSeksjon({ brukerId }) {
     setLaster(false)
   }
 
+  function startRedigering() {
+    const s = skoleLink?.skoler
+    setForm({
+      navn:          s?.navn ?? '',
+      gateadresse:   s?.gateadresse ?? '',
+      postnummer:    s?.postnummer ?? '',
+      poststed:      s?.poststed ?? '',
+      antall_elever: s?.antall_elever ?? '',
+      rektor_navn:   s?.rektor_navn ?? '',
+      rektor_epost:  s?.rektor_epost ?? '',
+      htla_navn:     s?.htla_navn ?? '',
+      htla_epost:    s?.htla_epost ?? '',
+    })
+    setLagreFeil('')
+    setLagreOk(false)
+    setRedigerer(true)
+  }
+
+  function felt(key, val) { setForm(f => ({ ...f, [key]: val })) }
+
+  async function lagreEndringer(e) {
+    e.preventDefault()
+    setLagreFeil('')
+    setLagrer(true)
+    try {
+      const res = await fetch('/api/skole/oppdater-skole', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ skoleId: skoleLink.skoler.id, ...form }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setLagreFeil(data.error || 'Noe gikk galt.'); return }
+      // Oppdater lokal state
+      setSkoleLink(prev => ({
+        ...prev,
+        skoler: { ...prev.skoler, ...form, antall_elever: form.antall_elever ? Number(form.antall_elever) : null },
+      }))
+      setLagreOk(true)
+      setRedigerer(false)
+    } catch {
+      setLagreFeil('Noe gikk galt.')
+    } finally {
+      setLagrer(false)
+    }
+  }
+
   const skole = skoleLink?.skoler
   const andreAnsatte = ansatte.filter(a => a.profiles?.id !== brukerId)
 
@@ -159,20 +258,72 @@ function SkoleadminSeksjon({ brukerId }) {
     <>
       {/* Skoleinfo-kort */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 className="font-semibold text-gray-800 mb-3">Min skole</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-gray-800">Min skole</h2>
+          {skole && !redigerer && (
+            <button
+              onClick={startRedigering}
+              className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#F47920] transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-1.414a2 2 0 01.586-1.414z" />
+              </svg>
+              Rediger
+            </button>
+          )}
+        </div>
+
         {laster ? (
           <div className="h-12 flex items-center">
             <div className="w-5 h-5 border-2 border-[#F47920] border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : skole ? (
-          <div className="space-y-0.5">
-            <p className="font-medium text-gray-900">{skole.navn}</p>
-            <p className="text-sm text-gray-500">
-              {[skole.kommunenavn, skole.fylke].filter(Boolean).join(' · ')}
-            </p>
-          </div>
-        ) : (
+        ) : !skole ? (
           <p className="text-sm text-amber-600">Ingen skole er knyttet til denne brukeren ennå.</p>
+        ) : redigerer ? (
+          <form onSubmit={lagreEndringer} className="space-y-4">
+            <RedigerInput label="Skolenavn" value={form.navn} onChange={v => felt('navn', v)} />
+            <div className="grid grid-cols-2 gap-3">
+              <RedigerInput label="Gateadresse" value={form.gateadresse} onChange={v => felt('gateadresse', v)} />
+              <RedigerInput label="Antall elever" type="number" value={form.antall_elever} onChange={v => felt('antall_elever', v)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <RedigerInput label="Postnummer" value={form.postnummer} onChange={v => felt('postnummer', v)} />
+              <RedigerInput label="Poststed"   value={form.poststed}   onChange={v => felt('poststed', v)} />
+            </div>
+
+            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-1">Rektor</p>
+            <div className="grid grid-cols-2 gap-3">
+              <RedigerInput label="Navn"   value={form.rektor_navn}  onChange={v => felt('rektor_navn', v)} />
+              <RedigerInput label="E-post" type="email" value={form.rektor_epost} onChange={v => felt('rektor_epost', v)} />
+            </div>
+
+            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-1">HTLA</p>
+            <div className="grid grid-cols-2 gap-3">
+              <RedigerInput label="Navn"   value={form.htla_navn}   onChange={v => felt('htla_navn', v)} />
+              <RedigerInput label="E-post" type="email" value={form.htla_epost}  onChange={v => felt('htla_epost', v)} />
+            </div>
+
+            {lagreFeil && <p className="text-sm text-red-500">{lagreFeil}</p>}
+            <div className="flex items-center justify-end gap-3 pt-1">
+              <button type="button" onClick={() => setRedigerer(false)} className="text-sm text-gray-500 hover:text-gray-800">
+                Avbryt
+              </button>
+              <button
+                type="submit"
+                disabled={lagrer}
+                className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-50"
+              >
+                {lagrer ? 'Lagrer…' : 'Lagre'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <>
+            <SkoleInfoVisning skole={skole} />
+            {lagreOk && (
+              <p className="text-xs text-green-600 mt-3">Endringer lagret.</p>
+            )}
+          </>
         )}
       </div>
 
@@ -238,7 +389,7 @@ function SkoleansattSeksjon({ brukerId }) {
   useEffect(() => {
     supabase
       .from('bruker_skole')
-      .select('skoler(id, navn, kommunenavn, fylke)')
+      .select(`skoler(${SKOLE_FELT})`)
       .eq('bruker_id', brukerId)
       .limit(1)
       .single()
@@ -249,18 +400,13 @@ function SkoleansattSeksjon({ brukerId }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-      <h2 className="font-semibold text-gray-800 mb-3">Min skole</h2>
+      <h2 className="font-semibold text-gray-800 mb-4">Min skole</h2>
       {laster ? (
         <div className="h-12 flex items-center">
           <div className="w-5 h-5 border-2 border-[#F47920] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : skole ? (
-        <div className="space-y-0.5">
-          <p className="font-medium text-gray-900">{skole.navn}</p>
-          <p className="text-sm text-gray-500">
-            {[skole.kommunenavn, skole.fylke].filter(Boolean).join(' · ')}
-          </p>
-        </div>
+        <SkoleInfoVisning skole={skole} />
       ) : (
         <p className="text-sm text-amber-600">Ingen skole er knyttet til denne brukeren ennå.</p>
       )}

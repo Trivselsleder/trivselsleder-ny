@@ -99,3 +99,86 @@ export async function oppdaterStatus(hubspotId, status) {
     throw new Error(feil.message ?? 'HubSpot PATCH-feil')
   }
 }
+
+// Søker etter Company på navn, returnerer HubSpot-ID eller null
+export async function finnSelskapIdPaaNavn(navn) {
+  const res = await fetch(`${BASE_URL}/crm/v3/objects/companies/search`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({
+      filterGroups: [{ filters: [{ propertyName: 'name', operator: 'EQ', value: navn }] }],
+      properties: ['name'],
+      limit: 1,
+    }),
+  })
+  if (!res.ok) return null
+  const data = await res.json()
+  return data.results?.[0]?.id ?? null
+}
+
+// Oppdaterer vilkårlige felter på et Company
+export async function oppdaterSelskapFelter(hubspotId, felter) {
+  const res = await fetch(`${BASE_URL}/crm/v3/objects/companies/${hubspotId}`, {
+    method: 'PATCH',
+    headers: headers(),
+    body: JSON.stringify({ properties: felter }),
+  })
+  if (!res.ok) {
+    const feil = await res.json()
+    throw new Error(feil.message ?? 'HubSpot PATCH-feil')
+  }
+}
+
+function splitNavn(navn) {
+  const deler = (navn ?? '').trim().split(/\s+/)
+  if (deler.length <= 1) return { firstname: deler[0] ?? '', lastname: '' }
+  return { firstname: deler.slice(0, -1).join(' '), lastname: deler[deler.length - 1] }
+}
+
+// Oppretter eller oppdaterer en Contact basert på e-post, returnerer kontakt-ID
+export async function oppdaterEllerOpprettKontakt({ navn, epost, tittel }) {
+  const { firstname, lastname } = splitNavn(navn)
+
+  // Søk på e-post
+  const soekRes = await fetch(`${BASE_URL}/crm/v3/objects/contacts/search`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({
+      filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: epost }] }],
+      properties: ['email'],
+      limit: 1,
+    }),
+  })
+  const soekData = await soekRes.json()
+  const eksisterende = soekData.results?.[0]
+
+  const kontaktData = { firstname, lastname, email: epost, ...(tittel ? { jobtitle: tittel } : {}) }
+
+  if (eksisterende) {
+    await fetch(`${BASE_URL}/crm/v3/objects/contacts/${eksisterende.id}`, {
+      method: 'PATCH',
+      headers: headers(),
+      body: JSON.stringify({ properties: kontaktData }),
+    })
+    return eksisterende.id
+  }
+
+  const opprettRes = await fetch(`${BASE_URL}/crm/v3/objects/contacts`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ properties: kontaktData }),
+  })
+  if (!opprettRes.ok) {
+    const feil = await opprettRes.json()
+    throw new Error(feil.message ?? 'HubSpot kontakt-feil')
+  }
+  return (await opprettRes.json()).id
+}
+
+// Knytter en Contact til et Company (standardtilknytning)
+export async function knyttKontaktTilSelskap(selskapId, kontaktId) {
+  await fetch(
+    `${BASE_URL}/crm/v4/objects/companies/${selskapId}/associations/default/contacts/${kontaktId}`,
+    { method: 'PUT', headers: headers() }
+  )
+}
