@@ -38,7 +38,6 @@ export default async function handler(req, res) {
     navn, gateadresse, postnummer, poststed,
     telefon, antall_elever, type, nettverk,
     rektor_navn, rektor_epost, rektor_telefon,
-    htla_navn, htla_epost,
     hktl_navn, hktl_epost, hktl_telefon,
     tla_kontakter,
   } = req.body
@@ -77,8 +76,6 @@ export default async function handler(req, res) {
     ...(rektor_navn    != null ? { rektor_navn }     : {}),
     ...(rektor_epost   != null ? { rektor_epost }    : {}),
     ...(rektor_telefon != null ? { rektor_telefon }  : {}),
-    ...(htla_navn      != null ? { htla_navn }       : {}),
-    ...(htla_epost     != null ? { htla_epost }      : {}),
     ...(hktl_navn      != null ? { hktl_navn }       : {}),
     ...(hktl_epost     != null ? { hktl_epost }      : {}),
     ...(hktl_telefon   != null ? { hktl_telefon }    : {}),
@@ -154,6 +151,9 @@ export default async function handler(req, res) {
           console.log('[HubSpot] Rektor hoppes over (mangler navn eller e-post)')
         }
 
+        // htla_ (Hoved-TL-ansvarlig) er påmeldingskontakten fra Paamelding.jsx — inviteres som
+        // skoleadmin ved godkjenning og oppdateres ikke herfra. hktl_ (Hovedkontakt TL) er den
+        // løpende kontaktrollen som skoleadmin vedlikeholder på Min side.
         // Hovedkontakt TL
         console.log('[HubSpot] hktl_navn:', hktl_navn, '| hktl_epost:', hktl_epost)
         if (hktl_epost && hktl_navn) {
