@@ -182,3 +182,42 @@ export async function knyttKontaktTilSelskap(selskapId, kontaktId) {
     { method: 'PUT', headers: headers() }
   )
 }
+
+// Fjerner tilknytningen til alle kontakter med gitt tittel på et Company, unntatt nyKontaktId
+export async function fjernGamleKoblinger(selskapId, tittel, nyKontaktId) {
+  const assocRes = await fetch(
+    `${BASE_URL}/crm/v4/objects/companies/${selskapId}/associations/contacts`,
+    { headers: headers() }
+  )
+  if (!assocRes.ok) {
+    console.log(`[HubSpot] fjernGamleKoblinger: klarte ikke hente tilknytninger for selskap ${selskapId}`)
+    return
+  }
+  const assocData = await assocRes.json()
+  const kontaktIder = assocData.results?.map(r => r.toObjectId) ?? []
+  if (kontaktIder.length === 0) return
+
+  const batchRes = await fetch(`${BASE_URL}/crm/v3/objects/contacts/batch/read`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({
+      inputs: kontaktIder.map(id => ({ id })),
+      properties: ['jobtitle', 'firstname', 'lastname'],
+    }),
+  })
+  if (!batchRes.ok) return
+  const batchData = await batchRes.json()
+
+  const gamle = (batchData.results ?? []).filter(
+    k => k.properties?.jobtitle === tittel && k.id !== nyKontaktId
+  )
+
+  for (const kontakt of gamle) {
+    const navn = [kontakt.properties.firstname, kontakt.properties.lastname].filter(Boolean).join(' ')
+    console.log(`[HubSpot] Fjerner gammel ${tittel}-kobling: ${navn || '(ukjent navn)'} (kontakt-ID: ${kontakt.id})`)
+    await fetch(
+      `${BASE_URL}/crm/v4/objects/companies/${selskapId}/associations/contacts/${kontakt.id}`,
+      { method: 'DELETE', headers: headers() }
+    )
+  }
+}

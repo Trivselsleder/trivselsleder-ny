@@ -4,6 +4,7 @@ import {
   oppdaterSelskapFelter,
   oppdaterEllerOpprettKontakt,
   knyttKontaktTilSelskap,
+  fjernGamleKoblinger,
 } from '../_hubspot.js'
 
 export default async function handler(req, res) {
@@ -148,6 +149,7 @@ export default async function handler(req, res) {
             navn: rektor_navn, epost: rektor_epost,
             tittel: 'Rektor', telefon: rektor_telefon,
           })
+          await fjernGamleKoblinger(selskapId, 'Rektor', id)
           console.log('[HubSpot] Rektor kontakt-ID:', id)
           await knyttKontaktTilSelskap(selskapId, id)
         } else {
@@ -161,6 +163,7 @@ export default async function handler(req, res) {
             navn: hktl_navn, epost: hktl_epost,
             tittel: 'Hovedkontakt TL', telefon: hktl_telefon,
           })
+          await fjernGamleKoblinger(selskapId, 'Hovedkontakt TL', id)
           console.log('[HubSpot] Hovedkontakt TL kontakt-ID:', id)
           await knyttKontaktTilSelskap(selskapId, id)
         } else {
@@ -174,6 +177,7 @@ export default async function handler(req, res) {
             navn: tla_navn, epost: tla_epost,
             tittel: 'TL-ansvarlig', telefon: tla_telefon,
           })
+          await fjernGamleKoblinger(selskapId, 'TL-ansvarlig', id)
           console.log('[HubSpot] TL-ansvarlig kontakt-ID:', id)
           await knyttKontaktTilSelskap(selskapId, id)
         } else {
