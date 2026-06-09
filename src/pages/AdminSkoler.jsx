@@ -587,6 +587,9 @@ export default function AdminSkoler() {
   const [filterType, setFilterType] = useState([])
   const [filterAnsvarlig, setFilterAnsvarlig] = useState('')
 
+  const [valgte, setValgte] = useState(new Set())
+  const [epostRolle, setEpostRolle] = useState('rektor')
+
   useEffect(() => {
     supabase
       .from('skoler')
@@ -630,6 +633,50 @@ export default function AdminSkoler() {
 
   const harFilter = filterStatus || filterFylke || filterKommune || filterType.length > 0 || filterAnsvarlig
 
+  // Nullstill valg når filteret endres
+  useEffect(() => { setValgte(new Set()) }, [filterStatus, filterFylke, filterKommune, filterType, filterAnsvarlig])
+
+  function hentEpost(s) {
+    if (epostRolle === 'rektor') return s.rektor_epost ?? ''
+    if (epostRolle === 'hktl')   return s.hktl_epost ?? ''
+    if (epostRolle === 'tla1')   return s.tla_kontakter?.[0]?.epost ?? ''
+    return ''
+  }
+
+  const valgteAdresser = useMemo(() => {
+    return filtrerte
+      .filter(s => valgte.has(s.id))
+      .map(s => hentEpost(s))
+      .filter(Boolean)
+  }, [valgte, filtrerte, epostRolle])
+
+  const antallManglerEpost = useMemo(() =>
+    filtrerte.filter(s => valgte.has(s.id) && !hentEpost(s)).length,
+  [valgte, filtrerte, epostRolle])
+
+  const alleFiltrertValgt = filtrerte.length > 0 && filtrerte.every(s => valgte.has(s.id))
+  const noenValgt = filtrerte.some(s => valgte.has(s.id))
+
+  function toggleVelgAlle() {
+    if (alleFiltrertValgt) {
+      setValgte(new Set())
+    } else {
+      setValgte(new Set(filtrerte.map(s => s.id)))
+    }
+  }
+
+  function toggleVelgEn(id) {
+    setValgte(prev => {
+      const neste = new Set(prev)
+      neste.has(id) ? neste.delete(id) : neste.add(id)
+      return neste
+    })
+  }
+
+  function sendEpost() {
+    window.location.href = `mailto:?bcc=${valgteAdresser.join(',')}`
+  }
+
   function nullstillFiltre() {
     setFilterStatus('')
     setFilterFylke('')
@@ -639,7 +686,7 @@ export default function AdminSkoler() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className={`min-h-screen bg-gray-50 py-8 px-4 ${valgte.size > 0 ? 'pb-24' : ''}`}>
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
@@ -734,6 +781,16 @@ export default function AdminSkoler() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 w-10">
+                      <input
+                        type="checkbox"
+                        checked={alleFiltrertValgt}
+                        ref={el => { if (el) el.indeterminate = noenValgt && !alleFiltrertValgt }}
+                        onChange={toggleVelgAlle}
+                        onClick={e => e.stopPropagation()}
+                        className="w-4 h-4 accent-[#F47920] cursor-pointer"
+                      />
+                    </th>
                     <th className="text-left px-4 py-3">Skolenavn</th>
                     <th className="text-left px-4 py-3">Kommune</th>
                     <th className="text-left px-4 py-3">Fylke</th>
@@ -744,7 +801,15 @@ export default function AdminSkoler() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {filtrerte.map(s => (
-                    <tr key={s.id} onClick={() => setRedigerSkole(s)} className="hover:bg-gray-50/70 transition-colors cursor-pointer">
+                    <tr key={s.id} onClick={() => setRedigerSkole(s)} className={`hover:bg-gray-50/70 transition-colors cursor-pointer ${valgte.has(s.id) ? 'bg-orange-50/40' : ''}`}>
+                      <td className="px-4 py-3 w-10" onClick={e => { e.stopPropagation(); toggleVelgEn(s.id) }}>
+                        <input
+                          type="checkbox"
+                          checked={valgte.has(s.id)}
+                          onChange={() => toggleVelgEn(s.id)}
+                          className="w-4 h-4 accent-[#F47920] cursor-pointer"
+                        />
+                      </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{s.navn}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{s.kommunenavn ?? '–'}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{s.fylke ?? '–'}</td>
@@ -773,6 +838,52 @@ export default function AdminSkoler() {
           </p>
         )}
       </div>
+
+      {/* Handlingslinje — sticky bunn, vises bare når noe er valgt */}
+      {valgte.size > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg px-4 py-3">
+          <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-3">
+            <span className="text-sm font-semibold text-gray-800">
+              {valgte.size} {valgte.size === 1 ? 'skole' : 'skoler'} valgt
+            </span>
+            {antallManglerEpost > 0 && (
+              <span className="text-xs text-gray-400">
+                ({antallManglerEpost} mangler e-post for valgt rolle)
+              </span>
+            )}
+            <select
+              value={epostRolle}
+              onChange={e => setEpostRolle(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+            >
+              <option value="rektor">Rektor</option>
+              <option value="hktl">Hovedkontakt TL</option>
+              <option value="tla1">TL-ansvarlig 1</option>
+            </select>
+            {valgteAdresser.length > 50 && (
+              <span className="text-xs text-amber-600 font-medium">
+                ⚠ Over 50 adresser — Gmail støtter maks 50 i BCC
+              </span>
+            )}
+            <button
+              onClick={sendEpost}
+              disabled={valgteAdresser.length === 0 || valgteAdresser.length > 50}
+              className="flex items-center gap-1.5 bg-[#F47920] text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-40"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Send e-post{valgteAdresser.length > 0 ? ` (${valgteAdresser.length})` : ''}
+            </button>
+            <button
+              onClick={() => setValgte(new Set())}
+              className="text-sm text-gray-400 hover:text-gray-700 underline"
+            >
+              Fjern valg
+            </button>
+          </div>
+        </div>
+      )}
 
       {visOpprett && (
         <OpprettSkoleModal
