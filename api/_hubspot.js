@@ -183,8 +183,9 @@ export async function knyttKontaktTilSelskap(selskapId, kontaktId) {
   )
 }
 
-// Fjerner tilknytningen til alle kontakter med gitt tittel på et Company, unntatt nyKontaktId
-export async function fjernGamleKoblinger(selskapId, tittel, nyKontaktId) {
+// Fjerner tilknytningen til alle kontakter med gitt tittel på et Company, unntatt de i nyeKontaktIder
+export async function fjernGamleKoblinger(selskapId, tittel, nyeKontaktIder) {
+  const iderABeholde = Array.isArray(nyeKontaktIder) ? nyeKontaktIder : [nyeKontaktIder]
   const assocRes = await fetch(
     `${BASE_URL}/crm/v4/objects/companies/${selskapId}/associations/contacts`,
     { headers: headers() }
@@ -209,7 +210,7 @@ export async function fjernGamleKoblinger(selskapId, tittel, nyKontaktId) {
   const batchData = await batchRes.json()
 
   const gamle = (batchData.results ?? []).filter(
-    k => k.properties?.jobtitle === tittel && k.id !== nyKontaktId
+    k => k.properties?.jobtitle === tittel && !iderABeholde.includes(k.id)
   )
 
   for (const kontakt of gamle) {

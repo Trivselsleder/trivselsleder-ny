@@ -125,7 +125,7 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
   )
 }
 
-const SKOLE_FELT = 'id, navn, kommunenavn, fylke, gateadresse, postnummer, poststed, telefon, antall_elever, type, nettverk, rektor_navn, rektor_epost, rektor_telefon, hktl_navn, hktl_epost, hktl_telefon, tla_navn, tla_epost, tla_telefon'
+const SKOLE_FELT = 'id, navn, kommunenavn, fylke, gateadresse, postnummer, poststed, telefon, antall_elever, type, nettverk, rektor_navn, rektor_epost, rektor_telefon, hktl_navn, hktl_epost, hktl_telefon, tla_kontakter'
 
 function InfoRad({ label, verdi }) {
   if (!verdi) return null
@@ -153,9 +153,9 @@ function SkoleInfoVisning({ skole }) {
       {(skole.hktl_navn || skole.hktl_epost) && (
         <InfoRad label="Hovedkontakt TL" verdi={[skole.hktl_navn, skole.hktl_epost, skole.hktl_telefon].filter(Boolean).join(' · ')} />
       )}
-      {(skole.tla_navn || skole.tla_epost) && (
-        <InfoRad label="TL-ansvarlig" verdi={[skole.tla_navn, skole.tla_epost, skole.tla_telefon].filter(Boolean).join(' · ')} />
-      )}
+      {(skole.tla_kontakter ?? []).filter(t => t.navn || t.epost).map((t, i) => (
+        <InfoRad key={i} label={i === 0 ? 'TL-ansvarlig' : ''} verdi={[t.navn, t.epost, t.telefon].filter(Boolean).join(' · ')} />
+      ))}
     </div>
   )
 }
@@ -226,9 +226,9 @@ function SkoleadminSeksjon({ brukerId }) {
       hktl_navn:      s?.hktl_navn ?? '',
       hktl_epost:     s?.hktl_epost ?? '',
       hktl_telefon:   s?.hktl_telefon ?? '',
-      tla_navn:       s?.tla_navn ?? '',
-      tla_epost:      s?.tla_epost ?? '',
-      tla_telefon:    s?.tla_telefon ?? '',
+      tla_kontakter:  (s?.tla_kontakter ?? []).length > 0
+        ? s.tla_kontakter
+        : [{ navn: '', epost: '', telefon: '' }],
     })
     setLagreFeil('')
     setLagreOk(false)
@@ -236,6 +236,21 @@ function SkoleadminSeksjon({ brukerId }) {
   }
 
   function felt(key, val) { setForm(f => ({ ...f, [key]: val })) }
+
+  function settTla(index, felt, val) {
+    setForm(f => {
+      const liste = f.tla_kontakter.map((t, i) => i === index ? { ...t, [felt]: val } : t)
+      return { ...f, tla_kontakter: liste }
+    })
+  }
+
+  function fjernTla(index) {
+    setForm(f => ({ ...f, tla_kontakter: f.tla_kontakter.filter((_, i) => i !== index) }))
+  }
+
+  function leggTilTla() {
+    setForm(f => ({ ...f, tla_kontakter: [...f.tla_kontakter, { navn: '', epost: '', telefon: '' }] }))
+  }
 
   async function lagreEndringer(e) {
     e.preventDefault()
@@ -337,11 +352,32 @@ function SkoleadminSeksjon({ brukerId }) {
             </div>
 
             <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-2">TL-ansvarlig</p>
-            <div className="grid grid-cols-3 gap-3">
-              <RedigerInput label="Navn"   value={form.tla_navn}    onChange={v => felt('tla_navn', v)} />
-              <RedigerInput label="E-post" type="email" value={form.tla_epost}   onChange={v => felt('tla_epost', v)} />
-              <RedigerInput label="Telefon" type="tel" value={form.tla_telefon} onChange={v => felt('tla_telefon', v)} />
-            </div>
+            {form.tla_kontakter.map((tla, i) => (
+              <div key={i} className="grid grid-cols-3 gap-3 items-end">
+                <RedigerInput label="Navn"    value={tla.navn}    onChange={v => settTla(i, 'navn', v)} />
+                <RedigerInput label="E-post"  type="email" value={tla.epost}   onChange={v => settTla(i, 'epost', v)} />
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <RedigerInput label="Telefon" type="tel" value={tla.telefon} onChange={v => settTla(i, 'telefon', v)} />
+                  </div>
+                  {form.tla_kontakter.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => fjernTla(i)}
+                      className="mb-0.5 text-gray-300 hover:text-red-400 transition-colors text-lg leading-none"
+                      title="Fjern"
+                    >×</button>
+                  )}
+                </div>
+              </div>
+            ))}
+            {form.tla_kontakter.length < 5 && (
+              <button
+                type="button"
+                onClick={leggTilTla}
+                className="text-xs text-[#F47920] hover:text-[#e06910] font-medium"
+              >+ Legg til TL-ansvarlig</button>
+            )}
 
             {lagreFeil && <p className="text-sm text-red-500">{lagreFeil}</p>}
             <div className="flex items-center justify-end gap-3 pt-1">

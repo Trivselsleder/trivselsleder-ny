@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     rektor_navn, rektor_epost, rektor_telefon,
     htla_navn, htla_epost,
     hktl_navn, hktl_epost, hktl_telefon,
-    tla_navn, tla_epost, tla_telefon,
+    tla_kontakter,
   } = req.body
 
   if (!skoleId) return res.status(400).json({ error: 'Mangler skoleId.' })
@@ -82,9 +82,7 @@ export default async function handler(req, res) {
     ...(hktl_navn      != null ? { hktl_navn }       : {}),
     ...(hktl_epost     != null ? { hktl_epost }      : {}),
     ...(hktl_telefon   != null ? { hktl_telefon }    : {}),
-    ...(tla_navn       != null ? { tla_navn }        : {}),
-    ...(tla_epost      != null ? { tla_epost }       : {}),
-    ...(tla_telefon    != null ? { tla_telefon }     : {}),
+    ...(tla_kontakter  != null ? { tla_kontakter }   : {}),
   }
 
   const { error: dbFeil } = await supabase
@@ -170,19 +168,23 @@ export default async function handler(req, res) {
           console.log('[HubSpot] Hovedkontakt TL hoppes over (mangler navn eller e-post)')
         }
 
-        // TL-ansvarlig
-        console.log('[HubSpot] tla_navn:', tla_navn, '| tla_epost:', tla_epost)
-        if (tla_epost && tla_navn) {
-          const id = await oppdaterEllerOpprettKontakt({
-            navn: tla_navn, epost: tla_epost,
-            tittel: 'TL-ansvarlig', telefon: tla_telefon,
-          })
-          await fjernGamleKoblinger(selskapId, 'TL-ansvarlig', id)
-          console.log('[HubSpot] TL-ansvarlig kontakt-ID:', id)
-          await knyttKontaktTilSelskap(selskapId, id)
-        } else {
-          console.log('[HubSpot] TL-ansvarlig hoppes over (mangler navn eller e-post)')
+        // TL-ansvarlige (liste)
+        const tlaListe = Array.isArray(tla_kontakter) ? tla_kontakter : []
+        const nyeTlaIder = []
+        for (const tla of tlaListe) {
+          if (tla.epost && tla.navn) {
+            const id = await oppdaterEllerOpprettKontakt({
+              navn: tla.navn, epost: tla.epost,
+              tittel: 'TL-ansvarlig', telefon: tla.telefon,
+            })
+            nyeTlaIder.push(id)
+            console.log('[HubSpot] TL-ansvarlig kontakt-ID:', id)
+            await knyttKontaktTilSelskap(selskapId, id)
+          } else {
+            console.log('[HubSpot] TL-ansvarlig hoppes over (mangler navn eller e-post)')
+          }
         }
+        await fjernGamleKoblinger(selskapId, 'TL-ansvarlig', nyeTlaIder)
       }
     } catch (e) {
       console.error('[HubSpot] Feil ved skole-oppdatering:', e.message, e.stack)
