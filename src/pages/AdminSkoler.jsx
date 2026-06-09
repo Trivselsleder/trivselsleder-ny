@@ -802,7 +802,7 @@ export default function AdminSkoler() {
                 <tbody className="divide-y divide-gray-50">
                   {filtrerte.map(s => (
                     <tr key={s.id} onClick={() => setRedigerSkole(s)} className={`hover:bg-gray-50/70 transition-colors cursor-pointer ${valgte.has(s.id) ? 'bg-orange-50/40' : ''}`}>
-                      <td className="px-4 py-3 w-10" onClick={e => { e.stopPropagation(); toggleVelgEn(s.id) }}>
+                      <td className="px-4 py-3 w-10" onClick={e => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={valgte.has(s.id)}
