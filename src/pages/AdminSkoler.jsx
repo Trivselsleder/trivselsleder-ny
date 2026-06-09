@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { ALLE_FYLKER, FYLKER_KOMMUNER, ALLE_KOMMUNER } from '../data/norgeKommuner'
+import { SkoleRedigerForm } from '../components/SkoleRedigerForm'
 
 const TYPE_LABEL = {
   barnehage:    'Barnehage',
@@ -445,11 +446,108 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
   )
 }
 
+function RedigerSkoleModal({ skole, onLukk, onLagret }) {
+  const [form, setForm] = useState({
+    navn:           skole.navn           ?? '',
+    gateadresse:    skole.gateadresse    ?? '',
+    postnummer:     skole.postnummer     ?? '',
+    poststed:       skole.poststed       ?? '',
+    telefon:        skole.telefon        ?? '',
+    antall_elever:  skole.antall_elever  ?? '',
+    type:           skole.type           ?? '',
+    nettverk:       skole.nettverk       ?? '',
+    rektor_navn:    skole.rektor_navn    ?? '',
+    rektor_epost:   skole.rektor_epost   ?? '',
+    rektor_telefon: skole.rektor_telefon ?? '',
+    hktl_navn:      skole.hktl_navn      ?? '',
+    hktl_epost:     skole.hktl_epost     ?? '',
+    hktl_telefon:   skole.hktl_telefon   ?? '',
+    tla_kontakter:  (skole.tla_kontakter ?? []).length > 0
+      ? skole.tla_kontakter
+      : [{ navn: '', epost: '', telefon: '' }],
+  })
+  const [lagrer, setLagrer] = useState(false)
+  const [lagreFeil, setLagreFeil] = useState('')
+
+  function felt(key, val) { setForm(f => ({ ...f, [key]: val })) }
+
+  function settTla(index, felt, val) {
+    setForm(f => {
+      const liste = f.tla_kontakter.map((t, i) => i === index ? { ...t, [felt]: val } : t)
+      return { ...f, tla_kontakter: liste }
+    })
+  }
+
+  function fjernTla(index) {
+    setForm(f => ({ ...f, tla_kontakter: f.tla_kontakter.filter((_, i) => i !== index) }))
+  }
+
+  function leggTilTla() {
+    setForm(f => ({ ...f, tla_kontakter: [...f.tla_kontakter, { navn: '', epost: '', telefon: '' }] }))
+  }
+
+  async function lagreEndringer(e) {
+    e.preventDefault()
+    setLagreFeil('')
+    setLagrer(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (!token) { setLagreFeil('Sesjonen er utløpt — last inn siden på nytt.'); return }
+      const res = await fetch('/api/skole/oppdater-skole', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          skoleId: skole.id,
+          ...form,
+          antall_elever: form.antall_elever !== '' ? Number(form.antall_elever) : null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setLagreFeil(data.error || 'Noe gikk galt.'); return }
+      onLagret({ ...skole, ...form, antall_elever: form.antall_elever !== '' ? Number(form.antall_elever) : null })
+    } catch {
+      setLagreFeil('Noe gikk galt.')
+    } finally {
+      setLagrer(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-8 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg my-auto">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900">{skole.navn}</h2>
+          <button onClick={onLukk} className="text-gray-400 hover:text-gray-600">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="px-6 py-5">
+          <SkoleRedigerForm
+            form={form}
+            felt={felt}
+            settTla={settTla}
+            fjernTla={fjernTla}
+            leggTilTla={leggTilTla}
+            onSubmit={lagreEndringer}
+            onAvbryt={onLukk}
+            lagrer={lagrer}
+            lagreFeil={lagreFeil}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminSkoler() {
   const [skoler, setSkoler] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState('')
   const [visOpprett, setVisOpprett] = useState(false)
+  const [redigerSkole, setRedigerSkole] = useState(null)
 
   const [filterStatus, setFilterStatus] = useState('')
   const [filterFylke, setFilterFylke] = useState('')
@@ -614,7 +712,7 @@ export default function AdminSkoler() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {filtrerte.map(s => (
-                    <tr key={s.id} className="hover:bg-gray-50/70 transition-colors">
+                    <tr key={s.id} onClick={() => setRedigerSkole(s)} className="hover:bg-gray-50/70 transition-colors cursor-pointer">
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{s.navn}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{s.kommunenavn ?? '–'}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{s.fylke ?? '–'}</td>
@@ -649,6 +747,17 @@ export default function AdminSkoler() {
           onLukk={() => setVisOpprett(false)}
           onOpprettet={nySkole => {
             setSkoler(prev => [nySkole, ...prev])
+          }}
+        />
+      )}
+
+      {redigerSkole && (
+        <RedigerSkoleModal
+          skole={redigerSkole}
+          onLukk={() => setRedigerSkole(null)}
+          onLagret={oppdatert => {
+            setSkoler(prev => prev.map(s => s.id === oppdatert.id ? oppdatert : s))
+            setRedigerSkole(null)
           }}
         />
       )}
