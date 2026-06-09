@@ -24,15 +24,47 @@ const STATUS_STIL = {
 }
 
 function eksporterCSV(skoler) {
-  const kolonner = ['Skolenavn', 'Kommune', 'Fylke', 'Type', 'Status', 'Ansvarlig']
-  const rader = skoler.map(s => [
-    s.navn ?? '',
-    s.kommunenavn ?? '',
-    s.fylke ?? '',
-    s.type ? (TYPE_LABEL[s.type] ?? s.type) : '',
-    s.status ?? '',
-    s.ansvarlig ?? '',
+  const tlaKol = [1, 2, 3, 4, 5].flatMap(n => [
+    `TL-ansvarlig ${n} Navn`,
+    `TL-ansvarlig ${n} E-post`,
+    `TL-ansvarlig ${n} Telefon`,
   ])
+  const kolonner = [
+    'Skolenavn', 'Org.nr', 'Gateadresse', 'Postnummer', 'Poststed', 'Kommune', 'Fylke',
+    'Type', 'Status', 'Nettverk', 'Ansvarlig RA', 'Antall elever',
+    'Rektor navn', 'Rektor e-post', 'Rektor telefon',
+    'Hovedkontakt TL navn', 'Hovedkontakt TL e-post', 'Hovedkontakt TL telefon',
+    ...tlaKol,
+  ]
+  const rader = skoler.map(s => {
+    const tla = s.tla_kontakter ?? []
+    const tlaFelter = [0, 1, 2, 3, 4].flatMap(i => [
+      tla[i]?.navn     ?? '',
+      tla[i]?.epost    ?? '',
+      tla[i]?.telefon  ?? '',
+    ])
+    return [
+      s.navn           ?? '',
+      s.org_nr         ?? '',
+      s.gateadresse    ?? '',
+      s.postnummer     ?? '',
+      s.poststed       ?? '',
+      s.kommunenavn    ?? '',
+      s.fylke          ?? '',
+      s.type ? (TYPE_LABEL[s.type] ?? s.type) : '',
+      s.status         ?? '',
+      s.nettverk       ?? '',
+      s.ansvarlig      ?? '',
+      s.antall_elever  ?? '',
+      s.rektor_navn    ?? '',
+      s.rektor_epost   ?? '',
+      s.rektor_telefon ?? '',
+      s.hktl_navn      ?? '',
+      s.hktl_epost     ?? '',
+      s.hktl_telefon   ?? '',
+      ...tlaFelter,
+    ]
+  })
   const csv = [kolonner, ...rader]
     .map(rad => rad.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';'))
     .join('\n')
@@ -40,7 +72,7 @@ function eksporterCSV(skoler) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `skoler-${new Date().toISOString().slice(0, 10)}.csv`
+  a.download = `skoler-export-${new Date().toISOString().slice(0, 10)}.csv`
   a.click()
   URL.revokeObjectURL(url)
 }
