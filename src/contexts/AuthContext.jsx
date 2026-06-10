@@ -29,6 +29,13 @@ export function AuthProvider({ children }) {
       setSession(session)
       if (session) {
         setBruker(await hentProfil(session.user.id))
+        if (_event === 'SIGNED_IN') {
+          supabase.from('brukslogg').insert({
+            bruker_id:     session.user.id,
+            hendelse_type: 'innlogging',
+            side:          window.location.pathname,
+          })
+        }
       } else {
         setBruker(null)
       }
