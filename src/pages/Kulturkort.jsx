@@ -158,6 +158,11 @@ export default function Kulturkort() {
                         {partner.type}
                       </span>
                     )}
+                    {partner.beskrivelse && (
+                      <p className="mt-2 text-xs text-gray-600 leading-relaxed line-clamp-3 whitespace-pre-line">
+                        {partner.beskrivelse}
+                      </p>
+                    )}
                     {partner.nettside && (
                       <a
                         href={partner.nettside}
