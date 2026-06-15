@@ -5,11 +5,12 @@
     "kommune": "Alta",
     "fylke": "Finnmark",
     "type": "Kino",
-    "epost": "",
+    "epost": "post@aurorakino.no",
     "beskrivelse": "Kinobillett til 115 kr for TL samt 115kr for en venn eller voksen.\nHusk og ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "20/10/2025 - 08:25"
+    "oppdatert": "20/10/2025 - 08:25",
+    "nettside": "https://www.aurorakino.no"
   },
   {
     "id": 2,
@@ -55,11 +56,12 @@
     "kommune": "Alta",
     "fylke": "Finnmark",
     "type": "Bading",
-    "epost": "",
+    "epost": "jens@nordlysbadet.no",
     "beskrivelse": "Gratis inngang for TL alle dager med unntak av skoleferier.\nHusk å ta med gyldig kulturkort.",
     "published": false,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "28/10/2025 - 09:55"
+    "oppdatert": "28/10/2025 - 09:55",
+    "nettside": "http://www.nordlysbadet.no/"
   },
   {
     "id": 6,
@@ -67,11 +69,12 @@
     "kommune": "Alstahaug",
     "fylke": "Nordland",
     "type": "Museum",
-    "epost": "",
+    "epost": "petter.dass@helgelandmuseum.no",
     "beskrivelse": "Gratis inngang for TL og en voksen på ordinære utstillinger/omvisninger.\nRabatt eller gratis inngang på arrangementer gjennom hele året, også Barnas Museum.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "23/06/2025 - 08:26"
+    "oppdatert": "23/06/2025 - 08:26",
+    "nettside": "https://helgelandmuseum.no/besokssted/petter-dass-museet/"
   },
   {
     "id": 7,
@@ -325,11 +328,12 @@
     "kommune": "Levanger",
     "fylke": "Trøndelag",
     "type": "Svømming",
-    "epost": "",
+    "epost": "post@levangerarena.no",
     "beskrivelse": "Halv pris på inngang til svømmehall samt klatrevegg for TL.",
     "published": false,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "16/06/2025 - 08:38"
+    "oppdatert": "16/06/2025 - 08:38",
+    "nettside": "https://www.levangerarena.no/"
   },
   {
     "id": 27,
@@ -337,11 +341,12 @@
     "kommune": "Senja kommune",
     "fylke": "Troms",
     "type": "Kino",
-    "epost": "",
+    "epost": "finnsnes.kino@senja.kommune.no",
     "beskrivelse": "2 for 1 tilbud for TL.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "21/11/2024 - 12:59"
+    "oppdatert": "21/11/2024 - 12:59",
+    "nettside": "https://www.finnsnes.kulturhus.no"
   },
   {
     "id": 28,
@@ -362,11 +367,12 @@
     "kommune": "Orkland",
     "fylke": "Trøndelag",
     "type": "Museum",
-    "epost": "",
+    "epost": "oi.post@mist.no",
     "beskrivelse": "Gratis adgang for TL på rutetog, informasjonssenteret og Gammelgruva. Gjelder ordinær åpningstid.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "03/07/2025 - 11:50"
+    "oppdatert": "03/07/2025 - 11:50",
+    "nettside": "https://www.oi.no"
   },
   {
     "id": 30,
@@ -400,11 +406,12 @@
     "kommune": "Orkland",
     "fylke": "Trøndelag",
     "type": "Skitrekk",
-    "epost": "",
+    "epost": "rennkontor@orkdal-il.no",
     "beskrivelse": "100 kroner rabatt på sesongkort for TL ved fremvisning av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "20/11/2024 - 16:17"
+    "oppdatert": "20/11/2024 - 16:17",
+    "nettside": "https://www.ntnu.no"
   },
   {
     "id": 33,
@@ -683,11 +690,12 @@
     "kommune": "Sør-Varanger",
     "fylke": "Finnmark",
     "type": "Kino",
-    "epost": "",
+    "epost": "post@sorvarangerfilmklubb.no",
     "beskrivelse": "Kinobillett til 115 kr for TL samt 115kr for en venn eller voksen.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "20/10/2025 - 08:24"
+    "oppdatert": "20/10/2025 - 08:24",
+    "nettside": "https://kirkenes.aurorakino.no"
   },
   {
     "id": 55,
@@ -759,11 +767,12 @@
     "kommune": "Tromsø",
     "fylke": "Troms",
     "type": "Fotball",
-    "epost": "",
+    "epost": "post@til.no",
     "beskrivelse": "Gratis inngang for TL, såfremt det er ledige plasser på kampdag. Billetter hentes i billettluka på Alfheim stadion minimum en halvtime før kampstart.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 08:16"
+    "oppdatert": "04/07/2025 - 08:16",
+    "nettside": "https://www.til.no/"
   },
   {
     "id": 61,
@@ -771,11 +780,12 @@
     "kommune": "Tromsø",
     "fylke": "Troms",
     "type": "Fotball",
-    "epost": "",
+    "epost": "post@tuil.no",
     "beskrivelse": "Gratis inngang for TL, såfremt det er ledige plasser på kampdag.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 09:21"
+    "oppdatert": "04/07/2025 - 09:21",
+    "nettside": "https://www.tuil.no"
   },
   {
     "id": 62,
@@ -822,11 +832,12 @@
     "kommune": "Trondheim",
     "fylke": "Trøndelag",
     "type": "Fotball",
-    "epost": "",
+    "epost": "info@rbk.no",
     "beskrivelse": "Gratis inngang for TL på kampdager såfremt det er ledige plasser. Billettene hentes ut senest 90 minutter før kampstart i billettlukene på Lerkendal.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 09:22"
+    "oppdatert": "04/07/2025 - 09:22",
+    "nettside": "https://www.rbk.no"
   },
   {
     "id": 66,
@@ -925,11 +936,12 @@
     "kommune": "Trondheim",
     "fylke": "Trøndelag",
     "type": "Bowling",
-    "epost": "",
+    "epost": "trondheim@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nLocation: Heggstadmoen 55, 7080 Trondheim.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "30/04/2025 - 10:44"
+    "oppdatert": "30/04/2025 - 10:44",
+    "nettside": "https://luckybowl.no"
   },
   {
     "id": 74,
@@ -1158,11 +1170,12 @@
     "kommune": "Bergen",
     "fylke": "Vestland",
     "type": "Bading",
-    "epost": "",
+    "epost": "vannkanten@thon.no",
     "beskrivelse": "140 kr i inngang for bading mandag til torsdag med unntak av skolens fridager. TL under 10 år kun i følge med badende voksen.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "03/07/2025 - 12:04"
+    "oppdatert": "03/07/2025 - 12:04",
+    "nettside": "https://vannkanten.no"
   },
   {
     "id": 92,
@@ -1183,11 +1196,12 @@
     "kommune": "Bergen",
     "fylke": "Vestland",
     "type": "Håndball",
-    "epost": "",
+    "epost": "post@fyllingenhandball.no",
     "beskrivelse": "Gratis adgang for TL og en venn (barn/voksen) på alle ordinære seriekamper.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 08:56"
+    "oppdatert": "04/07/2025 - 08:56",
+    "nettside": "https://www.fyllingenbergen.no"
   },
   {
     "id": 94,
@@ -1582,11 +1596,12 @@
     "kommune": "Sunnfjord kommune",
     "fylke": "Vestland",
     "type": "Bowling",
-    "epost": "",
+    "epost": "hei@pizzabowling.no",
     "beskrivelse": "50 kroner per serie for TL med følge som er jevngamle. Vi setter ingen begrensning på antall personer, men ønsker at det forhåndsbookes. Bowlingsko er inkludert.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "20/04/2022 - 08:22"
+    "oppdatert": "20/04/2022 - 08:22",
+    "nettside": "https://www.pizzabowling.no"
   },
   {
     "id": 125,
@@ -1594,7 +1609,7 @@
     "kommune": "Giske",
     "fylke": "Møre og Romsdal",
     "type": "Museum",
-    "epost": "",
+    "epost": "post@mrfylke.no",
     "beskrivelse": "Gratis inngang på alle museer og arrangement for TL. Det er: Sunnmøre Museum, Aalesunds Museum, Godøy Kystmuseum, Ishavsmuseet Aarvak, Herøy Kystmuseum, Volda Bygdetun, Sivert Aarflot-Museet, Brudavolltunet, Norsk Møbelfaglig Senter, Sykkylven Naturhistoriske Museum, Ytste Skotet, Dalsfjord Fyrmuseum og Landbruksmuseet for Møre og Romsdal.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
@@ -1606,11 +1621,12 @@
     "kommune": "Giske",
     "fylke": "Møre og Romsdal",
     "type": "Golf",
-    "epost": "",
+    "epost": "post@giskegolf.no",
     "beskrivelse": "Én gratis bøtte med baller og gratis utlån av køller (henvend dere i administrasjonen).\nGratis spill på banen hvis man er kyndig spiller (har tatt Veien til golf-kurset) Man må ringe tlf 99418858 for å avtale tid.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 09:13"
+    "oppdatert": "04/07/2025 - 09:13",
+    "nettside": "https://www.giskegolf.no"
   },
   {
     "id": 127,
@@ -1850,7 +1866,7 @@
     "kommune": "Ålesund",
     "fylke": "Møre og Romsdal",
     "type": "Cafe",
-    "epost": "",
+    "epost": "post@idhuset.no",
     "beskrivelse": "50% rabatt på dagens middag for TL, ved fremvisning av gyldig kulturkort.",
     "published": false,
     "innleggsdato": "04/12/2017 - 14:20",
@@ -1875,11 +1891,12 @@
     "kommune": "Haugesund",
     "fylke": "Rogaland",
     "type": "Golf",
-    "epost": "",
+    "epost": "styret@haugesundgolf.no",
     "beskrivelse": "Veien til Golf-kurs for 195 kroner.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 10:31"
+    "oppdatert": "04/07/2025 - 10:31",
+    "nettside": "https://www.haugesundgolf.no/"
   },
   {
     "id": 148,
@@ -1951,11 +1968,12 @@
     "kommune": "Hå",
     "fylke": "Rogaland",
     "type": "",
-    "epost": "",
+    "epost": "vitengarden@jaermuseet.no",
     "beskrivelse": "Gratis inngang for TL.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "10/10/2023 - 14:37"
+    "oppdatert": "10/10/2023 - 14:37",
+    "nettside": "https://www.jaermuseet.no/vitengarden/"
   },
   {
     "id": 154,
@@ -1989,7 +2007,7 @@
     "kommune": "Iveland",
     "fylke": "Agder",
     "type": "Fritidsklubb",
-    "epost": "",
+    "epost": "post@vennesla.kommune.no",
     "beskrivelse": "2 for 1 for TL på Moonlight sine arrangementer samt på løssalg i kiosk. TL får også 20 % på turer i regi av Moonlight. Ved fremvisning av gyldig kulturkort.",
     "published": false,
     "innleggsdato": "04/12/2017 - 14:20",
@@ -2351,11 +2369,12 @@
     "kommune": "Kvinesdal",
     "fylke": "Agder",
     "type": "Museum",
-    "epost": "",
+    "epost": "post@vestagdermuseet.no",
     "beskrivelse": "Gratis inngang for TL og én voksen. Gjelder i Flekkefjord, Lista, Sjølingstad, Mandal og Kristiansand.\nPå Setesdalsbanen reiser kun TL gratis.\nHusk å ta med gyldig kulturtkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "03/07/2025 - 14:34"
+    "oppdatert": "03/07/2025 - 14:34",
+    "nettside": "https://www.vestagdermuseet.no"
   },
   {
     "id": 185,
@@ -2406,7 +2425,8 @@
     "beskrivelse": "Halv pris på medlemskap for 1 år i Husnes karateklub for TL. - forsikring inkudert (spesiell for kampsport) - medlemskap i JKA-Norway (stilartorganisasjon). Prøveperiode på 14 dagar om ein vil starte med karatetrening.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 08:06"
+    "oppdatert": "04/07/2025 - 08:06",
+    "nettside": "https://www.husneskarate.no"
   },
   {
     "id": 189,
@@ -2660,11 +2680,12 @@
     "kommune": "Randaberg",
     "fylke": "Rogaland",
     "type": "Fotball",
-    "epost": "",
+    "epost": "post@randaberg-fotball.no",
     "beskrivelse": "Gratis inngang for TL, så lenge det er ledige plasser på kampdag.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 09:18"
+    "oppdatert": "04/07/2025 - 09:18",
+    "nettside": "https://www.randaberg-fotball.no"
   },
   {
     "id": 209,
@@ -2711,11 +2732,12 @@
     "kommune": "Sandnes",
     "fylke": "Rogaland",
     "type": "Fotball",
-    "epost": "",
+    "epost": "sut@sandnesulf.no",
     "beskrivelse": "Gratis inngang for TL på kampdag, så lenge det er ledige plasser. Billetter må hentes i Ulf-huset før kampdag.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 09:24"
+    "oppdatert": "04/07/2025 - 09:24",
+    "nettside": "https://www.sandnesulf.no/"
   },
   {
     "id": 213,
@@ -2840,11 +2862,12 @@
     "kommune": "Ålesund",
     "fylke": "Møre og Romsdal",
     "type": "Motorsport",
-    "epost": "",
+    "epost": "post@skodjetrial.no",
     "beskrivelse": "Gratis lån av sykkel og sikkerhetsutstyr på treninger for TL, etter avtale. (NB! begrenset ant.) TL kan være med på treninger for passende aldersgruppe. Merk: Barna skal alltid ha følge av en voksen over 18 år. Tid og sted fås ved henvendelse til klubben.\nSkodje Trialklubb kan komme til skolene og presentere sporten etter nærmere avtale med den enkelte skole.\nAlle skoler kan komme til Skodje Trialklubb på \"Takk for hjelpen-dagen\", som arrangeres etter avtale.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "23/06/2025 - 12:58"
+    "oppdatert": "23/06/2025 - 12:58",
+    "nettside": "https://skodjetrial.no"
   },
   {
     "id": 223,
@@ -2856,7 +2879,8 @@
     "beskrivelse": "Gratis tilgang til trimrommet for TL, ved fremvisning av gyldig kulturkort. Tilgang fås ved å kontakte kommunen v/Magne Fylling.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 10:23"
+    "oppdatert": "04/07/2025 - 10:23",
+    "nettside": "https://www.gomerhuset.no"
   },
   {
     "id": 224,
@@ -2903,11 +2927,12 @@
     "kommune": "Sola",
     "fylke": "Rogaland",
     "type": "Svømming",
-    "epost": "",
+    "epost": "post@sola.kommune.no",
     "beskrivelse": "Halv pris for TL.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "03/07/2025 - 15:23"
+    "oppdatert": "03/07/2025 - 15:23",
+    "nettside": "https://www.sola.kommune.no/"
   },
   {
     "id": 228,
@@ -3006,11 +3031,12 @@
     "kommune": "Stavanger",
     "fylke": "Rogaland",
     "type": "Fotball",
-    "epost": "",
+    "epost": "viking@viking-fk.no",
     "beskrivelse": "Gratis adgang for TL når det er ledige plasser på kampdag. Billetter hentes i billettluken på kampdag. Billettluken finner du ved port 4 og den åpner 1,5 time før kamp.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 09:11"
+    "oppdatert": "04/07/2025 - 09:11",
+    "nettside": "https://www.viking-fk.no"
   },
   {
     "id": 236,
@@ -3018,11 +3044,12 @@
     "kommune": "Stavanger",
     "fylke": "Rogaland",
     "type": "Håndball",
-    "epost": "",
+    "epost": "styret@vikinghk.no",
     "beskrivelse": "Gratis adgang for TL og 1 venn (barn / voksen) når det er ledige plasser på kampdag.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 10:07"
+    "oppdatert": "04/07/2025 - 10:07",
+    "nettside": "http://www.vikinghk.no"
   },
   {
     "id": 237,
@@ -3095,11 +3122,12 @@
     "kommune": "Stord",
     "fylke": "Vestland",
     "type": "Bowling",
-    "epost": "",
+    "epost": "bowling@bowlit.no",
     "beskrivelse": "45 kroner per serie for TL inkludert sko.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 08:47"
+    "oppdatert": "04/07/2025 - 08:47",
+    "nettside": "http://www.bowlit.no/"
   },
   {
     "id": 243,
@@ -3287,11 +3315,12 @@
     "kommune": "Tvedestrand",
     "fylke": "Agder",
     "type": "Fritidsklubb",
-    "epost": "",
+    "epost": "Renathe.severinsen.fjellvang@tvedestrand.kommune.no",
     "beskrivelse": "Gratis inngang for TL på vanlige klubbkvelder Mandag-Onsdag.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "03/07/2025 - 15:11"
+    "oppdatert": "03/07/2025 - 15:11",
+    "nettside": "https://www.tvedestrand.kommune.no/tjenester/bibliotek-kultur-frivillighet-idrett-badepark-og-fritid/aktivitetstilbud-og-bua-utlånssentralen/fritidsklubben/"
   },
   {
     "id": 258,
@@ -3351,7 +3380,7 @@
     "kommune": "Tysvær",
     "fylke": "Rogaland",
     "type": "Kino",
-    "epost": "",
+    "epost": "tysverkino@tysver.kommune.no",
     "beskrivelse": "20 kroner rabatt for TL på visninger på tirsdag, onsdag, torsdag og fredag.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
@@ -3596,11 +3625,12 @@
     "kommune": "Ålesund",
     "fylke": "Møre og Romsdal",
     "type": "",
-    "epost": "",
+    "epost": "mail@atlanterhavsparken.no",
     "beskrivelse": "Rabatt tilsvarende grupperabatt. NB: Hva er grupperabatt",
     "published": false,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "23/06/2025 - 10:20"
+    "oppdatert": "23/06/2025 - 10:20",
+    "nettside": "https://www.atlanterhavsparken.no"
   },
   {
     "id": 282,
@@ -3677,7 +3707,8 @@
     "beskrivelse": "Gratis inngang for TL ved fremvisning av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 08:57"
+    "oppdatert": "04/07/2025 - 08:57",
+    "nettside": "https://www.aukrust.no"
   },
   {
     "id": 288,
@@ -3685,11 +3716,12 @@
     "kommune": "Aurskog-Høland",
     "fylke": "Akershus",
     "type": "Golf",
-    "epost": "",
+    "epost": "post@romerikegk.no",
     "beskrivelse": "Gratis golfkurs og gratis utlån av køller.\nHusk gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 11:46"
+    "oppdatert": "04/07/2025 - 11:46",
+    "nettside": "https://romerikegk.no"
   },
   {
     "id": 289,
@@ -3774,11 +3806,12 @@
     "kommune": "Bamble",
     "fylke": "Telemark",
     "type": "",
-    "epost": "",
+    "epost": "post@bamblegolfklubb.no",
     "beskrivelse": "Bamble golfklubb gir TL gratis utlån av køller og en gratis kurv med baller til driving rangen. Halv pris på nybegynnerkurs.\nHusk å ta med gyldig kulturkort.",
     "published": false,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "21/10/2025 - 12:35"
+    "oppdatert": "21/10/2025 - 12:35",
+    "nettside": "https://bamblegolfklubb.no"
   },
   {
     "id": 296,
@@ -3848,11 +3881,12 @@
     "kommune": "Bærum",
     "fylke": "Akershus",
     "type": "Håndball",
-    "epost": "",
+    "epost": "post@stabakhandball.no",
     "beskrivelse": "Gratis adgang for TL og 1 venn (barn / voksen), ved fremvisning av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "03/07/2025 - 14:25"
+    "oppdatert": "03/07/2025 - 14:25",
+    "nettside": "https://www.stabakhandball.no"
   },
   {
     "id": 302,
@@ -3968,7 +4002,8 @@
     "beskrivelse": "'Kom to, betal for én' (to personer per TL-kort) man.-tors. unntatt premiére.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "03/07/2025 - 12:11"
+    "oppdatert": "03/07/2025 - 12:11",
+    "nettside": "https://www.kinocity.no/kino/drammen"
   },
   {
     "id": 311,
@@ -3989,11 +4024,12 @@
     "kommune": "Eidsvoll",
     "fylke": "Akershus",
     "type": "Bading",
-    "epost": "",
+    "epost": "raholt.bad@eidsvoll.kommune.no",
     "beskrivelse": "20 kroner rabatt på inngangsbillettene på både hverdager og helg/helligdager.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 12:41"
+    "oppdatert": "04/07/2025 - 12:41",
+    "nettside": "https://www.eidsvoll.kommune.no/"
   },
   {
     "id": 313,
@@ -4248,7 +4284,7 @@
     "kommune": "Gjerdrum",
     "fylke": "Akershus",
     "type": "Skitrekk",
-    "epost": "",
+    "epost": "dag@nebbenes.com",
     "beskrivelse": "Kom to Trivselsledere, betal for én' ved fremvisning av TL-kort. Gjelder kveldskort og helgekort.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
@@ -4420,7 +4456,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "30/04/2025 - 10:39"
+    "oppdatert": "30/04/2025 - 10:39",
+    "nettside": "https://hamar.luckybowl.no/"
   },
   {
     "id": 346,
@@ -4493,11 +4530,12 @@
     "kommune": "Horten",
     "fylke": "Vestfold",
     "type": "Fotball",
-    "epost": "",
+    "epost": "fotball@orn-horten.no",
     "beskrivelse": "Gratis inngang for TL når det er ledige plasser på kampdag.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 09:12"
+    "oppdatert": "04/07/2025 - 09:12",
+    "nettside": "https://www.orn-horten.no"
   },
   {
     "id": 352,
@@ -4635,11 +4673,12 @@
     "kommune": "Lørenskog",
     "fylke": "Akershus",
     "type": "Ishockey",
-    "epost": "",
+    "epost": "leder@likail.no",
     "beskrivelse": "Alle Trivselsledere (TL) med gyldig kulturkort får 2 for 1 på inngang på hjemmekamp. Den TL har med seg må ikke være TL.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "28/08/2025 - 08:48"
+    "oppdatert": "28/08/2025 - 08:48",
+    "nettside": "https://www.lik.no"
   },
   {
     "id": 363,
@@ -4852,11 +4891,12 @@
     "kommune": "Nes",
     "fylke": "Akershus",
     "type": "Kino",
-    "epost": "",
+    "epost": "post@neskulturhus.no",
     "beskrivelse": "20 kroner rabatt for TL mandag til torsdag.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 10:33"
+    "oppdatert": "04/07/2025 - 10:33",
+    "nettside": "https://www.neskulturhus.no"
   },
   {
     "id": 380,
@@ -5059,11 +5099,12 @@
     "kommune": "Nordre Follo kommune",
     "fylke": "Akershus",
     "type": "Svømmehall",
-    "epost": "",
+    "epost": "postmottak@nordrefollo.kommune.no",
     "beskrivelse": "Kom to, betal for én'. Tilbudet gjelder alle dager i svømmehallens åpningstid. TL kan ta med en venn/voksen, og begge kommer inn for prisen av en barnebillett.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 07:51"
+    "oppdatert": "04/07/2025 - 07:51",
+    "nettside": "https://www.nordrefollo.kommune.no/sofiemyr-svømmehall"
   },
   {
     "id": 396,
@@ -5123,11 +5164,12 @@
     "kommune": "Oslo",
     "fylke": "Oslo",
     "type": "Basketball",
-    "epost": "",
+    "epost": "styret@ammerudbasket.no",
     "beskrivelse": "Gratis inngang for trivselsledere når det er ledige plasser på kampdag.\nHusk å ta med gyldig og utfylt Kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "23/06/2025 - 10:33"
+    "oppdatert": "23/06/2025 - 10:33",
+    "nettside": "https://www.ammerudbasket.no/"
   },
   {
     "id": 401,
@@ -5161,11 +5203,12 @@
     "kommune": "Oslo",
     "fylke": "Oslo",
     "type": "",
-    "epost": "",
+    "epost": "christopher@nordstrand-if.no",
     "beskrivelse": "Gratis inngang for TL og 1 venn (t.o.m. 16 år) på kampdag når det er ledige plasser.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "23/06/2025 - 10:31"
+    "oppdatert": "23/06/2025 - 10:31",
+    "nettside": "https://nordstrand-if.no"
   },
   {
     "id": 404,
@@ -5199,11 +5242,12 @@
     "kommune": "Oslo",
     "fylke": "Oslo",
     "type": "Håndball",
-    "epost": "",
+    "epost": "valerenga@ronhandball.no",
     "beskrivelse": "Gratis adgang for TL og 1 venn (barn/voksen) på kampdag når det er ledige plasser.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 10:34"
+    "oppdatert": "04/07/2025 - 10:34",
+    "nettside": "https://www.ronhandball.no"
   },
   {
     "id": 407,
@@ -5211,11 +5255,12 @@
     "kommune": "Oslo",
     "fylke": "Oslo",
     "type": "Hockey",
-    "epost": "",
+    "epost": "post.elite@mshockey.no",
     "beskrivelse": "Gratis adgang for TL på kampdag når det er ledige plasser.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "23/06/2025 - 10:30"
+    "oppdatert": "23/06/2025 - 10:30",
+    "nettside": "https://www.mshockey.no/elite"
   },
   {
     "id": 408,
@@ -5305,7 +5350,8 @@
     "beskrivelse": "10 kroner rabatt på ordinære billettpriser for TL og en venn/voksen.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 08:14"
+    "oppdatert": "04/07/2025 - 08:14",
+    "nettside": "https://www.nordiskfilmkino.no/kino/honefoss"
   },
   {
     "id": 415,
@@ -5446,7 +5492,8 @@
     "beskrivelse": "Gratis inngang for TL, så lenge det er ledige plasser på kampdag.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "03/07/2025 - 15:12"
+    "oppdatert": "03/07/2025 - 15:12",
+    "nettside": "https://www.spartawarriors.no"
   },
   {
     "id": 426,
@@ -5454,11 +5501,12 @@
     "kommune": "Sarpsborg",
     "fylke": "Østfold",
     "type": "Aktivitetssenter",
-    "epost": "",
+    "epost": "superland@strawberry.no",
     "beskrivelse": "Kom to, betal for én fra mandag til torsdag på badeland og minigolf.\nGjelder også dagspass.\nTilbudet gjelder ikke skolefrie dager.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 10:28"
+    "oppdatert": "04/07/2025 - 10:28",
+    "nettside": "https://www.superland.no"
   },
   {
     "id": 427,
@@ -5544,11 +5592,12 @@
     "kommune": "Lillestrøm",
     "fylke": "Akershus",
     "type": "Fotball",
-    "epost": "",
+    "epost": "info@strommen-if.no",
     "beskrivelse": "Gratis adgang på kampdag hvis det er ledige plasser.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 07:57"
+    "oppdatert": "04/07/2025 - 07:57",
+    "nettside": "https://www.strommen-if.no"
   },
   {
     "id": 434,
@@ -5569,7 +5618,7 @@
     "kommune": "Nordre Follo kommune",
     "fylke": "Akershus",
     "type": "Håndball",
-    "epost": "",
+    "epost": "kulturoginkludering@nordrefollo.kommune.no",
     "beskrivelse": "Gratis adgang for TL og 1 venn (barn / voksen).\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
@@ -5815,11 +5864,12 @@
     "kommune": "Ullensaker",
     "fylke": "Akershus",
     "type": "Fotball",
-    "epost": "",
+    "epost": "post@ullkisafotball.no",
     "beskrivelse": "Gratis inngang på seriekamper for TL, så lenge det er ledige plasser på kampdag.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
-    "oppdatert": "04/07/2025 - 08:24"
+    "oppdatert": "04/07/2025 - 08:24",
+    "nettside": "https://www.ullkisafotball.no"
   },
   {
     "id": 455,
@@ -5905,7 +5955,7 @@
     "kommune": "Våler",
     "fylke": "Østfold",
     "type": "Svømmehall",
-    "epost": "",
+    "epost": "postmottak@vis.kommune.no",
     "beskrivelse": "Halv pris på inngang for TL, ved fremvisning av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/12/2017 - 14:20",
@@ -6021,11 +6071,12 @@
     "kommune": "Oslo",
     "fylke": "Oslo",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "oslo@rushtrampolinepark.no",
     "beskrivelse": "Trivselsleder pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie.\nHusk å ta med gyldig kulturkort.\nDette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "31/01/2018 - 10:26",
-    "oppdatert": "23/06/2025 - 10:51"
+    "oppdatert": "23/06/2025 - 10:51",
+    "nettside": "https://www.rushtrampolinepark.no/"
   },
   {
     "id": 471,
@@ -6033,11 +6084,12 @@
     "kommune": "Bergen",
     "fylke": "Vestland",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "bergen@rushtrampolinepark.no",
     "beskrivelse": "Alle trivselsledere pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie. Dette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "31/01/2018 - 10:29",
-    "oppdatert": "23/06/2025 - 10:52"
+    "oppdatert": "23/06/2025 - 10:52",
+    "nettside": "https://www.rushtrampolinepark.no/bergen"
   },
   {
     "id": 472,
@@ -6045,11 +6097,12 @@
     "kommune": "Stavanger",
     "fylke": "Rogaland",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "stavanger@rushtrampolinepark.no",
     "beskrivelse": "Alle trivselsledere pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie. Dette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "31/01/2018 - 10:30",
-    "oppdatert": "23/06/2025 - 10:52"
+    "oppdatert": "23/06/2025 - 10:52",
+    "nettside": "http://www.rushtrampolinepark.no/"
   },
   {
     "id": 473,
@@ -6057,11 +6110,12 @@
     "kommune": "Trondheim",
     "fylke": "Trøndelag",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "trondheim@rushtrampolinepark.no",
     "beskrivelse": "Alle trivselsledere pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie. Dette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "31/01/2018 - 10:31",
-    "oppdatert": "23/06/2025 - 10:52"
+    "oppdatert": "23/06/2025 - 10:52",
+    "nettside": "https://www.rushtrampolinepark.no"
   },
   {
     "id": 474,
@@ -6237,7 +6291,7 @@
     "kommune": "Vadsø",
     "fylke": "Finnmark",
     "type": "Bad",
-    "epost": "",
+    "epost": "lena.hammer@vadso.kommune.no",
     "beskrivelse": "Alle trivselsledere som fremviser gyldig kulturkort får gratis inngang til svømmehallen. Dette gjelder mandag til onsdag kl. 16-18 og 16-19.30 på fredager.",
     "published": true,
     "innleggsdato": "13/11/2018 - 15:32",
@@ -6274,11 +6328,12 @@
     "kommune": "Narvik",
     "fylke": "Nordland",
     "type": "Ishockey",
-    "epost": "",
+    "epost": "post@narvikhockey.no",
     "beskrivelse": "TL som fremviser gyldig kulturkort får 50% rabatt på inngangsbillett på alle hjemmekamper.",
     "published": true,
     "innleggsdato": "19/02/2019 - 15:40",
-    "oppdatert": "09/10/2025 - 13:56"
+    "oppdatert": "09/10/2025 - 13:56",
+    "nettside": "https://narvikhockey.no"
   },
   {
     "id": 491,
@@ -6337,11 +6392,12 @@
     "kommune": "Orkland",
     "fylke": "Trøndelag",
     "type": "Klatring",
-    "epost": "",
+    "epost": "post@orklandbadet.no",
     "beskrivelse": "Vis fram gyldig kulturkort og få halv pris på drop in-klatring og leie av utstyr for TL og inntil en person som er med.",
     "published": true,
     "innleggsdato": "29/03/2019 - 14:26",
-    "oppdatert": "04/07/2025 - 10:06"
+    "oppdatert": "04/07/2025 - 10:06",
+    "nettside": "https://www.orklandbadet.no"
   },
   {
     "id": 496,
@@ -6362,11 +6418,12 @@
     "kommune": "Sarpsborg",
     "fylke": "Østfold",
     "type": "Hoppepark",
-    "epost": "",
+    "epost": "post@svev.no",
     "beskrivelse": "Ved å vise fram gyldig kulturkort får du 20% rabatt på hoppetimer på tirsdager og onsdager!Barn under 10 år må ha følge med voksen.",
     "published": true,
     "innleggsdato": "09/04/2019 - 09:26",
-    "oppdatert": "04/07/2025 - 10:10"
+    "oppdatert": "04/07/2025 - 10:10",
+    "nettside": "https://svev.no/"
   },
   {
     "id": 498,
@@ -6400,11 +6457,12 @@
     "kommune": "Stryn",
     "fylke": "Vestland",
     "type": "Høydepark",
-    "epost": "",
+    "epost": "post@hydlaparken.no",
     "beskrivelse": "TL som viser gyldig kulturkort får 30 % rabatt på dagsbillett/drop-in.",
     "published": true,
     "innleggsdato": "04/10/2019 - 14:17",
-    "oppdatert": "09/09/2025 - 09:25"
+    "oppdatert": "09/09/2025 - 09:25",
+    "nettside": "https://hydlaparken.no"
   },
   {
     "id": 501,
@@ -6425,11 +6483,12 @@
     "kommune": "Indre Østfold kommune",
     "fylke": "Østfold",
     "type": "Bading",
-    "epost": "",
+    "epost": "post@ostfoldbadet.no",
     "beskrivelse": "Østfoldbadet gir 15% rabatt til Trivselsleder og til 1 venn/klassekammerat/søsken, husk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "22/10/2019 - 08:34",
-    "oppdatert": "04/07/2025 - 08:49"
+    "oppdatert": "04/07/2025 - 08:49",
+    "nettside": "https://ostfoldbadet.no"
   },
   {
     "id": 503,
@@ -6476,7 +6535,7 @@
     "kommune": "Hamar",
     "fylke": "Innlandet",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "hamar@rushtrampolinepark.no",
     "beskrivelse": "Alle trivselsledere pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie. Dette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "01/11/2019 - 09:20",
@@ -6488,11 +6547,12 @@
     "kommune": "Drammen",
     "fylke": "Buskerud",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "drammen@rushtrampolinepark.no",
     "beskrivelse": "Alle trivselsledere pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie. Dette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "01/11/2019 - 09:22",
-    "oppdatert": "23/06/2025 - 10:51"
+    "oppdatert": "23/06/2025 - 10:51",
+    "nettside": "https://www.rushtrampolinepark.no/drammen"
   },
   {
     "id": 508,
@@ -6500,11 +6560,12 @@
     "kommune": "Haugesund",
     "fylke": "Rogaland",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "haugesund@rushtrampolinepark.no",
     "beskrivelse": "Alle trivselsledere pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie. Dette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "01/11/2019 - 09:24",
-    "oppdatert": "23/06/2025 - 10:52"
+    "oppdatert": "23/06/2025 - 10:52",
+    "nettside": "https://www.rushtrampolinepark.no/haugesund/"
   },
   {
     "id": 509,
@@ -6538,11 +6599,12 @@
     "kommune": "Tromsø",
     "fylke": "Troms",
     "type": "Bading",
-    "epost": "",
+    "epost": "info@tromsobadet.no",
     "beskrivelse": "Alle trivselsledere som viser fram gyldig kulturkort får ett gratis pizzastykke og brus/farris på onsdagsklubben.Onsdagsklubben er for ungdom mellom 12 og 16 år.",
     "published": false,
     "innleggsdato": "14/11/2019 - 15:06",
-    "oppdatert": "04/07/2025 - 10:24"
+    "oppdatert": "04/07/2025 - 10:24",
+    "nettside": "https://www.tromsobadet.no/"
   },
   {
     "id": 512,
@@ -6576,11 +6638,12 @@
     "kommune": "Lørenskog",
     "fylke": "Akershus",
     "type": "Lekeland",
-    "epost": "",
+    "epost": "booking@skyland.no",
     "beskrivelse": "Alle trivselsledere med gyldig kulturkort får 2-for-1 på inngang",
     "published": true,
     "innleggsdato": "15/11/2019 - 13:21",
-    "oppdatert": "04/07/2025 - 08:22"
+    "oppdatert": "04/07/2025 - 08:22",
+    "nettside": "https://www.skyland.no/megafun-loreskog"
   },
   {
     "id": 515,
@@ -6614,11 +6677,12 @@
     "kommune": "Asker",
     "fylke": "Akershus",
     "type": "Ishockey",
-    "epost": "",
+    "epost": "post@friskasker.no",
     "beskrivelse": "Frisk Asker Hockey tilbyr gratis inngang for trivselsledere på sine hjemmekamper. Gjelder kun i grunnserien, ikke i sluttspill.De må henvende seg og fremvise kulturkortet på kampkontoret, og få skrevet ut en billett som må vises ved inngang, men altså gratis.",
     "published": false,
     "innleggsdato": "21/11/2019 - 13:53",
-    "oppdatert": "04/07/2025 - 10:02"
+    "oppdatert": "04/07/2025 - 10:02",
+    "nettside": "http://www.friskasker.no"
   },
   {
     "id": 518,
@@ -6691,11 +6755,12 @@
     "kommune": "Kvam",
     "fylke": "Vestland",
     "type": "Svømmehall",
-    "epost": "",
+    "epost": "post@hardangerbadet.no",
     "beskrivelse": "Trivselsledere får 2 for 1 på inngang til bading. Kan benyttes både sammen med voksen eller barn, den rimeligste billetten er gratis. Tilbudet gjelder mandag til fredag, og ikke i helg eller skoleferier.",
     "published": true,
     "innleggsdato": "20/02/2020 - 15:09",
-    "oppdatert": "04/07/2025 - 09:08"
+    "oppdatert": "04/07/2025 - 09:08",
+    "nettside": "https://hardangerbadet.no"
   },
   {
     "id": 524,
@@ -6754,7 +6819,7 @@
     "kommune": "Stavanger",
     "fylke": "Rogaland",
     "type": "Museum",
-    "epost": "",
+    "epost": "post-am@uis.no",
     "beskrivelse": "Trivselsledere som viser fram gyldig Kulturkort får gratis inngang på museet.",
     "published": true,
     "innleggsdato": "02/03/2020 - 10:44",
@@ -6766,11 +6831,12 @@
     "kommune": "Lørenskog",
     "fylke": "Akershus",
     "type": "Ski",
-    "epost": "",
+    "epost": "kontakt@snooslo.no",
     "beskrivelse": "Trivselsledere med gyldig kulturkort får 30% rabatt på dagspass alle dager, maks 3 pass om gangen.\nFor å få den rabatterte prisen gjør du følgende: 1. Trykk deg inn på denne linken: https://snooslo.no/products/daypass\n2. Opprett en bruker og logg inn.\n3. Velg \"alping/langrenn\" og antall billetter.\n4. Gå til betaling. Legg til \"trivselsleder\" under \"legg inn rabattkode\".",
     "published": true,
     "innleggsdato": "12/03/2020 - 10:32",
-    "oppdatert": "04/07/2025 - 13:35"
+    "oppdatert": "04/07/2025 - 13:35",
+    "nettside": "https://www.snooslo.no"
   },
   {
     "id": 530,
@@ -6804,7 +6870,7 @@
     "kommune": "Hitra",
     "fylke": "Trøndelag",
     "type": "Kino",
-    "epost": "",
+    "epost": "mlhe@hitra.kommune.no",
     "beskrivelse": "Vis fram ditt kulturkort og få gratis popkorn når du kjøper kinobillett (1 stk).",
     "published": true,
     "innleggsdato": "11/09/2020 - 11:57",
@@ -6932,7 +6998,7 @@
     "kommune": "Larvik",
     "fylke": "Vestfold",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "larvik@rushtrampolinepark.no",
     "beskrivelse": "Alle trivselsledere pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie. Dette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "08/11/2021 - 08:45",
@@ -6944,11 +7010,12 @@
     "kommune": "Bærum",
     "fylke": "Akershus",
     "type": "Trampolinepark",
-    "epost": "",
+    "epost": "post@dreamwork.no",
     "beskrivelse": "Alle trivselsledere pluss en venn får 20 % rabatt på prisen på hopp hos oss, mandag til fredag utenom skoleferie. Dette gjelder i alle Rush parkene i Norge (pr. i dag Trondheim, Bærum, Bergen, Oslo, Drammen, Hamar, Haugesund, Larvik og Stavanger).",
     "published": true,
     "innleggsdato": "08/11/2021 - 08:48",
-    "oppdatert": "23/06/2025 - 10:51"
+    "oppdatert": "23/06/2025 - 10:51",
+    "nettside": "https://www.rushpark.no"
   },
   {
     "id": 544,
@@ -6960,7 +7027,8 @@
     "beskrivelse": "10% rabatt for trivselsledere.",
     "published": true,
     "innleggsdato": "08/11/2021 - 09:52",
-    "oppdatert": "04/07/2025 - 08:10"
+    "oppdatert": "04/07/2025 - 08:10",
+    "nettside": "https://www.ulriken643.no"
   },
   {
     "id": 545,
@@ -7136,7 +7204,7 @@
     "kommune": "Vardø",
     "fylke": "Finnmark",
     "type": "Kino",
-    "epost": "",
+    "epost": "billett@aurorakino.no",
     "beskrivelse": "Kinobillett til 115 kr for TL samt 115kr for en venn eller voksen.\nHusk og ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "03/12/2021 - 09:29",
@@ -7380,7 +7448,7 @@
     "kommune": "Oslo",
     "fylke": "Oslo",
     "type": "Museum",
-    "epost": "",
+    "epost": "linderudandel@gmail.com",
     "beskrivelse": "Fri adgang på dette MiA-museet for barn med Kulturkort.\nFor arrangementer, omvisninger o.l. gjelder ordinære billettpriser.\nKulturkortet må fremvises ved inngang.",
     "published": true,
     "innleggsdato": "13/12/2021 - 10:42",
@@ -7440,11 +7508,12 @@
     "kommune": "Lillestrøm",
     "fylke": "Akershus",
     "type": "Museum",
-    "epost": "",
+    "epost": "post@miakershus.no",
     "beskrivelse": "Fri adgang på dette MiA-museet for barn med Kulturkort.\nFor arrangementer, omvisninger o.l. gjelder ordinære billettpriser.\nKulturkortet må fremvises ved inngang.",
     "published": true,
     "innleggsdato": "13/12/2021 - 11:19",
-    "oppdatert": "23/06/2025 - 12:47"
+    "oppdatert": "23/06/2025 - 12:47",
+    "nettside": "https://www.miakershus.no"
   },
   {
     "id": 583,
@@ -7477,7 +7546,7 @@
     "kommune": "Asker",
     "fylke": "Akershus",
     "type": "Museum",
-    "epost": "",
+    "epost": "ellen@tidsskriftetmuseum.no",
     "beskrivelse": "Fri adgang på dette MiA-museet for barn med Kulturkort.\nFor arrangementer, omvisninger o.l. gjelder ordinære billettpriser.\nKulturkortet må fremvises ved inngang.",
     "published": true,
     "innleggsdato": "14/12/2021 - 09:29",
@@ -7505,7 +7574,8 @@
     "beskrivelse": "Fri adgang på dette MiA-museet for barn med Kulturkort.\nFor arrangementer, omvisninger o.l. gjelder ordinære billettpriser.\nKulturkortet må fremvises ved inngang.",
     "published": true,
     "innleggsdato": "14/12/2021 - 09:36",
-    "oppdatert": "23/06/2025 - 12:47"
+    "oppdatert": "23/06/2025 - 12:47",
+    "nettside": "https://www.grinimuseet.no"
   },
   {
     "id": 588,
@@ -7525,11 +7595,12 @@
     "kommune": "Nordre Follo kommune",
     "fylke": "Akershus",
     "type": "Museum",
-    "epost": "",
+    "epost": "post@mia.museum.no",
     "beskrivelse": "Fri adgang på dette MiA-museet for barn med Kulturkort.\nFor arrangementer, omvisninger o.l. gjelder ordinære billettpriser.\nKulturkortet må fremvises ved inngang.",
     "published": true,
     "innleggsdato": "14/12/2021 - 09:42",
-    "oppdatert": "23/06/2025 - 12:46"
+    "oppdatert": "23/06/2025 - 12:46",
+    "nettside": "https://www.mia.museum.no"
   },
   {
     "id": 590,
@@ -7705,11 +7776,12 @@
     "kommune": "Stavanger",
     "fylke": "Rogaland",
     "type": "Riding",
-    "epost": "",
+    "epost": "travskolen@travsport.no",
     "beskrivelse": "Familiedag på Forus Travbane - Trivselsledere kan ta med venner eller familie på en familiekveld på Forus Travbane.\nHer blir det kjøring med ponnier fra kl 19:00 - 21:00\nHusk og meld dere på med SMS (navn, antall og dato) til tlf 93820070 - Frist minst 1 uke før arrangementet.\nHusk og ta med og vis frem gyldig Kulturkort.\nArrangement datoer:\n09.Feb - 09.Mars - 27.April - 25.Mai - 15.Juni",
     "published": false,
     "innleggsdato": "24/01/2022 - 09:58",
-    "oppdatert": "03/07/2025 - 12:19"
+    "oppdatert": "03/07/2025 - 12:19",
+    "nettside": "https://www.forustavbane.no"
   },
   {
     "id": 604,
@@ -7847,11 +7919,12 @@
     "kommune": "Ålesund",
     "fylke": "Møre og Romsdal",
     "type": "Bowling",
-    "epost": "",
+    "epost": "livogroremoa@resthon.no",
     "beskrivelse": "Liv & Røre Moa gir Trivselsleder 20% avslag på alle aktiviteter; bowling, shuffleboard, dart, biljard, bordtennis og karaoke.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/02/2022 - 11:19",
-    "oppdatert": "04/07/2025 - 08:46"
+    "oppdatert": "04/07/2025 - 08:46",
+    "nettside": "https://livrore.no/moa/"
   },
   {
     "id": 615,
@@ -8015,11 +8088,12 @@
     "kommune": "Aurskog-Høland",
     "fylke": "Akershus",
     "type": "Bading",
-    "epost": "",
+    "epost": "post@ahk.no",
     "beskrivelse": "Bjørkebadet gir Trivselsleder en enkeltbillett til 40 kroner på Bjørkebadet, ved fremvisning av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "18/03/2022 - 10:32",
-    "oppdatert": "04/07/2025 - 08:40"
+    "oppdatert": "04/07/2025 - 08:40",
+    "nettside": "https://www.bjorkebadet.no"
   },
   {
     "id": 628,
@@ -8182,11 +8256,12 @@
     "kommune": "Hamar",
     "fylke": "Innlandet",
     "type": "Teater",
-    "epost": "",
+    "epost": "epost@teaterinnlandet.no",
     "beskrivelse": "Teater Innlandet gir 2 for prisen av 1 på egne forestillinger i Innlandet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "06/04/2022 - 09:32",
-    "oppdatert": "03/07/2025 - 15:20"
+    "oppdatert": "03/07/2025 - 15:20",
+    "nettside": "https://www.teaterinnlandet.no"
   },
   {
     "id": 641,
@@ -8389,11 +8464,12 @@
     "kommune": "Trondheim",
     "fylke": "Trøndelag",
     "type": "Klatring",
-    "epost": "",
+    "epost": "trondheim@gripklatring.no",
     "beskrivelse": "Grip Klatring Trondheim gir trivselslederne 20% avslag på ordinær drop-in pris ved fremvisning av gyldig kulturkort.\nGjelder på alle Grip klatring sine sentre - Sluppen og Leangen.",
     "published": true,
     "innleggsdato": "11/05/2022 - 12:54",
-    "oppdatert": "03/07/2025 - 13:40"
+    "oppdatert": "03/07/2025 - 13:40",
+    "nettside": "https://www.gripklatring.no"
   },
   {
     "id": 657,
@@ -8453,7 +8529,7 @@
     "kommune": "Lindesnes kommune",
     "fylke": "Agder",
     "type": "Kino",
-    "epost": "",
+    "epost": "buen@buenkulturhus.no",
     "beskrivelse": "Buen Kulturhus gir Trivselsleder 2 for 1 på kino.\nHusk å ta med gyldig og utfylt kulturkort.",
     "published": true,
     "innleggsdato": "18/05/2022 - 10:44",
@@ -8504,11 +8580,12 @@
     "kommune": "Tromsø",
     "fylke": "Troms",
     "type": "Museum",
-    "epost": "",
+    "epost": "lena.aarekol@uit.no",
     "beskrivelse": "Gratis inngang for Trivselsleder i lag med 1 voksen alle dager.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "23/05/2022 - 11:08",
-    "oppdatert": "03/07/2025 - 14:29"
+    "oppdatert": "03/07/2025 - 14:29",
+    "nettside": "https://uit.no/universitetsmuseet"
   },
   {
     "id": 666,
@@ -8620,7 +8697,7 @@
     "kommune": "Ørland",
     "fylke": "Trøndelag",
     "type": "Gokart, Skøyter, Fotball, curling og ishockey",
-    "epost": "",
+    "epost": "Leder@bosk.no",
     "beskrivelse": "Ved fremvisning av gyldig kulturkort får man 2 for 1 på inngang til Fosenhallen.\nFosenhallen tilbyr ulike aktiviteter. På sommerhalvåret er det gokart, og på vinterhalvåret er det skøyter, fotball, curling og ishockey.",
     "published": true,
     "innleggsdato": "11/10/2022 - 15:18",
@@ -8866,11 +8943,12 @@
     "kommune": "Bergen",
     "fylke": "Vestland",
     "type": "Bowling",
-    "epost": "",
+    "epost": "bergen@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "17/10/2023 - 10:30",
-    "oppdatert": "30/04/2025 - 10:43"
+    "oppdatert": "30/04/2025 - 10:43",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 694,
@@ -8878,11 +8956,12 @@
     "kommune": "Sandnes",
     "fylke": "Rogaland",
     "type": "Bowling",
-    "epost": "",
+    "epost": "kontakt@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nLocation: Hana Sanz, Hanaveien 17, 4327 Sandnes.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "17/10/2023 - 10:34",
-    "oppdatert": "30/04/2025 - 10:42"
+    "oppdatert": "30/04/2025 - 10:42",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 695,
@@ -8890,11 +8969,12 @@
     "kommune": "Stavanger",
     "fylke": "Rogaland",
     "type": "Bowling",
-    "epost": "",
+    "epost": "okonomi@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nGjelder både Lucky Bowl Mariero, Stavanger Lounge og Åsen.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "17/10/2023 - 10:35",
-    "oppdatert": "30/04/2025 - 10:23"
+    "oppdatert": "30/04/2025 - 10:23",
+    "nettside": "https://aasen.luckybowl.no/"
   },
   {
     "id": 696,
@@ -8906,7 +8986,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nLocation: Holmen, Vogellund 6, 1394 Nesbru.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "17/10/2023 - 10:36",
-    "oppdatert": "30/04/2025 - 10:36"
+    "oppdatert": "30/04/2025 - 10:36",
+    "nettside": "https://luckybowl.no"
   },
   {
     "id": 697,
@@ -8930,7 +9011,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nLocation: Borreveien 42, 3186 Horten.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "17/10/2023 - 10:41",
-    "oppdatert": "30/04/2025 - 10:45"
+    "oppdatert": "30/04/2025 - 10:45",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 699,
@@ -8938,11 +9020,12 @@
     "kommune": "Lørenskog",
     "fylke": "Akershus",
     "type": "Bowling",
-    "epost": "",
+    "epost": "kontakt@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "17/10/2023 - 10:43",
-    "oppdatert": "30/04/2025 - 10:35"
+    "oppdatert": "30/04/2025 - 10:35",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 700,
@@ -8954,7 +9037,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nLocation: Veitveitveien 8, 0596 Oslo.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "17/10/2023 - 10:44",
-    "oppdatert": "30/04/2025 - 10:43"
+    "oppdatert": "30/04/2025 - 10:43",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 701,
@@ -8962,11 +9046,12 @@
     "kommune": "Kristiansand",
     "fylke": "Agder",
     "type": "Bowling",
-    "epost": "",
+    "epost": "kristiansand@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nLocation:\n- Kongsgård Alle 53, 4632 Kristiansand\n- Kartheia 5, 4626 Kristiansand\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "17/10/2023 - 10:47",
-    "oppdatert": "30/04/2025 - 10:38"
+    "oppdatert": "30/04/2025 - 10:38",
+    "nettside": "https://kristiansand.luckybowl.no/"
   },
   {
     "id": 702,
@@ -9160,7 +9245,8 @@
     "beskrivelse": "Trivselsledere får en gratis Zipline tur, tilbudet kan kun benyttes EN gang per. TL. For å få billett må man ta kontakt med Tone Kristiansen på mail, tone@vikersund.no, og avtale dato. Husk å legge ved bilde av gyldig kulturkort i mailen. Åpningstidene ser dere på nettsiden.",
     "published": false,
     "innleggsdato": "07/11/2023 - 07:53",
-    "oppdatert": "12/09/2025 - 09:41"
+    "oppdatert": "12/09/2025 - 09:41",
+    "nettside": "https://www.vikersundhoppsenter.no"
   },
   {
     "id": 717,
@@ -9506,11 +9592,12 @@
     "kommune": "Lindesnes kommune",
     "fylke": "Agder",
     "type": "Svømmehall",
-    "epost": "",
+    "epost": "idrett@lindesnes.kommune.no",
     "beskrivelse": "Mandal svømmehall gir trivselslederne 2 for 1 på inngang ved fremvisning av gyldig og utfylt kulturkort.",
     "published": true,
     "innleggsdato": "06/12/2023 - 09:19",
-    "oppdatert": "01/10/2025 - 14:53"
+    "oppdatert": "01/10/2025 - 14:53",
+    "nettside": "https://www.mandalshallen.no"
   },
   {
     "id": 744,
@@ -9873,7 +9960,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/04/2025 - 09:41",
-    "oppdatert": "30/04/2025 - 10:34"
+    "oppdatert": "30/04/2025 - 10:34",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 772,
@@ -9881,11 +9969,12 @@
     "kommune": "Porsgrunn",
     "fylke": "Telemark",
     "type": "Bowling",
-    "epost": "",
+    "epost": "porsgrunn@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/04/2025 - 09:52",
-    "oppdatert": "30/04/2025 - 10:33"
+    "oppdatert": "30/04/2025 - 10:33",
+    "nettside": "https://porsgrunn.luckybowl.no/"
   },
   {
     "id": 773,
@@ -9893,11 +9982,12 @@
     "kommune": "Moss",
     "fylke": "Østfold",
     "type": "Bowling",
-    "epost": "",
+    "epost": "moss@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/04/2025 - 10:02",
-    "oppdatert": "30/04/2025 - 10:33"
+    "oppdatert": "30/04/2025 - 10:33",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 774,
@@ -9909,7 +9999,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nLocation: Strømmen, Støperiveien 5, 2010 Strømmen\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/04/2025 - 10:05",
-    "oppdatert": "30/04/2025 - 10:32"
+    "oppdatert": "30/04/2025 - 10:32",
+    "nettside": "https://luckybowl.no/strommen/"
   },
   {
     "id": 775,
@@ -9921,7 +10012,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nGjelder Jessheim.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/04/2025 - 10:07",
-    "oppdatert": "30/04/2025 - 10:27"
+    "oppdatert": "30/04/2025 - 10:27",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 776,
@@ -9929,11 +10021,12 @@
     "kommune": "Haugesund",
     "fylke": "Rogaland",
     "type": "Bowling",
-    "epost": "",
+    "epost": "haugesund@luckybowl.no",
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/04/2025 - 10:14",
-    "oppdatert": "30/04/2025 - 10:25"
+    "oppdatert": "30/04/2025 - 10:25",
+    "nettside": "https://haugesund.luckybowl.no/"
   },
   {
     "id": 777,
@@ -9945,7 +10038,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/04/2025 - 10:23",
-    "oppdatert": "30/04/2025 - 10:25"
+    "oppdatert": "30/04/2025 - 10:25",
+    "nettside": "https://luckybowl.no/fredrikstad/"
   },
   {
     "id": 778,
@@ -9981,7 +10075,8 @@
     "beskrivelse": "Kjøp 2 serier - få spill så mye du vil!\nGjelder ved drop-in og ved ledig kapasitet.\nHusk å ta med gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/04/2025 - 10:29",
-    "oppdatert": "30/04/2025 - 10:23"
+    "oppdatert": "30/04/2025 - 10:23",
+    "nettside": "https://luckybowl.no/"
   },
   {
     "id": 781,
@@ -10110,7 +10205,8 @@
     "beskrivelse": "20% rabatt på inngang for trivselsleder, ved fremvisning av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "11/09/2025 - 08:52",
-    "oppdatert": "11/09/2025 - 08:52"
+    "oppdatert": "11/09/2025 - 08:52",
+    "nettside": "https://www.skylandbergen.no"
   },
   {
     "id": 791,
@@ -10118,7 +10214,7 @@
     "kommune": "Finnmark",
     "fylke": "Finnmark",
     "type": "Kino/forestillinger",
-    "epost": "",
+    "epost": "post@rdm.no",
     "beskrivelse": "Alle Trivselslederne kan komme samlet sammen med TL-ansvarlig på skolen og se filmen om samisk liv, kultur og mytologi gratis.\nBooking gjøres av skolen her:\nSápmi Park\nEmail: sapmi.karasjok@scandichotels.com\nTel. 900 57576 eller 78 46 89 86.",
     "published": true,
     "innleggsdato": "19/09/2025 - 12:53",
@@ -10173,7 +10269,8 @@
     "beskrivelse": "Indoor Golf tilbyr Trivselsledere gratis medlemskap som gir 20% rabatt pr. time på simulator 1 og 2.Medlemskap aktiveres ved å sende en e-post til fore@indoorgolf.no med bilde av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "03/10/2025 - 15:04",
-    "oppdatert": "07/10/2025 - 14:08"
+    "oppdatert": "07/10/2025 - 14:08",
+    "nettside": "https://www.indoorgolf.no"
   },
   {
     "id": 796,
@@ -10181,11 +10278,12 @@
     "kommune": "Rana",
     "fylke": "Nordland",
     "type": "Fotball",
-    "epost": "",
+    "epost": "medlem@ranafk.no",
     "beskrivelse": "Alle trivselsledere får gratis inngang på dame- og herrelaget sine kamper. Gjelder ikke cupkamper.\nGyldig kulturkort vises til vaktene.",
     "published": true,
     "innleggsdato": "08/10/2025 - 13:00",
-    "oppdatert": "08/10/2025 - 13:24"
+    "oppdatert": "08/10/2025 - 13:24",
+    "nettside": "https://www.ranafk.no/"
   },
   {
     "id": 797,
@@ -10193,7 +10291,7 @@
     "kommune": "Narvik",
     "fylke": "Nordland",
     "type": "Bowling",
-    "epost": "",
+    "epost": "post@narvikbowling.no",
     "beskrivelse": "Narvik bowling tilbyr 25% rabatt på bowling til alle trivselsledere. Tilbudet gjelder kun bowling og ikke lekeland.\nGyldig kulturkort må fremvises ved kjøp.",
     "published": true,
     "innleggsdato": "09/10/2025 - 10:55",
@@ -10205,11 +10303,12 @@
     "kommune": "Rana",
     "fylke": "Nordland",
     "type": "Skitrekk",
-    "epost": "",
+    "epost": "post@skillevollen.no",
     "beskrivelse": "Skillevollen Alpinsenter tilbyr 20% på dagskort for alle trivselsledere. Gyldig kulturkort må vises i billettluken.",
     "published": true,
     "innleggsdato": "16/10/2025 - 11:00",
-    "oppdatert": "16/10/2025 - 11:00"
+    "oppdatert": "16/10/2025 - 11:00",
+    "nettside": "https://www.skillevollen.no"
   },
   {
     "id": 799,
@@ -10217,7 +10316,7 @@
     "kommune": "Ringerike",
     "fylke": "Buskerud",
     "type": "Padel",
-    "epost": "",
+    "epost": "post@xpadel.no",
     "beskrivelse": "Hver dag bidrar du til et tryggere og mer inkluderende skolemiljø, og det fortjener applaus! I XPADEL ønsker vi å gi deg gratis Padel i den perioden du er Trivselsleder. Som en takk fra oss til deg for innsatsen du gjør på skolen hver dag. Padel handler om akkurat det samme som dere jobber for: samarbeid, glede og fellesskap. XPADEL er en sosial og inkluderende aktivitet der alle kan delta uansett nivå.\nGratis spill hos i XPADEL*\nSlik gjør du for å spille gratis:\nRegister deg i vår App : Playtomic\nKlikk hjerte til XPADEL\nSend mail til info@xpadel.no med ditt navn og perioden du har valgt til TL.Vi registrerer deg i våre systemer og deretter har du gratis spill i perioden.\nXpadel.no\n*Tilbudet er personlig og kan ikke benyttes av andre enn TL. Kortet er gyldig maks 6 måneder. Vi forbeholder oss retten til å inndra tilbudet ved misbruk eller opptreden som strider mot XPADELS verdier.",
     "published": true,
     "innleggsdato": "24/10/2025 - 10:54",
@@ -10229,11 +10328,12 @@
     "kommune": "Hole",
     "fylke": "Buskerud",
     "type": "Padel",
-    "epost": "",
+    "epost": "info@xpadel.no",
     "beskrivelse": "Hver dag bidrar du til et tryggere og mer inkluderende skolemiljø, og det fortjener applaus! I XPADEL ønsker vi å gi deg gratis Padel i den perioden du er Trivselsleder. Som en takk fra oss til deg for innsatsen du gjør på skolen hver dag. Padel handler om akkurat det samme som dere jobber for: samarbeid, glede og fellesskap. XPADEL er en sosial og inkluderende aktivitet der alle kan delta uansett nivå.\nGratis spill hos i XPADEL*\nSlik gjør du for å spille gratis:\nRegister deg i vår App : Playtomic\nKlikk hjerte til XPADEL\nSend mail til info@xpadel.no med ditt navn og perioden du har valgt til TL.Vi registrerer deg i våre systemer og deretter har du gratis spill i perioden.\nXpadel.no\n*Tilbudet er personlig og kan ikke benyttes av andre enn TL. Kortet er gyldig maks 6 måneder. Vi forbeholder oss retten til å inndra tilbudet ved misbruk eller opptreden som strider mot XPADELS verdier.",
     "published": true,
     "innleggsdato": "24/10/2025 - 11:43",
-    "oppdatert": "24/10/2025 - 11:43"
+    "oppdatert": "24/10/2025 - 11:43",
+    "nettside": "https://www.xpadel.no"
   },
   {
     "id": 801,
@@ -10265,7 +10365,7 @@
     "kommune": "Karasjok",
     "fylke": "Finnmark",
     "type": "Kultursenter",
-    "epost": "",
+    "epost": "postmottak@karasjok.kommune.no",
     "beskrivelse": "Trivselsledere får 20% rabatt for et av tilbudene ved kulturskolen.\nHusk gyldig kulturkort.",
     "published": true,
     "innleggsdato": "18/11/2025 - 11:33",
@@ -10289,7 +10389,7 @@
     "kommune": "Nordre Follo kommune",
     "fylke": "Akershus",
     "type": "Hopping",
-    "epost": "",
+    "epost": "kim@skyland.no",
     "beskrivelse": "Trivselsledere får 20% rabatt på inngang.\nHusk å ta med gyldig og utfylt kulturkort.",
     "published": true,
     "innleggsdato": "06/01/2026 - 11:38",
@@ -10326,11 +10426,12 @@
     "kommune": "Fredrikstad",
     "fylke": "Østfold",
     "type": "Klatring",
-    "epost": "",
+    "epost": "post@fkk.no",
     "beskrivelse": "Fredrikstad Buldresenter gir trivselsledere halv pris på klatring og leie av utstyr.\nGjelder Fredrikstad Buldresenter og klatresenteret på Active Center på Lisleby.\nHusk gyldig kulturkort.",
     "published": true,
     "innleggsdato": "13/02/2026 - 14:31",
-    "oppdatert": "16/02/2026 - 09:56"
+    "oppdatert": "16/02/2026 - 09:56",
+    "nettside": "https://www.fkk.no"
   },
   {
     "id": 809,
@@ -10350,7 +10451,7 @@
     "kommune": "Vadsø",
     "fylke": "Finnmark",
     "type": "Bowling",
-    "epost": "",
+    "epost": "pizza@tundras.no",
     "beskrivelse": "Tundra Bowling tilbyr leie av bowlingbane til 250kr pr time pr bane for trivselsledere.\nHusk gyldig kulturkort.",
     "published": true,
     "innleggsdato": "25/03/2026 - 10:39",
@@ -10375,11 +10476,12 @@
     "kommune": "Stavanger",
     "fylke": "Rogaland",
     "type": "Fotballgolf",
-    "epost": "",
+    "epost": "post@stavanger-footgolf.no",
     "beskrivelse": "Alle trivselsledere kan spille gratis footgolf hos Stavanger Footgolf ved fremvisning av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "28/05/2026 - 11:48",
-    "oppdatert": "28/05/2026 - 11:48"
+    "oppdatert": "28/05/2026 - 11:48",
+    "nettside": "https://fotballgolf.weebly.com"
   },
   {
     "id": 813,
@@ -10399,10 +10501,11 @@
     "kommune": "Stavanger",
     "fylke": "Rogaland",
     "type": "Aktivitetspark",
-    "epost": "",
+    "epost": "post@playground.no",
     "beskrivelse": "Trivselsledere får 30% på drop in på Playground.\nTilbudet gjelder ved fremvisning av gyldig kulturkort.",
     "published": true,
     "innleggsdato": "04/06/2026 - 12:17",
-    "oppdatert": "04/06/2026 - 12:17"
+    "oppdatert": "04/06/2026 - 12:17",
+    "nettside": "https://playground.no"
   }
 ]
