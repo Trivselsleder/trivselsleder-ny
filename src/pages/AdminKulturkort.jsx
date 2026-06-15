@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import initialData from '../data/kulturkort-partnere.json'
 
@@ -14,11 +14,41 @@ export default function AdminKulturkort() {
   const [redigerer, setRedigerer] = useState(null)
   const [nyForm, setNyForm] = useState(null)
   const [bekreftSlett, setBekreftSlett] = useState(null)
+  const [valgte, setValgte] = useState(new Set())
 
   const filtrert = useMemo(() => partnere
     .filter(p => filterPublished === 'alle' || (filterPublished === 'aktive' ? p.published : !p.published))
     .filter(p => !søk || p.navn.toLowerCase().includes(søk.toLowerCase()) || p.kommune.toLowerCase().includes(søk.toLowerCase()))
   , [partnere, søk, filterPublished])
+
+  useEffect(() => { setValgte(new Set()) }, [søk, filterPublished])
+
+  const alleFiltrertValgt = filtrert.length > 0 && filtrert.every(p => valgte.has(p.id))
+  const noenValgt = filtrert.some(p => valgte.has(p.id))
+
+  function toggleVelgAlle() {
+    if (alleFiltrertValgt) {
+      setValgte(new Set())
+    } else {
+      setValgte(new Set(filtrert.map(p => p.id)))
+    }
+  }
+
+  function toggleVelgEn(id) {
+    setValgte(prev => {
+      const neste = new Set(prev)
+      neste.has(id) ? neste.delete(id) : neste.add(id)
+      return neste
+    })
+  }
+
+  const valgteAdresser = useMemo(() =>
+    filtrert.filter(p => valgte.has(p.id)).map(p => p.epost).filter(Boolean)
+  , [valgte, filtrert])
+
+  function sendEpost() {
+    window.location.href = `mailto:?bcc=${valgteAdresser.join(',')}`
+  }
 
   function togglePublished(id) {
     setPartnere(prev => prev.map(p => p.id === id ? { ...p, published: !p.published } : p))
@@ -50,7 +80,7 @@ export default function AdminKulturkort() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className={`min-h-screen bg-gray-50 py-8 px-4 ${valgte.size > 0 ? 'pb-24' : ''}`}>
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
@@ -97,6 +127,15 @@ export default function AdminKulturkort() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
+                  <th className="px-4 py-3 w-10">
+                    <input
+                      type="checkbox"
+                      checked={alleFiltrertValgt}
+                      ref={el => { if (el) el.indeterminate = noenValgt && !alleFiltrertValgt }}
+                      onChange={toggleVelgAlle}
+                      className="w-4 h-4 accent-[#F47920] cursor-pointer"
+                    />
+                  </th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolNavn')}</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolKommune')}</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolFylke')}</th>
@@ -109,7 +148,15 @@ export default function AdminKulturkort() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filtrert.map(partner => (
-                  <tr key={partner.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={partner.id} className={`hover:bg-gray-50 transition-colors ${valgte.has(partner.id) ? 'bg-orange-50/40' : ''}`}>
+                    <td className="px-4 py-3 w-10" onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={valgte.has(partner.id)}
+                        onChange={() => toggleVelgEn(partner.id)}
+                        className="w-4 h-4 accent-[#F47920] cursor-pointer"
+                      />
+                    </td>
                     <td className="px-4 py-3 font-medium text-gray-900 max-w-48">
                       <span className="truncate block" title={partner.navn}>{partner.navn}</span>
                     </td>
@@ -122,8 +169,11 @@ export default function AdminKulturkort() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs max-w-36">
-                      <span className="truncate block" title={partner.epost}>{partner.epost || '—'}</span>
+                    <td className="px-4 py-3 text-xs max-w-36">
+                      {partner.epost
+                        ? <a href={`mailto:${partner.epost}`} className="text-gray-500 hover:text-[#F47920] hover:underline truncate block" title={partner.epost}>{partner.epost}</a>
+                        : <span className="text-gray-300">—</span>
+                      }
                     </td>
                     <td className="px-4 py-3 text-xs max-w-36">
                       {partner.nettside
@@ -185,6 +235,37 @@ export default function AdminKulturkort() {
           avbrytLabel={t('admin.avbrytKnapp')}
           feltLabels={t}
         />
+      )}
+
+      {valgte.size > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg px-4 py-3">
+          <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
+            <span className="text-sm font-semibold text-gray-800">
+              {valgte.size} {valgte.size === 1 ? 'partner' : 'partnere'} valgt
+            </span>
+            {valgteAdresser.length > 50 && (
+              <span className="text-xs text-amber-600 font-medium">
+                ⚠ Over 50 adresser — Gmail støtter maks 50 i BCC
+              </span>
+            )}
+            <button
+              onClick={sendEpost}
+              disabled={valgteAdresser.length === 0 || valgteAdresser.length > 50}
+              className="flex items-center gap-1.5 bg-[#F47920] text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-40"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Send e-post{valgteAdresser.length > 0 ? ` (${valgteAdresser.length})` : ''}
+            </button>
+            <button
+              onClick={() => setValgte(new Set())}
+              className="text-sm text-gray-400 hover:text-gray-700 underline"
+            >
+              Fjern valg
+            </button>
+          </div>
+        </div>
       )}
 
       {bekreftSlett && (
