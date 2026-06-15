@@ -23,6 +23,7 @@ export default function AdminKulturkort() {
       .from('kulturkort_partnere')
       .select('*')
       .order('navn', { ascending: true })
+      .range(0, 9999)
       .then(({ data, error }) => {
         if (error) setFeil(error.message)
         else setPartnere(data ?? [])
