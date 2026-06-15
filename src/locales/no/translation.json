@@ -163,12 +163,14 @@
   "admin": {
     "title": "Admin – Kulturkort-partnere",
     "aktive": "aktive",
-    "inaktive": "inaktive",
+    "tidligere": "tidligere",
+    "potensielle": "potensielle",
     "totalt": "totalt",
     "leggTilKnapp": "+ Legg til partner",
     "alle": "Alle",
     "aktivFilter": "Aktive",
-    "inaktivFilter": "Inaktive",
+    "tidligereFilter": "Tidligere",
+    "potensiellFilter": "Potensielle",
     "sokPlaceholder": "Søk etter navn eller kommune...",
     "viser": "Viser {{antall}} partnere",
     "kolNavn": "Navn",
@@ -181,7 +183,8 @@
     "kolHandlinger": "Handlinger",
     "besok": "Besøk →",
     "statusAktiv": "Aktiv",
-    "statusInaktiv": "Inaktiv",
+    "statusTidligere": "Tidligere",
+    "statusPotensiell": "Potensiell",
     "rediger": "Rediger",
     "slett": "Slett",
     "bekreftSlettTitle": "Slette partner?",
@@ -199,6 +202,6 @@
     "feltEpost": "E-post kontaktperson",
     "feltNettside": "Nettside (URL)",
     "feltBeskrivelse": "Beskrivelse",
-    "feltAktiv": "Aktiv (vises på partnersiden)"
+    "feltKategori": "Kategori"
   }
 }

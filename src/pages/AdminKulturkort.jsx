@@ -3,25 +3,25 @@ import { useTranslation } from 'react-i18next'
 import initialData from '../data/kulturkort-partnere.json'
 
 const TOMPARTNER = {
-  navn: '', kommune: '', fylke: '', type: '', epost: '', nettside: '', beskrivelse: '', published: true,
+  navn: '', kommune: '', fylke: '', type: '', epost: '', nettside: '', beskrivelse: '', kategori: 'aktiv',
 }
 
 export default function AdminKulturkort() {
   const { t } = useTranslation()
   const [partnere, setPartnere] = useState(initialData)
   const [søk, setSøk] = useState('')
-  const [filterPublished, setFilterPublished] = useState('alle')
+  const [filterKategori, setFilterKategori] = useState('alle')
   const [redigerer, setRedigerer] = useState(null)
   const [nyForm, setNyForm] = useState(null)
   const [bekreftSlett, setBekreftSlett] = useState(null)
   const [valgte, setValgte] = useState(new Set())
 
   const filtrert = useMemo(() => partnere
-    .filter(p => filterPublished === 'alle' || (filterPublished === 'aktive' ? p.published : !p.published))
+    .filter(p => filterKategori === 'alle' || p.kategori === filterKategori)
     .filter(p => !søk || p.navn.toLowerCase().includes(søk.toLowerCase()) || p.kommune.toLowerCase().includes(søk.toLowerCase()))
-  , [partnere, søk, filterPublished])
+  , [partnere, søk, filterKategori])
 
-  useEffect(() => { setValgte(new Set()) }, [søk, filterPublished])
+  useEffect(() => { setValgte(new Set()) }, [søk, filterKategori])
 
   const alleFiltrertValgt = filtrert.length > 0 && filtrert.every(p => valgte.has(p.id))
   const noenValgt = filtrert.some(p => valgte.has(p.id))
@@ -50,8 +50,8 @@ export default function AdminKulturkort() {
     window.location.href = `mailto:?bcc=${valgteAdresser.join(',')}`
   }
 
-  function togglePublished(id) {
-    setPartnere(prev => prev.map(p => p.id === id ? { ...p, published: !p.published } : p))
+  function settKategori(id, nyKategori) {
+    setPartnere(prev => prev.map(p => p.id === id ? { ...p, kategori: nyKategori } : p))
   }
 
   function slettPartner(id) {
@@ -70,13 +70,15 @@ export default function AdminKulturkort() {
     setNyForm(null)
   }
 
-  const aktive = partnere.filter(p => p.published).length
-  const inaktive = partnere.length - aktive
+  const aktive = partnere.filter(p => p.kategori === 'aktiv').length
+  const tidligere = partnere.filter(p => p.kategori === 'tidligere').length
+  const potensielle = partnere.filter(p => p.kategori === 'potensiell').length
 
   const filterLabels = {
     alle: t('admin.alle'),
-    aktive: t('admin.aktivFilter'),
-    inaktive: t('admin.inaktivFilter'),
+    aktiv: t('admin.aktivFilter'),
+    tidligere: t('admin.tidligereFilter'),
+    potensiell: t('admin.potensiellFilter'),
   }
 
   return (
@@ -86,7 +88,7 @@ export default function AdminKulturkort() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{t('admin.title')}</h1>
             <p className="text-sm text-gray-500 mt-1">
-              {aktive} {t('admin.aktive')} · {inaktive} {t('admin.inaktive')} · {partnere.length} {t('admin.totalt')}
+              {aktive} {t('admin.aktive')} · {tidligere} {t('admin.tidligere')} · {potensielle} {t('admin.potensielle')} · {partnere.length} {t('admin.totalt')}
             </p>
           </div>
           <button
@@ -101,9 +103,9 @@ export default function AdminKulturkort() {
           {Object.entries(filterLabels).map(([val, label]) => (
             <button
               key={val}
-              onClick={() => setFilterPublished(val)}
+              onClick={() => setFilterKategori(val)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filterPublished === val
+                filterKategori === val
                   ? 'bg-[#D6006E] text-white'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-[#D6006E]'
               }`}
@@ -182,17 +184,20 @@ export default function AdminKulturkort() {
                       }
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => togglePublished(partner.id)}
-                        className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
-                          partner.published
-                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      <select
+                        value={partner.kategori ?? 'aktiv'}
+                        onChange={e => settKategori(partner.id, e.target.value)}
+                        onClick={e => e.stopPropagation()}
+                        className={`text-xs font-medium px-2 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 ${
+                          partner.kategori === 'aktiv'     ? 'bg-green-100 text-green-700'
+                          : partner.kategori === 'tidligere' ? 'bg-gray-100 text-gray-500'
+                          : 'bg-purple-100 text-purple-700'
                         }`}
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full ${partner.published ? 'bg-green-500' : 'bg-gray-400'}`} />
-                        {partner.published ? t('admin.statusAktiv') : t('admin.statusInaktiv')}
-                      </button>
+                        <option value="aktiv">{t('admin.statusAktiv')}</option>
+                        <option value="tidligere">{t('admin.statusTidligere')}</option>
+                        <option value="potensiell">{t('admin.statusPotensiell')}</option>
+                      </select>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
@@ -326,10 +331,19 @@ function PartnerModal({ tittel, initial, onLagre, onAvbryt, erNy, lagreLabel, av
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920] resize-none"
             />
           </div>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" name="published" checked={form.published} onChange={handleChange} className="w-4 h-4 accent-[#F47920]" />
-            <span className="text-sm font-medium text-gray-700">{t('admin.feltAktiv')}</span>
-          </label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.feltKategori')}</label>
+            <select
+              name="kategori"
+              value={form.kategori ?? 'aktiv'}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+            >
+              <option value="aktiv">Aktiv</option>
+              <option value="tidligere">Tidligere</option>
+              <option value="potensiell">Potensiell</option>
+            </select>
+          </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" className="flex-1 bg-gradient-to-r from-[#F47920] to-[#D6006E] text-white font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity">
               {lagreLabel}

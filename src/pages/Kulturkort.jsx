@@ -31,7 +31,7 @@ function typeIkon(type) {
 
 export default function Kulturkort() {
   const { t } = useTranslation()
-  const aktive = useMemo(() => partnereData.filter(p => p.published), [])
+  const aktive = useMemo(() => partnereData.filter(p => p.kategori === 'aktiv'), [])
 
   const fylker = useMemo(() => [t('kulturkort.alleFylker'), ...Array.from(new Set(aktive.map(p => p.fylke))).sort()], [aktive, t])
   const [valgtFylke, setValgtFylke] = useState('')
