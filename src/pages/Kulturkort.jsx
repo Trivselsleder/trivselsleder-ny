@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import partnereData from '../data/kulturkort-partnere.json'
+import { supabase } from '../lib/supabase'
 import { Link } from 'react-router-dom'
 
 const TYPE_IKONER = {
@@ -31,7 +31,20 @@ function typeIkon(type) {
 
 export default function Kulturkort() {
   const { t } = useTranslation()
-  const aktive = useMemo(() => partnereData.filter(p => p.kategori === 'aktiv'), [])
+  const [aktive, setAktive] = useState([])
+  const [laster, setLaster] = useState(true)
+
+  useEffect(() => {
+    supabase
+      .from('kulturkort_partnere')
+      .select('*')
+      .eq('kategori', 'aktiv')
+      .order('navn', { ascending: true })
+      .then(({ data }) => {
+        setAktive(data ?? [])
+        setLaster(false)
+      })
+  }, [])
 
   const fylker = useMemo(() => [t('kulturkort.alleFylker'), ...Array.from(new Set(aktive.map(p => p.fylke))).sort()], [aktive, t])
   const [valgtFylke, setValgtFylke] = useState('')
@@ -134,7 +147,11 @@ export default function Kulturkort() {
 
       {/* Partnerkort */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {filtrert.length === 0 ? (
+        {laster ? (
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : filtrert.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
             <p className="text-4xl mb-4">🔍</p>
             <p className="text-lg">{t('kulturkort.ingenFunnet')}</p>

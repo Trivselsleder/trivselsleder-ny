@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import initialData from '../data/kulturkort-partnere.json'
+import { supabase } from '../lib/supabase'
 
 const TOMPARTNER = {
   navn: '', kommune: '', fylke: '', type: '', epost: '', nettside: '', beskrivelse: '', kategori: 'aktiv',
@@ -8,13 +8,27 @@ const TOMPARTNER = {
 
 export default function AdminKulturkort() {
   const { t } = useTranslation()
-  const [partnere, setPartnere] = useState(initialData)
+  const [partnere, setPartnere] = useState([])
+  const [laster, setLaster] = useState(true)
+  const [feil, setFeil] = useState('')
   const [søk, setSøk] = useState('')
   const [filterKategori, setFilterKategori] = useState('alle')
   const [redigerer, setRedigerer] = useState(null)
   const [nyForm, setNyForm] = useState(null)
   const [bekreftSlett, setBekreftSlett] = useState(null)
   const [valgte, setValgte] = useState(new Set())
+
+  useEffect(() => {
+    supabase
+      .from('kulturkort_partnere')
+      .select('*')
+      .order('navn', { ascending: true })
+      .then(({ data, error }) => {
+        if (error) setFeil(error.message)
+        else setPartnere(data ?? [])
+        setLaster(false)
+      })
+  }, [])
 
   const filtrert = useMemo(() => partnere
     .filter(p => filterKategori === 'alle' || p.kategori === filterKategori)
@@ -50,33 +64,57 @@ export default function AdminKulturkort() {
     window.location.href = `mailto:?bcc=${valgteAdresser.join(',')}`
   }
 
-  function settKategori(id, nyKategori) {
+  async function settKategori(id, nyKategori) {
+    const { error } = await supabase
+      .from('kulturkort_partnere')
+      .update({ kategori: nyKategori })
+      .eq('id', id)
+    if (error) { console.error(error); return }
     setPartnere(prev => prev.map(p => p.id === id ? { ...p, kategori: nyKategori } : p))
   }
 
-  function slettPartner(id) {
+  async function slettPartner(id) {
+    const { error } = await supabase
+      .from('kulturkort_partnere')
+      .delete()
+      .eq('id', id)
+    if (error) { console.error(error); return }
     setPartnere(prev => prev.filter(p => p.id !== id))
     setBekreftSlett(null)
   }
 
-  function lagreRedigering(oppdatert) {
-    setPartnere(prev => prev.map(p => p.id === oppdatert.id ? oppdatert : p))
+  async function lagreRedigering(oppdatert) {
+    const { id, published, ...felter } = oppdatert
+    const { data, error } = await supabase
+      .from('kulturkort_partnere')
+      .update({ ...felter, oppdatert: new Date().toLocaleDateString('no') })
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    setPartnere(prev => prev.map(p => p.id === id ? data : p))
     setRedigerer(null)
   }
 
-  function lagreNy(partner) {
-    const nyId = Math.max(...partnere.map(p => p.id)) + 1
-    setPartnere(prev => [...prev, { ...partner, id: nyId, innleggsdato: new Date().toLocaleDateString('no'), oppdatert: '' }])
+  async function lagreNy(partner) {
+    const { published, ...felter } = partner
+    const { data, error } = await supabase
+      .from('kulturkort_partnere')
+      .insert({ ...felter, innleggsdato: new Date().toLocaleDateString('no') })
+      .select()
+      .single()
+    if (error) throw error
+    setPartnere(prev => [...prev, data].sort((a, b) => a.navn.localeCompare(b.navn, 'no')))
     setNyForm(null)
   }
 
-  const aktive = partnere.filter(p => p.kategori === 'aktiv').length
-  const tidligere = partnere.filter(p => p.kategori === 'tidligere').length
+  const aktive     = partnere.filter(p => p.kategori === 'aktiv').length
+  const tidligere  = partnere.filter(p => p.kategori === 'tidligere').length
   const potensielle = partnere.filter(p => p.kategori === 'potensiell').length
 
   const filterLabels = {
-    alle: t('admin.alle'),
-    aktiv: t('admin.aktivFilter'),
+    alle:      t('admin.alle'),
+    aktiv:     t('admin.aktivFilter'),
     tidligere: t('admin.tidligereFilter'),
     potensiell: t('admin.potensiellFilter'),
   }
@@ -124,97 +162,111 @@ export default function AdminKulturkort() {
 
         <p className="text-xs text-gray-400 mb-4">{t('admin.viser', { antall: filtrert.length })}</p>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  <th className="px-4 py-3 w-10">
-                    <input
-                      type="checkbox"
-                      checked={alleFiltrertValgt}
-                      ref={el => { if (el) el.indeterminate = noenValgt && !alleFiltrertValgt }}
-                      onChange={toggleVelgAlle}
-                      className="w-4 h-4 accent-[#F47920] cursor-pointer"
-                    />
-                  </th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolNavn')}</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolKommune')}</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolFylke')}</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolType')}</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolEpost')}</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolNettside')}</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolStatus')}</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolHandlinger')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtrert.map(partner => (
-                  <tr key={partner.id} className={`hover:bg-gray-50 transition-colors ${valgte.has(partner.id) ? 'bg-orange-50/40' : ''}`}>
-                    <td className="px-4 py-3 w-10" onClick={e => e.stopPropagation()}>
+        {laster ? (
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : feil ? (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-red-600 text-sm">{feil}</div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-100">
+                  <tr>
+                    <th className="px-4 py-3 w-10">
                       <input
                         type="checkbox"
-                        checked={valgte.has(partner.id)}
-                        onChange={() => toggleVelgEn(partner.id)}
+                        checked={alleFiltrertValgt}
+                        ref={el => { if (el) el.indeterminate = noenValgt && !alleFiltrertValgt }}
+                        onChange={toggleVelgAlle}
                         className="w-4 h-4 accent-[#F47920] cursor-pointer"
                       />
-                    </td>
-                    <td className="px-4 py-3 font-medium text-gray-900 max-w-48">
-                      <span className="truncate block" title={partner.navn}>{partner.navn}</span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{partner.kommune}</td>
-                    <td className="px-4 py-3 text-gray-600">{partner.fylke}</td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {partner.type && (
-                        <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-[#F47920]/10 text-[#F47920] font-medium">
-                          {partner.type}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-xs max-w-36">
-                      {partner.epost
-                        ? <a href={`mailto:${partner.epost}`} className="text-gray-500 hover:text-[#F47920] hover:underline truncate block" title={partner.epost}>{partner.epost}</a>
-                        : <span className="text-gray-300">—</span>
-                      }
-                    </td>
-                    <td className="px-4 py-3 text-xs max-w-36">
-                      {partner.nettside
-                        ? <a href={partner.nettside} target="_blank" rel="noopener noreferrer" className="text-[#D6006E] hover:underline truncate block" title={partner.nettside}>{t('admin.besok')}</a>
-                        : <span className="text-gray-300">—</span>
-                      }
-                    </td>
-                    <td className="px-4 py-3">
-                      <select
-                        value={partner.kategori ?? 'aktiv'}
-                        onChange={e => settKategori(partner.id, e.target.value)}
-                        onClick={e => e.stopPropagation()}
-                        className={`appearance-none text-xs font-medium px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 ${
-                          partner.kategori === 'aktiv'      ? 'bg-green-100 text-green-700'
-                          : partner.kategori === 'tidligere' ? 'bg-gray-100 text-gray-500'
-                          : 'bg-purple-100 text-purple-700'
-                        }`}
-                      >
-                        <option value="aktiv">{t('admin.statusAktiv')}</option>
-                        <option value="tidligere">{t('admin.statusTidligere')}</option>
-                        <option value="potensiell">{t('admin.statusPotensiell')}</option>
-                      </select>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <button onClick={() => setRedigerer(partner)} className="text-xs text-[#F47920] hover:underline font-medium">
-                          {t('admin.rediger')}
-                        </button>
-                        <button onClick={() => setBekreftSlett(partner.id)} className="text-xs text-red-500 hover:underline font-medium">
-                          {t('admin.slett')}
-                        </button>
-                      </div>
-                    </td>
+                    </th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolNavn')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolKommune')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolFylke')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolType')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolEpost')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolNettside')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolStatus')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('admin.kolHandlinger')}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filtrert.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="px-4 py-16 text-center text-gray-400">
+                        {partnere.length === 0 ? 'Ingen partnere registrert ennå.' : 'Ingen partnere matcher filteret.'}
+                      </td>
+                    </tr>
+                  ) : filtrert.map(partner => (
+                    <tr key={partner.id} className={`hover:bg-gray-50 transition-colors ${valgte.has(partner.id) ? 'bg-orange-50/40' : ''}`}>
+                      <td className="px-4 py-3 w-10" onClick={e => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={valgte.has(partner.id)}
+                          onChange={() => toggleVelgEn(partner.id)}
+                          className="w-4 h-4 accent-[#F47920] cursor-pointer"
+                        />
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-900 max-w-48">
+                        <span className="truncate block" title={partner.navn}>{partner.navn}</span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">{partner.kommune}</td>
+                      <td className="px-4 py-3 text-gray-600">{partner.fylke}</td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {partner.type && (
+                          <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-[#F47920]/10 text-[#F47920] font-medium">
+                            {partner.type}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-xs max-w-36">
+                        {partner.epost
+                          ? <a href={`mailto:${partner.epost}`} className="text-gray-500 hover:text-[#F47920] hover:underline truncate block" title={partner.epost}>{partner.epost}</a>
+                          : <span className="text-gray-300">—</span>
+                        }
+                      </td>
+                      <td className="px-4 py-3 text-xs max-w-36">
+                        {partner.nettside
+                          ? <a href={partner.nettside} target="_blank" rel="noopener noreferrer" className="text-[#D6006E] hover:underline truncate block" title={partner.nettside}>{t('admin.besok')}</a>
+                          : <span className="text-gray-300">—</span>
+                        }
+                      </td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={partner.kategori ?? 'aktiv'}
+                          onChange={e => settKategori(partner.id, e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          className={`appearance-none text-xs font-medium px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 ${
+                            partner.kategori === 'aktiv'      ? 'bg-green-100 text-green-700'
+                            : partner.kategori === 'tidligere' ? 'bg-gray-100 text-gray-500'
+                            : 'bg-purple-100 text-purple-700'
+                          }`}
+                        >
+                          <option value="aktiv">{t('admin.statusAktiv')}</option>
+                          <option value="tidligere">{t('admin.statusTidligere')}</option>
+                          <option value="potensiell">{t('admin.statusPotensiell')}</option>
+                        </select>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                          <button onClick={() => setRedigerer(partner)} className="text-xs text-[#F47920] hover:underline font-medium">
+                            {t('admin.rediger')}
+                          </button>
+                          <button onClick={() => setBekreftSlett(partner.id)} className="text-xs text-red-500 hover:underline font-medium">
+                            {t('admin.slett')}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {redigerer && (
@@ -297,15 +349,25 @@ export default function AdminKulturkort() {
 
 function PartnerModal({ tittel, initial, onLagre, onAvbryt, erNy, lagreLabel, avbrytLabel, feltLabels: t }) {
   const [form, setForm] = useState(initial)
+  const [lagrer, setLagrer] = useState(false)
+  const [feil, setFeil] = useState('')
 
   function handleChange(e) {
     const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value
     setForm(prev => ({ ...prev, [e.target.name]: val }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    onLagre(form)
+    setFeil('')
+    setLagrer(true)
+    try {
+      await onLagre(form)
+    } catch (err) {
+      setFeil(err.message || 'Noe gikk galt')
+    } finally {
+      setLagrer(false)
+    }
   }
 
   return (
@@ -344,9 +406,14 @@ function PartnerModal({ tittel, initial, onLagre, onAvbryt, erNy, lagreLabel, av
               <option value="potensiell">Potensiell</option>
             </select>
           </div>
+          {feil && <p className="text-sm text-red-500">{feil}</p>}
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="flex-1 bg-gradient-to-r from-[#F47920] to-[#D6006E] text-white font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity">
-              {lagreLabel}
+            <button
+              type="submit"
+              disabled={lagrer}
+              className="flex-1 bg-gradient-to-r from-[#F47920] to-[#D6006E] text-white font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {lagrer ? 'Lagrer…' : lagreLabel}
             </button>
             <button type="button" onClick={onAvbryt} className="flex-1 border border-gray-300 text-gray-700 font-semibold py-2.5 rounded-full hover:bg-gray-50 transition-colors">
               {avbrytLabel}
