@@ -188,8 +188,8 @@ export default function AdminKulturkort() {
                         value={partner.kategori ?? 'aktiv'}
                         onChange={e => settKategori(partner.id, e.target.value)}
                         onClick={e => e.stopPropagation()}
-                        className={`text-xs font-medium px-2 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 ${
-                          partner.kategori === 'aktiv'     ? 'bg-green-100 text-green-700'
+                        className={`appearance-none text-xs font-medium px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 ${
+                          partner.kategori === 'aktiv'      ? 'bg-green-100 text-green-700'
                           : partner.kategori === 'tidligere' ? 'bg-gray-100 text-gray-500'
                           : 'bg-purple-100 text-purple-700'
                         }`}
