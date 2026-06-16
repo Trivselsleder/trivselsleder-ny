@@ -14,7 +14,7 @@ export default function Header() {
     { label: t('nav.forSkoler'), to: '/for-skoler' },
     { label: t('nav.kulturkortet'), to: '/kulturkortet' },
     { label: t('nav.kontakt'), to: '/kontakt' },
-    ...(bruker?.rolle === 'superadmin' ? [{ label: 'Admin', to: '/admin/kulturkort' }] : []),
+    ...(bruker?.rolle === 'superadmin' ? [{ label: 'Admin', to: '/admin' }] : []),
   ]
 
   const baseClass = 'text-gray-700 hover:text-orange font-medium transition-colors'
