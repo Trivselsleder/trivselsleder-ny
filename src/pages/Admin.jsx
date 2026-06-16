@@ -44,13 +44,15 @@ export default function Admin() {
   const rolle = bruker?.rolle
   const synlige = adminSider.filter(s => s.roller.includes(rolle))
   const erOdde = synlige.length % 2 !== 0
+  const vanlige = erOdde ? synlige.slice(0, -1) : synlige
+  const siste = erOdde ? synlige[synlige.length - 1] : null
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold text-orange mb-2">Admin</h1>
       <p className="text-gray-500 mb-10">Velg hva du vil administrere.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {synlige.slice(0, erOdde ? -1 : synlige.length).map(side => (
+        {vanlige.map(side => (
           <Link
             key={side.til}
             to={side.til}
@@ -63,20 +65,21 @@ export default function Admin() {
             <p className="text-sm text-gray-500 mt-1">{side.beskrivelse}</p>
           </Link>
         ))}
-        {erOdde && (
-          <Link
-            key={synlige[synlige.length - 1].til}
-            to={synlige[synlige.length - 1].til}
-            className="group block border border-gray-200 rounded-xl p-6 hover:border-orange hover:shadow-md transition-all col-span-1 sm:col-span-2"
-          >
-            <div className="text-4xl mb-3">{synlige[synlige.length - 1].ikon}</div>
-            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-orange transition-colors">
-              {synlige[synlige.length - 1].tittel}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">{synlige[synlige.length - 1].beskrivelse}</p>
-          </Link>
-        )}
       </div>
+      {siste && (
+        <div className="mt-6">
+          <Link
+            to={siste.til}
+            className="group block border border-gray-200 rounded-xl p-6 hover:border-orange hover:shadow-md transition-all"
+          >
+            <div className="text-4xl mb-3">{siste.ikon}</div>
+            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-orange transition-colors">
+              {siste.tittel}
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">{siste.beskrivelse}</p>
+          </Link>
+        </div>
+      )}
     </div>
   )
 }
