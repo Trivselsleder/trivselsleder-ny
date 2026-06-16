@@ -49,7 +49,7 @@ export default function Admin() {
     <div className="max-w-4xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold text-orange mb-2">Admin</h1>
       <p className="text-gray-500 mb-10">Velg hva du vil administrere.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 [&>*:last-child:nth-child(odd)]:sm:col-span-2">
         {synlige.map(side => (
           <Link
             key={side.til}
