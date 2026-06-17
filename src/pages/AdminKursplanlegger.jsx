@@ -12,12 +12,11 @@ function formaterDato(iso) {
 }
 
 const TOMT_KURS = {
-  nettverk: '', hall_id: '', dato: '', start_tid: '', slutt_tid: '',
+  navn: '', nettverk: '', hall_id: '', dato: '', start_tid: '', slutt_tid: '',
   kursholder_id: '', backup_kursholder_id: '', ra: '', sesong: '',
   uke: '', dag: '', antall_tl: '', antall_skoler: '', maks_antall: '', merknad: '',
 }
 
-// Gjenbrukbar søkbar velger: skriv for å filtrere, klikk for å velge
 function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
   const [aapen, setAapen] = useState(false)
   const [sok, setSok] = useState('')
@@ -31,9 +30,7 @@ function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
     return () => document.removeEventListener('mousedown', klikkUtenfor)
   }, [])
 
-  const filtrert = verdier.filter(v =>
-    v.toLowerCase().includes(sok.toLowerCase())
-  )
+  const filtrert = verdier.filter(v => v.toLowerCase().includes(sok.toLowerCase()))
 
   return (
     <div className="relative" ref={ref}>
@@ -50,12 +47,9 @@ function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
             <div className="px-3 py-2 text-sm text-gray-400">Ingen treff</div>
           )}
           {filtrert.map(v => (
-            <button
-              key={v}
-              type="button"
+            <button key={v} type="button"
               onClick={() => { onVelg(v); setAapen(false) }}
-              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
-            >
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100">
               {v}
             </button>
           ))}
@@ -69,17 +63,15 @@ function KursOversikt() {
   const [kurs, setKurs] = useState([])
   const [haller, setHaller] = useState([])
   const [kursholdere, setKursholdere] = useState([])
-  const [nettverkData, setNettverkData] = useState([])  // {nettverk, ansvarlig}
+  const [nettverkData, setNettverkData] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
   const [nyForm, setNyForm] = useState(null)
+  const [redigerer, setRedigerer] = useState(null)
+  const [bekreftSlett, setBekreftSlett] = useState(null)
 
   function hentKurs() {
-    supabase
-      .from('kurs')
-      .select('*')
-      .order('dato', { ascending: true })
-      .range(0, 9999)
+    supabase.from('kurs').select('*').order('dato', { ascending: true }).range(0, 9999)
       .then(({ data, error }) => {
         if (error) setFeil(error.message)
         else setKurs(data ?? [])
@@ -97,17 +89,38 @@ function KursOversikt() {
       .then(({ data }) => setNettverkData(data ?? []))
   }, [])
 
-  async function lagreNytt() {
-    const renset = { ...nyForm }
+  function rensKurs(obj) {
+    const renset = { ...obj }
+    delete renset.id
+    delete renset.created_at
+    delete renset.status
     for (const k of Object.keys(renset)) {
       if (renset[k] === '') renset[k] = null
     }
     for (const tallfelt of ['uke', 'antall_tl', 'antall_skoler', 'maks_antall']) {
       if (renset[tallfelt] != null) renset[tallfelt] = parseInt(renset[tallfelt], 10) || null
     }
-    const { error } = await supabase.from('kurs').insert([renset])
+    return renset
+  }
+
+  async function lagreNytt() {
+    const { error } = await supabase.from('kurs').insert([rensKurs(nyForm)])
     if (error) { alert('Kunne ikke lagre: ' + error.message); return }
     setNyForm(null)
+    hentKurs()
+  }
+
+  async function lagreRediger() {
+    const { error } = await supabase.from('kurs').update(rensKurs(redigerer)).eq('id', redigerer.id)
+    if (error) { alert('Kunne ikke lagre: ' + error.message); return }
+    setRedigerer(null)
+    hentKurs()
+  }
+
+  async function slettKurs(id) {
+    const { error } = await supabase.from('kurs').delete().eq('id', id)
+    if (error) { alert('Kunne ikke slette: ' + error.message); return }
+    setBekreftSlett(null)
     hentKurs()
   }
 
@@ -117,10 +130,8 @@ function KursOversikt() {
   return (
     <div>
       <div className="flex justify-end mb-6">
-        <button
-          onClick={() => setNyForm({ ...TOMT_KURS })}
-          className="bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90"
-        >
+        <button onClick={() => setNyForm({ ...TOMT_KURS })}
+          className="bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90">
           + Nytt kurs
         </button>
       </div>
@@ -139,25 +150,26 @@ function KursOversikt() {
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
+                <th className="px-4 py-3">Kurs</th>
                 <th className="px-4 py-3">Dato</th>
-                <th className="px-4 py-3">Tid</th>
-                <th className="px-4 py-3">Nettverk</th>
                 <th className="px-4 py-3">Hall</th>
                 <th className="px-4 py-3">Kursholder</th>
                 <th className="px-4 py-3">RA</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
               {kurs.map(k => (
                 <tr key={k.id} className="border-t border-gray-100 hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium">{k.navn || '—'}</td>
                   <td className="px-4 py-3">{formaterDato(k.dato)}</td>
-                  <td className="px-4 py-3">{k.start_tid ? k.start_tid.slice(0,5) : '—'}</td>
-                  <td className="px-4 py-3">{k.nettverk || '—'}</td>
                   <td className="px-4 py-3">{hallNavn(k.hall_id)}</td>
                   <td className="px-4 py-3">{holderNavn(k.kursholder_id)}</td>
                   <td className="px-4 py-3">{k.ra || '—'}</td>
-                  <td className="px-4 py-3">{k.status || '—'}</td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <button onClick={() => setRedigerer(k)} className="text-blue-600 hover:underline mr-3">Rediger</button>
+                    <button onClick={() => setBekreftSlett(k)} className="text-red-600 hover:underline">Slett</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -165,38 +177,61 @@ function KursOversikt() {
         </div>
       )}
 
-      {nyForm && (
+      {(nyForm || redigerer) && (
         <KursSkjema
-          verdi={nyForm}
+          verdi={nyForm || redigerer}
+          erNy={!!nyForm}
           haller={haller}
           kursholdere={kursholdere}
           nettverkData={nettverkData}
-          onEndre={setNyForm}
-          onLagre={lagreNytt}
-          onAvbryt={() => setNyForm(null)}
+          onEndre={felt => (nyForm ? setNyForm(felt) : setRedigerer(felt))}
+          onLagre={nyForm ? lagreNytt : lagreRediger}
+          onAvbryt={() => { setNyForm(null); setRedigerer(null) }}
         />
+      )}
+
+      {bekreftSlett && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-2">Slette kurs?</h3>
+            <p className="text-gray-600 mb-6">Vil du slette «{bekreftSlett.navn || 'dette kurset'}»? Dette kan ikke angres.</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setBekreftSlett(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Avbryt</button>
+              <button onClick={() => slettKurs(bekreftSlett.id)} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:opacity-90">Slett</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
 }
 
-function KursSkjema({ verdi, haller, kursholdere, nettverkData, onEndre, onLagre, onAvbryt }) {
+function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, onLagre, onAvbryt }) {
   const aktiveHoldere = kursholdere.filter(k => k.aktiv)
-
-  // Unike nettverk fra skoleregisteret, sortert
   const nettverk = [...new Set(nettverkData.map(d => d.nettverk).filter(Boolean))].sort()
 
-  // Når nettverk velges: fyll RA automatisk fra første skole i nettverket
   function velgNettverk(valgtNettverk) {
     const match = nettverkData.find(d => d.nettverk === valgtNettverk && d.ansvarlig)
-    onEndre({ ...verdi, nettverk: valgtNettverk, ra: match?.ansvarlig || verdi.ra })
+    const oppdatert = { ...verdi, nettverk: valgtNettverk, ra: match?.ansvarlig || verdi.ra }
+    // Auto-forslag til kursnavn hvis navn er tomt eller likt forrige forslag
+    if (!verdi.navn || verdi.navn === `Lek ${verdi.nettverk}`) {
+      oppdatert.navn = `Lek ${valgtNettverk}`
+    }
+    onEndre(oppdatert)
   }
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-start justify-center p-4 z-50 overflow-y-auto">
       <div className="bg-white rounded-xl p-6 max-w-3xl w-full my-8">
-        <h3 className="text-lg font-semibold mb-4">Nytt kurs</h3>
+        <h3 className="text-lg font-semibold mb-4">{erNy ? 'Nytt kurs' : 'Rediger kurs'}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="sm:col-span-3">
+            <label className="block text-sm text-gray-600 mb-1">Kursnavn</label>
+            <input value={verdi.navn || ''}
+              onChange={e => onEndre({ ...verdi, navn: e.target.value })}
+              placeholder="Foreslås automatisk når du velger nettverk"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+          </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Dato</label>
             <input type="date" value={verdi.dato || ''}
@@ -205,12 +240,8 @@ function KursSkjema({ verdi, haller, kursholdere, nettverkData, onEndre, onLagre
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Nettverk</label>
-            <SokbarVelger
-              verdier={nettverk}
-              valgt={verdi.nettverk}
-              onVelg={velgNettverk}
-              placeholder="Skriv for å søke …"
-            />
+            <SokbarVelger verdier={nettverk} valgt={verdi.nettverk}
+              onVelg={velgNettverk} placeholder="Skriv for å søke …" />
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">RA (auto)</label>
