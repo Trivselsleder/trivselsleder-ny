@@ -132,9 +132,9 @@ function KursSkjema({ verdi, haller, kursholdere, onEndre, onLagre, onAvbryt }) 
   const aktiveHoldere = kursholdere.filter(k => k.aktiv)
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-xl p-6 max-w-lg w-full my-8">
+      <div className="bg-white rounded-xl p-6 max-w-3xl w-full my-8">
         <h3 className="text-lg font-semibold mb-4">Nytt kurs</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm text-gray-600 mb-1">Dato</label>
             <input type="date" value={verdi.dato || ''}
