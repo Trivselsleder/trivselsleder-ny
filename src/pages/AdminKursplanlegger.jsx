@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AdminHaller from './AdminHaller'
@@ -17,10 +17,59 @@ const TOMT_KURS = {
   uke: '', dag: '', antall_tl: '', antall_skoler: '', maks_antall: '', merknad: '',
 }
 
+// Gjenbrukbar søkbar velger: skriv for å filtrere, klikk for å velge
+function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
+  const [aapen, setAapen] = useState(false)
+  const [sok, setSok] = useState('')
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function klikkUtenfor(e) {
+      if (ref.current && !ref.current.contains(e.target)) setAapen(false)
+    }
+    document.addEventListener('mousedown', klikkUtenfor)
+    return () => document.removeEventListener('mousedown', klikkUtenfor)
+  }, [])
+
+  const filtrert = verdier.filter(v =>
+    v.toLowerCase().includes(sok.toLowerCase())
+  )
+
+  return (
+    <div className="relative" ref={ref}>
+      <input
+        value={aapen ? sok : (valgt || '')}
+        onChange={e => { setSok(e.target.value); setAapen(true) }}
+        onFocus={() => { setSok(''); setAapen(true) }}
+        placeholder={placeholder}
+        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+      />
+      {aapen && (
+        <div className="absolute z-10 mt-1 w-full max-h-52 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
+          {filtrert.length === 0 && (
+            <div className="px-3 py-2 text-sm text-gray-400">Ingen treff</div>
+          )}
+          {filtrert.map(v => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => { onVelg(v); setAapen(false) }}
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function KursOversikt() {
   const [kurs, setKurs] = useState([])
   const [haller, setHaller] = useState([])
   const [kursholdere, setKursholdere] = useState([])
+  const [nettverkData, setNettverkData] = useState([])  // {nettverk, ansvarlig}
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
   const [nyForm, setNyForm] = useState(null)
@@ -44,6 +93,8 @@ function KursOversikt() {
       .then(({ data }) => setHaller(data ?? []))
     supabase.from('kursholdere').select('id, navn, aktiv').order('navn').range(0, 9999)
       .then(({ data }) => setKursholdere(data ?? []))
+    supabase.from('skoler').select('nettverk, ansvarlig').range(0, 9999)
+      .then(({ data }) => setNettverkData(data ?? []))
   }, [])
 
   async function lagreNytt() {
@@ -119,6 +170,7 @@ function KursOversikt() {
           verdi={nyForm}
           haller={haller}
           kursholdere={kursholdere}
+          nettverkData={nettverkData}
           onEndre={setNyForm}
           onLagre={lagreNytt}
           onAvbryt={() => setNyForm(null)}
@@ -128,10 +180,20 @@ function KursOversikt() {
   )
 }
 
-function KursSkjema({ verdi, haller, kursholdere, onEndre, onLagre, onAvbryt }) {
+function KursSkjema({ verdi, haller, kursholdere, nettverkData, onEndre, onLagre, onAvbryt }) {
   const aktiveHoldere = kursholdere.filter(k => k.aktiv)
+
+  // Unike nettverk fra skoleregisteret, sortert
+  const nettverk = [...new Set(nettverkData.map(d => d.nettverk).filter(Boolean))].sort()
+
+  // Når nettverk velges: fyll RA automatisk fra første skole i nettverket
+  function velgNettverk(valgtNettverk) {
+    const match = nettverkData.find(d => d.nettverk === valgtNettverk && d.ansvarlig)
+    onEndre({ ...verdi, nettverk: valgtNettverk, ra: match?.ansvarlig || verdi.ra })
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/40 flex items-start justify-center p-4 z-50 overflow-y-auto">
       <div className="bg-white rounded-xl p-6 max-w-3xl w-full my-8">
         <h3 className="text-lg font-semibold mb-4">Nytt kurs</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -143,9 +205,18 @@ function KursSkjema({ verdi, haller, kursholdere, onEndre, onLagre, onAvbryt }) 
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Nettverk</label>
-            <input value={verdi.nettverk || ''}
-              onChange={e => onEndre({ ...verdi, nettverk: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+            <SokbarVelger
+              verdier={nettverk}
+              valgt={verdi.nettverk}
+              onVelg={velgNettverk}
+              placeholder="Skriv for å søke …"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">RA (auto)</label>
+            <input value={verdi.ra || ''}
+              onChange={e => onEndre({ ...verdi, ra: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50" />
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Starttid</label>
@@ -159,7 +230,13 @@ function KursSkjema({ verdi, haller, kursholdere, onEndre, onLagre, onAvbryt }) 
               onChange={e => onEndre({ ...verdi, slutt_tid: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
           </div>
-          <div className="sm:col-span-2">
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Uke</label>
+            <input type="number" value={verdi.uke || ''}
+              onChange={e => onEndre({ ...verdi, uke: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+          </div>
+          <div className="sm:col-span-3">
             <label className="block text-sm text-gray-600 mb-1">Hall</label>
             <select value={verdi.hall_id || ''}
               onChange={e => onEndre({ ...verdi, hall_id: e.target.value })}
@@ -187,18 +264,6 @@ function KursSkjema({ verdi, haller, kursholdere, onEndre, onLagre, onAvbryt }) 
             </select>
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">RA</label>
-            <input value={verdi.ra || ''}
-              onChange={e => onEndre({ ...verdi, ra: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Uke</label>
-            <input type="number" value={verdi.uke || ''}
-              onChange={e => onEndre({ ...verdi, uke: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-          </div>
-          <div>
             <label className="block text-sm text-gray-600 mb-1">Antall TL</label>
             <input type="number" value={verdi.antall_tl || ''}
               onChange={e => onEndre({ ...verdi, antall_tl: e.target.value })}
@@ -216,7 +281,7 @@ function KursSkjema({ verdi, haller, kursholdere, onEndre, onLagre, onAvbryt }) 
               onChange={e => onEndre({ ...verdi, maks_antall: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
           </div>
-          <div className="sm:col-span-2">
+          <div className="sm:col-span-3">
             <label className="block text-sm text-gray-600 mb-1">Merknad</label>
             <input value={verdi.merknad || ''}
               onChange={e => onEndre({ ...verdi, merknad: e.target.value })}
