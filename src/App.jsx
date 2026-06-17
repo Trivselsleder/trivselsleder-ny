@@ -22,6 +22,7 @@ import AdminBrukere from './pages/AdminBrukere'
 import Admin from './pages/Admin'
 import AdminKursplanlegger from './pages/AdminKursplanlegger'
 import AdminHaller from './pages/AdminHaller'
+import SvarSkjema from './pages/SvarSkjema'
 import './index.css'
 
 export default function App() {
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/sett-passord" element={<SettPassord />} />
               <Route path="/auth/feide/callback" element={<FeideCallback />} />
               <Route path="/paamelding" element={<Paamelding />} />
+              <Route path="/svar/:token" element={<SvarSkjema />} />
               <Route
                 path="/min-side"
                 element={
