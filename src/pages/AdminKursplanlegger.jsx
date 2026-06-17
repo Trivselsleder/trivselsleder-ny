@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AdminHaller from './AdminHaller'
+import AdminKursholdere from './AdminKursholdere'
 
 function formaterDato(iso) {
   if (!iso) return '—'
@@ -74,6 +75,7 @@ export default function AdminKursplanlegger() {
   const faner = [
     { id: 'kurs', navn: 'Kurs' },
     { id: 'haller', navn: 'Haller' },
+    { id: 'kursholdere', navn: 'Kursholdere' },
   ]
 
   return (
@@ -106,6 +108,7 @@ export default function AdminKursplanlegger() {
 
       {fane === 'kurs' && <KursOversikt />}
       {fane === 'haller' && <AdminHaller />}
+      {fane === 'kursholdere' && <AdminKursholdere />}
     </div>
   )
 }
