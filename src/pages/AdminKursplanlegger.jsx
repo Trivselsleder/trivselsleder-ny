@@ -5,6 +5,7 @@ import AdminHaller from './AdminHaller'
 import AdminKursholdere from './AdminKursholdere'
 
 function ukeNummer(isoDato) {
+  if (!isoDato) return ''
   const d = new Date(isoDato)
   d.setHours(0, 0, 0, 0)
   d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
@@ -30,7 +31,6 @@ function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
   const [aapen, setAapen] = useState(false)
   const [sok, setSok] = useState('')
   const ref = useRef(null)
-
   useEffect(() => {
     function klikkUtenfor(e) {
       if (ref.current && !ref.current.contains(e.target)) setAapen(false)
@@ -38,9 +38,7 @@ function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
     document.addEventListener('mousedown', klikkUtenfor)
     return () => document.removeEventListener('mousedown', klikkUtenfor)
   }, [])
-
   const filtrert = verdier.filter(v => v.toLowerCase().includes(sok.toLowerCase()))
-
   return (
     <div className="relative" ref={ref}>
       <input
@@ -52,9 +50,7 @@ function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
       />
       {aapen && (
         <div className="absolute z-10 mt-1 w-full max-h-52 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
-          {filtrert.length === 0 && (
-            <div className="px-3 py-2 text-sm text-gray-400">Ingen treff</div>
-          )}
+          {filtrert.length === 0 && <div className="px-3 py-2 text-sm text-gray-400">Ingen treff</div>}
           {filtrert.map(v => (
             <button key={v} type="button"
               onClick={() => { onVelg(v); setAapen(false) }}
@@ -78,6 +74,7 @@ function KursOversikt() {
   const [nyForm, setNyForm] = useState(null)
   const [redigerer, setRedigerer] = useState(null)
   const [bekreftSlett, setBekreftSlett] = useState(null)
+  const [skoleKurs, setSkoleKurs] = useState(null)  // kurset vi kobler skoler til
 
   function hentKurs() {
     supabase.from('kurs').select('*').order('dato', { ascending: true }).range(0, 9999)
@@ -100,37 +97,27 @@ function KursOversikt() {
 
   function rensKurs(obj) {
     const renset = { ...obj }
-    delete renset.id
-    delete renset.created_at
-    delete renset.status
-    for (const k of Object.keys(renset)) {
-      if (renset[k] === '') renset[k] = null
-    }
-    for (const tallfelt of ['uke', 'antall_tl', 'antall_skoler', 'maks_antall']) {
+    delete renset.id; delete renset.created_at; delete renset.status
+    for (const k of Object.keys(renset)) if (renset[k] === '') renset[k] = null
+    for (const tallfelt of ['uke', 'antall_tl', 'antall_skoler', 'maks_antall'])
       if (renset[tallfelt] != null) renset[tallfelt] = parseInt(renset[tallfelt], 10) || null
-    }
     return renset
   }
 
   async function lagreNytt() {
     const { error } = await supabase.from('kurs').insert([rensKurs(nyForm)])
     if (error) { alert('Kunne ikke lagre: ' + error.message); return }
-    setNyForm(null)
-    hentKurs()
+    setNyForm(null); hentKurs()
   }
-
   async function lagreRediger() {
     const { error } = await supabase.from('kurs').update(rensKurs(redigerer)).eq('id', redigerer.id)
     if (error) { alert('Kunne ikke lagre: ' + error.message); return }
-    setRedigerer(null)
-    hentKurs()
+    setRedigerer(null); hentKurs()
   }
-
   async function slettKurs(id) {
     const { error } = await supabase.from('kurs').delete().eq('id', id)
     if (error) { alert('Kunne ikke slette: ' + error.message); return }
-    setBekreftSlett(null)
-    hentKurs()
+    setBekreftSlett(null); hentKurs()
   }
 
   const hallNavn = id => haller.find(h => h.id === id)?.navn || '—'
@@ -176,6 +163,7 @@ function KursOversikt() {
                   <td className="px-4 py-3">{holderNavn(k.kursholder_id)}</td>
                   <td className="px-4 py-3">{k.ra || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <button onClick={() => setSkoleKurs(k)} className="text-orange hover:underline mr-3">Skoler</button>
                     <button onClick={() => setRedigerer(k)} className="text-blue-600 hover:underline mr-3">Rediger</button>
                     <button onClick={() => setBekreftSlett(k)} className="text-red-600 hover:underline">Slett</button>
                   </td>
@@ -199,6 +187,10 @@ function KursOversikt() {
         />
       )}
 
+      {skoleKurs && (
+        <SkoleKobling kurs={skoleKurs} onLukk={() => setSkoleKurs(null)} />
+      )}
+
       {bekreftSlett && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 max-w-sm w-full">
@@ -215,6 +207,128 @@ function KursOversikt() {
   )
 }
 
+function SkoleKobling({ kurs, onLukk }) {
+  const [koblede, setKoblede] = useState([])
+  const [nettverkSkoler, setNettverkSkoler] = useState([])
+  const [laster, setLaster] = useState(true)
+
+  async function hent() {
+    setLaster(true)
+    // Skoler allerede koblet til kurset
+    const { data: kobl } = await supabase
+      .from('kurs_skole')
+      .select('id, skole_id, skoler(navn, kommunenavn)')
+      .eq('kurs_id', kurs.id)
+      .range(0, 9999)
+    setKoblede(kobl ?? [])
+    // Alle skoler i kursets nettverk
+    const { data: nettv } = await supabase
+      .from('skoler')
+      .select('id, navn, kommunenavn')
+      .eq('nettverk', kurs.nettverk)
+      .order('navn')
+      .range(0, 9999)
+    setNettverkSkoler(nettv ?? [])
+    setLaster(false)
+  }
+
+  useEffect(() => { hent() }, [])
+
+  const koblendeIder = new Set(koblede.map(k => k.skole_id))
+  const ikkeKoblet = nettverkSkoler.filter(s => !koblendeIder.has(s.id))
+
+  async function leggTil(skole) {
+    const { error } = await supabase.from('kurs_skole').insert([{
+      kurs_id: kurs.id, skole_id: skole.id,
+    }])
+    if (error) { alert('Kunne ikke legge til: ' + error.message); return }
+    hent()
+  }
+
+  async function leggTilAlle() {
+    const rader = ikkeKoblet.map(s => ({ kurs_id: kurs.id, skole_id: s.id }))
+    if (rader.length === 0) return
+    const { error } = await supabase.from('kurs_skole').insert(rader)
+    if (error) { alert('Kunne ikke legge til alle: ' + error.message); return }
+    hent()
+  }
+
+  async function fjern(koblingId) {
+    const { error } = await supabase.from('kurs_skole').delete().eq('id', koblingId)
+    if (error) { alert('Kunne ikke fjerne: ' + error.message); return }
+    hent()
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-start justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-xl p-6 max-w-2xl w-full my-8">
+        <div className="flex items-start justify-between mb-1">
+          <h3 className="text-lg font-semibold">Skoler på kurset</h3>
+          <button onClick={onLukk} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
+        </div>
+        <p className="text-sm text-gray-500 mb-6">{kurs.navn} — nettverk: {kurs.nettverk || '—'}</p>
+
+        {laster && <p className="text-gray-400">Laster …</p>}
+
+        {!laster && (
+          <>
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-gray-700">Koblet til kurset ({koblede.length})</h4>
+              </div>
+              {koblede.length === 0 ? (
+                <p className="text-sm text-gray-400 border border-dashed border-gray-300 rounded-lg p-4 text-center">
+                  Ingen skoler koblet ennå. Legg til fra forslaget under.
+                </p>
+              ) : (
+                <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg">
+                  {koblede.map(k => (
+                    <li key={k.id} className="flex items-center justify-between px-4 py-2 text-sm">
+                      <span>{k.skoler?.navn || '—'} <span className="text-gray-400">{k.skoler?.kommunenavn || ''}</span></span>
+                      <button onClick={() => fjern(k.id)} className="text-red-600 hover:underline">Fjern</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-gray-700">Forslag fra nettverket ({ikkeKoblet.length})</h4>
+                {ikkeKoblet.length > 0 && (
+                  <button onClick={leggTilAlle} className="text-sm bg-orange text-white px-3 py-1 rounded-lg hover:opacity-90">
+                    + Legg til alle
+                  </button>
+                )}
+              </div>
+              {ikkeKoblet.length === 0 ? (
+                <p className="text-sm text-gray-400 border border-dashed border-gray-300 rounded-lg p-4 text-center">
+                  {nettverkSkoler.length === 0
+                    ? 'Ingen skoler funnet i dette nettverket.'
+                    : 'Alle skoler i nettverket er allerede koblet.'}
+                </p>
+              ) : (
+                <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg">
+                  {ikkeKoblet.map(s => (
+                    <li key={s.id} className="flex items-center justify-between px-4 py-2 text-sm">
+                      <span>{s.navn} <span className="text-gray-400">{s.kommunenavn || ''}</span></span>
+                      <button onClick={() => leggTil(s)} className="text-orange hover:underline">+ Legg til</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </>
+        )}
+
+        <div className="flex justify-end mt-6">
+          <button onClick={onLukk} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Ferdig</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, onLagre, onAvbryt }) {
   const aktiveHoldere = kursholdere.filter(k => k.aktiv)
   const nettverk = [...new Set(nettverkData.map(d => d.nettverk).filter(Boolean))].sort()
@@ -222,7 +336,6 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
   function velgNettverk(valgtNettverk) {
     const match = nettverkData.find(d => d.nettverk === valgtNettverk && d.ansvarlig)
     const oppdatert = { ...verdi, nettverk: valgtNettverk, ra: match?.ansvarlig || verdi.ra }
-    // Auto-forslag til kursnavn hvis navn er tomt eller likt forrige forslag
     if (!verdi.navn || verdi.navn === `Lek ${verdi.nettverk}`) {
       oppdatert.navn = `Lek ${valgtNettverk}`
     }
@@ -271,10 +384,10 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Uke</label>
+            <label className="block text-sm text-gray-600 mb-1">Uke (auto)</label>
             <input type="number" value={verdi.uke || ''}
               onChange={e => onEndre({ ...verdi, uke: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50" />
           </div>
           <div className="sm:col-span-3">
             <label className="block text-sm text-gray-600 mb-1">Hall</label>
@@ -346,22 +459,18 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
 export default function AdminKursplanlegger() {
   const navigate = useNavigate()
   const [fane, setFane] = useState('kurs')
-
   const faner = [
     { id: 'kurs', navn: 'Kurs' },
     { id: 'haller', navn: 'Haller' },
     { id: 'kursholdere', navn: 'Kursholdere' },
   ]
-
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
       <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-orange mb-4">
         ← Tilbake til admin
       </button>
-
       <h1 className="text-3xl font-bold text-orange mb-2">Kursplanlegger</h1>
       <p className="text-gray-500 mb-6">Planlegg lekekurs, send invitasjoner og følg opp svar.</p>
-
       <div className="flex gap-1 border-b border-gray-200 mb-8">
         {faner.map(f => (
           <button key={f.id} onClick={() => setFane(f.id)}
@@ -372,7 +481,6 @@ export default function AdminKursplanlegger() {
           </button>
         ))}
       </div>
-
       {fane === 'kurs' && <KursOversikt />}
       {fane === 'haller' && <AdminHaller />}
       {fane === 'kursholdere' && <AdminKursholdere />}
