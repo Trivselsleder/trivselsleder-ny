@@ -20,6 +20,7 @@ import AdminPaameldinger from './pages/AdminPaameldinger'
 import AdminSkoler from './pages/AdminSkoler'
 import AdminBrukere from './pages/AdminBrukere'
 import Admin from './pages/Admin'
+import AdminKursplanlegger from './pages/AdminKursplanlegger'
 import './index.css'
 
 export default function App() {
@@ -53,6 +54,14 @@ export default function App() {
                 element={
                   <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
                     <Admin />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/kursplanlegger"
+                element={
+                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
+                    <AdminKursplanlegger />
                   </ProtectedRoute>
                 }
               />
