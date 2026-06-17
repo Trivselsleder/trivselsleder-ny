@@ -4,6 +4,14 @@ import { supabase } from '../lib/supabase'
 import AdminHaller from './AdminHaller'
 import AdminKursholdere from './AdminKursholdere'
 
+function ukeNummer(isoDato) {
+  const d = new Date(isoDato)
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
+  const uke1 = new Date(d.getFullYear(), 0, 4)
+  return 1 + Math.round(((d - uke1) / 86400000 - 3 + ((uke1.getDay() + 6) % 7)) / 7)
+}
+
 function formaterDato(iso) {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('nb-NO', {
@@ -12,8 +20,9 @@ function formaterDato(iso) {
 }
 
 const TOMT_KURS = {
-  navn: '', nettverk: '', hall_id: '', dato: '', start_tid: '', slutt_tid: '',
+  navn: '', nettverk: '', hall_id: '', dato: '',
   kursholder_id: '', backup_kursholder_id: '', ra: '', sesong: '',
+  start_tid: '09:00', slutt_tid: '13:00',
   uke: '', dag: '', antall_tl: '', antall_skoler: '', maks_antall: '', merknad: '',
 }
 
@@ -235,7 +244,7 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
           <div>
             <label className="block text-sm text-gray-600 mb-1">Dato</label>
             <input type="date" value={verdi.dato || ''}
-              onChange={e => onEndre({ ...verdi, dato: e.target.value })}
+              onChange={e => onEndre({ ...verdi, dato: e.target.value, uke: ukeNummer(e.target.value) || verdi.uke })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
           </div>
           <div>
