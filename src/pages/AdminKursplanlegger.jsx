@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import AdminHaller from './AdminHaller'
 
 function formaterDato(iso) {
   if (!iso) return '—'
@@ -9,8 +10,7 @@ function formaterDato(iso) {
   })
 }
 
-export default function AdminKursplanlegger() {
-  const navigate = useNavigate()
+function KursOversikt() {
   const [kurs, setKurs] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
@@ -29,21 +29,7 @@ export default function AdminKursplanlegger() {
   }, [])
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      <button
-        onClick={() => navigate('/admin')}
-        className="text-sm text-gray-500 hover:text-orange mb-4"
-      >
-        ← Tilbake til admin
-      </button>
-
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-orange mb-2">Kursplanlegger</h1>
-          <p className="text-gray-500">Planlegg lekekurs, send invitasjoner og følg opp svar.</p>
-        </div>
-      </div>
-
+    <div>
       {laster && <p className="text-gray-400">Laster kurs …</p>}
       {feil && <p className="text-red-600">Feil: {feil}</p>}
 
@@ -77,6 +63,49 @@ export default function AdminKursplanlegger() {
           </table>
         </div>
       )}
+    </div>
+  )
+}
+
+export default function AdminKursplanlegger() {
+  const navigate = useNavigate()
+  const [fane, setFane] = useState('kurs')
+
+  const faner = [
+    { id: 'kurs', navn: 'Kurs' },
+    { id: 'haller', navn: 'Haller' },
+  ]
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-12">
+      <button
+        onClick={() => navigate('/admin')}
+        className="text-sm text-gray-500 hover:text-orange mb-4"
+      >
+        ← Tilbake til admin
+      </button>
+
+      <h1 className="text-3xl font-bold text-orange mb-2">Kursplanlegger</h1>
+      <p className="text-gray-500 mb-6">Planlegg lekekurs, send invitasjoner og følg opp svar.</p>
+
+      <div className="flex gap-1 border-b border-gray-200 mb-8">
+        {faner.map(f => (
+          <button
+            key={f.id}
+            onClick={() => setFane(f.id)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              fane === f.id
+                ? 'border-orange text-orange'
+                : 'border-transparent text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            {f.navn}
+          </button>
+        ))}
+      </div>
+
+      {fane === 'kurs' && <KursOversikt />}
+      {fane === 'haller' && <AdminHaller />}
     </div>
   )
 }

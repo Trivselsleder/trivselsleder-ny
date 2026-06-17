@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 const TOM_HALL = {
@@ -8,7 +7,6 @@ const TOM_HALL = {
 }
 
 export default function AdminHaller() {
-  const navigate = useNavigate()
   const [haller, setHaller] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
@@ -62,16 +60,9 @@ export default function AdminHaller() {
   )
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-orange mb-4">
-        ← Tilbake til admin
-      </button>
-
+    <div>
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-orange mb-2">Haller</h1>
-          <p className="text-gray-500">Felles register over haller som brukes til lekekurs.</p>
-        </div>
+        <p className="text-gray-500">Felles register over haller som brukes til lekekurs.</p>
         <button
           onClick={() => setNyForm({ ...TOM_HALL })}
           className="bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90 whitespace-nowrap"

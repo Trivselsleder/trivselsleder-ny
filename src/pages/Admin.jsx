@@ -10,13 +10,6 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
-    tittel: 'Haller',
-    beskrivelse: 'Felles register over haller som brukes til lekekurs.',
-    ikon: '🏟️',
-    til: '/admin/haller',
-    roller: ['superadmin', 'ansatt'],
-  },
-  {
     tittel: 'Påmeldinger',
     beskrivelse: 'Se og godkjenn nye skoler som vil melde seg på.',
     ikon: '📋',

@@ -59,14 +59,6 @@ export default function App() {
                 }
               />
               <Route
-                path="/admin/haller"
-                element={
-                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
-                    <AdminHaller />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/admin/kursplanlegger"
                 element={
                   <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
