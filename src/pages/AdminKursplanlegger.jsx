@@ -75,6 +75,7 @@ function KursOversikt() {
   const [redigerer, setRedigerer] = useState(null)
   const [bekreftSlett, setBekreftSlett] = useState(null)
   const [skoleKurs, setSkoleKurs] = useState(null)  // kurset vi kobler skoler til
+  const [antallPerKurs, setAntallPerKurs] = useState({})
 
   function hentKurs() {
     supabase.from('kurs').select('*').order('dato', { ascending: true }).range(0, 9999)
@@ -82,6 +83,18 @@ function KursOversikt() {
         if (error) setFeil(error.message)
         else setKurs(data ?? [])
         setLaster(false)
+      })
+    hentAntall()
+  }
+
+  function hentAntall() {
+    supabase.from('kurs_skole').select('kurs_id').range(0, 99999)
+      .then(({ data }) => {
+        const teller = {}
+        for (const rad of (data ?? [])) {
+          teller[rad.kurs_id] = (teller[rad.kurs_id] || 0) + 1
+        }
+        setAntallPerKurs(teller)
       })
   }
 
@@ -149,6 +162,7 @@ function KursOversikt() {
                 <th className="px-4 py-3">Kurs</th>
                 <th className="px-4 py-3">Dato</th>
                 <th className="px-4 py-3">Hall</th>
+                <th className="px-4 py-3">Skoler</th>
                 <th className="px-4 py-3">Kursholder</th>
                 <th className="px-4 py-3">RA</th>
                 <th className="px-4 py-3"></th>
@@ -160,6 +174,7 @@ function KursOversikt() {
                   <td className="px-4 py-3 font-medium">{k.navn || '—'}</td>
                   <td className="px-4 py-3">{formaterDato(k.dato)}</td>
                   <td className="px-4 py-3">{hallNavn(k.hall_id)}</td>
+                  <td className="px-4 py-3">{antallPerKurs[k.id] || 0}</td>
                   <td className="px-4 py-3">{holderNavn(k.kursholder_id)}</td>
                   <td className="px-4 py-3">{k.ra || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -423,12 +438,6 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
             <label className="block text-sm text-gray-600 mb-1">Antall TL</label>
             <input type="number" value={verdi.antall_tl || ''}
               onChange={e => onEndre({ ...verdi, antall_tl: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Antall skoler</label>
-            <input type="number" value={verdi.antall_skoler || ''}
-              onChange={e => onEndre({ ...verdi, antall_skoler: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
           </div>
           <div>
