@@ -278,12 +278,15 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
           </div>
           <div className="sm:col-span-3">
             <label className="block text-sm text-gray-600 mb-1">Hall</label>
-            <select value={verdi.hall_id || ''}
-              onChange={e => onEndre({ ...verdi, hall_id: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white">
-              <option value="">— Velg hall —</option>
-              {haller.map(h => <option key={h.id} value={h.id}>{h.navn}</option>)}
-            </select>
+            <SokbarVelger
+              verdier={haller.map(h => h.navn)}
+              valgt={haller.find(h => h.id === verdi.hall_id)?.navn || ''}
+              onVelg={navn => {
+                const h = haller.find(x => x.navn === navn)
+                onEndre({ ...verdi, hall_id: h ? h.id : '' })
+              }}
+              placeholder="Skriv for å søke etter hall …"
+            />
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Kursholder</label>
