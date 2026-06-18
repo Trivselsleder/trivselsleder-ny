@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
+import { hentSatser } from '../utils/satser'
 
-const STATUSVALG = [
-  'Ikke behandlet',
-  'Fakturer',
-  'Gratis (avtale/kampanje/pause)',
-  'Samlefaktura kommune',
-  'Slås sammen med reise',
-  'Avventer reisesum fra RA',
-  'Behandlet',
-]
+// "Fra kurspåmelding" — kortutdeling kursdeltakere.
+// Antall = TL + 10 % rundet opp. Beløp = antall kort × kortpris (ingen porto, kort deles ut på kurs).
+
+const STATUSVALG = ['Ikke behandlet', 'Fakturer', 'Gratis']
 
 function beregnKort(antallTl) {
   if (!antallTl || antallTl < 0) return 0
@@ -22,6 +18,7 @@ export default function AdminKortutdeling() {
   const [rader, setRader] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
+  const satser = hentSatser()
 
   useEffect(() => {
     supabase
@@ -43,8 +40,15 @@ export default function AdminKortutdeling() {
     if (error) alert('Kunne ikke lagre status. Prøv igjen.')
   }
 
+  function belop(antallTl) {
+    return beregnKort(antallTl) * satser.kortpris
+  }
+
   const totaltKort = rader.reduce((sum, r) => sum + beregnKort(r.antall_tl), 0)
   const totaltTl = rader.reduce((sum, r) => sum + (r.antall_tl || 0), 0)
+  const totaltFaktureres = rader
+    .filter(r => r.kort_status === 'Fakturer')
+    .reduce((sum, r) => sum + belop(r.antall_tl), 0)
 
   function formaterDato(iso) {
     if (!iso) return ''
@@ -60,7 +64,7 @@ export default function AdminKortutdeling() {
 
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Kortutdeling — fra kurspåmelding</h1>
         <p className="text-gray-500 mb-2">
-          Antall kort beregnes automatisk: antall trivselsledere + 10 %, rundet opp.
+          Antall kort beregnes automatisk: antall trivselsledere + 10 %, rundet opp. Beløp er eks. mva, uten porto (kort deles ut på kurs).
         </p>
         <p className="text-sm text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 mb-6 inline-block">
           Prototype til gjennomgang med Camilla — ikke ferdig løsning.
@@ -81,6 +85,9 @@ export default function AdminKortutdeling() {
               <span className="px-3 py-1 rounded-lg bg-green-100 text-green-700 text-sm font-medium">
                 {totaltKort} kort totalt (beregnet)
               </span>
+              <span className="px-3 py-1 rounded-lg bg-[#F47920]/10 text-[#F47920] text-sm font-medium">
+                Til fakturering: {totaltFaktureres} kr eks. mva
+              </span>
             </div>
 
             {rader.length === 0 && (
@@ -100,7 +107,8 @@ export default function AdminKortutdeling() {
                         <th className="text-left px-4 py-3">Dato</th>
                         <th className="text-right px-4 py-3">Antall TL</th>
                         <th className="text-right px-4 py-3">Kort (TL +10%)</th>
-                        <th className="text-left px-4 py-3">Status (Camilla styrer)</th>
+                        <th className="text-left px-4 py-3">Status</th>
+                        <th className="text-right px-4 py-3">Beløp eks. mva</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -121,6 +129,11 @@ export default function AdminKortutdeling() {
                                 <option key={s} value={s}>{s}</option>
                               ))}
                             </select>
+                          </td>
+                          <td className="px-4 py-3 text-right whitespace-nowrap">
+                            {r.kort_status === 'Fakturer'
+                              ? <span className="font-semibold text-gray-900">{belop(r.antall_tl)} kr</span>
+                              : <span className="text-gray-300">—</span>}
                           </td>
                         </tr>
                       ))}
