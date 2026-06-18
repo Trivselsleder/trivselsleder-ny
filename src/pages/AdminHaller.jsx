@@ -105,7 +105,16 @@ export default function AdminHaller() {
                   <td className="px-4 py-3 font-medium">{h.navn}</td>
                   <td className="px-4 py-3">{h.kommune || '—'}</td>
                   <td className="px-4 py-3">{h.nettverk || '—'}</td>
-                  <td className="px-4 py-3">{h.kontaktperson || '—'}</td>
+                  <td className="px-4 py-3">
+                    {h.kontaktperson && <div>{h.kontaktperson}</div>}
+                    {h.epost && (
+                      <a href={`mailto:${h.epost}`} className="text-blue-600 hover:underline block">
+                        {h.epost}
+                      </a>
+                    )}
+                    {h.telefon && <div className="text-gray-500">{h.telefon}</div>}
+                    {!h.kontaktperson && !h.epost && !h.telefon && '—'}
+                  </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <button onClick={() => setRedigerer(h)} className="text-blue-600 hover:underline mr-3">Rediger</button>
                     <button onClick={() => setBekreftSlett(h)} className="text-red-600 hover:underline">Slett</button>
