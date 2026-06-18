@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import SvarOversikt from './SvarOversikt'
 import SendLenker from './SendLenker'
+import KursMetaOversikt from './KursMetaOversikt'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AdminHaller from './AdminHaller'
@@ -142,6 +143,7 @@ function KursOversikt() {
 
   return (
     <div>
+      <KursMetaOversikt />
       <div className="flex justify-end mb-6">
         <button onClick={() => setNyForm({ ...TOMT_KURS })}
           className="bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90">
