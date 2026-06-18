@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-// RA sin live svar-oversikt for ett kurs.
-// Åpnes som modal fra kursplanleggeren: <SvarOversikt kurs={kurs} onLukk={...} />
-
 export default function SvarOversikt({ kurs, onLukk }) {
   const [rader, setRader] = useState([])
   const [laster, setLaster] = useState(true)
@@ -12,7 +9,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
     setLaster(true)
     const { data } = await supabase
       .from('kurs_skole')
-      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, svart, skoler(navn, kommunenavn)')
+      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, svart, melding_handtert, skoler(navn, kommunenavn)')
       .eq('kurs_id', kurs.id)
       .order('svart', { ascending: false })
       .range(0, 9999)
@@ -21,6 +18,15 @@ export default function SvarOversikt({ kurs, onLukk }) {
   }
 
   useEffect(() => { hent() }, [])
+
+  async function settHandtert(id, verdi) {
+    setRader(rader.map(r => r.id === id ? { ...r, melding_handtert: verdi } : r))
+    const { error } = await supabase.rpc('sett_melding_handtert', { p_id: id, p_handtert: verdi })
+    if (error) {
+      setRader(rader.map(r => r.id === id ? { ...r, melding_handtert: !verdi } : r))
+      alert('Kunne ikke lagre. Prøv igjen.')
+    }
+  }
 
   const antall = rader.length
   const harSvart = rader.filter(r => r.svart).length
@@ -35,6 +41,10 @@ export default function SvarOversikt({ kurs, onLukk }) {
   function statusKlasse(r) {
     if (!r.svart) return 'bg-gray-100 text-gray-500'
     return r.kommer ? 'bg-green-100 text-green-700' : 'bg-pink-100 text-pink-700'
+  }
+
+  function harMelding(r) {
+    return !!(r.kommentar || r.arsak_ikke_komme || r.arsak_ikke_vertskap || r.apen_for_annet_kurs)
   }
 
   return (
@@ -105,6 +115,26 @@ export default function SvarOversikt({ kurs, onLukk }) {
                       {r.apen_for_annet_kurs && (
                         <p className="text-orange-700 font-medium">Åpen for et annet kurs i nærheten</p>
                       )}
+                    </div>
+                  )}
+
+                  {r.svart && harMelding(r) && (
+                    <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                      {r.melding_handtert ? (
+                        <span className="text-sm text-green-700 font-medium">✓ Håndtert</span>
+                      ) : (
+                        <span className="text-sm text-gray-400">Ikke håndtert</span>
+                      )}
+                      <button
+                        onClick={() => settHandtert(r.id, !r.melding_handtert)}
+                        className={
+                          r.melding_handtert
+                            ? 'text-sm text-gray-500 hover:underline'
+                            : 'text-sm bg-orange text-white px-3 py-1.5 rounded-lg hover:opacity-90'
+                        }
+                      >
+                        {r.melding_handtert ? 'Angre' : 'Marker som håndtert'}
+                      </button>
                     </div>
                   )}
                 </div>
