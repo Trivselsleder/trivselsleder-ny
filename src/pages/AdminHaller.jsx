@@ -6,14 +6,26 @@ const TOM_HALL = {
   nettverk: '', kontaktperson: '', epost: '', telefon: '', pris: '', merknad: '',
 }
 
+// Deler en celle med flere verdier (komma eller linjeskift) til en liste
+function delOpp(verdi) {
+  if (!verdi) return []
+  return String(verdi)
+    .split(/[\n,]+/)
+    .map(s => s.trim())
+    .filter(Boolean)
+}
+
 export default function AdminHaller() {
   const [haller, setHaller] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
   const [redigerer, setRedigerer] = useState(null)   // hall-objekt som redigeres
   const [nyForm, setNyForm] = useState(null)          // nytt-hall-skjema
-  const [bekreftSlett, setBekreftSlett] = useState(null)
+  const [bekreftSlett, setBekreftSlett] = useState(null)       // enkelt-slett
+  const [bekreftMasseslett, setBekreftMasseslett] = useState(false)
   const [søk, setSøk] = useState('')
+  const [åpen, setÅpen] = useState(null)              // hvilken hall-rad er utvidet
+  const [valgte, setValgte] = useState([])            // id-er krysset av for masseslett
 
   function hentHaller() {
     supabase
@@ -49,6 +61,16 @@ export default function AdminHaller() {
     const { error } = await supabase.from('haller').delete().eq('id', id)
     if (error) { alert('Kunne ikke slette: ' + error.message); return }
     setBekreftSlett(null)
+    setÅpen(null)
+    hentHaller()
+  }
+
+  async function slettValgte() {
+    const { error } = await supabase.from('haller').delete().in('id', valgte)
+    if (error) { alert('Kunne ikke slette: ' + error.message); return }
+    setBekreftMasseslett(false)
+    setValgte([])
+    setÅpen(null)
     hentHaller()
   }
 
@@ -58,6 +80,16 @@ export default function AdminHaller() {
     (h.kommune || '').toLowerCase().includes(søk.toLowerCase()) ||
     (h.nettverk || '').toLowerCase().includes(søk.toLowerCase())
   )
+
+  function veksleValgt(id) {
+    setValgte(v => v.includes(id) ? v.filter(x => x !== id) : [...v, id])
+  }
+
+  const alleValgt = filtrert.length > 0 && filtrert.every(h => valgte.includes(h.id))
+  function veksleAlle() {
+    if (alleValgt) setValgte([])
+    else setValgte(filtrert.map(h => h.id))
+  }
 
   return (
     <div>
@@ -75,8 +107,23 @@ export default function AdminHaller() {
         value={søk}
         onChange={e => setSøk(e.target.value)}
         placeholder="Søk på navn, kommune eller nettverk …"
-        className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-6"
+        className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4"
       />
+
+      {valgte.length > 0 && (
+        <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4">
+          <span className="text-sm text-red-800">{valgte.length} hall(er) valgt</span>
+          <div className="flex gap-3">
+            <button onClick={() => setValgte([])} className="text-sm text-gray-600 hover:underline">Avbryt</button>
+            <button
+              onClick={() => setBekreftMasseslett(true)}
+              className="text-sm bg-red-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90"
+            >
+              Slett valgte
+            </button>
+          </div>
+        </div>
+      )}
 
       {laster && <p className="text-gray-400">Laster haller …</p>}
       {feil && <p className="text-red-600">Feil: {feil}</p>}
@@ -92,35 +139,124 @@ export default function AdminHaller() {
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
-                <th className="px-4 py-3 w-1/5">Navn</th>
-                <th className="px-4 py-3 w-1/6">Kommune</th>
-                <th className="px-4 py-3 w-1/6">Nettverk</th>
-                <th className="px-4 py-3 w-1/4">Kontakt</th>
-                <th className="px-4 py-3 text-right">Handling</th>
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={alleValgt}
+                    onChange={veksleAlle}
+                    className="w-4 h-4 align-middle"
+                    aria-label="Velg alle"
+                  />
+                </th>
+                <th className="px-4 py-3">Navn</th>
+                <th className="px-4 py-3">Kommune</th>
+                <th className="px-4 py-3">Nettverk</th>
+                <th className="px-4 py-3 w-8"></th>
               </tr>
             </thead>
             <tbody>
-              {filtrert.map(h => (
-                <tr key={h.id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{h.navn}</td>
-                  <td className="px-4 py-3">{h.kommune || '—'}</td>
-                  <td className="px-4 py-3">{h.nettverk || '—'}</td>
-                  <td className="px-4 py-3 align-top">
-                    {h.kontaktperson && <div className="font-medium text-gray-800">{h.kontaktperson}</div>}
-                    {h.epost && (
-                      <a href={`mailto:${h.epost}`} className="text-blue-600 hover:underline block break-all mt-0.5">
-                        {h.epost}
-                      </a>
+              {filtrert.map(h => {
+                const erÅpen = åpen === h.id
+                const eposter = delOpp(h.epost)
+                const telefoner = delOpp(h.telefon)
+                const personer = delOpp(h.kontaktperson)
+                const antall = Math.max(personer.length, eposter.length, telefoner.length)
+                const harKontakt = antall > 0 || h.merknad
+                return (
+                  <FragmentRad key={h.id}>
+                    <tr className="border-t border-gray-100 hover:bg-gray-50">
+                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={valgte.includes(h.id)}
+                          onChange={() => veksleValgt(h.id)}
+                          className="w-4 h-4 align-middle"
+                          aria-label={`Velg ${h.navn}`}
+                        />
+                      </td>
+                      <td
+                        className="px-4 py-3 font-medium cursor-pointer"
+                        onClick={() => setÅpen(erÅpen ? null : h.id)}
+                      >
+                        {h.navn}
+                      </td>
+                      <td className="px-4 py-3 cursor-pointer" onClick={() => setÅpen(erÅpen ? null : h.id)}>
+                        {h.kommune || '—'}
+                      </td>
+                      <td className="px-4 py-3 cursor-pointer" onClick={() => setÅpen(erÅpen ? null : h.id)}>
+                        {h.nettverk || '—'}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-gray-400 cursor-pointer text-center"
+                        onClick={() => setÅpen(erÅpen ? null : h.id)}
+                      >
+                        {erÅpen ? '▲' : '▼'}
+                      </td>
+                    </tr>
+
+                    {erÅpen && (
+                      <tr className="bg-gray-50 border-t border-gray-100">
+                        <td colSpan={5} className="px-4 py-4">
+                          {!harKontakt && (
+                            <p className="text-gray-400 text-sm mb-4">Ingen kontaktinfo registrert.</p>
+                          )}
+
+                          {antall > 0 && (
+                            <div className="mb-4">
+                              <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+                                Kontaktperson{antall > 1 ? 'er' : ''}
+                              </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {Array.from({ length: antall }).map((_, i) => (
+                                  <div key={i} className="bg-white border border-gray-200 rounded-lg p-3">
+                                    <p className="text-xs text-gray-400 mb-1">Kontaktperson {i + 1}</p>
+                                    {personer[i] && (
+                                      <p className="font-medium text-gray-800 text-sm">{personer[i]}</p>
+                                    )}
+                                    {eposter[i] && (
+                                      <a
+                                        href={`mailto:${eposter[i]}`}
+                                        className="text-blue-600 hover:underline text-sm block break-all"
+                                      >
+                                        {eposter[i]}
+                                      </a>
+                                    )}
+                                    {telefoner[i] && (
+                                      <p className="text-gray-500 text-sm">{telefoner[i]}</p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {h.merknad && (
+                            <div className="mb-4">
+                              <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Merknad</p>
+                              <p className="text-gray-600 text-sm whitespace-pre-line">{h.merknad}</p>
+                            </div>
+                          )}
+
+                          <div className="flex gap-3 pt-3 border-t border-gray-200">
+                            <button
+                              onClick={() => setRedigerer(h)}
+                              className="text-blue-600 hover:underline text-sm"
+                            >
+                              Rediger
+                            </button>
+                            <button
+                              onClick={() => setBekreftSlett(h)}
+                              className="text-red-600 hover:underline text-sm"
+                            >
+                              Slett
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                     )}
-                    {h.telefon && <div className="text-gray-500 mt-0.5">{h.telefon}</div>}
-                    {!h.kontaktperson && !h.epost && !h.telefon && '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <button onClick={() => setRedigerer(h)} className="text-blue-600 hover:underline mr-3">Rediger</button>
-                    <button onClick={() => setBekreftSlett(h)} className="text-red-600 hover:underline">Slett</button>
-                  </td>
-                </tr>
-              ))}
+                  </FragmentRad>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -148,8 +284,26 @@ export default function AdminHaller() {
           </div>
         </div>
       )}
+
+      {bekreftMasseslett && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-2">Slette {valgte.length} haller?</h3>
+            <p className="text-gray-600 mb-6">Vil du slette de {valgte.length} valgte hallene? Dette kan ikke angres.</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setBekreftMasseslett(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Avbryt</button>
+              <button onClick={slettValgte} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:opacity-90">Slett alle</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
+}
+
+// Liten hjelper så vi kan returnere to <tr> per hall uten ekstra markup
+function FragmentRad({ children }) {
+  return <>{children}</>
 }
 
 function HallSkjema({ verdi, erNy, onEndre, onLagre, onAvbryt }) {
