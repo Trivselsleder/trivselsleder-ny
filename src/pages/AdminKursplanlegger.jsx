@@ -138,6 +138,12 @@ function KursOversikt() {
     setBekreftSlett(null); hentKurs()
   }
 
+  async function kopierKurs(id) {
+    const { error } = await supabase.rpc('kopier_kurs', { p_id: id })
+    if (error) { alert('Kunne ikke kopiere: ' + error.message); return }
+    hentKurs()
+  }
+
   const hallNavn = id => haller.find(h => h.id === id)?.navn || '—'
   const holderNavn = id => kursholdere.find(k => k.id === id)?.navn || '—'
 
@@ -187,6 +193,7 @@ function KursOversikt() {
                     <button onClick={() => setSkoleKurs(k)} className="text-orange hover:underline mr-3">Skoler</button>
                     <button onClick={() => setSvarKurs(k)} className="text-orange hover:underline mr-3">Se svar</button>
                     <button onClick={() => setLenkeKurs(k)} className="text-orange hover:underline mr-3">Send lenker</button>
+                    <button onClick={() => kopierKurs(k.id)} className="text-blue-600 hover:underline mr-3">Kopier</button>
                     <button onClick={() => setRedigerer(k)} className="text-blue-600 hover:underline mr-3">Rediger</button>
                     <button onClick={() => setBekreftSlett(k)} className="text-red-600 hover:underline">Slett</button>
                   </td>
