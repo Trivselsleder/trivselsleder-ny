@@ -38,6 +38,13 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
+    tittel: 'Kortutdeling (fra kurspåmelding)',
+    beskrivelse: 'PROTOTYPE: Beregnet kortantall per skole til gjennomgang med Camilla.',
+    ikon: '🎟️',
+    til: '/admin/kortutdeling',
+    roller: ['superadmin', 'ansatt'],
+  },
+  {
     tittel: 'Brukere',
     beskrivelse: 'Administrer brukere og roller.',
     ikon: '👥',
