@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 export default function SvarOversikt({ kurs, onLukk }) {
   const [rader, setRader] = useState([])
   const [laster, setLaster] = useState(true)
+  const [andreKurs, setAndreKurs] = useState([])
+  const [flytterRad, setFlytterRad] = useState(null)
 
   async function hent() {
     setLaster(true)
@@ -17,7 +19,17 @@ export default function SvarOversikt({ kurs, onLukk }) {
     setLaster(false)
   }
 
-  useEffect(() => { hent() }, [])
+  async function hentAndreKurs() {
+    const { data } = await supabase
+      .from('kurs')
+      .select('id, navn, dato, nettverk')
+      .neq('id', kurs.id)
+      .order('dato', { ascending: true })
+      .range(0, 9999)
+    setAndreKurs(data ?? [])
+  }
+
+  useEffect(() => { hent(); hentAndreKurs() }, [])
 
   async function settHandtert(id, verdi) {
     setRader(rader.map(r => r.id === id ? { ...r, melding_handtert: verdi } : r))
@@ -26,6 +38,16 @@ export default function SvarOversikt({ kurs, onLukk }) {
       setRader(rader.map(r => r.id === id ? { ...r, melding_handtert: !verdi } : r))
       alert('Kunne ikke lagre. Prøv igjen.')
     }
+  }
+
+  async function flyttSkole(id, nyttKursId) {
+    const { error } = await supabase.rpc('flytt_skole_til_kurs', { p_id: id, p_nytt_kurs_id: nyttKursId })
+    if (error) {
+      alert('Kunne ikke flytte skolen. Prøv igjen.')
+      return
+    }
+    setFlytterRad(null)
+    hent()
   }
 
   const antall = rader.length
@@ -45,6 +67,12 @@ export default function SvarOversikt({ kurs, onLukk }) {
 
   function harMelding(r) {
     return !!(r.kommentar || r.arsak_ikke_komme || r.arsak_ikke_vertskap || r.apen_for_annet_kurs)
+  }
+
+  function formaterDato(iso) {
+    if (!iso) return ''
+    const d = new Date(iso)
+    return d.toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' })
   }
 
   return (
@@ -114,6 +142,38 @@ export default function SvarOversikt({ kurs, onLukk }) {
                       {r.arsak_ikke_komme && <p className="text-gray-600">Årsak: «{r.arsak_ikke_komme}»</p>}
                       {r.apen_for_annet_kurs && (
                         <p className="text-orange-700 font-medium">Åpen for et annet kurs i nærheten</p>
+                      )}
+                    </div>
+                  )}
+
+                  {r.svart && r.kommer === false && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      {flytterRad === r.id ? (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-gray-700">Flytt til hvilket kurs?</p>
+                          {andreKurs.length === 0 && (
+                            <p className="text-sm text-gray-400">Ingen andre kurs å flytte til.</p>
+                          )}
+                          {andreKurs.map(k => (
+                            <button
+                              key={k.id}
+                              onClick={() => flyttSkole(r.id, k.id)}
+                              className="block w-full text-left text-sm border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50"
+                            >
+                              {k.navn || 'Kurs'} — {formaterDato(k.dato)} {k.nettverk ? '(' + k.nettverk + ')' : ''}
+                            </button>
+                          ))}
+                          <button onClick={() => setFlytterRad(null)} className="text-sm text-gray-500 hover:underline">
+                            Avbryt
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setFlytterRad(r.id)}
+                          className="text-sm text-orange hover:underline"
+                        >
+                          Flytt til annet kurs
+                        </button>
                       )}
                     </div>
                   )}
