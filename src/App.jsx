@@ -12,6 +12,7 @@ import KulturkortBestill from './pages/KulturkortBestill'
 import AdminKulturkort from './pages/AdminKulturkort'
 import AdminBestillinger from './pages/AdminBestillinger'
 import AdminKortutdeling from './pages/AdminKortutdeling'
+import AdminPurring from './pages/AdminPurring'
 import LoggInn from './pages/LoggInn'
 import SettPassord from './pages/SettPassord'
 import MinSide from './pages/MinSide'
@@ -110,6 +111,7 @@ export default function App() {
                 }
               />
               <Route path="/admin/kortutdeling" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortutdeling /></ProtectedRoute>} />
+              <Route path="/admin/purring" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminPurring /></ProtectedRoute>} />
             </Routes>
           </main>
           <Footer />

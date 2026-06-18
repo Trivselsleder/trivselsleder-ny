@@ -45,6 +45,13 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
+    tittel: 'Purring og påminnelse',
+    beskrivelse: 'Send purring til de som ikke har svart, og påminnelse til de som har.',
+    ikon: '✉️',
+    til: '/admin/purring',
+    roller: ['superadmin', 'ansatt'],
+  },
+  {
     tittel: 'Brukere',
     beskrivelse: 'Administrer brukere og roller.',
     ikon: '👥',
