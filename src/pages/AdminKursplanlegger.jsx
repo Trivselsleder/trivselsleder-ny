@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AdminHaller from './AdminHaller'
 import AdminKursholdere from './AdminKursholdere'
+import AdminPurring from './AdminPurring'
 
 function ukeNummer(isoDato) {
   if (!isoDato) return ''
@@ -495,6 +496,7 @@ export default function AdminKursplanlegger() {
     { id: 'kurs', navn: 'Kurs' },
     { id: 'haller', navn: 'Haller' },
     { id: 'kursholdere', navn: 'Kursholdere' },
+    { id: 'purring', navn: 'Purring og påminnelse' },
   ]
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -516,6 +518,7 @@ export default function AdminKursplanlegger() {
       {fane === 'kurs' && <KursOversikt />}
       {fane === 'haller' && <AdminHaller />}
       {fane === 'kursholdere' && <AdminKursholdere />}
+      {fane === 'purring' && <AdminPurring />}
     </div>
   )
 }
