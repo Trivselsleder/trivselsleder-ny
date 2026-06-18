@@ -92,11 +92,11 @@ export default function AdminHaller() {
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
-                <th className="px-4 py-3">Navn</th>
-                <th className="px-4 py-3">Kommune</th>
-                <th className="px-4 py-3">Nettverk</th>
-                <th className="px-4 py-3">Kontakt</th>
-                <th className="px-4 py-3"></th>
+                <th className="px-4 py-3 w-1/5">Navn</th>
+                <th className="px-4 py-3 w-1/6">Kommune</th>
+                <th className="px-4 py-3 w-1/6">Nettverk</th>
+                <th className="px-4 py-3 w-1/4">Kontakt</th>
+                <th className="px-4 py-3 text-right">Handling</th>
               </tr>
             </thead>
             <tbody>
@@ -105,14 +105,14 @@ export default function AdminHaller() {
                   <td className="px-4 py-3 font-medium">{h.navn}</td>
                   <td className="px-4 py-3">{h.kommune || '—'}</td>
                   <td className="px-4 py-3">{h.nettverk || '—'}</td>
-                  <td className="px-4 py-3">
-                    {h.kontaktperson && <div>{h.kontaktperson}</div>}
+                  <td className="px-4 py-3 align-top">
+                    {h.kontaktperson && <div className="font-medium text-gray-800">{h.kontaktperson}</div>}
                     {h.epost && (
-                      <a href={`mailto:${h.epost}`} className="text-blue-600 hover:underline block">
+                      <a href={`mailto:${h.epost}`} className="text-blue-600 hover:underline block break-all mt-0.5">
                         {h.epost}
                       </a>
                     )}
-                    {h.telefon && <div className="text-gray-500">{h.telefon}</div>}
+                    {h.telefon && <div className="text-gray-500 mt-0.5">{h.telefon}</div>}
                     {!h.kontaktperson && !h.epost && !h.telefon && '—'}
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
