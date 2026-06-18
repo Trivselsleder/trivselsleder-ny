@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import SvarOversikt from './SvarOversikt'
+import SendLenker from './SendLenker'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AdminHaller from './AdminHaller'
@@ -77,6 +78,7 @@ function KursOversikt() {
   const [bekreftSlett, setBekreftSlett] = useState(null)
   const [skoleKurs, setSkoleKurs] = useState(null)  // kurset vi kobler skoler til
   const [svarKurs, setSvarKurs] = useState(null)  // kurset vi ser svar for
+  const [lenkeKurs, setLenkeKurs] = useState(null)  // kurset vi sender lenker for
   const [antallPerKurs, setAntallPerKurs] = useState({})
 
   function hentKurs() {
@@ -182,6 +184,7 @@ function KursOversikt() {
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <button onClick={() => setSkoleKurs(k)} className="text-orange hover:underline mr-3">Skoler</button>
                     <button onClick={() => setSvarKurs(k)} className="text-orange hover:underline mr-3">Se svar</button>
+                    <button onClick={() => setLenkeKurs(k)} className="text-orange hover:underline mr-3">Send lenker</button>
                     <button onClick={() => setRedigerer(k)} className="text-blue-600 hover:underline mr-3">Rediger</button>
                     <button onClick={() => setBekreftSlett(k)} className="text-red-600 hover:underline">Slett</button>
                   </td>
@@ -211,6 +214,10 @@ function KursOversikt() {
 
       {svarKurs && (
         <SvarOversikt kurs={svarKurs} onLukk={() => setSvarKurs(null)} />
+      )}
+
+      {lenkeKurs && (
+        <SendLenker kurs={lenkeKurs} onLukk={() => setLenkeKurs(null)} />
       )}
 
       {bekreftSlett && (
