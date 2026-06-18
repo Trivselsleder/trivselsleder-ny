@@ -496,7 +496,8 @@ export default function AdminKursplanlegger() {
     { id: 'kurs', navn: 'Kurs' },
     { id: 'haller', navn: 'Haller' },
     { id: 'kursholdere', navn: 'Kursholdere' },
-    { id: 'purring', navn: 'Purring og påminnelse' },
+    { id: 'purring', navn: 'Purring' },
+    { id: 'paaminnelse', navn: 'Påminnelse' },
   ]
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -518,7 +519,8 @@ export default function AdminKursplanlegger() {
       {fane === 'kurs' && <KursOversikt />}
       {fane === 'haller' && <AdminHaller />}
       {fane === 'kursholdere' && <AdminKursholdere />}
-      {fane === 'purring' && <AdminPurring />}
+      {fane === 'purring' && <AdminPurring modus="purring" />}
+      {fane === 'paaminnelse' && <AdminPurring modus="paaminnelse" />}
     </div>
   )
 }
