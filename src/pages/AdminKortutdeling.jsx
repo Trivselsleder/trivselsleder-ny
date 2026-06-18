@@ -26,7 +26,7 @@ export default function AdminKortutdeling() {
   useEffect(() => {
     supabase
       .from('kurs_skole')
-      .select('id, antall_tl, kort_status, skoler(navn, kommunenavn), kurs(navn, dato)')
+      .select('id, antall_tl, kort_status, skoler(navn, kommunenavn), kurs!kurs_skole_kurs_id_fkey(navn, dato)')
       .eq('kommer', true)
       .eq('svart', true)
       .range(0, 9999)
