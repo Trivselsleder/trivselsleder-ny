@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-const TOM_KURSHOLDER = { navn: '', epost: '', mobil: '', type: 'egen', aktiv: true }
+const TOM_KURSHOLDER = { navn: '', epost: '', mobil: '', type: 'egen', aktiv: true, merknad: '' }
 
 export default function AdminKursholdere() {
   const [kursholdere, setKursholdere] = useState([])
@@ -182,6 +182,13 @@ function KursholderSkjema({ verdi, erNy, onEndre, onLagre, onAvbryt }) {
               <option value="ja">Ja</option>
               <option value="nei">Nei</option>
             </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm text-gray-600 mb-1">Merknad</label>
+            <textarea value={verdi.merknad || ''}
+              onChange={e => onEndre({ ...verdi, merknad: e.target.value })}
+              rows={2}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
