@@ -25,6 +25,7 @@ import Admin from './pages/Admin'
 import AdminKursplanlegger from './pages/AdminKursplanlegger'
 import AdminHaller from './pages/AdminHaller'
 import SvarSkjema from './pages/SvarSkjema'
+import EvalueringSkjema from './pages/EvalueringSkjema'
 import './index.css'
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
               <Route path="/auth/feide/callback" element={<FeideCallback />} />
               <Route path="/paamelding" element={<Paamelding />} />
               <Route path="/svar/:token" element={<SvarSkjema />} />
+              <Route path="/evaluering/:token" element={<EvalueringSkjema />} />
               <Route
                 path="/min-side"
                 element={
