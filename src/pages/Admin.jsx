@@ -3,6 +3,13 @@ import { useAuth } from '../contexts/AuthContext'
 
 const adminSider = [
   {
+    tittel: 'Ledelse',
+    beskrivelse: 'Styringssignaler: frafallsvarsel (churn) og nøkkeltall.',
+    ikon: '📊',
+    til: '/admin/ledelse',
+    roller: ['superadmin'],
+  },
+  {
     tittel: 'Kursplanlegger',
     beskrivelse: 'Planlegg lekekurs, send invitasjoner og følg opp svar.',
     ikon: '📅',
