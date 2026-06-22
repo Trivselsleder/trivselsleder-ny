@@ -7,13 +7,55 @@ export default function AdminLedelse() {
   const [feil, setFeil] = useState(null)
   const [visDetaljer, setVisDetaljer] = useState(false)
 
+  // Signalord
+  const [ord, setOrd] = useState([])
+  const [nyttOrd, setNyttOrd] = useState('')
+  const [ordFeil, setOrdFeil] = useState(null)
+  const [ordJobber, setOrdJobber] = useState(false)
+
   useEffect(() => {
     supabase.rpc('hent_churn_oversikt').then(({ data, error }) => {
       if (error) setFeil(error.message)
       else setRader(data ?? [])
       setLaster(false)
     })
+    lastOrd()
   }, [])
+
+  function lastOrd() {
+    supabase.rpc('hent_churn_signalord').then(({ data, error }) => {
+      if (error) setOrdFeil(error.message)
+      else setOrd(data ?? [])
+    })
+  }
+
+  async function leggTilOrd() {
+    const renset = nyttOrd.trim().toLowerCase()
+    if (!renset) return
+    if (ord.some(o => o.ord === renset)) {
+      setOrdFeil('Ordet finnes allerede i listen.')
+      return
+    }
+    setOrdJobber(true)
+    setOrdFeil(null)
+    const { error } = await supabase.rpc('legg_til_churn_signalord', { nytt_ord: renset })
+    setOrdJobber(false)
+    if (error) setOrdFeil(error.message)
+    else {
+      setNyttOrd('')
+      lastOrd()
+    }
+  }
+
+  async function slettOrd(id, ordtekst) {
+    if (!confirm('Fjerne signalordet "' + ordtekst + '"?')) return
+    setOrdJobber(true)
+    setOrdFeil(null)
+    const { error } = await supabase.rpc('slett_churn_signalord', { slett_id: id })
+    setOrdJobber(false)
+    if (error) setOrdFeil(error.message)
+    else lastOrd()
+  }
 
   // Aggregerte tall (ligger likt på alle rader, så vi tar fra første)
   const totaltSvar = rader.length > 0 ? Number(rader[0].totalt_svar) : 0
@@ -127,6 +169,58 @@ export default function AdminLedelse() {
                 )}
               </div>
             )}
+          </div>
+
+          {/* SIGNALORD-KORT */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div className="mb-5">
+              <h2 className="text-lg font-semibold text-gray-900">Signalord for frafallsvarsel</h2>
+              <p className="text-sm text-gray-500">Disse ordene utløser flagg når de finnes i et nei-svar. Endringer slår inn ved neste oppdatering av siden.</p>
+            </div>
+
+            {ordFeil && <p className="text-red-600 text-sm mb-3">Feil: {ordFeil}</p>}
+
+            {/* Legg til nytt ord */}
+            <div className="flex gap-2 mb-5">
+              <input
+                type="text"
+                value={nyttOrd}
+                onChange={e => setNyttOrd(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') leggTilOrd() }}
+                placeholder="Nytt signalord …"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange/40"
+              />
+              <button
+                onClick={leggTilOrd}
+                disabled={ordJobber || !nyttOrd.trim()}
+                className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold disabled:opacity-40"
+              >
+                Legg til
+              </button>
+            </div>
+
+            {/* Ordliste */}
+            {ord.length === 0 ? (
+              <p className="text-gray-400 text-sm">Ingen signalord ennå.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {ord.map(o => (
+                  <span key={o.id} className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-100 text-gray-700 text-sm">
+                    {o.ord}
+                    <button
+                      onClick={() => slettOrd(o.id, o.ord)}
+                      disabled={ordJobber}
+                      className="text-gray-400 hover:text-pink-600 font-bold disabled:opacity-40"
+                      title="Fjern"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-gray-400 mt-4">{ord.length} signalord i listen.</p>
           </div>
 
           {/* Plassholder for fremtidige ledelseskort */}
