@@ -7,6 +7,13 @@ import { supabase } from '../lib/supabase';
 
 const SKALA = [1, 2, 3, 4, 5, 6];
 
+// Reservetekster hvis basen ikke svarer (skolen skal aldri se tomt skjema).
+const RESERVE = {
+  gjennomforing: { sporsmal: 'Hvordan opplevde dere gjennomføringen av lekekurset?', skala_lav: 'svært dårlig', skala_hoy: 'svært bra' },
+  info:          { sporsmal: 'Hvordan opplevde dere informasjonen i forkant?',        skala_lav: 'svært dårlig', skala_hoy: 'svært bra' },
+  aktiviteter:   { sporsmal: 'Hvordan opplevde dere utvalget av aktiviteter?',        skala_lav: 'svært dårlig', skala_hoy: 'svært bra' },
+};
+
 function Skala({ verdi, settVerdi }) {
   return (
     <div className="flex gap-2">
@@ -29,6 +36,18 @@ function Skala({ verdi, settVerdi }) {
   );
 }
 
+function SkalaSporsmal({ tekst, verdi, settVerdi }) {
+  return (
+    <fieldset className="mb-8">
+      <legend className="text-lg font-semibold text-gray-900 mb-3">
+        {tekst.sporsmal}
+        <span className="block text-sm font-normal text-gray-500 mt-1">1 = {tekst.skala_lav}, 6 = {tekst.skala_hoy}</span>
+      </legend>
+      <Skala verdi={verdi} settVerdi={settVerdi} />
+    </fieldset>
+  );
+}
+
 export default function EvalueringSkjema() {
   const { token } = useParams();
 
@@ -37,6 +56,8 @@ export default function EvalueringSkjema() {
   const [info, setInfo] = useState(null);
   const [sender, setSender] = useState(false);
   const [ferdig, setFerdig] = useState(false);
+
+  const [tekster, setTekster] = useState(RESERVE);
 
   const [gjennomforing, setGjennomforing] = useState(null);
   const [infoForkant, setInfoForkant] = useState(null);
@@ -49,6 +70,17 @@ export default function EvalueringSkjema() {
     async function hent() {
       setLaster(true);
       setFeil('');
+
+      // Hent spørsmålstekster (faller tilbake på reserve hvis tomt/feil)
+      const { data: sporsmal } = await supabase.rpc('hent_aktive_sporsmal');
+      if (aktiv && sporsmal && sporsmal.length > 0) {
+        const nye = { ...RESERVE };
+        sporsmal.forEach((s) => {
+          nye[s.felt] = { sporsmal: s.sporsmal, skala_lav: s.skala_lav, skala_hoy: s.skala_hoy };
+        });
+        setTekster(nye);
+      }
+
       const { data, error } = await supabase.rpc('hent_evaluering_via_token', {
         token: token,
       });
@@ -149,29 +181,9 @@ export default function EvalueringSkjema() {
           </p>
         )}
 
-        <fieldset className="mb-8">
-          <legend className="text-lg font-semibold text-gray-900 mb-3">
-            Hvordan opplevde dere gjennomføringen av lekekurset?
-            <span className="block text-sm font-normal text-gray-500 mt-1">1 = svært dårlig, 6 = svært bra</span>
-          </legend>
-          <Skala verdi={gjennomforing} settVerdi={setGjennomforing} />
-        </fieldset>
-
-        <fieldset className="mb-8">
-          <legend className="text-lg font-semibold text-gray-900 mb-3">
-            Hvordan opplevde dere informasjonen i forkant?
-            <span className="block text-sm font-normal text-gray-500 mt-1">1 = svært dårlig, 6 = svært bra</span>
-          </legend>
-          <Skala verdi={infoForkant} settVerdi={setInfoForkant} />
-        </fieldset>
-
-        <fieldset className="mb-8">
-          <legend className="text-lg font-semibold text-gray-900 mb-3">
-            Hvordan opplevde dere utvalget av aktiviteter?
-            <span className="block text-sm font-normal text-gray-500 mt-1">1 = svært dårlig, 6 = svært bra</span>
-          </legend>
-          <Skala verdi={aktiviteter} settVerdi={setAktiviteter} />
-        </fieldset>
+        <SkalaSporsmal tekst={tekster.gjennomforing} verdi={gjennomforing} settVerdi={setGjennomforing} />
+        <SkalaSporsmal tekst={tekster.info} verdi={infoForkant} settVerdi={setInfoForkant} />
+        <SkalaSporsmal tekst={tekster.aktiviteter} verdi={aktiviteter} settVerdi={setAktiviteter} />
 
         <div className="mb-8">
           <label htmlFor="gullkorn" className="block text-lg font-semibold text-gray-900 mb-2">

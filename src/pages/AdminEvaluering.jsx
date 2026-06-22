@@ -17,6 +17,72 @@ export default function AdminEvaluering() {
   const [mottakere, setMottakere] = useState([])
   const [henterMottakere, setHenterMottakere] = useState(false)
 
+  const [aktivtSemester, setAktivtSemester] = useState(null)
+  const [sporsmal, setSporsmal] = useState([])
+  const [lagrerSp, setLagrerSp] = useState(null)
+  const [spLagret, setSpLagret] = useState(false)
+
+  function hentSporsmal() {
+    supabase.rpc('hent_aktivt_semester').then(({ data }) => {
+      if (data && data.length > 0) setAktivtSemester(data[0])
+    })
+    supabase.rpc('hent_aktive_sporsmal').then(({ data }) => {
+      setSporsmal(data ?? [])
+    })
+  }
+
+  function endreSp(id, felt, verdi) {
+    setSporsmal(liste => liste.map(s => s.id === id ? { ...s, [felt]: verdi } : s))
+    setSpLagret(false)
+  }
+
+  async function lagreSp(s) {
+    setLagrerSp(s.id)
+    setSpLagret(false)
+    const { error } = await supabase.rpc('oppdater_sporsmal', {
+      p_id: s.id,
+      p_sporsmal: s.sporsmal,
+      p_skala_lav: s.skala_lav,
+      p_skala_hoy: s.skala_hoy,
+    })
+    setLagrerSp(null)
+    if (error) alert('Kunne ikke lagre: ' + error.message)
+    else setSpLagret(true)
+  }
+
+  const [aktivtSemester, setAktivtSemester] = useState(null)
+  const [sporsmal, setSporsmal] = useState([])
+  const [lagrerSp, setLagrerSp] = useState(null)
+  const [spLagret, setSpLagret] = useState(false)
+
+  function hentSporsmal() {
+    supabase.rpc('hent_aktivt_semester').then(({ data }) => {
+      if (data && data.length > 0) setAktivtSemester(data[0])
+    })
+    supabase.rpc('hent_aktive_sporsmal').then(({ data }) => {
+      setSporsmal(data ?? [])
+    })
+  }
+
+  function endreSp(id, felt, verdi) {
+    setSporsmal(liste => liste.map(s => s.id === id ? { ...s, [felt]: verdi } : s))
+    setSpLagret(false)
+  }
+
+  async function lagreSp(s) {
+    setLagrerSp(s.id)
+    setSpLagret(false)
+    const { error } = await supabase.rpc('oppdater_sporsmal', {
+      p_id: s.id,
+      p_sporsmal: s.sporsmal,
+      p_skala_lav: s.skala_lav,
+      p_skala_hoy: s.skala_hoy,
+    })
+    setLagrerSp(null)
+    if (error) alert('Kunne ikke lagre: ' + error.message)
+    else setSpLagret(true)
+  }
+
   const basis = window.location.origin
 
   function hentSvar() {
@@ -29,6 +95,7 @@ export default function AdminEvaluering() {
 
   useEffect(() => {
     hentSvar()
+    hentSporsmal()
     supabase.from('kurs').select('id, navn, dato').order('dato', { ascending: false }).range(0, 9999)
       .then(({ data }) => setKurs(data ?? []))
   }, [])
@@ -75,6 +142,122 @@ export default function AdminEvaluering() {
   return (
     <div className="space-y-8">
       <p className="text-gray-500">Tilbakemeldinger fra skolene etter gjennomførte kurs.</p>
+
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-lg font-semibold text-gray-900">Rediger spørsmål</h3>
+          {aktivtSemester && (
+            <span className="inline-block px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-sm font-semibold">
+              {aktivtSemester.navn}
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-gray-500 mb-4">Teksten skolene ser i evalueringsskjemaet. Endringer slår inn ved neste åpning av skjemaet.</p>
+
+        {sporsmal.length === 0 ? (
+          <p className="text-gray-400 text-sm">Ingen spørsmål funnet for aktivt semester.</p>
+        ) : (
+          <div className="space-y-5">
+            {sporsmal.map(s => (
+              <div key={s.id} className="border border-gray-200 rounded-lg p-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Spørsmål</label>
+                <input
+                  type="text"
+                  value={s.sporsmal}
+                  onChange={e => endreSp(s.id, 'sporsmal', e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3"
+                />
+                <div className="flex gap-3 mb-3">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Skala 1 betyr</label>
+                    <input
+                      type="text"
+                      value={s.skala_lav}
+                      onChange={e => endreSp(s.id, 'skala_lav', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Skala 6 betyr</label>
+                    <input
+                      type="text"
+                      value={s.skala_hoy}
+                      onChange={e => endreSp(s.id, 'skala_hoy', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => lagreSp(s)}
+                  disabled={lagrerSp === s.id}
+                  className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold disabled:opacity-40"
+                >
+                  {lagrerSp === s.id ? 'Lagrer …' : 'Lagre'}
+                </button>
+              </div>
+            ))}
+            {spLagret && <p className="text-green-700 text-sm">Lagret.</p>}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-lg font-semibold text-gray-900">Rediger spørsmål</h3>
+          {aktivtSemester && (
+            <span className="inline-block px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-sm font-semibold">
+              {aktivtSemester.navn}
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-gray-500 mb-4">Teksten skolene ser i evalueringsskjemaet. Endringer slår inn ved neste åpning av skjemaet.</p>
+
+        {sporsmal.length === 0 ? (
+          <p className="text-gray-400 text-sm">Ingen spørsmål funnet for aktivt semester.</p>
+        ) : (
+          <div className="space-y-5">
+            {sporsmal.map(s => (
+              <div key={s.id} className="border border-gray-200 rounded-lg p-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Spørsmål</label>
+                <input
+                  type="text"
+                  value={s.sporsmal}
+                  onChange={e => endreSp(s.id, 'sporsmal', e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3"
+                />
+                <div className="flex gap-3 mb-3">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Skala 1 betyr</label>
+                    <input
+                      type="text"
+                      value={s.skala_lav}
+                      onChange={e => endreSp(s.id, 'skala_lav', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Skala 6 betyr</label>
+                    <input
+                      type="text"
+                      value={s.skala_hoy}
+                      onChange={e => endreSp(s.id, 'skala_hoy', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => lagreSp(s)}
+                  disabled={lagrerSp === s.id}
+                  className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold disabled:opacity-40"
+                >
+                  {lagrerSp === s.id ? 'Lagrer …' : 'Lagre'}
+                </button>
+              </div>
+            ))}
+            {spLagret && <p className="text-green-700 text-sm">Lagret.</p>}
+          </div>
+        )}
+      </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-5">
         <h3 className="text-lg font-semibold text-gray-900 mb-1">Send evaluering</h3>
