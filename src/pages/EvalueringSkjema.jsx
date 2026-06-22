@@ -67,8 +67,9 @@ export default function EvalueringSkjema() {
   const [infoForkant, setInfoForkant] = useState(null);
   const [aktiviteter, setAktiviteter] = useState(null);
   const [gullkorn, setGullkorn] = useState('');
-  const [kjopsinteresse, setKjopsinteresse] = useState(null);
-  const [valgtPakke, setValgtPakke] = useState(null);
+
+  // Valg: enten en pakke-id, eller 'samtale', eller 'nei'
+  const [valg, setValg] = useState(null);
 
   useEffect(() => {
     let aktiv = true;
@@ -109,7 +110,8 @@ export default function EvalueringSkjema() {
         setInfoForkant(rad.vurd_info);
         setAktiviteter(rad.vurd_aktiviteter);
         setGullkorn(rad.gullkorn ?? '');
-        setKjopsinteresse(rad.kjopsinteresse ?? null);
+        if (rad.valgt_pakke_id) setValg(rad.valgt_pakke_id);
+        else if (rad.kjopsinteresse) setValg(rad.kjopsinteresse);
       }
       setLaster(false);
     }
@@ -123,14 +125,15 @@ export default function EvalueringSkjema() {
       setFeil('Vennligst svar på de tre vurderingsspørsmålene.');
       return;
     }
-    if (kjopsinteresse === null) {
+    if (valg === null) {
       setFeil('Vennligst svar på spørsmålet om kurspakke.');
       return;
     }
-    if (kjopsinteresse === 'pakke' && pakker.length > 0 && valgtPakke === null) {
-      setFeil('Vennligst velg hvilken pakke dere ønsker.');
-      return;
-    }
+
+    // Oversett valg til kjopsinteresse + pakke-id
+    const erPakke = valg !== 'samtale' && valg !== 'nei';
+    const kjopsinteresse = erPakke ? 'pakke' : valg;
+    const pakkeId = erPakke ? valg : null;
 
     setSender(true);
     const { error } = await supabase.rpc('lagre_evaluering', {
@@ -140,7 +143,7 @@ export default function EvalueringSkjema() {
       p_vurd_aktiviteter: aktiviteter,
       p_gullkorn: gullkorn.trim() === '' ? null : gullkorn.trim(),
       p_kjopsinteresse: kjopsinteresse,
-      p_valgt_pakke_id: kjopsinteresse === 'pakke' ? valgtPakke : null,
+      p_valgt_pakke_id: pakkeId,
     });
     setSender(false);
     if (error) {
@@ -182,6 +185,11 @@ export default function EvalueringSkjema() {
     );
   }
 
+  const knappValgt = 'w-full rounded-xl border-2 border-orange-500 bg-orange-50 p-4 text-left';
+  const knappUvalgt = 'w-full rounded-xl border-2 border-gray-200 bg-white p-4 text-left hover:border-gray-300';
+  const enkelValgt = 'w-full py-3 px-4 rounded-xl border-2 border-orange-500 bg-orange-50 text-orange-700 font-semibold text-left';
+  const enkelUvalgt = 'w-full py-3 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-medium hover:border-gray-300 text-left';
+
   return (
     <main className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
@@ -219,61 +227,48 @@ export default function EvalueringSkjema() {
             Ønsker dere å kjøpe en av høstens lekekurspakker?
           </legend>
           <div className="flex flex-col gap-3">
-            {[
-              ['pakke', 'Ja, vi ønsker en pakke'],
-              ['samtale', 'Ja, vi ønsker en samtale'],
-              ['nei', 'Nei, ikke nå'],
-            ].map(([verdi, etikett]) => (
+            {pakker.map((p) => (
               <button
-                key={verdi}
+                key={p.id}
                 type="button"
-                onClick={() => { setKjopsinteresse(verdi); if (verdi !== 'pakke') setValgtPakke(null); }}
-                aria-pressed={kjopsinteresse === verdi}
-                className={
-                  kjopsinteresse === verdi
-                    ? 'w-full py-3 px-4 rounded-xl border-2 border-orange-500 bg-orange-50 text-orange-700 font-semibold text-left'
-                    : 'w-full py-3 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-medium hover:border-gray-300 text-left'
-                }
+                onClick={() => setValg(p.id)}
+                aria-pressed={valg === p.id}
+                className={valg === p.id ? knappValgt : knappUvalgt}
               >
-                {etikett}
+                <div className="flex items-start gap-4">
+                  {p.bilde_url && (
+                    <img src={p.bilde_url} alt={p.navn} className="w-24 h-24 object-cover rounded-lg flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="font-semibold text-gray-900">Ja, {p.navn}</span>
+                      <span className="font-bold text-orange-700 whitespace-nowrap">{kr(p.pris)}</span>
+                    </div>
+                    {p.beskrivelse && <p className="text-sm text-gray-600 mt-1">{p.beskrivelse}</p>}
+                    <p className="text-xs text-gray-400 mt-1">Pris eks. mva. og frakt.</p>
+                  </div>
+                </div>
               </button>
             ))}
-          </div>
 
-          {kjopsinteresse === 'pakke' && pakker.length > 0 && (
-            <div className="mt-5">
-              <p className="text-sm font-semibold text-gray-700 mb-3">Velg pakke:</p>
-              <div className="flex flex-col gap-3">
-                {pakker.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setValgtPakke(p.id)}
-                    aria-pressed={valgtPakke === p.id}
-                    className={
-                      valgtPakke === p.id
-                        ? 'w-full rounded-xl border-2 border-orange-500 bg-orange-50 p-4 text-left'
-                        : 'w-full rounded-xl border-2 border-gray-200 bg-white p-4 text-left hover:border-gray-300'
-                    }
-                  >
-                    <div className="flex items-start gap-4">
-                      {p.bilde_url && (
-                        <img src={p.bilde_url} alt={p.navn} className="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
-                      )}
-                      <div className="flex-1">
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="font-semibold text-gray-900">{p.navn}</span>
-                          <span className="font-bold text-orange-700 whitespace-nowrap">{kr(p.pris)}</span>
-                        </div>
-                        {p.beskrivelse && <p className="text-sm text-gray-600 mt-1">{p.beskrivelse}</p>}
-                        <p className="text-xs text-gray-400 mt-1">Pris eks. mva. og frakt.</p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+            <button
+              type="button"
+              onClick={() => setValg('samtale')}
+              aria-pressed={valg === 'samtale'}
+              className={valg === 'samtale' ? enkelValgt : enkelUvalgt}
+            >
+              Ja, vi ønsker en samtale
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setValg('nei')}
+              aria-pressed={valg === 'nei'}
+              className={valg === 'nei' ? enkelValgt : enkelUvalgt}
+            >
+              Nei, ikke nå
+            </button>
+          </div>
         </fieldset>
 
         {feil && (
