@@ -241,7 +241,7 @@ export default function EvalueringSkjema() {
                   )}
                   <div className="flex-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-semibold text-gray-900">Ja, {p.navn}</span>
+                      <span className="font-semibold text-gray-900">Ja, {p.navn.charAt(0).toLowerCase() + p.navn.slice(1)}</span>
                       <span className="font-bold text-orange-700 whitespace-nowrap">{kr(p.pris)}</span>
                     </div>
                     {p.beskrivelse && <p className="text-sm text-gray-600 mt-1">{p.beskrivelse}</p>}
