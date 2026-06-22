@@ -22,6 +22,10 @@ export default function AdminEvaluering() {
   const [lagrerSp, setLagrerSp] = useState(null)
   const [spLagret, setSpLagret] = useState(false)
 
+  const [pakker, setPakker] = useState([])
+  const [lagrerPk, setLagrerPk] = useState(null)
+  const [pkLagret, setPkLagret] = useState(false)
+
   const basis = window.location.origin
 
   function hentSvar() {
@@ -38,6 +42,12 @@ export default function AdminEvaluering() {
     })
     supabase.rpc('hent_aktive_sporsmal').then(({ data }) => {
       setSporsmal(data ?? [])
+    })
+  }
+
+  function hentPakker() {
+    supabase.rpc('hent_pakker_admin').then(({ data }) => {
+      setPakker(data ?? [])
     })
   }
 
@@ -60,9 +70,29 @@ export default function AdminEvaluering() {
     else setSpLagret(true)
   }
 
+  function endrePk(id, felt, verdi) {
+    setPakker(liste => liste.map(p => p.id === id ? { ...p, [felt]: verdi } : p))
+    setPkLagret(false)
+  }
+
+  async function lagrePk(p) {
+    setLagrerPk(p.id)
+    setPkLagret(false)
+    const { error } = await supabase.rpc('oppdater_pakke', {
+      p_id: p.id,
+      p_navn: p.navn,
+      p_pris: parseInt(p.pris, 10) || 0,
+      p_beskrivelse: p.beskrivelse,
+    })
+    setLagrerPk(null)
+    if (error) alert('Kunne ikke lagre: ' + error.message)
+    else setPkLagret(true)
+  }
+
   useEffect(() => {
     hentSvar()
     hentSporsmal()
+    hentPakker()
     supabase.from('kurs').select('id, navn, dato').order('dato', { ascending: false }).range(0, 9999)
       .then(({ data }) => setKurs(data ?? []))
   }, [])
@@ -169,6 +199,64 @@ export default function AdminEvaluering() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-lg font-semibold text-gray-900">Rediger pakker</h3>
+          {aktivtSemester && (
+            <span className="inline-block px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-sm font-semibold">
+              {aktivtSemester.navn}
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-gray-500 mb-4">Pakkene skolene kan velge i evalueringen. Pris i hele kroner eks. mva. Bildeopplasting kommer senere.</p>
+
+        {pakker.length === 0 ? (
+          <p className="text-gray-400 text-sm">Ingen pakker funnet for aktivt semester.</p>
+        ) : (
+          <div className="space-y-5">
+            {pakker.map(p => (
+              <div key={p.id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex gap-3 mb-3">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Navn</label>
+                    <input
+                      type="text"
+                      value={p.navn}
+                      onChange={e => endrePk(p.id, 'navn', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div className="w-40">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Pris (kr eks mva)</label>
+                    <input
+                      type="number"
+                      value={p.pris}
+                      onChange={e => endrePk(p.id, 'pris', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Beskrivelse</label>
+                <textarea
+                  rows="2"
+                  value={p.beskrivelse || ''}
+                  onChange={e => endrePk(p.id, 'beskrivelse', e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3"
+                />
+                <button
+                  onClick={() => lagrePk(p)}
+                  disabled={lagrerPk === p.id}
+                  className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold disabled:opacity-40"
+                >
+                  {lagrerPk === p.id ? 'Lagrer …' : 'Lagre'}
+                </button>
+              </div>
+            ))}
+            {pkLagret && <p className="text-green-700 text-sm">Lagret.</p>}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
         <h3 className="text-lg font-semibold text-gray-900 mb-1">Send evaluering</h3>
         <p className="text-sm text-gray-500 mb-4">Velg et gjennomført kurs og send evalueringslenke til skolene.</p>
 
@@ -263,6 +351,7 @@ export default function AdminEvaluering() {
                       <th className="px-4 py-3">Skole</th>
                       <th className="px-4 py-3">Kurs</th>
                       <th className="px-4 py-3">Ønske</th>
+                      <th className="px-4 py-3">Pakke</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -278,6 +367,9 @@ export default function AdminEvaluering() {
                           }>
                             {KJOP_ETIKETT[r.kjopsinteresse]}
                           </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {r.valgt_pakke_navn ? r.valgt_pakke_navn + ' (' + (r.valgt_pakke_pris != null ? r.valgt_pakke_pris.toLocaleString('no-NO') + ' kr' : '—') + ')' : '—'}
                         </td>
                       </tr>
                     ))}

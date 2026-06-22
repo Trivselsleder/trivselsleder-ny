@@ -7,12 +7,15 @@ import { supabase } from '../lib/supabase';
 
 const SKALA = [1, 2, 3, 4, 5, 6];
 
-// Reservetekster hvis basen ikke svarer (skolen skal aldri se tomt skjema).
 const RESERVE = {
   gjennomforing: { sporsmal: 'Hvordan opplevde dere gjennomføringen av lekekurset?', skala_lav: 'svært dårlig', skala_hoy: 'svært bra' },
   info:          { sporsmal: 'Hvordan opplevde dere informasjonen i forkant?',        skala_lav: 'svært dårlig', skala_hoy: 'svært bra' },
   aktiviteter:   { sporsmal: 'Hvordan opplevde dere utvalget av aktiviteter?',        skala_lav: 'svært dårlig', skala_hoy: 'svært bra' },
 };
+
+function kr(n) {
+  return n.toLocaleString('no-NO') + ' kr';
+}
 
 function Skala({ verdi, settVerdi }) {
   return (
@@ -58,12 +61,14 @@ export default function EvalueringSkjema() {
   const [ferdig, setFerdig] = useState(false);
 
   const [tekster, setTekster] = useState(RESERVE);
+  const [pakker, setPakker] = useState([]);
 
   const [gjennomforing, setGjennomforing] = useState(null);
   const [infoForkant, setInfoForkant] = useState(null);
   const [aktiviteter, setAktiviteter] = useState(null);
   const [gullkorn, setGullkorn] = useState('');
   const [kjopsinteresse, setKjopsinteresse] = useState(null);
+  const [valgtPakke, setValgtPakke] = useState(null);
 
   useEffect(() => {
     let aktiv = true;
@@ -71,7 +76,6 @@ export default function EvalueringSkjema() {
       setLaster(true);
       setFeil('');
 
-      // Hent spørsmålstekster (faller tilbake på reserve hvis tomt/feil)
       const { data: sporsmal } = await supabase.rpc('hent_aktive_sporsmal');
       if (aktiv && sporsmal && sporsmal.length > 0) {
         const nye = { ...RESERVE };
@@ -80,6 +84,9 @@ export default function EvalueringSkjema() {
         });
         setTekster(nye);
       }
+
+      const { data: pakkeData } = await supabase.rpc('hent_aktive_pakker');
+      if (aktiv && pakkeData) setPakker(pakkeData);
 
       const { data, error } = await supabase.rpc('hent_evaluering_via_token', {
         token: token,
@@ -120,6 +127,10 @@ export default function EvalueringSkjema() {
       setFeil('Vennligst svar på spørsmålet om kurspakke.');
       return;
     }
+    if (kjopsinteresse === 'pakke' && pakker.length > 0 && valgtPakke === null) {
+      setFeil('Vennligst velg hvilken pakke dere ønsker.');
+      return;
+    }
 
     setSender(true);
     const { error } = await supabase.rpc('lagre_evaluering', {
@@ -129,6 +140,7 @@ export default function EvalueringSkjema() {
       p_vurd_aktiviteter: aktiviteter,
       p_gullkorn: gullkorn.trim() === '' ? null : gullkorn.trim(),
       p_kjopsinteresse: kjopsinteresse,
+      p_valgt_pakke_id: kjopsinteresse === 'pakke' ? valgtPakke : null,
     });
     setSender(false);
     if (error) {
@@ -215,7 +227,7 @@ export default function EvalueringSkjema() {
               <button
                 key={verdi}
                 type="button"
-                onClick={() => setKjopsinteresse(verdi)}
+                onClick={() => { setKjopsinteresse(verdi); if (verdi !== 'pakke') setValgtPakke(null); }}
                 aria-pressed={kjopsinteresse === verdi}
                 className={
                   kjopsinteresse === verdi
@@ -227,6 +239,41 @@ export default function EvalueringSkjema() {
               </button>
             ))}
           </div>
+
+          {kjopsinteresse === 'pakke' && pakker.length > 0 && (
+            <div className="mt-5">
+              <p className="text-sm font-semibold text-gray-700 mb-3">Velg pakke:</p>
+              <div className="flex flex-col gap-3">
+                {pakker.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setValgtPakke(p.id)}
+                    aria-pressed={valgtPakke === p.id}
+                    className={
+                      valgtPakke === p.id
+                        ? 'w-full rounded-xl border-2 border-orange-500 bg-orange-50 p-4 text-left'
+                        : 'w-full rounded-xl border-2 border-gray-200 bg-white p-4 text-left hover:border-gray-300'
+                    }
+                  >
+                    <div className="flex items-start gap-4">
+                      {p.bilde_url && (
+                        <img src={p.bilde_url} alt={p.navn} className="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="font-semibold text-gray-900">{p.navn}</span>
+                          <span className="font-bold text-orange-700 whitespace-nowrap">{kr(p.pris)}</span>
+                        </div>
+                        {p.beskrivelse && <p className="text-sm text-gray-600 mt-1">{p.beskrivelse}</p>}
+                        <p className="text-xs text-gray-400 mt-1">Pris eks. mva. og frakt.</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </fieldset>
 
         {feil && (
