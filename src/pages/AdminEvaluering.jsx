@@ -83,10 +83,41 @@ export default function AdminEvaluering() {
       p_navn: p.navn,
       p_pris: parseInt(p.pris, 10) || 0,
       p_beskrivelse: p.beskrivelse,
+      p_bilde_url: p.bilde_url || null,
     })
     setLagrerPk(null)
     if (error) alert('Kunne ikke lagre: ' + error.message)
     else setPkLagret(true)
+  }
+
+  async function lastOppBilde(p, fil) {
+    if (!fil) return
+    setLagrerPk(p.id)
+    const filendelse = fil.name.split('.').pop()
+    const filnavn = p.id + '-' + Date.now() + '.' + filendelse
+    const { error: oppErr } = await supabase.storage
+      .from('pakkebilder')
+      .upload(filnavn, fil, { upsert: true })
+    if (oppErr) {
+      setLagrerPk(null)
+      alert('Kunne ikke laste opp bilde: ' + oppErr.message)
+      return
+    }
+    const { data: urlData } = supabase.storage
+      .from('pakkebilder')
+      .getPublicUrl(filnavn)
+    const nyUrl = urlData.publicUrl
+    const { error: lagreErr } = await supabase.rpc('oppdater_pakke', {
+      p_id: p.id,
+      p_navn: p.navn,
+      p_pris: parseInt(p.pris, 10) || 0,
+      p_beskrivelse: p.beskrivelse,
+      p_bilde_url: nyUrl,
+    })
+    setLagrerPk(null)
+    if (lagreErr) { alert('Kunne ikke lagre bilde-URL: ' + lagreErr.message); return }
+    setPakker(liste => liste.map(x => x.id === p.id ? { ...x, bilde_url: nyUrl } : x))
+    setPkLagret(true)
   }
 
   useEffect(() => {
@@ -207,7 +238,7 @@ export default function AdminEvaluering() {
             </span>
           )}
         </div>
-        <p className="text-sm text-gray-500 mb-4">Pakkene skolene kan velge i evalueringen. Pris i hele kroner eks. mva. Bildeopplasting kommer senere.</p>
+        <p className="text-sm text-gray-500 mb-4">Pakkene skolene kan velge i evalueringen. Pris i hele kroner eks. mva. Last opp et bilde per pakke om ønskelig.</p>
 
         {pakker.length === 0 ? (
           <p className="text-gray-400 text-sm">Ingen pakker funnet for aktivt semester.</p>
@@ -242,6 +273,24 @@ export default function AdminEvaluering() {
                   onChange={e => endrePk(p.id, 'beskrivelse', e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3"
                 />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Bilde</label>
+                <div className="flex items-center gap-4 mb-3">
+                  {p.bilde_url ? (
+                    <img src={p.bilde_url} alt={p.navn} className="w-24 h-24 object-cover rounded-lg border border-gray-200" />
+                  ) : (
+                    <div className="w-24 h-24 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-300 text-xs text-center">Ingen bilde</div>
+                  )}
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg, image/jpg, image/webp"
+                      onChange={e => lastOppBilde(p, e.target.files[0])}
+                      disabled={lagrerPk === p.id}
+                      className="text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange file:text-white hover:file:opacity-90 disabled:opacity-40"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">PNG, JPG eller WEBP. Bildet lagres automatisk når du har valgt fil.</p>
+                  </div>
+                </div>
                 <button
                   onClick={() => lagrePk(p)}
                   disabled={lagrerPk === p.id}
