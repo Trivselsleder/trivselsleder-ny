@@ -155,6 +155,35 @@ export default function AdminEvaluering() {
     window.location.href = 'mailto:' + (mottaker.hktl_epost || '') + '?subject=' + emne + '&body=' + tekst
   }
 
+  function lastNedCsv() {
+    if (rader.length === 0) { alert('Ingen evalueringer å eksportere ennå.'); return }
+    const kolonner = ['Skole', 'Kurs', 'Gjennomføring', 'Info i forkant', 'Aktiviteter', 'Gullkorn', 'Kjøpsinteresse', 'Valgt pakke', 'Pakkepris (kr)']
+    const celle = (v) => {
+      if (v == null) return ''
+      const t = String(v).replace(/"/g, '""')
+      return '"' + t + '"'
+    }
+    const linjer = rader.map(r => [
+      celle(r.skole_navn),
+      celle(r.kurs_navn),
+      celle(r.vurd_gjennomforing),
+      celle(r.vurd_info),
+      celle(r.vurd_aktiviteter),
+      celle(r.gullkorn),
+      celle(KJOP_ETIKETT[r.kjopsinteresse] ?? r.kjopsinteresse),
+      celle(r.valgt_pakke_navn),
+      celle(r.valgt_pakke_pris),
+    ].join(';'))
+    const csv = '\uFEFF' + kolonner.join(';') + '\n' + linjer.join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'evalueringer-' + new Date().toISOString().slice(0, 10) + '.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   if (laster) return <p className="text-gray-400">Laster evalueringer …</p>
   if (feil) return <p className="text-red-600">Feil: {feil}</p>
 
@@ -443,7 +472,15 @@ export default function AdminEvaluering() {
           )}
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Alle svar</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-900">Alle svar</h3>
+              <button
+                onClick={lastNedCsv}
+                className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold hover:opacity-90"
+              >
+                Last ned som CSV
+              </button>
+            </div>
             <div className="overflow-hidden border border-gray-200 rounded-xl">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 text-gray-600">
