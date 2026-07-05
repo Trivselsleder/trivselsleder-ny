@@ -111,17 +111,46 @@ export default async function handler(req, res) {
   // Oppdater status
   await supabase.from('paameldinger').update({ status: 'godkjent' }).eq('id', paameldinId)
 
-  // Opprett/oppdater skole
+  // FEIL 1-FIKS: sjekk om org.nr allerede finnes — aldri overskriv stille
+  const { data: eksisterendeSkole } = await supabase
+    .from('skoler')
+    .select('id, navn')
+    .eq('org_nr', p.organisasjonsnummer)
+    .maybeSingle()
+
+  if (eksisterendeSkole) {
+    // Rull tilbake status så påmeldingen ikke står som godkjent
+    await supabase.from('paameldinger').update({ status: 'ny' }).eq('id', paameldinId)
+    return res.status(409).json({
+      error: `En skole med org.nr ${p.organisasjonsnummer} finnes allerede i registeret: «${eksisterendeSkole.navn}». Påmeldingen er IKKE godkjent. Sjekk om dette er en duplikat-påmelding, eller rett org.nr før ny godkjenning.`,
+    })
+  }
+
+  // FEIL 2-FIKS: opprett skolen med ALLE felter fra påmeldingen
   const { data: skole, error: skoleFeil } = await supabase
     .from('skoler')
-    .upsert({
-      navn:        p.skolenavn,
-      org_nr:      p.organisasjonsnummer,
-      kommunenavn: p.kommune,
-      fylke:       p.fylke,
-      type:        p.type,
-      status:      'Aktiv',
-    }, { onConflict: 'org_nr' })
+    .insert({
+      navn:          p.skolenavn,
+      org_nr:        p.organisasjonsnummer,
+      kommunenavn:   p.kommune,
+      fylke:         p.fylke,
+      type:          p.type,
+      status:        'Aktiv',
+      antall_elever: p.antall_elever,
+      gateadresse:   p.gateadresse,
+      postnummer:    p.postnummer,
+      poststed:      p.poststed,
+      telefon:       p.kontortelefon,
+      rektor_navn:   p.rektor_navn,
+      rektor_epost:  p.rektor_epost,
+      rektor_telefon: p.rektor_telefon,
+      htla_navn:     p.htla_navn,
+      htla_epost:    p.htla_epost,
+      hktl_navn:     p.tla_navn,
+      hktl_epost:    p.tla_epost,
+      hktl_telefon:  p.tla_telefon,
+      hubspot_company_id: p.hubspot_company_id,
+    })
     .select('id, navn')
     .single()
   if (skoleFeil) return res.status(500).json({ error: 'Kunne ikke opprette skole: ' + skoleFeil.message })
