@@ -50,9 +50,11 @@ const RESULTAT_LABEL = {
 function Modal({ p, onLukk, onOppdaterStatus }) {
   const [laster, setLaster] = useState(false)
   const [godkjentResultat, setGodkjentResultat] = useState(null)
+  const [feilmelding, setFeilmelding] = useState(null)
 
   async function settStatus(nyStatus) {
     setLaster(true)
+    setFeilmelding(null)
 
     if (nyStatus === 'godkjent') {
       try {
@@ -64,9 +66,11 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
         const data = await res.json()
         if (!res.ok) {
           console.error('Godkjenning feilet:', data.error)
+          setFeilmelding(data.error || 'Godkjenning feilet av ukjent årsak.')
           setLaster(false)
           return
         }
+        setFeilmelding(null)
         onOppdaterStatus(p.id, 'godkjent')
         setGodkjentResultat(data)
       } catch (e) {
@@ -180,6 +184,12 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
             </div>
           </div>
         ) : (
+          <>
+          {feilmelding && (
+            <div className="mx-6 mb-0 mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <strong>Kunne ikke godkjenne:</strong> {feilmelding}
+            </div>
+          )}
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
             <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_STIL[p.status] ?? 'bg-gray-100 text-gray-600'}`}>
               {p.status}
@@ -205,6 +215,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
               )}
             </div>
           </div>
+          </>
         )}
 
       </div>
