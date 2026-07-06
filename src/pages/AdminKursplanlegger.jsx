@@ -251,52 +251,119 @@ function SkoleKobling({ kurs, onLukk }) {
   const [koblede, setKoblede] = useState([])
   const [nettverkSkoler, setNettverkSkoler] = useState([])
   const [laster, setLaster] = useState(true)
+  const [feilmelding, setFeilmelding] = useState(null)
+  const [bekreftFjern, setBekreftFjern] = useState(null)  // kobling-raden som skal fjernes
+  const [unntakSok, setUnntakSok] = useState('')
+  const [unntakTreff, setUnntakTreff] = useState([])
+  const [unntakSoker, setUnntakSoker] = useState(false)
 
   async function hent() {
     setLaster(true)
-    // Skoler allerede koblet til kurset
-    const { data: kobl } = await supabase
+    // Skoler allerede koblet til kurset (inkl. svar-info til fjern-vernet)
+    const { data: kobl, error: koblFeil } = await supabase
       .from('kurs_skole')
-      .select('id, skole_id, skoler(navn, kommunenavn)')
+      .select('id, skole_id, svart, kommer, antall_tl, arsak_ikke_komme, skoler(navn, kommunenavn)')
       .eq('kurs_id', kurs.id)
       .range(0, 9999)
+    if (koblFeil) setFeilmelding('Kunne ikke hente koblede skoler: ' + koblFeil.message)
     setKoblede(kobl ?? [])
-    // Alle skoler i kursets nettverk
-    const { data: nettv } = await supabase
+    // Aktive skoler i kursets nettverk (inaktive vises aldri)
+    const { data: nettv, error: nettvFeil } = await supabase
       .from('skoler')
       .select('id, navn, kommunenavn')
       .eq('nettverk', kurs.nettverk)
+      .eq('status', 'Aktiv')
       .order('navn')
       .range(0, 9999)
+    if (nettvFeil) setFeilmelding('Kunne ikke hente nettverksskoler: ' + nettvFeil.message)
     setNettverkSkoler(nettv ?? [])
     setLaster(false)
   }
 
   useEffect(() => { hent() }, [])
 
+  // Unntakssøk: alle AKTIVE skoler uansett nettverk, debounce 300 ms
+  useEffect(() => {
+    const sok = unntakSok.trim()
+    if (sok.length < 2) { setUnntakTreff([]); setUnntakSoker(false); return }
+    setUnntakSoker(true)
+    const t = setTimeout(async () => {
+      const { data, error } = await supabase
+        .from('skoler')
+        .select('id, navn, kommunenavn')
+        .eq('status', 'Aktiv')
+        .ilike('navn', `%${sok}%`)
+        .order('navn')
+        .limit(20)
+      if (error) setFeilmelding('Kunne ikke søke i skoler: ' + error.message)
+      else setUnntakTreff(data ?? [])
+      setUnntakSoker(false)
+    }, 300)
+    return () => clearTimeout(t)
+  }, [unntakSok])
+
   const koblendeIder = new Set(koblede.map(k => k.skole_id))
   const ikkeKoblet = nettverkSkoler.filter(s => !koblendeIder.has(s.id))
 
   async function leggTil(skole) {
+    setFeilmelding(null)
     const { error } = await supabase.from('kurs_skole').insert([{
       kurs_id: kurs.id, skole_id: skole.id,
     }])
-    if (error) { alert('Kunne ikke legge til: ' + error.message); return }
+    if (error) { setFeilmelding('Kunne ikke legge til: ' + error.message); return }
     hent()
   }
 
   async function leggTilAlle() {
+    setFeilmelding(null)
     const rader = ikkeKoblet.map(s => ({ kurs_id: kurs.id, skole_id: s.id }))
     if (rader.length === 0) return
     const { error } = await supabase.from('kurs_skole').insert(rader)
-    if (error) { alert('Kunne ikke legge til alle: ' + error.message); return }
+    if (error) { setFeilmelding('Kunne ikke legge til alle: ' + error.message); return }
     hent()
   }
 
-  async function fjern(koblingId) {
-    const { error } = await supabase.from('kurs_skole').delete().eq('id', koblingId)
-    if (error) { alert('Kunne ikke fjerne: ' + error.message); return }
-    hent()
+  // Unntaksvei: koble skole utenfor nettverket via endpoint (har duplikatvern)
+  async function leggTilUnntak(skole) {
+    setFeilmelding(null)
+    try {
+      const res = await fetch('/api/admin/koble-skole-kurs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skoleId: skole.id, kursId: kurs.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setFeilmelding(data.error || 'Ukjent feil ved kobling'); return }
+      setUnntakSok('')
+      setUnntakTreff([])
+      hent()
+    } catch (e) {
+      setFeilmelding('Nettverksfeil ved kobling: ' + e.message)
+    }
+  }
+
+  function svarTekst(k) {
+    if (!k.svart) return null
+    if (k.kommer) return `JA${k.antall_tl != null ? `, ${k.antall_tl} trivselsledere` : ''}`
+    return `NEI${k.arsak_ikke_komme ? ` (${k.arsak_ikke_komme})` : ''}`
+  }
+
+  async function utforFjern() {
+    setFeilmelding(null)
+    try {
+      const res = await fetch('/api/admin/koble-skole-kurs', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ koblingId: bekreftFjern.id }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setFeilmelding(data.error || 'Ukjent feil ved fjerning'); setBekreftFjern(null); return }
+      setBekreftFjern(null)
+      hent()
+    } catch (e) {
+      setFeilmelding('Nettverksfeil ved fjerning: ' + e.message)
+      setBekreftFjern(null)
+    }
   }
 
   return (
@@ -307,6 +374,12 @@ function SkoleKobling({ kurs, onLukk }) {
           <button onClick={onLukk} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
         </div>
         <p className="text-sm text-gray-500 mb-6">{kurs.navn} — nettverk: {kurs.nettverk || '—'}</p>
+
+        {feilmelding && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            <strong>Feil:</strong> {feilmelding}
+          </div>
+        )}
 
         {laster && <p className="text-gray-400">Laster …</p>}
 
@@ -324,8 +397,15 @@ function SkoleKobling({ kurs, onLukk }) {
                 <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg">
                   {koblede.map(k => (
                     <li key={k.id} className="flex items-center justify-between px-4 py-2 text-sm">
-                      <span>{k.skoler?.navn || '—'} <span className="text-gray-400">{k.skoler?.kommunenavn || ''}</span></span>
-                      <button onClick={() => fjern(k.id)} className="text-red-600 hover:underline">Fjern</button>
+                      <span>
+                        {k.skoler?.navn || '—'} <span className="text-gray-400">{k.skoler?.kommunenavn || ''}</span>
+                        {k.svart && (
+                          <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                            har svart: {svarTekst(k)}
+                          </span>
+                        )}
+                      </span>
+                      <button onClick={() => setBekreftFjern(k)} className="text-red-600 hover:underline">Fjern</button>
                     </li>
                   ))}
                 </ul>
@@ -358,12 +438,71 @@ function SkoleKobling({ kurs, onLukk }) {
                 </ul>
               )}
             </div>
+
+            <div className="mt-6">
+              <h4 className="font-medium text-gray-700 mb-1">Legg til annen skole (unntak)</h4>
+              <p className="text-xs text-gray-500 mb-2">
+                Søk blant alle aktive skoler — uavhengig av nettverk.
+              </p>
+              <input
+                value={unntakSok}
+                onChange={e => setUnntakSok(e.target.value)}
+                placeholder="Skriv minst to tegn av skolenavnet …"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              />
+              {unntakSoker && <p className="text-sm text-gray-400 mt-2">Søker …</p>}
+              {!unntakSoker && unntakSok.trim().length >= 2 && (
+                unntakTreff.length === 0 ? (
+                  <p className="text-sm text-gray-400 mt-2">Ingen aktive skoler funnet.</p>
+                ) : (
+                  <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg mt-2 max-h-52 overflow-y-auto">
+                    {unntakTreff.map(s => (
+                      <li key={s.id} className="flex items-center justify-between px-4 py-2 text-sm">
+                        <span>{s.navn} <span className="text-gray-400">{s.kommunenavn || ''}</span></span>
+                        {koblendeIder.has(s.id) ? (
+                          <span className="text-gray-400 text-xs">allerede koblet</span>
+                        ) : (
+                          <button onClick={() => leggTilUnntak(s)} className="text-orange hover:underline">+ Legg til</button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )
+              )}
+            </div>
           </>
         )}
 
         <div className="flex justify-end mt-6">
           <button onClick={onLukk} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Ferdig</button>
         </div>
+
+        {bekreftFjern && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <h3 className="text-lg font-semibold mb-2">Fjerne skole fra kurset?</h3>
+              {bekreftFjern.svart ? (
+                <div className="mb-6">
+                  <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg text-sm text-amber-800 mb-3">
+                    <strong>{bekreftFjern.skoler?.navn || 'Denne skolen'} har svart: {svarTekst(bekreftFjern)}.</strong>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    Fjerner du koblingen, slettes svaret og svar-lenken deres. Er du sikker?
+                  </p>
+                </div>
+              ) : (
+                <p className="text-gray-600 mb-6">
+                  Vil du fjerne «{bekreftFjern.skoler?.navn || 'denne skolen'}» fra kurset?
+                  Skolen har ikke svart ennå.
+                </p>
+              )}
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setBekreftFjern(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Avbryt</button>
+                <button onClick={utforFjern} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:opacity-90">Fjern</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
