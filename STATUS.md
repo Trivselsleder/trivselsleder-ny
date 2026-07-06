@@ -1,5 +1,19 @@
 # STATUS – trivselsleder-ny
-Sist oppdatert: 6. juli 2026 (feil B implementert, venter på live-test)
+Sist oppdatert: 6. juli 2026 (feil C implementert, venter på live-test)
+
+## FEIL C IMPLEMENTERT (agent-retest 6. juli): påminnelse kun til JA-skoler
+Commit 95f4446. IKKE testet på live ennå.
+- Påminnelse-fanen (AdminPurring.jsx, modus="paaminnelse") filtrerer nå på
+  svart = true OG kommer = true. NEI-svar ekskluderes — også flytteønsker
+  (de venter på et annet kurs). Purring-fanen (ikke svart) uendret.
+- Tittel: "Påminnelse — har svart JA". Beskrivelse: "Skoler som har svart JA
+  og kommer på kurs." Teller på Send-knappen følger filtrert liste.
+- Kosmetisk (fra feil B-testen): Skoler-kolonnen i kurstabellen oppdateres
+  når Skoler-modalen lukkes (hentAntall ved onLukk). hentAntall viser nå
+  også databasefeil i rød feillinje i stedet for å tie.
+- TESTPLAN: Påminnelse-fanen skal kun vise JA-skoler (bruk JA- og NEI-svaret
+  fra feil B-testen). Legg til/fjern skole i Skoler-modalen → tallet i
+  kurstabellen skal stemme straks modalen lukkes, uten sideoppfriskning.
 
 ## FEIL B IMPLEMENTERT (agent-retest 6. juli): unntakskobling + fjerning i Skoler-modalen
 Commit 1795c39. IKKE testet på live ennå.
