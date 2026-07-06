@@ -23,12 +23,16 @@ export default function AdminPurring({ modus = 'purring' }) {
   }, [])
 
   const erPurring = modus === 'purring'
-  const data = erPurring ? rader.filter(r => !r.svart) : rader.filter(r => r.svart)
+  // Påminnelse: KUN skoler som har svart JA (svart && kommer). Skoler som svarte
+  // NEI ekskluderes — også de med flytteønske, de venter på et annet kurs.
+  const data = erPurring
+    ? rader.filter(r => !r.svart)
+    : rader.filter(r => r.svart && r.kommer === true)
 
-  const tittel = erPurring ? 'Purring — ikke svart' : 'Påminnelse — har svart'
+  const tittel = erPurring ? 'Purring — ikke svart' : 'Påminnelse — har svart JA'
   const beskrivelse = erPurring
     ? 'Skoler som ennå ikke har svart på kursinvitasjonen.'
-    : 'Skoler som har svart. Minn dem om kurset før kursdato.'
+    : 'Skoler som har svart JA og kommer på kurs. Minn dem om kurset før kursdato.'
   const knappetekst = erPurring ? 'Send purring' : 'Send påminnelse'
   const farge = erPurring ? 'bg-[#D6006E] hover:opacity-90' : 'bg-[#F47920] hover:opacity-90'
 

@@ -96,7 +96,8 @@ function KursOversikt() {
 
   function hentAntall() {
     supabase.from('kurs_skole').select('kurs_id').range(0, 99999)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) { setFeil('Kunne ikke telle skoler per kurs: ' + error.message); return }
         const teller = {}
         for (const rad of (data ?? [])) {
           teller[rad.kurs_id] = (teller[rad.kurs_id] || 0) + 1
@@ -220,7 +221,7 @@ function KursOversikt() {
       )}
 
       {skoleKurs && (
-        <SkoleKobling kurs={skoleKurs} onLukk={() => setSkoleKurs(null)} />
+        <SkoleKobling kurs={skoleKurs} onLukk={() => { setSkoleKurs(null); hentAntall() }} />
       )}
 
       {svarKurs && (
