@@ -1,5 +1,19 @@
 # STATUS – trivselsleder-ny
-Sist oppdatert: 6. juli 2026 (retest-runden A–G avsluttet, testdata ryddet)
+Sist oppdatert: 6. juli 2026 (Fable 5-sluttest GRØNN — klar for Marielle-pilot)
+
+## ✅ KURSPLANLEGGEREN ER KLAR FOR MARIELLE-PILOT
+Fable 5-sluttesten (kursplanlegger-sluttest-2026.md, 6. juli) er GRØNN:
+flyten henger sammen ende-til-ende på blanke ark, alle fikser A–E holdt,
+ingen kritiske avvik. Sluttestens småfunn ligger på poleringslisten under.
+FØR PILOT: slett testdataene fra sluttesten (liste under).
+
+## TESTDATA FRA SLUTTESTEN — SLETTES FØR PILOT
+- 3 skoler (org 999000301 / 999000302 / 999000303)
+- 2 nye nettverk: TEST Nettverk Lillestrøm + TEST Nettverk Trondheim
+- 1 kurs med 3 kurs_skole-koblinger + svar
+- 1 evalueringssvar
+Slette-SQL-mønsteret fra oppryddingen 6. juli gjenbrukes (FK-rekkefølge:
+kurs_skole → bruker_skole → skoler → paameldinger, verifiser 0 etterpå).
 
 ## FEIL E FERDIG+BEVIST (agenttest, feilE-test-2026.md): hall-søk + norsk validering
 Commit 2c7f8a9. Bevist via agenttest 6. juli:
@@ -31,14 +45,22 @@ og verifisert 0 rader igjen: skoler, påmeldinger, kurs, kurs_skole-koblinger
 — inkludert TEST Lillestrøm-nettverket. Databasen er på blanke ark for
 sluttesten.
 
-## POLERING-LISTE (senere, ikke blokkerende)
-1. Optimistisk oppdatering av Skoler-telleren i kurstabellen (i dag: ved
+## POLERING-LISTE (ikke blokkerende for pilot)
+Fra sluttesten (BØR tas før lansering):
+1. «Kopier lenke»-knapp i evalueringstabellen (som i Send lenker).
+2. Ende-til-ende-test av fylke-fallback i nettverksforslag (SQL-nivået
+   er bevist, UI-flyten er ikke testet ende-til-ende).
+Fra sluttesten (kosmetisk):
+3. Fallback-etikett vises ikke i evalueringstabellen.
+4. Dødt førsteklikk på faner i kursplanleggeren.
+Fra tidligere runder:
+5. Optimistisk oppdatering av Skoler-telleren i kurstabellen (i dag: ved
    modal-lukking).
-2. Skjemavalidering i /paamelding melder i to omganger (først mangler-felt,
+6. Skjemavalidering i /paamelding melder i to omganger (først mangler-felt,
    så e-postformat) — kunne samlet alt i én melding.
-3. PAKREVDE_FELT-listen i Paamelding.jsx må vedlikeholdes manuelt i takt
+7. PAKREVDE_FELT-listen i Paamelding.jsx må vedlikeholdes manuelt i takt
    med required-markeringene — vurder å utlede fra én kilde.
-4. Hallnavn-vask: bookingnotater i ~144 hallnavn (jf. avvik F).
+8. Hallnavn-vask: bookingnotater i ~144 hallnavn (jf. avvik F).
 
 ## FEIL D FERDIG (agent-retest 6. juli): fallback-mottaker + påkrevd TLA
 Commit 7e3fc41. Live-testet 6. juli — testen avdekket kun språksaken
@@ -150,11 +172,10 @@ Commits: fd387dc + 7cc0e99.
    DROP FUNCTION først, så CREATE.
 
 ## NESTE STEG
-1. FABLE 5-SLUTTEST på blanke ark: full agenttest av hele kursplanlegger-
-   flyten (påmelding → godkjenning → kurs → svar → purring/påminnelse →
-   evaluering) med alle fikser A–E på plass og tom testdatabase.
-2. Etter godkjent sluttest: presentere kursplanleggeren for ansatte/
-   Marielle-pilot.
+1. Slett testdataene fra sluttesten (liste øverst).
+2. Presentere kursplanleggeren for ansatte / starte Marielle-pilot.
+3. Før lansering: «bør»-punktene på poleringslisten (Kopier lenke i
+   evaluering + ende-til-ende-test av fylke-fallback).
 
 ## COWORK/FABLE-RAPPORTER (alle lest, essens i minnet)
 - kursplanlegger-agenttest-2026.md (2. juli) — nå alle 4 fikset.
