@@ -243,7 +243,7 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
               <option value="">Velg kurs…</option>
               {kursListe.map(k => (
                 <option key={k.id} value={k.id}>
-                  {k.navn} {k.start_tid ? `— ${formaterKursDato(k.start_tid)}` : ''}
+                  {k.navn}{k.dato ? ` — ${formaterKursDato(k.dato)}` : ''}{k.start_tid ? ` kl. ${k.start_tid.slice(0,5)}` : ''}
                 </option>
               ))}
             </select>

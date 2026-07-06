@@ -11,8 +11,8 @@ export default async function handler(req, res) {
     // Hent alle kurs til dropdown (unntaksvei: viser ALLE kurs uansett nettverk/kommune)
     const { data, error } = await supabase
       .from('kurs')
-      .select('id, navn, nettverk, start_tid, slutt_tid')
-      .order('start_tid', { ascending: false })
+      .select('id, navn, nettverk, dato, start_tid, slutt_tid')
+      .order('dato', { ascending: false })
 
     if (error) {
       return res.status(500).json({ error: 'Kunne ikke hente kurs: ' + error.message })
