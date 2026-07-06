@@ -274,6 +274,7 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
 function Modal({ p, onLukk, onOppdaterStatus }) {
   const [laster, setLaster] = useState(false)
   const [godkjentResultat, setGodkjentResultat] = useState(null)
+  const [avvistResultat, setAvvistResultat] = useState(null)
   const [feilmelding, setFeilmelding] = useState(null)
 
   async function settStatus(nyStatus) {
@@ -299,6 +300,31 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
         setGodkjentResultat(data)
       } catch (e) {
         console.error('Nettverksfeil:', e)
+      }
+      setLaster(false)
+      return
+    }
+
+    if (nyStatus === 'avvist') {
+      try {
+        const res = await fetch('/api/admin/avvis-paamelding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paameldinId: p.id }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          console.error('Avvisning feilet:', data.error)
+          setFeilmelding(data.error || 'Avvisning feilet av ukjent årsak.')
+          setLaster(false)
+          return
+        }
+        setFeilmelding(null)
+        onOppdaterStatus(p.id, 'avvist')
+        setAvvistResultat(data)
+      } catch (e) {
+        console.error('Nettverksfeil:', e)
+        setFeilmelding('Nettverksfeil ved avvisning.')
       }
       setLaster(false)
       return
@@ -404,6 +430,38 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
               nettverksforslag={godkjentResultat.nettverksforslag}
             />
 
+            <div className="flex justify-end pt-1">
+              <button
+                onClick={onLukk}
+                className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors"
+              >
+                Lukk
+              </button>
+            </div>
+          </div>
+        ) : avvistResultat ? (
+          <div className="px-6 py-5 border-t border-gray-100 space-y-3">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <p className="text-sm font-semibold text-gray-900">Påmelding avvist</p>
+            </div>
+            {avvistResultat.skoleSattInaktiv ? (
+              <p className="text-sm text-gray-600 pl-7">
+                Skolen <strong>{avvistResultat.skoleSattInaktiv.navn}</strong> er satt til <strong>Inaktiv</strong>.
+                Ingenting er slettet — koblinger og brukere er bevart, og skolen reaktiveres automatisk hvis
+                påmeldingen godkjennes på nytt.
+              </p>
+            ) : avvistResultat.varGodkjent ? (
+              <p className="text-sm text-gray-600 pl-7">
+                Fant ingen aktiv skole med dette org.nr å deaktivere. Påmeldingen er avvist.
+              </p>
+            ) : (
+              <p className="text-sm text-gray-600 pl-7">
+                Skoleregisteret er ikke berørt (påmeldingen var ikke godkjent fra før).
+              </p>
+            )}
             <div className="flex justify-end pt-1">
               <button
                 onClick={onLukk}

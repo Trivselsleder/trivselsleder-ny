@@ -104,48 +104,66 @@ export default async function handler(req, res) {
     .single()
   if (hentFeil) return res.status(404).json({ error: 'Påmelding ikke funnet' })
 
-  await supabase.from('paameldinger').update({ status: 'godkjent' }).eq('id', paameldinId)
-
+  // Sjekk om det finnes en skole med samme org.nr fra før.
   const { data: eksisterendeSkole } = await supabase
     .from('skoler')
-    .select('id, navn')
+    .select('id, navn, status')
     .eq('org_nr', p.organisasjonsnummer)
     .maybeSingle()
 
-  if (eksisterendeSkole) {
-    await supabase.from('paameldinger').update({ status: 'ny' }).eq('id', paameldinId)
+  // Ekte duplikat: en AKTIV skole finnes allerede → ikke godkjenn, vis rød feilboks.
+  // (Påmeldingen er ikke rørt her, så ingen rollback trengs.)
+  if (eksisterendeSkole && eksisterendeSkole.status === 'Aktiv') {
     return res.status(409).json({
       error: `En skole med org.nr ${p.organisasjonsnummer} finnes allerede i registeret: «${eksisterendeSkole.navn}». Påmeldingen er IKKE godkjent. Sjekk om dette er en duplikat-påmelding, eller rett org.nr før ny godkjenning.`,
     })
   }
 
-  const { data: skole, error: skoleFeil } = await supabase
-    .from('skoler')
-    .insert({
-      navn:          p.skolenavn,
-      org_nr:        p.organisasjonsnummer,
-      kommunenavn:   p.kommune,
-      fylke:         p.fylke,
-      type:          p.type,
-      status:        'Aktiv',
-      antall_elever: p.antall_elever,
-      gateadresse:   p.gateadresse,
-      postnummer:    p.postnummer,
-      poststed:      p.poststed,
-      telefon:       p.kontortelefon,
-      rektor_navn:   p.rektor_navn,
-      rektor_epost:  p.rektor_epost,
-      rektor_telefon: p.rektor_telefon,
-      htla_navn:     p.htla_navn,
-      htla_epost:    p.htla_epost,
-      hktl_navn:     p.tla_navn,
-      hktl_epost:    p.tla_epost,
-      hktl_telefon:  p.tla_telefon,
-      hubspot_company_id: p.hubspot_company_id,
-    })
-    .select('id, navn, kommunenavn, fylke')
-    .single()
-  if (skoleFeil) return res.status(500).json({ error: 'Kunne ikke opprette skole: ' + skoleFeil.message })
+  // Felles feltsett fra påmelding → skolekort (samme felter ved ny skole og re-godkjenning).
+  const skoleFelter = {
+    navn:          p.skolenavn,
+    org_nr:        p.organisasjonsnummer,
+    kommunenavn:   p.kommune,
+    fylke:         p.fylke,
+    type:          p.type,
+    status:        'Aktiv',
+    antall_elever: p.antall_elever,
+    gateadresse:   p.gateadresse,
+    postnummer:    p.postnummer,
+    poststed:      p.poststed,
+    telefon:       p.kontortelefon,
+    rektor_navn:   p.rektor_navn,
+    rektor_epost:  p.rektor_epost,
+    rektor_telefon: p.rektor_telefon,
+    htla_navn:     p.htla_navn,
+    htla_epost:    p.htla_epost,
+    hktl_navn:     p.tla_navn,
+    hktl_epost:    p.tla_epost,
+    hktl_telefon:  p.tla_telefon,
+    hubspot_company_id: p.hubspot_company_id,
+  }
+
+  // Re-godkjenning: en INAKTIV skole med samme org.nr finnes (tidligere avvist) →
+  // oppdater den eksisterende raden og reaktiver den, i stedet for å blokkere.
+  let skole, skoleFeil
+  if (eksisterendeSkole && eksisterendeSkole.status === 'Inaktiv') {
+    ;({ data: skole, error: skoleFeil } = await supabase
+      .from('skoler')
+      .update(skoleFelter)
+      .eq('id', eksisterendeSkole.id)
+      .select('id, navn, kommunenavn, fylke')
+      .single())
+  } else {
+    ;({ data: skole, error: skoleFeil } = await supabase
+      .from('skoler')
+      .insert(skoleFelter)
+      .select('id, navn, kommunenavn, fylke')
+      .single())
+  }
+  if (skoleFeil) return res.status(500).json({ error: 'Kunne ikke opprette/oppdatere skole: ' + skoleFeil.message })
+
+  // Alt kritisk har lykkes → marker påmeldingen som godkjent.
+  await supabase.from('paameldinger').update({ status: 'godkjent' }).eq('id', paameldinId)
 
   // FIKS 3: hent nettverksforslag (kommune → fylke → intet)
   let nettverksforslag = []
