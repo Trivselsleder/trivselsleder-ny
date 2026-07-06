@@ -1,28 +1,48 @@
 # STATUS – trivselsleder-ny
-Sist oppdatert: 6. juli 2026 (feil E + språkfiks implementert, venter på live-test)
+Sist oppdatert: 6. juli 2026 (retest-runden A–G avsluttet, testdata ryddet)
 
-## FEIL E + SPRÅKFIKS IMPLEMENTERT (6. juli): hall-søk + norsk validering
-Commit 2c7f8a9. IKKE testet på live ennå.
-- FEIL E (kosmetisk, fra retest): SokbarVelger (hall- OG nettverksfeltet i
-  kursskjemaet) tegnet ALLE treff — hundrevis av rader fra hallregisteret
-  gjorde filtreringen treg/misvisende. Nå: debounce 300 ms (samme mønster
-  som skole-søket fra feil B) + maks 50 viste treff med "skriv mer for å
-  avgrense". Tomt søk filtreres uten forsinkelse.
-- SPRÅKFIKS (fra feil D-testen): (a) index.html lang="en" → lang="no".
-  (b) /paamelding har nå noValidate + komplett EGEN norsk validering:
-  alle 12 påkrevde felt (liste PAKREVDE_FELT i Paamelding.jsx — MÅ holdes
-  i takt med required-markeringene), spesifikk TLA-melding når bare TLA
-  mangler, e-postformat-sjekk (rektor/HTLA/TLA). VIKTIG FUNN: egen
-  validering fantes IKKE for andre felt enn TLA før dette — nettleserens
-  HTML5-validering (engelsk/nettleserspråk) var eneste vern. Ingen felt
-  har mistet påkrevd-status.
-- TESTPLAN: "Nytt kurs" → skriv "Fet" i hallfeltet → umiddelbar presis
-  filtrering, aldri ufiltrerte datorader. /paamelding: tomt skjema →
-  norsk mangler-melding; alt unntatt TLA → TLA-melding; "abc" som e-post
-  → norsk formatmelding.
+## FEIL E FERDIG+BEVIST (agenttest, feilE-test-2026.md): hall-søk + norsk validering
+Commit 2c7f8a9. Bevist via agenttest 6. juli:
+- Hall-søket filtrerer presist uten datorader, Fibohallen vises uten
+  stjerne-prefiks, «50 av 119»-grensen med "skriv mer for å avgrense" virker.
+- Norsk validering i /paamelding bevist i alle tre scenarier: samlemelding
+  (tomt skjema), TLA-spesifikk melding (kun TLA mangler), e-postformat-
+  melding. Ingen nettleser-meldinger (noValidate).
+- Løsning: SokbarVelger (hall + nettverk) med debounce 300 ms + maks 50
+  viste treff; index.html lang="no"; komplett egen norsk validering
+  (PAKREVDE_FELT i Paamelding.jsx — MÅ holdes i takt med required-
+  markeringene). VIKTIG FUNN under arbeidet: egen validering fantes ikke
+  for andre felt enn TLA — HTML5 (nettleserspråk) var eneste vern.
 
-## FEIL D IMPLEMENTERT (agent-retest 6. juli): fallback-mottaker + påkrevd TLA
-Commit 7e3fc41. IKKE testet på live ennå.
+## AVVIK F FERDIG (6. juli): hallregisteret vasket for søppelrader
+- 15 søppelrader slettet fra haller (13 datolinjer + 2 "[mangler hall]"-
+  notater). Trygghetssjekket før sletting: 0 kurs pekte på radene.
+- Stjerne-prefiks fjernet fra 2 hallnavn.
+- GJENSTÅR (egen runde, polering): navnevask av bookingnotater i ~144
+  hallnavn ("Dokkahallen ok, booket av Stine..." osv.).
+
+## AVVIK G — KJENT AVGRENSNING (ingen kode nå)
+RA-på-nettverk ("RA (auto)" forblir tom for nye nettverk) venter på den
+store skoleimporten. Dokumentert som kjent avgrensning, tas da.
+
+## SLUTTOPPRYDDING GJORT (6. juli): all testdata slettet
+ALL testdata fra agenttest 2. juli + retest + feil A–E-testene er slettet
+og verifisert 0 rader igjen: skoler, påmeldinger, kurs, kurs_skole-koblinger
+— inkludert TEST Lillestrøm-nettverket. Databasen er på blanke ark for
+sluttesten.
+
+## POLERING-LISTE (senere, ikke blokkerende)
+1. Optimistisk oppdatering av Skoler-telleren i kurstabellen (i dag: ved
+   modal-lukking).
+2. Skjemavalidering i /paamelding melder i to omganger (først mangler-felt,
+   så e-postformat) — kunne samlet alt i én melding.
+3. PAKREVDE_FELT-listen i Paamelding.jsx må vedlikeholdes manuelt i takt
+   med required-markeringene — vurder å utlede fra én kilde.
+4. Hallnavn-vask: bookingnotater i ~144 hallnavn (jf. avvik F).
+
+## FEIL D FERDIG (agent-retest 6. juli): fallback-mottaker + påkrevd TLA
+Commit 7e3fc41. Live-testet 6. juli — testen avdekket kun språksaken
+(HTML5-validering på nettleserspråk), rettet i 2c7f8a9 (se feil E-seksjonen).
 - DEL 1: NY delt hjelpefunksjon src/lib/mottaker.js — finnMottaker(skole)
   med kjeden hktl_epost → htla_epost → rektor_epost → ingen. Brukt i
   purring, påminnelse (AdminPurring.jsx) og evaluering (AdminEvaluering.jsx).
@@ -40,8 +60,9 @@ Commit 7e3fc41. IKKE testet på live ennå.
   grå etikett i purring/påminnelse og telles på Send-knappen. /paamelding
   uten TLA-felter skal stoppes med norsk feilmelding.
 
-## FEIL C IMPLEMENTERT (agent-retest 6. juli): påminnelse kun til JA-skoler
-Commit 95f4446. IKKE testet på live ennå.
+## FEIL C FERDIG (agent-retest 6. juli): påminnelse kun til JA-skoler
+Commit 95f4446. Live-testet 6. juli — testen bekreftet filtreringen og
+avdekket feil D (mottaker-e-post, TEST Havblikk).
 - Påminnelse-fanen (AdminPurring.jsx, modus="paaminnelse") filtrerer nå på
   svart = true OG kommer = true. NEI-svar ekskluderes — også flytteønsker
   (de venter på et annet kurs). Purring-fanen (ikke svart) uendret.
@@ -54,8 +75,9 @@ Commit 95f4446. IKKE testet på live ennå.
   fra feil B-testen). Legg til/fjern skole i Skoler-modalen → tallet i
   kurstabellen skal stemme straks modalen lukkes, uten sideoppfriskning.
 
-## FEIL B IMPLEMENTERT (agent-retest 6. juli): unntakskobling + fjerning i Skoler-modalen
-Commit 1795c39. IKKE testet på live ennå.
+## FEIL B FERDIG (agent-retest 6. juli): unntakskobling + fjerning i Skoler-modalen
+Commit 1795c39. Live-testet 6. juli — testen bekreftet unntakskobling og
+fjerning, og avdekket kun kosmetisk teller-sak (rettet i 95f4446).
 - Kursets Skoler-modal (SkoleKobling i AdminKursplanlegger.jsx) har fått
   søkefelt "Legg til annen skole (unntak)": søker alle skoler med status
   'Aktiv' uansett nettverk (min. 2 tegn, debounce, maks 20 treff). Inaktive
@@ -127,26 +149,12 @@ Commits: fd387dc + 7cc0e99.
 4. Kan ikke endre retur-type på funksjon med CREATE OR REPLACE →
    DROP FUNCTION først, så CREATE.
 
-## NESTE STEG (denne økten / neste)
-1. AGENT-RETEST: kjør agent-testoppdraget på nytt (samme prompt, Dispatch+Chrome)
-   for å bekrefte hele flyten med alle 4 fikser på plass.
-2. ETTER godkjent retest: SLETT alle testdata (liste under).
-3. Deretter: presentere kursplanleggeren for ansatte/Marielle-pilot.
-
-## TESTDATA SOM SKAL SLETTES (etter godkjent retest)
-- Agenttest-skoler: Solbakken, Fjellheim, Havblikk
-- TEST FeilA (org 999444555) — ligger i halvtilstand fra feilet første test
-  (påmelding 'avvist', skole 'Aktiv'). Ikke reparer, bare slett.
-- TEST FeilA2 (org 999666777) — brukt til beviset for feil A-fiksen.
-- TEST Fiks2 skole (org 999888777)
-- FIKS 3/4-testskoler (6. juli): FiksNettverk (999111222), FiksKurs (999333444),
-  FiksKurs2 (999555666), FiksKurs3 (999777888), FiksKurs4 (999999111),
-  FiksKurs5 (999222333)
-- Testkurs "TEST Lekekurs Kjartan-test" + alle kurs_skole-koblinger til testskoler
-- Tilhørende påmeldinger, invitasjoner (profiles for kjartan+... adresser),
-  bruker_skole-rader
-- Slett i FK-rekkefølge: kurs_skole → bruker_skole → skoler → paameldinger →
-  (evt. profiles). NB: sjekk grants/RLS også ved sletting via service_role.
+## NESTE STEG
+1. FABLE 5-SLUTTEST på blanke ark: full agenttest av hele kursplanlegger-
+   flyten (påmelding → godkjenning → kurs → svar → purring/påminnelse →
+   evaluering) med alle fikser A–E på plass og tom testdatabase.
+2. Etter godkjent sluttest: presentere kursplanleggeren for ansatte/
+   Marielle-pilot.
 
 ## COWORK/FABLE-RAPPORTER (alle lest, essens i minnet)
 - kursplanlegger-agenttest-2026.md (2. juli) — nå alle 4 fikset.
