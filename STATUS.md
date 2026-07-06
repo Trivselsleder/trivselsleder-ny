@@ -1,5 +1,24 @@
 # STATUS – trivselsleder-ny
-Sist oppdatert: 6. juli 2026 (feil C implementert, venter på live-test)
+Sist oppdatert: 6. juli 2026 (feil D implementert, venter på live-test)
+
+## FEIL D IMPLEMENTERT (agent-retest 6. juli): fallback-mottaker + påkrevd TLA
+Commit 7e3fc41. IKKE testet på live ennå.
+- DEL 1: NY delt hjelpefunksjon src/lib/mottaker.js — finnMottaker(skole)
+  med kjeden hktl_epost → htla_epost → rektor_epost → ingen. Brukt i
+  purring, påminnelse (AdminPurring.jsx) og evaluering (AdminEvaluering.jsx).
+  Fallback vises ALLTID med grå etikett ved adressen ("HTLA-e-post (fallback)"
+  / "rektor-e-post (fallback)") — aldri stille. Uten noen e-post: rødt
+  "mangler e-post" som før. Evaluering: RPC forbered_evalueringer gir kun
+  hktl_epost → berikes klient-side fra skoler-tabellen (ingen DB-endring).
+  SendLenker.jsx urørt (beregner ingen mottaker, kun lenke-kopiering).
+  MERK: midlertidig bunnplanke — full mottaker-ombygging (flere mottakere,
+  Ylva-innspillet) kommer i Resend/Trinn B-økten.
+- DEL 2: TLA-navn + TLA-e-post påkrevd i /paamelding (de blir HKTL på
+  skolekortet ved godkjenning, jf. FIKS 2). Norsk feilmelding + undertekst
+  som forklarer hvorfor. Rektor-/HTLA-felter uendret.
+- TESTPLAN: TEST Havblikk (uten hktl_epost) skal vise fallback-adresse med
+  grå etikett i purring/påminnelse og telles på Send-knappen. /paamelding
+  uten TLA-felter skal stoppes med norsk feilmelding.
 
 ## FEIL C IMPLEMENTERT (agent-retest 6. juli): påminnelse kun til JA-skoler
 Commit 95f4446. IKKE testet på live ennå.
