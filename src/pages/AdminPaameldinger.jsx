@@ -12,11 +12,21 @@ const STATUS_STIL = {
   avvist:   'bg-red-100 text-red-600',
 }
 
+const KILDE_LABEL = {
+  kommune: 'basert på skolens kommune',
+  fylke:   'ingen treff i kommunen — basert på fylket',
+}
+
 function formaterDato(iso) {
   return new Date(iso).toLocaleString('nb-NO', {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
+}
+
+function formaterKursDato(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function InfoRad({ label, verdi }) {
@@ -45,6 +55,218 @@ const RESULTAT_LABEL = {
   invitert:   { tekst: 'invitert', stil: 'text-green-600' },
   eksisterer: { tekst: 'allerede registrert – knyttet til skolen', stil: 'text-blue-600' },
   feil:       { tekst: 'feil ved invitasjon', stil: 'text-red-600' },
+}
+
+// FIKS 3: nettverksforslag + enkeltskole-til-kurs-unntak
+function NettverkOgKursBlokk({ skole, nettverksforslag }) {
+  const alleNettverk = nettverksforslag ?? []
+  const beste = alleNettverk[0]
+  const kilde = beste?.kilde
+
+  const [visUnntak, setVisUnntak] = useState(false)
+  const [valgtNettverk, setValgtNettverk] = useState(beste?.nettverk ?? '')
+  const [nyttNettverkTekst, setNyttNettverkTekst] = useState('')
+  const [lagrerNettverk, setLagrerNettverk] = useState(false)
+  const [nettverkLagret, setNettverkLagret] = useState(false)
+  const [nettverkFeil, setNettverkFeil] = useState(null)
+
+  const [kursListe, setKursListe] = useState([])
+  const [kursLaster, setKursLaster] = useState(false)
+  const [valgtKursId, setValgtKursId] = useState('')
+  const [kursKoblet, setKursKoblet] = useState(false)
+  const [kursFeil, setKursFeil] = useState(null)
+
+  async function bekreftNettverk() {
+    const nettverkAaSette = valgtNettverk === '__nytt__' ? nyttNettverkTekst.trim() : valgtNettverk
+    if (!nettverkAaSette) {
+      setNettverkFeil('Skriv inn et nettverksnavn eller velg et forslag.')
+      return
+    }
+    setLagrerNettverk(true)
+    setNettverkFeil(null)
+    try {
+      const res = await fetch('/api/admin/sett-nettverk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skoleId: skole.id, nettverk: nettverkAaSette }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setNettverkFeil(data.error || 'Kunne ikke lagre nettverk.')
+      } else {
+        setNettverkLagret(true)
+      }
+    } catch (e) {
+      setNettverkFeil('Nettverksfeil ved lagring.')
+    }
+    setLagrerNettverk(false)
+  }
+
+  async function apneUnntak() {
+    setVisUnntak(true)
+    if (kursListe.length === 0) {
+      setKursLaster(true)
+      try {
+        const res = await fetch('/api/admin/koble-skole-kurs')
+        const data = await res.json()
+        if (res.ok) setKursListe(data.kurs ?? [])
+      } catch (e) {
+        setKursFeil('Kunne ikke hente kursliste.')
+      }
+      setKursLaster(false)
+    }
+  }
+
+  async function koblTilKurs() {
+    if (!valgtKursId) {
+      setKursFeil('Velg et kurs først.')
+      return
+    }
+    setKursFeil(null)
+    try {
+      const res = await fetch('/api/admin/koble-skole-kurs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skoleId: skole.id, kursId: valgtKursId }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setKursFeil(data.error || 'Kunne ikke koble til kurs.')
+      } else {
+        setKursKoblet(true)
+      }
+    } catch (e) {
+      setKursFeil('Nettverksfeil ved kobling.')
+    }
+  }
+
+  if (nettverkLagret) {
+    return (
+      <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+        Nettverk satt: <strong>{valgtNettverk === '__nytt__' ? nyttNettverkTekst.trim() : valgtNettverk}</strong>
+      </div>
+    )
+  }
+
+  if (kursKoblet) {
+    const kurs = kursListe.find(k => String(k.id) === String(valgtKursId))
+    return (
+      <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+        Skolen er koblet direkte til kurs: <strong>{kurs?.navn ?? valgtKursId}</strong>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 space-y-3">
+      <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide">Nettverk</p>
+
+      {!visUnntak ? (
+        <>
+          {alleNettverk.length > 0 ? (
+            <>
+              <p className="text-xs text-gray-500">
+                Forslag {KILDE_LABEL[kilde] ?? ''}:
+              </p>
+              <select
+                value={valgtNettverk}
+                onChange={e => setValgtNettverk(e.target.value)}
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white"
+              >
+                {alleNettverk.map(n => (
+                  <option key={n.nettverk} value={n.nettverk}>
+                    {n.nettverk} ({n.antall_skoler} skole{n.antall_skoler === 1 ? '' : 'r'})
+                  </option>
+                ))}
+                <option value="__nytt__">+ Nytt nettverk…</option>
+              </select>
+            </>
+          ) : (
+            <>
+              <p className="text-xs text-gray-500">
+                Ingen eksisterende nettverk funnet i kommunen eller fylket.
+              </p>
+              <select
+                value="__nytt__"
+                disabled
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white opacity-60"
+              >
+                <option value="__nytt__">+ Nytt nettverk…</option>
+              </select>
+              {setValgtNettverk !== undefined && valgtNettverk !== '__nytt__' && setValgtNettverk('__nytt__')}
+            </>
+          )}
+
+          {valgtNettverk === '__nytt__' && (
+            <input
+              type="text"
+              placeholder="Skriv inn navn på nytt nettverk"
+              value={nyttNettverkTekst}
+              onChange={e => setNyttNettverkTekst(e.target.value)}
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2"
+            />
+          )}
+
+          {nettverkFeil && <p className="text-xs text-red-600">{nettverkFeil}</p>}
+
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <button
+              onClick={apneUnntak}
+              className="text-xs text-gray-500 hover:text-[#D6006E] underline"
+            >
+              Koble direkte til kurs i stedet (unntak)
+            </button>
+            <button
+              onClick={bekreftNettverk}
+              disabled={lagrerNettverk}
+              className="bg-[#F47920] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-50"
+            >
+              {lagrerNettverk ? 'Lagrer…' : 'Bekreft nettverk'}
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-xs text-gray-500">
+            Koble «{skole.navn}» direkte til ett kurs, uavhengig av nettverk.
+          </p>
+          {kursLaster ? (
+            <p className="text-xs text-gray-400">Henter kursliste…</p>
+          ) : (
+            <select
+              value={valgtKursId}
+              onChange={e => setValgtKursId(e.target.value)}
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white"
+            >
+              <option value="">Velg kurs…</option>
+              {kursListe.map(k => (
+                <option key={k.id} value={k.id}>
+                  {k.navn} {k.start_tid ? `— ${formaterKursDato(k.start_tid)}` : ''}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {kursFeil && <p className="text-xs text-red-600">{kursFeil}</p>}
+
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <button
+              onClick={() => setVisUnntak(false)}
+              className="text-xs text-gray-500 hover:text-[#D6006E] underline"
+            >
+              Tilbake til nettverksforslag
+            </button>
+            <button
+              onClick={koblTilKurs}
+              className="bg-[#D6006E] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#b30059] transition-colors"
+            >
+              Koble til kurs
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 function Modal({ p, onLukk, onOppdaterStatus }) {
@@ -174,6 +396,12 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
                 )}
               </ul>
             )}
+
+            <NettverkOgKursBlokk
+              skole={godkjentResultat.skole}
+              nettverksforslag={godkjentResultat.nettverksforslag}
+            />
+
             <div className="flex justify-end pt-1">
               <button
                 onClick={onLukk}

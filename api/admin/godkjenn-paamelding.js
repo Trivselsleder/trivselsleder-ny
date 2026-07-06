@@ -43,7 +43,6 @@ function epostHtml(navn, rolle, skolenavn, inviteLenke) {
 }
 
 async function inviterEllerKnytt(supabase, { epost, navn, rolle, skoleId, skolenavn, origin }) {
-  // Sjekk om bruker allerede finnes (samme e-post)
   const { data: eksisterende } = await supabase
     .from('profiles')
     .select('id')
@@ -51,14 +50,12 @@ async function inviterEllerKnytt(supabase, { epost, navn, rolle, skoleId, skolen
     .maybeSingle()
 
   if (eksisterende) {
-    // Bruker finnes allerede – bare knytt til skole
     await supabase
       .from('bruker_skole')
       .upsert({ bruker_id: eksisterende.id, skole_id: skoleId, rolle }, { onConflict: 'bruker_id,skole_id' })
     return { status: 'eksisterer' }
   }
 
-  // Ny bruker – generer invitasjonslenke
   const { data, error } = await supabase.auth.admin.generateLink({
     type: 'invite',
     email: epost,
@@ -100,7 +97,6 @@ export default async function handler(req, res) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
-  // Hent påmeldingen
   const { data: p, error: hentFeil } = await supabase
     .from('paameldinger')
     .select('*')
@@ -108,10 +104,8 @@ export default async function handler(req, res) {
     .single()
   if (hentFeil) return res.status(404).json({ error: 'Påmelding ikke funnet' })
 
-  // Oppdater status
   await supabase.from('paameldinger').update({ status: 'godkjent' }).eq('id', paameldinId)
 
-  // FEIL 1-FIKS: sjekk om org.nr allerede finnes — aldri overskriv stille
   const { data: eksisterendeSkole } = await supabase
     .from('skoler')
     .select('id, navn')
@@ -119,14 +113,12 @@ export default async function handler(req, res) {
     .maybeSingle()
 
   if (eksisterendeSkole) {
-    // Rull tilbake status så påmeldingen ikke står som godkjent
     await supabase.from('paameldinger').update({ status: 'ny' }).eq('id', paameldinId)
     return res.status(409).json({
       error: `En skole med org.nr ${p.organisasjonsnummer} finnes allerede i registeret: «${eksisterendeSkole.navn}». Påmeldingen er IKKE godkjent. Sjekk om dette er en duplikat-påmelding, eller rett org.nr før ny godkjenning.`,
     })
   }
 
-  // FEIL 2-FIKS: opprett skolen med ALLE felter fra påmeldingen
   const { data: skole, error: skoleFeil } = await supabase
     .from('skoler')
     .insert({
@@ -151,9 +143,23 @@ export default async function handler(req, res) {
       hktl_telefon:  p.tla_telefon,
       hubspot_company_id: p.hubspot_company_id,
     })
-    .select('id, navn')
+    .select('id, navn, kommunenavn, fylke')
     .single()
   if (skoleFeil) return res.status(500).json({ error: 'Kunne ikke opprette skole: ' + skoleFeil.message })
+
+  // FIKS 3: hent nettverksforslag (kommune → fylke → intet)
+  let nettverksforslag = []
+  try {
+    const { data: forslag, error: forslagFeil } = await supabase
+      .rpc('foresla_nettverk', {
+        ny_kommunenavn: skole.kommunenavn,
+        ny_fylke: skole.fylke,
+      })
+    if (forslagFeil) console.error('Nettverksforslag-feil:', forslagFeil.message)
+    else nettverksforslag = forslag ?? []
+  } catch (e) {
+    console.error('Nettverksforslag-unntak:', e.message)
+  }
 
   const origin = req.headers.origin || 'https://trivselsleder.no'
   const resultater = {}
@@ -180,7 +186,6 @@ export default async function handler(req, res) {
     })
   }
 
-  // HubSpot: oppdater status til Aktiv (ikke-kritisk)
   if (process.env.HUBSPOT_API_KEY && p.hubspot_company_id) {
     try {
       await oppdaterStatus(p.hubspot_company_id, 'Aktiv')
@@ -189,5 +194,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ ok: true, skole, resultater })
+  return res.status(200).json({ ok: true, skole, resultater, nettverksforslag })
 }

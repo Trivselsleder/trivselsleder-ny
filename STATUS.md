@@ -1,58 +1,49 @@
-# STATUS — Kursplanlegger trivselsleder.no
-Sist oppdatert: 18. juni 2026
+# STATUS – trivselsleder-ny
+Sist oppdatert: 5. juli 2026 (kveld)
 
-## FERDIG OG TESTET I DAG (alle 7 modulene i kursplanleggeren)
-Alt pushet til GitHub (Trivselsleder/trivselsleder-ny), siste commit 1981b8e.
+## KURSPLANLEGGER-FIKSER (fra agenttest 2. juli) — 2 av 4 FERDIG OG BEVIST
+- FIKS 1 FERDIG+BEVIST: org.nr-duplikat gir nå rød feilmelding i godkjenn-modal,
+  aldri stille overskriving. Påmelding rulles tilbake til 'ny' ved kollisjon.
+  (api/admin/godkjenn-paamelding.js + AdminPaameldinger.jsx, commits t.o.m. 4fdc197)
+  Testet: Fjellheim mot Solbakken (samme org.nr) → rød boks, ingen skade.
+- FIKS 2 FERDIG+BEVIST: godkjenning overfører nå ALLE felter fra påmelding til
+  skolekort: elevtall, adresse, telefon, rektor (navn/epost/tlf), HTLA, og TLA→HKTL
+  (Hovedkontakt TL = feltet purring/påminnelse/evaluering trenger).
+  Testet: TEST Fiks2 (org 999888777) → alt fylt inkl. HKTL Tone Testtla.
+- FIKS 3 BESLUTTET, IKKE BYGGET: nettverk ved godkjenning = "systemet foreslår,
+  mennesket bestemmer": auto-foreslå nettverk fra skolens kommune, RA bekrefter/
+  overstyrer (dropdown forhåndsvalgt). I TILLEGG: RA kan koble enkeltskole direkte
+  til kurs som unntak. Begge bygges.
+- FIKS 4 IKKE BYGGET: svar-skjema skal vise kontekst (kursnavn/dato/skolenavn).
 
-1. Send lenker — RA åpner kurs, ser koblede skoler, kopierer personlige svar-lenker (én/alle). Testet ende-til-ende.
-2. Metaoversikt — totaltall på tvers av alle kurs øverst i kursplanleggeren (inviterte/svart/kommer/kommer ikke).
-3. Melding fra skole — RA kan markere skolesvar som "håndtert" i Se svar (DB-felt melding_handtert).
-4. Flytteforespørsel — RA flytter skole til annet kurs (fleksibel: knapp på alle nei-svar). Skolen nullstilles til "ikke svart" på nytt kurs. Testet Bodø->Bergen.
-5. Kortutdeling (PROTOTYPE til Camilla) — egen side /admin/kortutdeling. Antall = TL+10% rundet opp. Forenklet til Fakturer/Gratis. Ved "Fakturer" vises beløp eks mva (antall kort x 40kr, ingen porto) + toppsum "Til fakturering". Merket som prototype.
-6. Kopier kursplan — "Kopier"-knapp dupliserer kurs (struktur følger, status=planlagt, navn+"(kopi)", uten skoler/svar).
-7. Purring og påminnelse (Trinn A) — to SEPARATE faner i kursplanleggeren (Purring / Påminnelse). Sender via egen e-postklient (mailto BCC) til hktl_epost. Purring=ikke svart, Påminnelse=har svart.
+## NESTE KODEØKT
+1. Bygg fiks 3 (nettverksforslag i godkjenning + enkeltskole-til-kurs)
+2. Bygg fiks 4 (kontekst i svar-skjema)
+3. RETEST: kjør agent-testoppdraget på nytt (samme prompt, Dispatch+Chrome)
+4. ETTER godkjent retest: SLETT alle testdata — 3 TEST-skoler (Solbakken/
+   Fjellheim/Havblikk) + TEST Fiks2 (org 999888777) + testkurs + påmeldinger + svar
+5. Deretter: presentere kursplanleggeren for ansatte/Marielle-pilot
 
-Kursplanleggeren har nå 5 faner: Kurs / Haller / Kursholdere / Purring / Påminnelse.
+## COWORK/FABLE-RAPPORTER (alle lest av Claude, essens i minnet)
+- kursplanlegger-agenttest-2026.md (2. juli) — feilliste, 2 av 4 fikset
+- fase3-ramsalt-dybde + inspirasjon + SAMMENDRAG (4. juli) — Fase 3-forarbeid.
+  TO SPRIK å oppklare før import: (a) video: Fable fant 247/254 mp4 MANGLER
+  men tidligere telling fant 439 filer/27GB — sjekk undermappe; (b) bildeoriginaler:
+  103/105 wysiwyg-originaler mangler, kun derivater → spør Jon om original-arkiv.
+- laerervikaren-kartlegging-2026.md (5. juli) — FREMTIDIG prosjekt (v29+, bakerst).
+  Bemanning = levende kjerne (435k timer), bibliotek dødt siden 2022. D7 EOL =
+  sikkerhetsrisiko (20k brukere m/ persondata). KAN bygges inn i TL på sikt, IKKE nå.
+- omtaler-trivselsleder-2026.md (5. juli) — Evidence-råstoff: DNV GL 2017,
+  Harvard, Ashoka, NRK-jurysitat 2015. Hjemmelekser: DNV GL-original,
+  masteroppgave-referanse, les "De bryter løftene sine".
+- PÅGÅR/KØ: aktive-brukere-eksport (laerervikaren + trivselsleder.no, 15.08.25–30.06.26,
+  samlet Excel: fornavn/etternavn/epost/skole/kommune/fylke/kilde).
 
-## NYE DB-FUNKSJONER LAGET I DAG (Supabase)
-- sett_melding_handtert(uuid, boolean)
-- flytt_skole_til_kurs(uuid, uuid) — nullstiller svaret på nytt kurs
-- sett_kort_status(uuid, text)
-- kopier_kurs(uuid) RETURNS uuid
-- GRANT-fikser: hent_kurs_skole_via_token + lagre_skole_svar måtte GRANT EXECUTE TO anon (skoler er ikke innlogget)
-Nytt DB-felt: kurs_skole.melding_handtert (boolean, default false)
-
-## VIKTIG LÆRDOM I DAG
-- kurs_skole har TO koblinger til kurs (kurs_id + onsket_kurs_id). Må spesifisere kurs!kurs_skole_kurs_id_fkey i spørringer.
-- id-kolonner er uuid (ikke bigint).
-- Kortpris = 40 kr (fra src/utils/satser.js).
-- E-post til skoler ligger i skoler-tabellen: hktl_epost (Hovedkontakt TL = standard mottaker), rektor_epost, htla_epost.
-- Eksisterende e-postsending er mailto BCC (ikke server-send). Ekte auto-utsending krever Resend (ikke satt opp).
-
-## GJENSTÅR / VENTER PÅ AVKLARING
-### Kortutdeling — vis Camilla før endelig versjon:
-- Hva skal "Fakturer" faktisk gjøre utover å vise beløp? (fakturautkast? eksportliste til Tripletex?)
-- Forhold til kulturkort-bestillinger (unngå dobbeltfakturering av skoler som BÅDE bestiller online OG får på kurs)
-- KK er variabel kostnad i kontrakt — kan ikke påtvinges (avklar Tommy/juridisk)
-- Camilla vil ha ÉN liste. Forhold til dagens kalender (RA+eksterne bruker den) må avklares
-- RA må kunne redigere antall asap frem til kursdag
-- Senere idé: tagg gratis-skoler i skoleregisteret -> auto-kobling ved påmelding
-- Slå kortutdeling sammen med Camillas AdminBestillinger som faner SENERE (når den migreres localStorage->Supabase)
-
-### RA-filter (venter på ekte data):
-- Kursplanlegger + metaoversikt skal filtrere "mine nettverk vs alle". RA ser eget område, kan slå av for å hjelpe andre. Krever RA->nettverk-kobling + import av skoler.
-
-### Purring/påminnelse Trinn B (senere):
-- Automatisk/planlagt utsending via Resend. Krever Resend-konto + API-nøkkel + domeneverifisering. Trinn A dekker mesteparten av behovet allerede.
-
-### Hel-sesong-kopiering (senere):
-- vår->vår, høst->høst med ukene bevart (faste reiseruter samme uke neste år) + diff mot skoleregister. Bygges når ekte data + to sesonger finnes.
-
-## TIL LANSERING (v1.0)
-- Supabase: oppgrader til Pro (~$25/mnd) FØR sommerferie — gir daglige backups + fjerner 7-dagers pause. (Kjartan gjør selv.)
-- Vercel: Pro ($20/mnd) kreves ved kommersiell lansering (Hobby er kun ikke-kommersiell). Pauser IKKE ved inaktivitet, så kan vente til lansering.
-- Lage samlet "systemkart"-dokument: alle koblinger i klartekst (sider<->tabeller<->funksjoner<->tjenester).
-
-## NESTE OPPGAVE (klar til ny chat)
-Importere hallregister fra "Hallregister_utkast_2.xlsx" (150+ nettverk, ekte kontaktinfo) til haller-tabellen.
-OBS før import: sjekk haller-tabellens kolonner; rydd i data (noen rader er enkeltskoler m/avtaleperiode, ikke haller; noen kontaktceller har flere personer/e-poster/tlf). Originaltekst-kolonne finnes som backup.
+## HUSK
+- v29 fremdriftsplan lages snart (v28 som mal): videoverts-funn, redaksjonelle
+  rutiner, kursplanlegger-fikser, Lærervikaren (bakerst), omtaler/Evidence,
+  internasjonal-rapportene. Statisk TOC verifiseres mot PDF.
+- Chrome-utvidelsens "Allow all browser actions" ble slått PÅ for omtale-søket —
+  SKRU AV igjen når eksport-oppdraget er ferdig.
+- Test alltid: https://trivselsleder-ny.vercel.app
+- Supabase SQL: https://supabase.com/dashboard/project/zpirjbrcbeubwpmtncxx/sql/new
