@@ -26,7 +26,9 @@ function formaterDato(iso) {
 
 function formaterKursDato(iso) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  const dato = new Date(iso)
+  if (isNaN(dato.getTime())) return ''
+  return dato.toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function InfoRad({ label, verdi }) {
