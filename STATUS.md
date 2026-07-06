@@ -1,5 +1,25 @@
 # STATUS – trivselsleder-ny
-Sist oppdatert: 6. juli 2026 (feil D implementert, venter på live-test)
+Sist oppdatert: 6. juli 2026 (feil E + språkfiks implementert, venter på live-test)
+
+## FEIL E + SPRÅKFIKS IMPLEMENTERT (6. juli): hall-søk + norsk validering
+Commit 2c7f8a9. IKKE testet på live ennå.
+- FEIL E (kosmetisk, fra retest): SokbarVelger (hall- OG nettverksfeltet i
+  kursskjemaet) tegnet ALLE treff — hundrevis av rader fra hallregisteret
+  gjorde filtreringen treg/misvisende. Nå: debounce 300 ms (samme mønster
+  som skole-søket fra feil B) + maks 50 viste treff med "skriv mer for å
+  avgrense". Tomt søk filtreres uten forsinkelse.
+- SPRÅKFIKS (fra feil D-testen): (a) index.html lang="en" → lang="no".
+  (b) /paamelding har nå noValidate + komplett EGEN norsk validering:
+  alle 12 påkrevde felt (liste PAKREVDE_FELT i Paamelding.jsx — MÅ holdes
+  i takt med required-markeringene), spesifikk TLA-melding når bare TLA
+  mangler, e-postformat-sjekk (rektor/HTLA/TLA). VIKTIG FUNN: egen
+  validering fantes IKKE for andre felt enn TLA før dette — nettleserens
+  HTML5-validering (engelsk/nettleserspråk) var eneste vern. Ingen felt
+  har mistet påkrevd-status.
+- TESTPLAN: "Nytt kurs" → skriv "Fet" i hallfeltet → umiddelbar presis
+  filtrering, aldri ufiltrerte datorader. /paamelding: tomt skjema →
+  norsk mangler-melding; alt unntatt TLA → TLA-melding; "abc" som e-post
+  → norsk formatmelding.
 
 ## FEIL D IMPLEMENTERT (agent-retest 6. juli): fallback-mottaker + påkrevd TLA
 Commit 7e3fc41. IKKE testet på live ennå.
