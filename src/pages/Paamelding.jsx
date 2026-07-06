@@ -41,11 +41,12 @@ function Seksjon({ tittel, children }) {
   )
 }
 
-function KontaktSeksjon({ tittel, prefix, form, onChange, required }) {
+function KontaktSeksjon({ tittel, prefix, form, onChange, required, beskrivelse }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="bg-gray-50 border-b border-gray-100 px-6 py-4">
         <h2 className="font-semibold text-gray-800">{tittel}</h2>
+        {beskrivelse && <p className="text-xs text-gray-500 mt-1">{beskrivelse}</p>}
       </div>
       <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Felt label="Navn" name={`${prefix}_navn`} value={form[`${prefix}_navn`]} onChange={onChange} required={required} />
@@ -70,6 +71,12 @@ export default function Paamelding() {
 
   async function handleSubmit(e) {
     e.preventDefault()
+    // TLA blir HKTL (hovedkontakt) på skolekortet ved godkjenning — navn og
+    // e-post må derfor alltid fylles ut (feil D, del 2).
+    if (!form.tla_navn.trim() || !form.tla_epost.trim()) {
+      setFeil('TL-ansvarlig (TLA) må fylles ut med både navn og e-post. TLA blir skolens hovedkontakt for Trivselsleder-programmet.')
+      return
+    }
     setLaster(true)
     setFeil('')
     try {
@@ -190,7 +197,14 @@ export default function Paamelding() {
           {/* Kontaktpersoner */}
           <KontaktSeksjon tittel="Rektor" prefix="rektor" form={form} onChange={onChange} required />
           <KontaktSeksjon tittel="Hoved-TL-ansvarlig (HTLA)" prefix="htla" form={form} onChange={onChange} required={false} />
-          <KontaktSeksjon tittel="TL-ansvarlig (TLA)" prefix="tla" form={form} onChange={onChange} required={false} />
+          <KontaktSeksjon
+            tittel="TL-ansvarlig (TLA)"
+            prefix="tla"
+            form={form}
+            onChange={onChange}
+            required
+            beskrivelse="TL-ansvarlig blir skolens hovedkontakt for Trivselsleder-programmet."
+          />
 
           {/* Merknader */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

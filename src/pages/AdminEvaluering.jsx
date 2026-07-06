@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { finnMottaker, kildeEtikett } from '../lib/mottaker'
 
 const KJOP_ETIKETT = {
   pakke: 'Ønsker pakke',
@@ -134,9 +135,32 @@ export default function AdminEvaluering() {
     if (!kursId) return
     setHenterMottakere(true)
     const { data, error } = await supabase.rpc('forbered_evalueringer', { p_kurs_id: kursId })
+    if (error) {
+      setHenterMottakere(false)
+      alert('Kunne ikke hente mottakere: ' + error.message)
+      return
+    }
+    // Berik med fallback-mottaker (feil D): RPC-en gir kun hktl_epost, så vi
+    // henter skolens øvrige kontakt-e-poster og lar finnMottaker velge.
+    const { data: kontakter, error: kontaktFeil } = await supabase
+      .from('kurs_skole')
+      .select('skole_id, skoler(navn, hktl_epost, htla_epost, rektor_epost)')
+      .eq('kurs_id', kursId)
+      .range(0, 9999)
     setHenterMottakere(false)
-    if (error) { alert('Kunne ikke hente mottakere: ' + error.message); return }
-    setMottakere(data ?? [])
+    if (kontaktFeil) {
+      alert('Kunne ikke hente kontaktinfo for fallback: ' + kontaktFeil.message)
+    }
+    const beriket = (data ?? []).map(m => {
+      const kontakt = (kontakter ?? []).find(k =>
+        (m.skole_id && k.skole_id === m.skole_id) || k.skoler?.navn === m.skole_navn
+      )
+      const mottaker = kontakt
+        ? finnMottaker(kontakt.skoler)
+        : finnMottaker({ hktl_epost: m.hktl_epost })
+      return { ...m, mottaker }
+    })
+    setMottakere(beriket)
   }
 
   function lenkeFor(token) {
@@ -152,7 +176,7 @@ export default function AdminEvaluering() {
       lenke + '\n\n' +
       'Vennlig hilsen\nTrivselsleder'
     )
-    window.location.href = 'mailto:' + (mottaker.hktl_epost || '') + '?subject=' + emne + '&body=' + tekst
+    window.location.href = 'mailto:' + (mottaker.mottaker?.epost || '') + '?subject=' + emne + '&body=' + tekst
   }
 
   function lastNedCsv() {
@@ -372,14 +396,23 @@ export default function AdminEvaluering() {
                 {mottakere.map((m, i) => (
                   <tr key={i} className="border-t border-gray-100">
                     <td className="px-4 py-2 font-medium">{m.skole_navn || '—'}</td>
-                    <td className="px-4 py-2 text-gray-600">{m.hktl_epost || <span className="text-red-500 text-xs">mangler e-post</span>}</td>
+                    <td className="px-4 py-2 text-gray-600">
+                      {m.mottaker?.epost
+                        ? <>
+                            {m.mottaker.epost}
+                            {kildeEtikett(m.mottaker.kilde) && (
+                              <span className="text-gray-400 text-xs ml-2">{kildeEtikett(m.mottaker.kilde)}</span>
+                            )}
+                          </>
+                        : <span className="text-red-500 text-xs">mangler e-post</span>}
+                    </td>
                     <td className="px-4 py-2">
                       {m.alt_svart
                         ? <span className="text-green-700">Har svart</span>
                         : <span className="text-gray-400">Ikke svart</span>}
                     </td>
                     <td className="px-4 py-2 text-right">
-                      {m.hktl_epost
+                      {m.mottaker?.epost
                         ? <button onClick={() => sendEpost(m)} className="text-orange hover:underline">Send e-post</button>
                         : <span className="text-gray-300 text-xs">—</span>}
                     </td>
