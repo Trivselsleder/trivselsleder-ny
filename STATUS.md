@@ -1,32 +1,28 @@
 # STATUS – trivselsleder-ny
-Sist oppdatert: 6. juli 2026 (etter feil A-fiks fra agent-retest)
+Sist oppdatert: 6. juli 2026 (feil A ferdig og bevist på live)
 
-## FEIL A FIKSET (agent-retest 6. juli): avvist påmelding er ikke lenger blindgate
-- Rund livssyklus: godkjenn → avvis → godkjenn igjen fungerer. Commit fd387dc.
+## FEIL A FERDIG+BEVIST (agent-retest 6. juli): påmeldingens livssyklus er rund
+Full syklus verifisert på live med TEST FeilA2 skole (org 999666777):
+godkjenn → avvis (skole satt Inaktiv, tydelig melding) → re-godkjenn
+(reaktivert uten duplikat-feil). Databasekontroll: skole 'Aktiv', påmelding
+'godkjent', nøyaktig 1 skolerad (gjenbruk, ikke duplikat).
+Commits: fd387dc + 7cc0e99.
 - NY api/admin/avvis-paamelding.js: setter status 'avvist'; KUN hvis påmeldingen
-  var 'godkjent' settes skolen (samme org_nr, status 'Aktiv') til 'Inaktiv'.
-  Ingenting slettes. Var påmeldingen 'ny': skoler-tabellen røres ikke.
+  var 'godkjent' settes skolen (samme org_nr) til 'Inaktiv' — SELECT på org_nr,
+  UPDATE på id, skolen deaktiveres FØR påmeldingen settes 'avvist' (ingen
+  halvtilstand). Ingenting slettes. Var påmeldingen 'ny': skoler-tabellen røres
+  ikke. DB-feil returneres som 500 med faktisk feilmelding (rød boks), aldri svelget.
 - godkjenn-paamelding.js: duplikatsjekk skiller Aktiv (ekte duplikat → rød 409)
   fra Inaktiv (re-godkjenning → UPDATE eksisterende skolerad, alle felter, 'Aktiv',
   invitasjoner + nettverksforslag som vanlig). Rollback-fiks: 'godkjent' settes
   først ETTER at skoleoperasjonen lyktes — ingen hardkodet tilbakestilling til 'ny'.
-- AdminPaameldinger.jsx: Avvis-knappen kaller endpointet og viser resultatboks
-  (skole satt Inaktiv / register ikke berørt).
-- OPPFØLGING (7cc0e99) etter feilet live-test: skole-UPDATE med filter på
-  org_nr+status ble avvist av databasen og feilen SVELGET (console.error +
-  ok:true → misvisende "fant ingen skole"). Rettet: SELECT skole på org_nr →
-  UPDATE på id (bevist mønster fra sett-nettverk.js), DB-feil returneres nå
-  som 500 med faktisk feilmelding i rød boks, og skolen deaktiveres FØR
-  påmeldingen settes 'avvist' (ingen halvtilstand). Eksakt DB-årsak ikke
-  bekreftet ennå — diagnose-SQL (constraints/policies/triggere på skoler)
-  gitt til Kjartan.
-- NB: påmelding org 999444555 ligger i halvtilstand fra feilet test
-  (påmelding 'avvist', skole 'Aktiv') — bruk fersk påmelding ved retest.
-
-## TESTPLAN FEIL A (på https://trivselsleder-ny.vercel.app)
-Bruk en FERSK testpåmelding: godkjenn → avvis (sjekk at skolen blir Inaktiv) →
-godkjenn igjen (sjekk at skolen reaktiveres, ikke blokkeres).
-IKKE reparer "TEST Fjellheim" (korrupt fra retesten) — slettes i oppryddingen.
+- AdminPaameldinger.jsx: Avvis-knappen kaller endpointet og viser resultatboks.
+- DEL AV LØSNINGEN — databaseendring: skoler_status_check-constrainten manglet
+  verdien 'Inaktiv' (rotårsak til at første live-test feilet; feilen ble i
+  tillegg svelget stille av gammel endpoint-kode). Kjartan utvidet constrainten
+  med ALTER TABLE — alle seks gamle statusverdier beholdt + 'Inaktiv'.
+  LÆRDOM: sjekk CHECK-constraints før koden skriver nye verdier til en kolonne,
+  og svelg aldri databasefeil (returner dem synlig til brukeren).
 
 ## KURSPLANLEGGER-FIKSER (fra agenttest 2. juli) — ALLE 4 FERDIG OG BEVIST
 - FIKS 1 FERDIG+BEVIST: org.nr-duplikat gir rød feilmelding, aldri stille
@@ -67,6 +63,9 @@ IKKE reparer "TEST Fjellheim" (korrupt fra retesten) — slettes i oppryddingen.
 
 ## TESTDATA SOM SKAL SLETTES (etter godkjent retest)
 - Agenttest-skoler: Solbakken, Fjellheim, Havblikk
+- TEST FeilA (org 999444555) — ligger i halvtilstand fra feilet første test
+  (påmelding 'avvist', skole 'Aktiv'). Ikke reparer, bare slett.
+- TEST FeilA2 (org 999666777) — brukt til beviset for feil A-fiksen.
 - TEST Fiks2 skole (org 999888777)
 - FIKS 3/4-testskoler (6. juli): FiksNettverk (999111222), FiksKurs (999333444),
   FiksKurs2 (999555666), FiksKurs3 (999777888), FiksKurs4 (999999111),
