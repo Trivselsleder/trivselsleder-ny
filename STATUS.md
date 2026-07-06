@@ -1,5 +1,24 @@
 # STATUS – trivselsleder-ny
-Sist oppdatert: 6. juli 2026 (feil A ferdig og bevist på live)
+Sist oppdatert: 6. juli 2026 (feil B implementert, venter på live-test)
+
+## FEIL B IMPLEMENTERT (agent-retest 6. juli): unntakskobling + fjerning i Skoler-modalen
+Commit 1795c39. IKKE testet på live ennå.
+- Kursets Skoler-modal (SkoleKobling i AdminKursplanlegger.jsx) har fått
+  søkefelt "Legg til annen skole (unntak)": søker alle skoler med status
+  'Aktiv' uansett nettverk (min. 2 tegn, debounce, maks 20 treff). Inaktive
+  vises ALDRI. Allerede koblede vises grået ut ("allerede koblet").
+  Kobling via POST api/admin/koble-skole-kurs.js (eksisterende duplikatvern).
+- Fjerning med vern: Fjern-knappen åpner alltid bekreftelsesdialog. Har
+  skolen svart, gjengis svaret ("JA, 15 trivselsledere" / "NEI (årsak)")
+  med advarsel om at svar + svar-lenke slettes. Sletting via NY DELETE-
+  metode i koble-skole-kurs.js (service_role; GRANT DELETE kjørt av Kjartan).
+- Feil svelges aldri: rød feilboks i modalen erstatter alert().
+- Nettverksforslag-listen filtrerer nå også på status 'Aktiv' (før kunne
+  inaktive skoler dukke opp som forslag).
+- TESTPLAN: åpne Skoler-modal på testkurs → søk opp skole utenfor nettverket
+  → legg til → sjekk kurs_skole. Fjern skole UTEN svar (enkel dialog) og
+  MED svar (dialog må gjengi svaret; sjekk at rad+svar+lenke slettes).
+  Fjern-vernet trenger et svar å vise — send inn svar via svar-lenken først.
 
 ## FEIL A FERDIG+BEVIST (agent-retest 6. juli): påmeldingens livssyklus er rund
 Full syklus verifisert på live med TEST FeilA2 skole (org 999666777):
