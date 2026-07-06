@@ -1,5 +1,25 @@
 import { useState } from 'react'
 
+// Alle påkrevde felt med norsk etikett — brukes av vår egen validering.
+// Skjemaet har noValidate, så nettleserens engelske HTML5-meldinger vises aldri;
+// listen her MÅ holdes i takt med required-markeringene i feltene under.
+const PAKREVDE_FELT = [
+  ['skolenavn', 'Skolenavn'],
+  ['type', 'Type'],
+  ['gateadresse', 'Gateadresse'],
+  ['postnummer', 'Postnummer'],
+  ['poststed', 'Poststed'],
+  ['kommune', 'Kommune'],
+  ['fylke', 'Fylke'],
+  ['organisasjonsnummer', 'Organisasjonsnummer'],
+  ['rektor_navn', 'Rektor: navn'],
+  ['rektor_epost', 'Rektor: e-post'],
+  ['tla_navn', 'TL-ansvarlig (TLA): navn'],
+  ['tla_epost', 'TL-ansvarlig (TLA): e-post'],
+]
+
+const EPOST_MONSTER = /^\S+@\S+\.\S+$/
+
 const TOM_FORM = {
   skolenavn: '', type: '', antall_elever: '',
   gateadresse: '', postnummer: '', poststed: '', kommune: '', fylke: '', hjemmeside: '',
@@ -69,12 +89,41 @@ export default function Paamelding() {
     setFeil('')
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault()
+  function validerSkjema() {
+    const mangler = PAKREVDE_FELT
+      .filter(([felt]) => !String(form[felt] ?? '').trim())
+      .map(([, etikett]) => etikett)
+
+    const manglerBareTla = mangler.length > 0 && mangler.every(e => e.startsWith('TL-ansvarlig'))
+    const manglerTla = mangler.some(e => e.startsWith('TL-ansvarlig'))
+
     // TLA blir HKTL (hovedkontakt) på skolekortet ved godkjenning — navn og
     // e-post må derfor alltid fylles ut (feil D, del 2).
-    if (!form.tla_navn.trim() || !form.tla_epost.trim()) {
-      setFeil('TL-ansvarlig (TLA) må fylles ut med både navn og e-post. TLA blir skolens hovedkontakt for Trivselsleder-programmet.')
+    const tlaMelding = 'TL-ansvarlig (TLA) må fylles ut med både navn og e-post. TLA blir skolens hovedkontakt for Trivselsleder-programmet.'
+    if (manglerBareTla) return tlaMelding
+    if (mangler.length > 0) {
+      return 'Følgende påkrevde felt mangler: ' + mangler.join(', ') + '.'
+        + (manglerTla ? ' ' + tlaMelding : '')
+    }
+
+    for (const [felt, etikett] of [
+      ['rektor_epost', 'Rektor: e-post'],
+      ['htla_epost', 'Hoved-TL-ansvarlig (HTLA): e-post'],
+      ['tla_epost', 'TL-ansvarlig (TLA): e-post'],
+    ]) {
+      const verdi = String(form[felt] ?? '').trim()
+      if (verdi && !EPOST_MONSTER.test(verdi)) {
+        return 'Feltet «' + etikett + '» må være en gyldig e-postadresse (f.eks. navn@skole.no).'
+      }
+    }
+    return ''
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const valideringsfeil = validerSkjema()
+    if (valideringsfeil) {
+      setFeil(valideringsfeil)
       return
     }
     setLaster(true)
@@ -124,7 +173,10 @@ export default function Paamelding() {
           <p className="text-gray-500 mt-2">Fyll inn informasjon om skolen for å starte oppstart av Trivselsleder-programmet.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* noValidate: vår egen norske validering (validerSkjema) tar over for
+            nettleserens innebygde HTML5-meldinger, som følger nettleserspråket.
+            required-attributtene beholdes for stjernemarkering og tilgjengelighet. */}
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
 
           {/* Skoleinformasjon */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

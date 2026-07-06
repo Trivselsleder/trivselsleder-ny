@@ -32,9 +32,14 @@ const TOMT_KURS = {
   uke: '', dag: '', antall_tl: '', antall_skoler: '', maks_antall: '', merknad: '',
 }
 
+// Maks antall treff som rendres i dropdownen — å tegne hundrevis av rader er
+// det som gjorde hall-søket tregt/misvisende (feil E i agent-retesten).
+const MAKS_TREFF = 50
+
 function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
   const [aapen, setAapen] = useState(false)
   const [sok, setSok] = useState('')
+  const [filtrert, setFiltrert] = useState([])
   const ref = useRef(null)
   useEffect(() => {
     function klikkUtenfor(e) {
@@ -43,7 +48,17 @@ function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
     document.addEventListener('mousedown', klikkUtenfor)
     return () => document.removeEventListener('mousedown', klikkUtenfor)
   }, [])
-  const filtrert = verdier.filter(v => v.toLowerCase().includes(sok.toLowerCase()))
+  // Debounce-filtrering, samme mønster som skole-søket i SkoleKobling (feil B).
+  // Tomt søk (nyåpnet felt) filtreres uten forsinkelse.
+  useEffect(() => {
+    if (!aapen) return
+    const s = sok.trim().toLowerCase()
+    const oppdater = () => setFiltrert(verdier.filter(v => v.toLowerCase().includes(s)))
+    if (s === '') { oppdater(); return }
+    const t = setTimeout(oppdater, 300)
+    return () => clearTimeout(t)
+  }, [sok, aapen, verdier])
+  const viste = filtrert.slice(0, MAKS_TREFF)
   return (
     <div className="relative" ref={ref}>
       <input
@@ -55,14 +70,19 @@ function SokbarVelger({ verdier, valgt, onVelg, placeholder }) {
       />
       {aapen && (
         <div className="absolute z-10 mt-1 w-full max-h-52 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
-          {filtrert.length === 0 && <div className="px-3 py-2 text-sm text-gray-400">Ingen treff</div>}
-          {filtrert.map(v => (
+          {viste.length === 0 && <div className="px-3 py-2 text-sm text-gray-400">Ingen treff</div>}
+          {viste.map(v => (
             <button key={v} type="button"
               onClick={() => { onVelg(v); setAapen(false) }}
               className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100">
               {v}
             </button>
           ))}
+          {filtrert.length > MAKS_TREFF && (
+            <div className="px-3 py-2 text-xs text-gray-400 border-t border-gray-100">
+              Viser de første {MAKS_TREFF} av {filtrert.length} treff — skriv mer for å avgrense.
+            </div>
+          )}
         </div>
       )}
     </div>
