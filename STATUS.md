@@ -12,7 +12,16 @@ Sist oppdatert: 6. juli 2026 (etter feil A-fiks fra agent-retest)
   først ETTER at skoleoperasjonen lyktes — ingen hardkodet tilbakestilling til 'ny'.
 - AdminPaameldinger.jsx: Avvis-knappen kaller endpointet og viser resultatboks
   (skole satt Inaktiv / register ikke berørt).
-- IKKE TESTET PÅ LIVE ENNÅ — se testplan under.
+- OPPFØLGING (7cc0e99) etter feilet live-test: skole-UPDATE med filter på
+  org_nr+status ble avvist av databasen og feilen SVELGET (console.error +
+  ok:true → misvisende "fant ingen skole"). Rettet: SELECT skole på org_nr →
+  UPDATE på id (bevist mønster fra sett-nettverk.js), DB-feil returneres nå
+  som 500 med faktisk feilmelding i rød boks, og skolen deaktiveres FØR
+  påmeldingen settes 'avvist' (ingen halvtilstand). Eksakt DB-årsak ikke
+  bekreftet ennå — diagnose-SQL (constraints/policies/triggere på skoler)
+  gitt til Kjartan.
+- NB: påmelding org 999444555 ligger i halvtilstand fra feilet test
+  (påmelding 'avvist', skole 'Aktiv') — bruk fersk påmelding ved retest.
 
 ## TESTPLAN FEIL A (på https://trivselsleder-ny.vercel.app)
 Bruk en FERSK testpåmelding: godkjenn → avvis (sjekk at skolen blir Inaktiv) →
