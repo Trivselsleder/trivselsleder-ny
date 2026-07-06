@@ -455,7 +455,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
               </p>
             ) : avvistResultat.varGodkjent ? (
               <p className="text-sm text-gray-600 pl-7">
-                Fant ingen aktiv skole med dette org.nr å deaktivere. Påmeldingen er avvist.
+                Fant ingen skole med dette org.nr i registeret — ingenting å deaktivere. Påmeldingen er avvist.
               </p>
             ) : (
               <p className="text-sm text-gray-600 pl-7">
@@ -475,7 +475,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
           <>
           {feilmelding && (
             <div className="mx-6 mb-0 mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              <strong>Kunne ikke godkjenne:</strong> {feilmelding}
+              <strong>Feil:</strong> {feilmelding}
             </div>
           )}
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
