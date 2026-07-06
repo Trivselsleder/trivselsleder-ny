@@ -1,5 +1,23 @@
 # STATUS – trivselsleder-ny
-Sist oppdatert: 6. juli 2026 (etter FIKS 3+4)
+Sist oppdatert: 6. juli 2026 (etter feil A-fiks fra agent-retest)
+
+## FEIL A FIKSET (agent-retest 6. juli): avvist påmelding er ikke lenger blindgate
+- Rund livssyklus: godkjenn → avvis → godkjenn igjen fungerer. Commit fd387dc.
+- NY api/admin/avvis-paamelding.js: setter status 'avvist'; KUN hvis påmeldingen
+  var 'godkjent' settes skolen (samme org_nr, status 'Aktiv') til 'Inaktiv'.
+  Ingenting slettes. Var påmeldingen 'ny': skoler-tabellen røres ikke.
+- godkjenn-paamelding.js: duplikatsjekk skiller Aktiv (ekte duplikat → rød 409)
+  fra Inaktiv (re-godkjenning → UPDATE eksisterende skolerad, alle felter, 'Aktiv',
+  invitasjoner + nettverksforslag som vanlig). Rollback-fiks: 'godkjent' settes
+  først ETTER at skoleoperasjonen lyktes — ingen hardkodet tilbakestilling til 'ny'.
+- AdminPaameldinger.jsx: Avvis-knappen kaller endpointet og viser resultatboks
+  (skole satt Inaktiv / register ikke berørt).
+- IKKE TESTET PÅ LIVE ENNÅ — se testplan under.
+
+## TESTPLAN FEIL A (på https://trivselsleder-ny.vercel.app)
+Bruk en FERSK testpåmelding: godkjenn → avvis (sjekk at skolen blir Inaktiv) →
+godkjenn igjen (sjekk at skolen reaktiveres, ikke blokkeres).
+IKKE reparer "TEST Fjellheim" (korrupt fra retesten) — slettes i oppryddingen.
 
 ## KURSPLANLEGGER-FIKSER (fra agenttest 2. juli) — ALLE 4 FERDIG OG BEVIST
 - FIKS 1 FERDIG+BEVIST: org.nr-duplikat gir rød feilmelding, aldri stille
