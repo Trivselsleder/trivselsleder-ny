@@ -141,6 +141,25 @@ export default function SvarSkjema() {
           Fyll ut skjemaet under, så registrerer vi svaret deres.
         </p>
 
+        <div className="mb-8 rounded-xl border-l-4 border-[#F47920] bg-orange-50 px-4 py-3">
+          {kobling.skole_navn && (
+            <p className="text-sm text-gray-700">
+              <span className="text-gray-500">Skole:</span> <strong>{kobling.skole_navn}</strong>
+            </p>
+          )}
+          {kobling.kurs_navn && (
+            <p className="text-sm text-gray-700">
+              <span className="text-gray-500">Kurs:</span> <strong>{kobling.kurs_navn}</strong>
+            </p>
+          )}
+          {kobling.kurs_dato && (
+            <p className="text-sm text-gray-700">
+              <span className="text-gray-500">Dato:</span> <strong>{new Date(kobling.kurs_dato).toLocaleDateString('nb-NO', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</strong>
+              {kobling.kurs_start_tid && <> kl. {kobling.kurs_start_tid.slice(0,5)}{kobling.kurs_slutt_tid && <>–{kobling.kurs_slutt_tid.slice(0,5)}</>}</>}
+            </p>
+          )}
+        </div>
+
         <fieldset className="mb-8">
           <legend className="text-lg font-semibold text-gray-900 mb-3">
             Kommer trivselslederne fra skolen på kurs?
