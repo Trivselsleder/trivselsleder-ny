@@ -122,7 +122,10 @@ export default async function handler(req, res) {
   for (const kobling of (koblinger || [])) {
     const skoleNavn = kobling.skoler?.navn || '(ukjent skole)'
 
-    // 2) Aldri sende dobbelt
+    // 2) Aldri sende dobbelt — RASK VEI. Er feltet allerede satt i masse-lesingen,
+    //    slipper vi å bygge mottakere. Men denne lesingen er IKKE autoriteten:
+    //    den ekte reservasjonen skjer atomisk rett før sending (se under), slik at
+    //    vernet holder selv om denne masse-select-en skulle vise feil.
     if (kobling.forste_utsending_at) {
       hoppet_over.push({ skole: skoleNavn, grunn: 'allerede sendt', forste_utsending_at: kobling.forste_utsending_at })
       continue
@@ -175,6 +178,32 @@ export default async function handler(req, res) {
     }
 
     // ---- EKTE KJØRING ----
+
+    // 6) ATOMISK RESERVASJON — selve dobbeltsendings-vernet.
+    //    Vi flipper forste_utsending_at fra NULL til nå i ETT kall. Betingelsen
+    //    .is('forste_utsending_at', null) gjør at bare den FØRSTE kjøringen vinner:
+    //    en andre kjøring får null rader tilbake og hopper over. Dette er
+    //    uavhengig av masse-lesingen over, så et upålitelig les-resultat kan
+    //    ikke lenger føre til dobbeltsending.
+    const tid = naa()
+    const { data: reservert, error: reservFeil } = await supabase
+      .from('kurs_skole')
+      .update({ forste_utsending_at: tid })
+      .eq('id', kobling.id)
+      .is('forste_utsending_at', null)
+      .select('id')
+
+    if (reservFeil) {
+      feilet.push({ skole: skoleNavn, mottaker_epost: htla.epost, grunn: 'kunne ikke reservere utsending: ' + reservFeil.message })
+      continue // 8) fortsett til neste skole
+    }
+    if (!reservert || reservert.length === 0) {
+      // Raden var allerede reservert av en tidligere kjøring → aldri send dobbelt.
+      hoppet_over.push({ skole: skoleNavn, grunn: 'allerede sendt (reservert)' })
+      continue
+    }
+
+    // Vi holder reservasjonen. Nå sendes e-posten.
     let resendId = null
     let sendFeil = null
     try {
@@ -191,7 +220,7 @@ export default async function handler(req, res) {
       sendFeil = e?.message || String(e)
     }
 
-    // 6) Én rad til epost_logg per forsøk — også ved feil
+    // 7) Én rad til epost_logg per forsøk — også ved feil
     await supabase.from('epost_logg').insert({
       type: 'kursinvitasjon',
       mottaker_epost: htla.epost,
@@ -204,50 +233,32 @@ export default async function handler(req, res) {
     })
 
     if (sendFeil) {
+      // Sendingen feilet: FRIGI reservasjonen så skolen kan forsøkes på nytt.
+      // (Slik holder vi på regelen om at stempelet bare står når e-post faktisk gikk.)
+      await supabase.from('kurs_skole').update({ forste_utsending_at: null }).eq('id', kobling.id)
       feilet.push({ skole: skoleNavn, mottaker_epost: htla.epost, grunn: sendFeil })
       continue // 8) fortsett til neste skole
     }
 
-    // 7) Sett tidsstempler først NÅR Resend har svart OK.
-    //    Vi henter radene tilbake med .select() slik at BÅDE en ekte feil
-    //    (f.eks. manglende UPDATE-rettighet på kurs_skole) OG en stille
-    //    "traff null rader" blir fanget. En sending som ikke lar seg stemple
-    //    skal ALDRI telles som suksess — ellers virker ikke dobbeltsendings-
-    //    vernet, og purringen får ingenting å regne fra.
-    const tid = naa()
-
+    // 8) Sendt OK. forste_utsending_at står allerede (fra reservasjonen).
+    //    Stemple mottakerens sendt_at (audit). E-posten ER sendt, så her frigir
+    //    vi ALDRI reservasjonen — vi rapporterer bare hvis audit-stempelet glapp.
     const { data: mottStemp, error: mottStempFeil } = await supabase
       .from('kurs_skole_mottaker')
       .update({ sendt_at: tid })
       .eq('id', htla.id)
       .select('id')
 
-    const { data: ksStemp, error: ksStempFeil } = await supabase
-      .from('kurs_skole')
-      .update({ forste_utsending_at: tid })
-      .eq('id', kobling.id)
-      .select('id, forste_utsending_at')
-
-    const mottOk = !mottStempFeil && (mottStemp?.length ?? 0) > 0
-    const ksOk   = !ksStempFeil && !!ksStemp?.[0]?.forste_utsending_at
-
-    if (!mottOk || !ksOk) {
-      const detaljer = [
-        !ksOk && ('kurs_skole.forste_utsending_at → ' +
-          (ksStempFeil ? ksStempFeil.message : 'oppdateringen traff ingen rad')),
-        !mottOk && ('kurs_skole_mottaker.sendt_at → ' +
-          (mottStempFeil ? mottStempFeil.message : 'oppdateringen traff ingen rad')),
-      ].filter(Boolean).join('; ')
-
+    if (mottStempFeil || (mottStemp?.length ?? 0) === 0) {
       feilet.push({
         skole: skoleNavn,
         mottaker_epost: htla.epost,
         resend_id: resendId,
-        sendt_men_ikke_stemplet: true,
-        grunn: 'E-post ble sendt (Resend OK), men tidsstempel kunne ikke skrives — ' +
-               'dobbeltsendings-vernet er IKKE aktivt for denne skolen. ' + detaljer,
+        sendt_men_audit_feilet: true,
+        grunn: 'E-post sendt og reservert OK, men mottakerens sendt_at kunne ikke skrives: ' +
+               (mottStempFeil ? mottStempFeil.message : 'oppdateringen traff ingen rad'),
       })
-      continue // 8) fortsett til neste skole
+      continue
     }
 
     sendt.push({ skole: skoleNavn, mottaker_epost: htla.epost, resend_id: resendId })
