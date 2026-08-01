@@ -59,15 +59,13 @@ export default async function handler(req, res) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
-  const origin = req.headers.origin || process.env.SITE_URL || 'https://trivselsleder.no'
-  const lenkeFor = (token) => `${origin}/svar/${token}`
   const naa = () => new Date().toISOString()
 
   // ---- Innstillinger (avsender + reply-to) — leses fra basen, ikke hardkodet ----
   const { data: innstRader, error: innstFeil } = await supabase
     .from('innstillinger')
     .select('nokkel, verdi')
-    .in('nokkel', ['avsender_navn', 'avsender_epost', 'svar_til_epost'])
+    .in('nokkel', ['avsender_navn', 'avsender_epost', 'svar_til_epost', 'nettsted_url'])
 
   if (innstFeil) {
     return res.status(500).json({ error: 'Kunne ikke lese innstillinger: ' + innstFeil.message })
@@ -76,13 +74,20 @@ export default async function handler(req, res) {
   const avsenderNavn = innst.avsender_navn
   const avsenderEpost = innst.avsender_epost
   const svarTilEpost = innst.svar_til_epost
+  const nettstedUrl = (innst.nettsted_url || '').trim().replace(/\/+$/, '')
 
   if (!avsenderEpost || !avsenderNavn) {
     return res.status(500).json({
       error: 'Mangler avsender_navn/avsender_epost i innstillinger-tabellen.',
     })
   }
+  if (!nettstedUrl) {
+    return res.status(500).json({
+      error: 'Mangler nettsted_url i innstillinger-tabellen — kan ikke bygge svarlenke. Legg inn nøkkelen (f.eks. https://trivselsleder-ny.vercel.app) og prøv igjen.',
+    })
+  }
   const from = `${avsenderNavn} <${avsenderEpost}>`
+  const lenkeFor = (token) => `${nettstedUrl}/svar/${token}`
 
   // ---- Kurs (hentes direkte på id — ingen embed, så tvetydigheten mellom de to
   //      fremmednøklene kurs_skole→kurs oppstår ikke i det hele tatt) ----
