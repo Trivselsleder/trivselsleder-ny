@@ -208,16 +208,53 @@ export default async function handler(req, res) {
       continue // 8) fortsett til neste skole
     }
 
-    // 7) Sett tidsstempler først NÅR Resend har svart OK
+    // 7) Sett tidsstempler først NÅR Resend har svart OK.
+    //    Vi henter radene tilbake med .select() slik at BÅDE en ekte feil
+    //    (f.eks. manglende UPDATE-rettighet på kurs_skole) OG en stille
+    //    "traff null rader" blir fanget. En sending som ikke lar seg stemple
+    //    skal ALDRI telles som suksess — ellers virker ikke dobbeltsendings-
+    //    vernet, og purringen får ingenting å regne fra.
     const tid = naa()
-    await supabase.from('kurs_skole_mottaker').update({ sendt_at: tid }).eq('id', htla.id)
-    await supabase.from('kurs_skole').update({ forste_utsending_at: tid }).eq('id', kobling.id)
+
+    const { data: mottStemp, error: mottStempFeil } = await supabase
+      .from('kurs_skole_mottaker')
+      .update({ sendt_at: tid })
+      .eq('id', htla.id)
+      .select('id')
+
+    const { data: ksStemp, error: ksStempFeil } = await supabase
+      .from('kurs_skole')
+      .update({ forste_utsending_at: tid })
+      .eq('id', kobling.id)
+      .select('id, forste_utsending_at')
+
+    const mottOk = !mottStempFeil && (mottStemp?.length ?? 0) > 0
+    const ksOk   = !ksStempFeil && !!ksStemp?.[0]?.forste_utsending_at
+
+    if (!mottOk || !ksOk) {
+      const detaljer = [
+        !ksOk && ('kurs_skole.forste_utsending_at → ' +
+          (ksStempFeil ? ksStempFeil.message : 'oppdateringen traff ingen rad')),
+        !mottOk && ('kurs_skole_mottaker.sendt_at → ' +
+          (mottStempFeil ? mottStempFeil.message : 'oppdateringen traff ingen rad')),
+      ].filter(Boolean).join('; ')
+
+      feilet.push({
+        skole: skoleNavn,
+        mottaker_epost: htla.epost,
+        resend_id: resendId,
+        sendt_men_ikke_stemplet: true,
+        grunn: 'E-post ble sendt (Resend OK), men tidsstempel kunne ikke skrives — ' +
+               'dobbeltsendings-vernet er IKKE aktivt for denne skolen. ' + detaljer,
+      })
+      continue // 8) fortsett til neste skole
+    }
 
     sendt.push({ skole: skoleNavn, mottaker_epost: htla.epost, resend_id: resendId })
   }
 
   return res.status(200).json({
-    ok: true,
+    ok: feilet.length === 0,
     torrkjoring,
     kurs: { id: kurs.id, navn: kurs.navn },
     antall_skoler: (koblinger || []).length,
