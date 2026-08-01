@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.local
 .env.production
+
+# Lokal forhåndsvisning av e-postmaler (ikke del av produksjonskoden)
+test-epost/
