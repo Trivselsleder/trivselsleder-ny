@@ -26,9 +26,15 @@ import { createClient } from '@supabase/supabase-js'
 //   4) EVALUERING  – var på kurs (svart && kommer && kursdato passert),
 //                    evaluering_sendt_at tom. Mottaker: htla.
 //
-// FELLE: kurs_skole har to fremmednøkler til kurs. Vi UNNGÅR tvetydigheten helt
-// ved å hente kurs for seg og slå dem opp i et map (samme grep som
+// FELLE 1: kurs_skole har to fremmednøkler til kurs. Vi UNNGÅR tvetydigheten
+// helt ved å hente kurs for seg og slå dem opp i et map (samme grep som
 // send-invitasjon.js), i stedet for en embed.
+//
+// FELLE 2: det finnes OGSÅ to relasjoner mellom kurs_skole og
+// kurs_skole_mottaker — den vanlige (mottaker.kurs_skole_id) OG den steg 2 la
+// til (kurs_skole.svart_av_mottaker_id). Når vi embedder mottakerne må vi derfor
+// peke eksplisitt på fremmednøkkelen kurs_skole_mottaker_kurs_skole_id_fkey,
+// ellers klager PostgREST over «more than one relationship».
 
 function formaterDato(iso) {
   if (!iso) return ''
@@ -113,7 +119,7 @@ export default async function handler(req, res) {
       forste_utsending_at, purring_sendt_at, trinn3_sendt_at,
       paaminnelse_sendt_at, evaluering_sendt_at,
       skoler(navn),
-      kurs_skole_mottaker(id, rolle, navn, epost)
+      kurs_skole_mottaker!kurs_skole_mottaker_kurs_skole_id_fkey(id, rolle, navn, epost)
     `)
     .in('kurs_id', kursIder)
     .range(0, 9999)
