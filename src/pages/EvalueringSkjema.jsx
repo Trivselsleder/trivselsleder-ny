@@ -151,6 +151,17 @@ export default function EvalueringSkjema() {
       return;
     }
     setFerdig(true);
+
+    // Varsle Eivind hvis skolen viste kjøpsinteresse. Serveren dobbeltsjekker
+    // interessen. Fire-and-forget: et varsel-feil skal aldri ødelegge skolens
+    // kvittering, så vi verken venter på eller viser resultatet.
+    if (erPakke || valg === 'samtale') {
+      fetch('/api/kurs/varsle-eivind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, torrkjoring: false }),
+      }).catch(() => {});
+    }
   }
 
   if (laster) {
