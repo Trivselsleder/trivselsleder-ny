@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase'
 import AdminHaller from './AdminHaller'
 import AdminKursholdere from './AdminKursholdere'
 import AdminEvaluering from './AdminEvaluering'
-import AdminPurring from './AdminPurring'
+import AdminOppfolging from './AdminOppfolging'
 
 function ukeNummer(isoDato) {
   if (!isoDato) return ''
@@ -657,8 +657,7 @@ export default function AdminKursplanlegger() {
     { id: 'kurs', navn: 'Kurs' },
     { id: 'haller', navn: 'Haller' },
     { id: 'kursholdere', navn: 'Kursholdere' },
-    { id: 'purring', navn: 'Purring' },
-    { id: 'paaminnelse', navn: 'Påminnelse' },
+    { id: 'oppfolging', navn: 'Oppfølging' },
     { id: 'evaluering', navn: 'Evaluering' },
   ]
   return (
@@ -681,8 +680,7 @@ export default function AdminKursplanlegger() {
       {fane === 'kurs' && <KursOversikt />}
       {fane === 'haller' && <AdminHaller />}
       {fane === 'kursholdere' && <AdminKursholdere />}
-      {fane === 'purring' && <AdminPurring modus="purring" />}
-      {fane === 'paaminnelse' && <AdminPurring modus="paaminnelse" />}
+      {fane === 'oppfolging' && <AdminOppfolging innebygd />}
       {fane === 'evaluering' && <AdminEvaluering />}
     </div>
   )

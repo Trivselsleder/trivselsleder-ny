@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-// Steg 3d: samlet oppfølgingsside som erstatter mailto-løsningen (AdminPurring).
+// Steg 3d: samlet oppfølgingsside som erstattet den gamle mailto-løsningen.
 // Kaller hvem-star-for-tur for listene og send-oppfolging for utsendingen.
 // Trappetrinnet er hele poenget: hver seksjon forklarer seg selv med én setning,
 // så en RA som aldri har sett dette forstår hvorfor en skole står der den står.
@@ -130,7 +130,10 @@ function Seksjon({ tittel, forklaring, farge, knappeverb, rader, valgt, settValg
   )
 }
 
-export default function AdminOppfolging() {
+// innebygd=true når siden vises som fane i kursplanleggeren (uten egen side-ramme,
+// tilbakeknapp og stor overskrift, siden kursplanleggeren allerede gir det).
+// innebygd=false (standard) er den frittstående ruten /admin/oppfolging.
+export default function AdminOppfolging({ innebygd = false }) {
   const navigate = useNavigate()
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
@@ -256,11 +259,15 @@ export default function AdminOppfolging() {
   const manglerEpost = data?.mangler_epost || []
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-[#F47920] mb-4">
-        ← Tilbake til admin
-      </button>
-      <h1 className="text-3xl font-bold mb-2" style={{ color: ORANSJE }}>Oppfølging</h1>
+    <div className={innebygd ? '' : 'max-w-5xl mx-auto px-4 py-12'}>
+      {!innebygd && (
+        <>
+          <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-[#F47920] mb-4">
+            ← Tilbake til admin
+          </button>
+          <h1 className="text-3xl font-bold mb-2" style={{ color: ORANSJE }}>Oppfølging</h1>
+        </>
+      )}
       <p className="text-gray-500 mb-6 max-w-2xl">
         Systemet finner hvem som står for tur i trappetrinnet — du bestemmer når det sendes.
         Listene oppdaterer seg etter hver utsending. Evaluering sendes automatisk og vises ikke her.
