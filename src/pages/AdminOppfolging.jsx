@@ -49,7 +49,7 @@ function Seksjon({ tittel, forklaring, farge, knappeverb, rader, valgt, settValg
             {sender ? 'Sender …' : `${knappeverb} til ${valgteIder.length} ${valgteIder.length === 1 ? 'skole' : 'skoler'}`}
           </button>
           {motorOff && (
-            <p className="text-xs text-gray-400 mt-1">Deaktivert — nødbremsen er på</p>
+            <p className="text-xs text-gray-400 mt-1">Utsending er satt på pause</p>
           )}
         </div>
       </div>
@@ -265,12 +265,13 @@ export default function AdminOppfolging() {
         Listene oppdaterer seg etter hver utsending. Evaluering sendes automatisk og vises ikke her.
       </p>
 
+      {/* Nødbrems (motor_aktiv=nei): rolig, informativt banner — dette er en
+          normaltilstand som kan vare i uker, ikke en alarm. */}
       {motorOff && (
-        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4">
-          <p className="font-semibold text-amber-900">Nødbremsen er på</p>
-          <p className="text-sm text-amber-800 mt-1">
-            Innstillingen <code>motor_aktiv</code> står på «nei». All ekte utsending er stanset,
-            og sendeknappene er deaktivert. Skru den på igjen i innstillingene for å kunne sende.
+        <div className="mb-6 rounded-xl border border-sky-200 bg-sky-50 p-4">
+          <p className="font-semibold text-sky-900">Utsending er satt på pause</p>
+          <p className="text-sm text-sky-800 mt-1">
+            Automatisk utsending er midlertidig stanset. Ingen e-post går ut før den skrus på igjen.
           </p>
         </div>
       )}
