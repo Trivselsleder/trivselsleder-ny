@@ -165,8 +165,13 @@ export default async function handler(req, res) {
   const pakke = evaluering.valgt_pakke_navn || (kjop === 'samtale' ? 'Ønsker samtale (ingen pakke valgt)' : '')
   const pris = formaterKr(evaluering.valgt_pakke_pris)
 
+  // Emne-plassholder: pakkenavnet hvis skolen valgte pakke, ellers «ønsker samtale».
+  const pakkevalg = evaluering.valgt_pakke_navn
+    ? evaluering.valgt_pakke_navn
+    : (kjop === 'samtale' ? 'ønsker samtale' : (KJOP_ETIKETT[kjop] || kjop))
+
   const emne = fyllPlassholdere(emneMal || 'Kjøpsinteresse: {skolenavn}', {
-    skolenavn: skoleNavn, kursnavn: kursNavn, kursdato: kursDato,
+    skolenavn: skoleNavn, kursnavn: kursNavn, kursdato: kursDato, pakkevalg,
   })
 
   // ---- Bygg det faktatunge varselet (brødtekst i kode) ----
