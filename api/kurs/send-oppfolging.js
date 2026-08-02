@@ -36,7 +36,7 @@ const TYPER = {
     tekstNokkel: 'epost_purring_tekst',
     logg: 'purring',
     mottakerRolle: 'htla',
-    knapptekst: 'Svar for {skolenavn}',
+    knapptekst: 'Åpne svarskjemaet',
   },
   trinn3: {
     stempel: 'trinn3_sendt_at',
@@ -44,7 +44,7 @@ const TYPER = {
     tekstNokkel: 'epost_trinn3_tekst',
     logg: 'trinn3',
     mottakerRolle: 'tla',
-    knapptekst: 'Svar for {skolenavn}',
+    knapptekst: 'Åpne svarskjemaet',
   },
   paaminnelse: {
     stempel: 'paaminnelse_sendt_at',
