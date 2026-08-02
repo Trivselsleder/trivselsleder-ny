@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   const { data: innstRader, error: innstFeil } = await supabase
     .from('innstillinger')
     .select('nokkel, verdi')
-    .in('nokkel', ['purring_dager', 'trinn3_dager'])
+    .in('nokkel', ['purring_dager', 'trinn3_dager', 'motor_aktiv'])
 
   if (innstFeil) {
     return res.status(500).json({ error: 'Kunne ikke lese innstillinger: ' + innstFeil.message })
@@ -80,6 +80,7 @@ export default async function handler(req, res) {
   const innst = Object.fromEntries((innstRader || []).map(r => [r.nokkel, r.verdi]))
   const purringDager = Number.parseInt(innst.purring_dager, 10)
   const trinn3Dager = Number.parseInt(innst.trinn3_dager, 10)
+  const motorAktiv = (innst.motor_aktiv || '').trim().toLowerCase() || null
 
   if (!Number.isFinite(purringDager) || !Number.isFinite(trinn3Dager)) {
     return res.status(500).json({
@@ -105,6 +106,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       kurs_id,
+      motor_aktiv: motorAktiv,
       terskler: { purring_dager: purringDager, trinn3_dager: trinn3Dager },
       antall: { purring: 0, trinn3: 0, paaminnelse: 0, evaluering: 0, mangler_epost: 0 },
       purring: [], trinn3: [], paaminnelse: [], evaluering: [], mangler_epost: [],
@@ -219,6 +221,7 @@ export default async function handler(req, res) {
   return res.status(200).json({
     ok: true,
     kurs_id,
+    motor_aktiv: motorAktiv,
     terskler: { purring_dager: purringDager, trinn3_dager: trinn3Dager },
     antall: {
       purring: purring.length,

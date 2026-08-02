@@ -13,6 +13,7 @@ import AdminKulturkort from './pages/AdminKulturkort'
 import AdminBestillinger from './pages/AdminBestillinger'
 import AdminKortutdeling from './pages/AdminKortutdeling'
 import AdminPurring from './pages/AdminPurring'
+import AdminOppfolging from './pages/AdminOppfolging'
 import LoggInn from './pages/LoggInn'
 import SettPassord from './pages/SettPassord'
 import MinSide from './pages/MinSide'
@@ -116,6 +117,7 @@ export default function App() {
               <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle="superadmin"><AdminLedelse /></ProtectedRoute>} />
               <Route path="/admin/kortutdeling" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortutdeling /></ProtectedRoute>} />
               <Route path="/admin/purring" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminPurring /></ProtectedRoute>} />
+              <Route path="/admin/oppfolging" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminOppfolging /></ProtectedRoute>} />
             </Routes>
           </main>
           <Footer />
