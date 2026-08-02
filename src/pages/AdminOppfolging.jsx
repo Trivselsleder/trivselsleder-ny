@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom'
 // Trappetrinnet er hele poenget: hver seksjon forklarer seg selv med én setning,
 // så en RA som aldri har sett dette forstår hvorfor en skole står der den står.
 
-const MAGENTA = '#D6006E'
+// Alle sendeknapper bruker samme farge. Fargeforskjell bør bety noe; i én samlet
+// visning gjorde arvet magenta/oransje det ikke, så alt er oransje nå.
 const ORANSJE = '#F47920'
 
 function formaterDager(n) {
@@ -34,12 +35,12 @@ function Seksjon({ tittel, forklaring, farge, knappeverb, rader, valgt, settValg
 
   return (
     <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-1">
-        <div className="max-w-2xl">
+      <div className="flex items-start justify-between gap-4 mb-1">
+        <div className="max-w-2xl min-w-0">
           <h2 className="text-lg font-semibold text-gray-900">{tittel}</h2>
           <p className="text-sm text-gray-500 mt-1">{forklaring}</p>
         </div>
-        <div className="text-right">
+        <div className="text-right flex-shrink-0">
           <button
             onClick={() => onSend(valgteIder)}
             disabled={knappAv}
@@ -269,9 +270,10 @@ export default function AdminOppfolging() {
           normaltilstand som kan vare i uker, ikke en alarm. */}
       {motorOff && (
         <div className="mb-6 rounded-xl border border-sky-200 bg-sky-50 p-4">
-          <p className="font-semibold text-sky-900">Utsending er satt på pause</p>
+          <p className="font-semibold text-sky-900">Automatisk utsending er ikke skrudd på ennå</p>
           <p className="text-sm text-sky-800 mt-1">
-            Automatisk utsending er midlertidig stanset. Ingen e-post går ut før den skrus på igjen.
+            Systemet viser hvem som står for tur, men sender ingen e-post. Dette er normalt mens vi
+            tester — utsending skrus på når alt er klart.
           </p>
         </div>
       )}
@@ -284,7 +286,7 @@ export default function AdminOppfolging() {
           <Seksjon
             tittel="Purring — ikke svart"
             forklaring={`Skoler som ikke har svart innen ${terskler.purring_dager} dager. Går til hovedkontakten (Hovedkontakt TL) som en vennlig påminnelse.`}
-            farge={MAGENTA}
+            farge={ORANSJE}
             knappeverb="Send purring"
             rader={radPurring}
             valgt={valgtPurring}
@@ -298,7 +300,7 @@ export default function AdminOppfolging() {
           <Seksjon
             tittel="Ikke hørt fra skolen"
             forklaring={`Fortsatt ingen svar etter ${terskler.trinn3_dager} dager. Nå går invitasjonen også til skolens øvrige TL-ansvarlige — invitasjoner drukner fort i en travel innboks.`}
-            farge={MAGENTA}
+            farge={ORANSJE}
             knappeverb="Send til øvrige TL-ansvarlige"
             rader={trinn3Gruppert}
             valgt={valgtTrinn3}
