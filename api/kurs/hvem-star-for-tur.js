@@ -53,6 +53,16 @@ function dagerSiden(iso) {
   return Math.floor(ms / 86400000)
 }
 
+// Dagens dato i Norge som 'YYYY-MM-DD' (til dato-sammenligning i norsk tid).
+// Vercel kjører i UTC, så "i dag" må vurderes i Europe/Oslo, ikke i serverens sone.
+function osloDatoIdag() {
+  const deler = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Oslo', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date())
+  const g = (t) => deler.find(d => d.type === t)?.value
+  return `${g('year')}-${g('month')}-${g('day')}`
+}
+
 const gyldigEpost = (e) => typeof e === 'string' && e.trim() !== ''
 
 export default async function handler(req, res) {
@@ -136,10 +146,9 @@ export default async function handler(req, res) {
   const evaluering = []
   const mangler_epost = []
 
-  // Dagens dato (midnatt) — så et kurs "i dag" ikke veksler passert/ikke-passert
-  // gjennom døgnet.
-  const iDag = new Date()
-  iDag.setHours(0, 0, 0, 0)
+  // Dagens dato i Norge som 'YYYY-MM-DD' — så et kurs "i dag" ikke veksler
+  // passert/ikke-avholdt gjennom døgnet, og vurderes i norsk tid (ikke UTC).
+  const iDagOslo = osloDatoIdag()
 
   for (const k of (koblinger || [])) {
     const kurs = kursMap[k.kurs_id]
@@ -173,8 +182,13 @@ export default async function handler(req, res) {
 
     const ikkeSvart = !k.svart
     const svartJa = k.svart === true && k.kommer === true
-    const kursPassert = kurs.dato ? new Date(kurs.dato) < iDag : false
-    const kursIkkeAvholdt = kurs.dato ? new Date(kurs.dato) >= iDag : false
+    // Grensen er selve kursdagen: kurset holdes 13:00 og evalueringen skal ut
+    // kl 13:30 SAMME dag mens opplevelsen er fersk. Derfor teller "i dag" som
+    // passert (→ evaluering), ikke som ikke-avholdt (→ påminnelse). Med <= og >
+    // forblir listene gjensidig utelukkende — ingen skole havner i begge.
+    const kursDatoStr = kurs.dato ? String(kurs.dato).slice(0, 10) : null
+    const kursPassert = kursDatoStr ? kursDatoStr <= iDagOslo : false
+    const kursIkkeAvholdt = kursDatoStr ? kursDatoStr > iDagOslo : false
 
     // ---- 1) PURRING: ikke svart, gammel nok, ikke purret ennå ----
     if (ikkeSvart && !k.purring_sendt_at && dager !== null && dager >= purringDager) {

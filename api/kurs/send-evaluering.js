@@ -76,6 +76,16 @@ function osloMinutterNaa() {
   return t * 60 + m
 }
 
+// Dagens dato i Norge som 'YYYY-MM-DD' (til dato-sammenligning i norsk tid).
+// Vercel kjører i UTC, så "i dag" må vurderes i Europe/Oslo, ikke i serverens sone.
+function osloDatoIdag() {
+  const deler = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Oslo', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date())
+  const g = (t) => deler.find(d => d.type === t)?.value
+  return `${g('year')}-${g('month')}-${g('day')}`
+}
+
 // "13:30" → minutter siden midnatt (null hvis ugyldig).
 function parseKlokkeslett(s) {
   const treff = /^(\d{1,2}):(\d{2})$/.exec((s || '').trim())
@@ -165,9 +175,10 @@ export default async function handler(req, res) {
 
   const from = `${avsenderNavn} <${avsenderEpost}>`
 
-  // ---- Finn kurs som er avholdt (kursdato passert) ----
-  const iDag = new Date()
-  iDag.setHours(0, 0, 0, 0)
+  // ---- Finn kurs som er avholdt (kursdato I DAG eller tidligere) ----
+  // Kurset holdes 13:00 og evalueringen skal ut kl 13:30 SAMME dag mens
+  // opplevelsen er fersk — derfor <= (ikke <). Norsk dato fordi Vercel er i UTC.
+  const iDagOslo = osloDatoIdag()
 
   const { data: kursRader, error: kursFeil } = await supabase
     .from('kurs')
@@ -176,7 +187,7 @@ export default async function handler(req, res) {
   if (kursFeil) {
     return res.status(500).json({ error: 'Kunne ikke hente kurs: ' + kursFeil.message })
   }
-  const avholdteKurs = (kursRader || []).filter(k => k.dato && new Date(k.dato) < iDag)
+  const avholdteKurs = (kursRader || []).filter(k => k.dato && String(k.dato).slice(0, 10) <= iDagOslo)
   const kursMap = Object.fromEntries(avholdteKurs.map(k => [k.id, k]))
   const avholdteIder = Object.keys(kursMap)
 

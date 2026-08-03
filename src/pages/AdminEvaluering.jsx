@@ -8,6 +8,15 @@ const KJOP_ETIKETT = {
   nei: 'Nei',
 }
 
+function formaterDato(iso) {
+  if (!iso) return ''
+  try {
+    return new Date(iso).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  } catch {
+    return ''
+  }
+}
+
 export default function AdminEvaluering() {
   const [rader, setRader] = useState([])
   const [laster, setLaster] = useState(true)
@@ -17,6 +26,7 @@ export default function AdminEvaluering() {
   const [valgtKurs, setValgtKurs] = useState('')
   const [mottakere, setMottakere] = useState([])
   const [henterMottakere, setHenterMottakere] = useState(false)
+  const [kopiert, setKopiert] = useState(null)
 
   const [aktivtSemester, setAktivtSemester] = useState(null)
   const [sporsmal, setSporsmal] = useState([])
@@ -144,7 +154,7 @@ export default function AdminEvaluering() {
     // henter skolens øvrige kontakt-e-poster og lar finnMottaker velge.
     const { data: kontakter, error: kontaktFeil } = await supabase
       .from('kurs_skole')
-      .select('skole_id, skoler(navn, hktl_epost, htla_epost, rektor_epost)')
+      .select('skole_id, evaluering_sendt_at, skoler(navn, hktl_epost, htla_epost, rektor_epost)')
       .eq('kurs_id', kursId)
       .range(0, 9999)
     setHenterMottakere(false)
@@ -158,7 +168,7 @@ export default function AdminEvaluering() {
       const mottaker = kontakt
         ? finnMottaker(kontakt.skoler)
         : finnMottaker({ hktl_epost: m.hktl_epost })
-      return { ...m, mottaker }
+      return { ...m, mottaker, evaluering_sendt_at: kontakt?.evaluering_sendt_at ?? null }
     })
     setMottakere(beriket)
   }
@@ -167,16 +177,16 @@ export default function AdminEvaluering() {
     return basis + '/evaluering/' + token
   }
 
-  function sendEpost(mottaker) {
-    const lenke = lenkeFor(mottaker.token)
-    const emne = encodeURIComponent('Evaluering av lekekurset')
-    const tekst = encodeURIComponent(
-      'Hei,\n\nTusen takk for at dere var med på lekekurs!\n\n' +
-      'Vi setter stor pris på en kort tilbakemelding – det tar bare et par minutter:\n' +
-      lenke + '\n\n' +
-      'Vennlig hilsen\nTrivselsleder'
-    )
-    window.location.href = 'mailto:' + (mottaker.mottaker?.epost || '') + '?subject=' + emne + '&body=' + tekst
+  // Evalueringen sendes nå automatisk (cron kl 13:30 på kursdagen). Kopier lenke
+  // er reserven når RA vil sende manuelt — mailto-løsningen er borte.
+  async function kopierLenke(mottaker, i) {
+    try {
+      await navigator.clipboard.writeText(lenkeFor(mottaker.token))
+      setKopiert(i)
+      setTimeout(() => setKopiert(null), 1500)
+    } catch {
+      alert('Kunne ikke kopiere automatisk. Marker lenken og kopier manuelt.')
+    }
   }
 
   function lastNedCsv() {
@@ -359,8 +369,8 @@ export default function AdminEvaluering() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">Send evaluering</h3>
-        <p className="text-sm text-gray-500 mb-4">Velg et gjennomført kurs og send evalueringslenke til skolene.</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-1">Evalueringsutsending</h3>
+        <p className="text-sm text-gray-500 mb-4">Velg et kurs for å se status per skole. Evalueringen sendes automatisk — du trenger ikke gjøre noe her.</p>
 
         <select
           value={valgtKurs}
@@ -412,9 +422,16 @@ export default function AdminEvaluering() {
                         : <span className="text-gray-400">Ikke svart</span>}
                     </td>
                     <td className="px-4 py-2 text-right">
-                      {m.mottaker?.epost
-                        ? <button onClick={() => sendEpost(m)} className="text-orange hover:underline">Send e-post</button>
-                        : <span className="text-gray-300 text-xs">—</span>}
+                      <div className="flex flex-col items-end gap-1">
+                        {m.evaluering_sendt_at
+                          ? <span className="text-gray-700 text-xs">Sendt {formaterDato(m.evaluering_sendt_at)}</span>
+                          : <span className="text-gray-400 text-xs">Sendes automatisk kl 13:30 på kursdagen</span>}
+                        {m.token && (
+                          <button onClick={() => kopierLenke(m, i)} className="text-orange hover:underline text-xs">
+                            {kopiert === i ? 'Kopiert!' : 'Kopier lenke'}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -423,7 +440,8 @@ export default function AdminEvaluering() {
           </div>
         )}
         <p className="text-xs text-gray-400 mt-3">
-          Åpner e-posten din med ferdig lenke. Automatisk utsending kommer senere.
+          Evalueringen sendes automatisk kl 13:30 på kursdagen. «Kopier lenke» er en reserve
+          hvis du vil dele lenken manuelt.
         </p>
       </div>
 

@@ -65,7 +65,7 @@ export default async function handler(req, res) {
   const { data: innstRader, error: innstFeil } = await supabase
     .from('innstillinger')
     .select('nokkel, verdi')
-    .in('nokkel', ['avsender_navn', 'avsender_epost', 'svar_til_epost', 'nettsted_url'])
+    .in('nokkel', ['avsender_navn', 'avsender_epost', 'svar_til_epost', 'nettsted_url', 'motor_aktiv'])
 
   if (innstFeil) {
     return res.status(500).json({ error: 'Kunne ikke lese innstillinger: ' + innstFeil.message })
@@ -75,6 +75,7 @@ export default async function handler(req, res) {
   const avsenderEpost = innst.avsender_epost
   const svarTilEpost = innst.svar_til_epost
   const nettstedUrl = (innst.nettsted_url || '').trim().replace(/\/+$/, '')
+  const motorAktiv = (innst.motor_aktiv || '').trim().toLowerCase()
 
   if (!avsenderEpost || !avsenderNavn) {
     return res.status(500).json({
@@ -86,6 +87,16 @@ export default async function handler(req, res) {
       error: 'Mangler nettsted_url i innstillinger-tabellen — kan ikke bygge svarlenke. Legg inn nøkkelen (f.eks. https://trivselsleder-ny.vercel.app) og prøv igjen.',
     })
   }
+  // NØDBREMS: motor_aktiv = 'nei' → ekte sending nektes (tørrkjøring er lov).
+  // Samme bryter uten unntak som send-oppfolging/send-evaluering/varsle-eivind.
+  if (!torrkjoring && motorAktiv === 'nei') {
+    return res.status(409).json({
+      error: 'Nødbremsen er på: motor_aktiv står på «nei». Ekte utsending er stanset. ' +
+             'Tørrkjøring (torrkjoring:true) er fortsatt tillatt for å se hva som ville gått ut.',
+      motor_aktiv: motorAktiv,
+    })
+  }
+
   const from = `${avsenderNavn} <${avsenderEpost}>`
   const lenkeFor = (token) => `${nettstedUrl}/svar/${token}`
 
@@ -267,6 +278,7 @@ export default async function handler(req, res) {
   return res.status(200).json({
     ok: feilet.length === 0,
     torrkjoring,
+    motor_aktiv: motorAktiv || null,
     kurs: { id: kurs.id, navn: kurs.navn },
     antall_skoler: (koblinger || []).length,
     ...(torrkjoring
