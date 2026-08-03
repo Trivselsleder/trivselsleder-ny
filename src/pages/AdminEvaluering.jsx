@@ -17,6 +17,20 @@ function formaterDato(iso) {
   }
 }
 
+// Pris er integer i basen. toLocaleString('no-NO') gir tusenskille med mellomrom
+// («7 119»), likt resten av systemet. Returnerer null når prisen mangler.
+function formaterKr(pris) {
+  if (pris == null) return null
+  return pris.toLocaleString('no-NO') + ' kr'
+}
+
+// «Liten lekekurspakke (7 119 kr)» — navn alene hvis pris mangler, «—» uten pakke.
+function pakkeTekst(r) {
+  if (!r.valgt_pakke_navn) return '—'
+  const pris = formaterKr(r.valgt_pakke_pris)
+  return pris ? `${r.valgt_pakke_navn} (${pris})` : r.valgt_pakke_navn
+}
+
 export default function AdminEvaluering() {
   const [rader, setRader] = useState([])
   const [laster, setLaster] = useState(true)
@@ -498,7 +512,7 @@ export default function AdminEvaluering() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-gray-600">
-                          {r.valgt_pakke_navn ? r.valgt_pakke_navn + ' (' + (r.valgt_pakke_pris != null ? r.valgt_pakke_pris.toLocaleString('no-NO') + ' kr' : '—') + ')' : '—'}
+                          {pakkeTekst(r)}
                         </td>
                       </tr>
                     ))}
@@ -542,6 +556,7 @@ export default function AdminEvaluering() {
                     <th className="px-4 py-3 text-center">Info</th>
                     <th className="px-4 py-3 text-center">Aktiv.</th>
                     <th className="px-4 py-3">Kjøp</th>
+                    <th className="px-4 py-3">Pakke</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -553,6 +568,7 @@ export default function AdminEvaluering() {
                       <td className="px-4 py-3 text-center">{r.vurd_info ?? '—'}</td>
                       <td className="px-4 py-3 text-center">{r.vurd_aktiviteter ?? '—'}</td>
                       <td className="px-4 py-3 text-gray-600">{KJOP_ETIKETT[r.kjopsinteresse] ?? '—'}</td>
+                      <td className="px-4 py-3 text-gray-600">{pakkeTekst(r)}</td>
                     </tr>
                   ))}
                 </tbody>
