@@ -6,6 +6,10 @@ export default function SvarOversikt({ kurs, onLukk }) {
   const [laster, setLaster] = useState(true)
   const [andreKurs, setAndreKurs] = useState([])
   const [flytterRad, setFlytterRad] = useState(null)
+  // Påminnelse etter flytting: skolen sitter igjen med invitasjon om gammel hall
+  // og dato, så den MÅ inviteres på nytt. Banneret har med vilje ikke kryss — det
+  // er en oppgave, ikke en kvittering — og står til modalen lukkes.
+  const [flyttetTil, setFlyttetTil] = useState(null) // { skole, kursNavn }
 
   async function hent() {
     setLaster(true)
@@ -46,7 +50,12 @@ export default function SvarOversikt({ kurs, onLukk }) {
       alert('Kunne ikke flytte skolen. Prøv igjen.')
       return
     }
+    // Slå opp navnene FØR hent() fjerner raden fra denne lista (den hører nå til
+    // det nye kurset), så banneret kan navngi både skolen og målkurset.
+    const skoleNavn = rader.find(r => r.id === id)?.skoler?.navn || 'Skolen'
+    const kursNavn = andreKurs.find(k => k.id === nyttKursId)?.navn || 'det nye kurset'
     setFlytterRad(null)
+    setFlyttetTil({ skole: skoleNavn, kursNavn })
     hent()
   }
 
@@ -83,6 +92,23 @@ export default function SvarOversikt({ kurs, onLukk }) {
           <button onClick={onLukk} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
         </div>
         <p className="text-sm text-gray-500 mb-4">{kurs.navn} — nettverk: {kurs.nettverk || '—'}</p>
+
+        {/* Påminnelse etter flytting — bevisst uten lukkekryss (oppgave, ikke
+            kvittering). Står til modalen lukkes. */}
+        {flyttetTil && (
+          <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4">
+            <p className="font-semibold text-amber-900">
+              «{flyttetTil.skole}» er flyttet til «{flyttetTil.kursNavn}»
+            </p>
+            <p className="text-sm text-amber-800 mt-1">
+              Hall og dato er nye, så invitasjonen skolen allerede fikk er utdatert. Skolen står nå
+              som «Ikke sendt» på det nye kurset.
+            </p>
+            <p className="text-sm font-medium text-amber-900 mt-2">
+              → Gå til «{flyttetTil.kursNavn}» og trykk «Send invitasjoner» for å sende oppdatert invitasjon.
+            </p>
+          </div>
+        )}
 
         {laster && <p className="text-gray-400">Laster …</p>}
 
