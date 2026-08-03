@@ -22,6 +22,16 @@ function formaterDato(iso) {
   }
 }
 
+// Kort dato (uten år) til det sekundære «· sendt»-tillegget når skolen har svart.
+function formaterDatoKort(iso) {
+  if (!iso) return ''
+  try {
+    return new Date(iso).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit' })
+  } catch {
+    return ''
+  }
+}
+
 export default function SendLenker({ kurs, onLukk }) {
   const [rader, setRader] = useState([])
   const [laster, setLaster] = useState(true)
@@ -131,11 +141,22 @@ export default function SendLenker({ kurs, onLukk }) {
   const antallASende = rader.filter(r => !r.forste_utsending_at).length
   const knappAv = motorOff || sender || antallASende === 0
 
+  // Svar-status er viktigere enn sendt-status for en RA, så «Svart» leses først —
+  // selv etter at invitasjonen er sendt. Sendt-datoen henger på som en rolig hale.
   function statusCelle(r) {
+    if (r.svart) {
+      return (
+        <span className="text-green-700">
+          Svart
+          {r.forste_utsending_at && (
+            <span className="text-gray-400"> · sendt {formaterDatoKort(r.forste_utsending_at)}</span>
+          )}
+        </span>
+      )
+    }
     if (r.forste_utsending_at) {
       return <span className="text-gray-700">Sendt {formaterDato(r.forste_utsending_at)}</span>
     }
-    if (r.svart) return <span className="text-green-700">Svart</span>
     return <span className="text-gray-400">Ikke sendt</span>
   }
 
