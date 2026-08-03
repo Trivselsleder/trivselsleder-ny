@@ -20,11 +20,15 @@ export default function KursMetaOversikt() {
         const koblet = rader.length
         const inviterteRader = rader.filter(r => r.forste_utsending_at)
         const invitert = inviterteRader.length
-        // «Har svart» måles mot SAMME grunnlag (de inviterte), så prosenten aldri
-        // kan overstige 100. Kommer/Kommer ikke er absolutte svar-tall og står urørt.
+        // Alle fire kortene måles mot SAMME grunnlag (de inviterte), så tallene
+        // henger sammen: «Har svart»-prosenten kan aldri overstige 100, og
+        // Kommer/Kommer ikke kan aldri overstige «Har svart». Uten dette ville en
+        // manuelt kopiert lenke til en ikke-invitert skole gi svar som telte i
+        // Kommer men ikke i Har svart — og se ut som en feil. Gapet koblet↔invitert
+        // fanges av underteksten «av N koblede», ikke ved å blande grunnlag.
         const svart = inviterteRader.filter(r => r.svart).length
-        const kommer = rader.filter(r => r.svart && r.kommer === true).length
-        const kommerIkke = rader.filter(r => r.svart && r.kommer === false).length
+        const kommer = inviterteRader.filter(r => r.svart && r.kommer === true).length
+        const kommerIkke = inviterteRader.filter(r => r.svart && r.kommer === false).length
         const prosent = invitert > 0 ? Math.round((svart / invitert) * 100) : 0
         setTall({ koblet, invitert, svart, kommer, kommerIkke, prosent })
       })
