@@ -52,6 +52,13 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
+    tittel: 'Tekster og maler',
+    beskrivelse: 'Rediger e-postene, kursinformasjonssiden, avsenderadresser og tidsfrister.',
+    ikon: '✏️',
+    til: '/admin/tekster',
+    roller: ['superadmin', 'ansatt'],
+  },
+  {
     tittel: 'Brukere',
     beskrivelse: 'Administrer brukere og roller.',
     ikon: '👥',

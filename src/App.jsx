@@ -25,6 +25,7 @@ import Admin from './pages/Admin'
 import AdminKursplanlegger from './pages/AdminKursplanlegger'
 import AdminLedelse from './pages/AdminLedelse'
 import AdminHaller from './pages/AdminHaller'
+import AdminTekster from './pages/AdminTekster'
 import SvarSkjema from './pages/SvarSkjema'
 import KursInfo from './pages/KursInfo'
 import EvalueringSkjema from './pages/EvalueringSkjema'
@@ -115,6 +116,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/admin/tekster" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminTekster /></ProtectedRoute>} />
               <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle="superadmin"><AdminLedelse /></ProtectedRoute>} />
               <Route path="/admin/kortutdeling" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortutdeling /></ProtectedRoute>} />
               <Route path="/admin/oppfolging" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminOppfolging /></ProtectedRoute>} />
