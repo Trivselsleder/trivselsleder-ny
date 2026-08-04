@@ -52,7 +52,11 @@ const TYPER = {
     tekstNokkel: 'epost_paaminnelse_tekst',
     logg: 'paaminnelse',
     mottakerRolle: 'htla',
-    knapptekst: 'Se påmeldingen',
+    // A5: skolen har alt svart JA når påminnelsen går ut. Svarskjemaet har de
+    // lite igjen for — det de trenger nå er kursinformasjonssiden. Purring og
+    // trinn 3 går til skoler som IKKE har svart, og peker fortsatt på skjemaet.
+    knapptekst: 'Les kursinformasjonen',
+    knappTil: 'kursinfo',
   },
 }
 
@@ -88,10 +92,18 @@ function fyllPlassholdere(mal, verdier) {
     (nokkel in verdier ? (verdier[nokkel] ?? '') : treff))
 }
 
+// En naken URL i malen blir klikkbar. Kjøres ETTER escapeHtml, så det som
+// gjøres om til <a> er allerede ufarliggjort tekst — ingen ny injeksjonsvei.
+// Trengs fordi {kursinfolenke} skrives inn som ren adresse i malteksten.
+function lenkeggjor(escapet) {
+  return escapet.replace(/https?:\/\/[^\s<)"]+/g, (url) =>
+    `<a href="${url}" style="color:#D6006E;">${url}</a>`)
+}
+
 // Ren tekst → HTML: tom linje = nytt avsnitt, enkel linjeskift = <br>.
 // Hele teksten escapes så skoledata/tekst ikke kan injisere HTML.
 function tekstTilHtml(tekst) {
-  const esc = escapeHtml(tekst)
+  const esc = lenkeggjor(escapeHtml(tekst))
   return esc
     .split(/\n[ \t]*\n/)
     .map(a => a.trim())
@@ -191,6 +203,9 @@ export default async function handler(req, res) {
 
   const from = `${avsenderNavn} <${avsenderEpost}>`
   const lenkeFor = (token) => `${nettstedUrl}/svar/${token}`
+  // A5: samme token, annen side. Kursinformasjonssiden viser fakta om kurset
+  // pluss den felles teksten fra innstillinger.
+  const kursinfoLenkeFor = (token) => `${nettstedUrl}/kursinfo/${token}`
 
   // ---- Radene RA huket av, med skolenavn og mottakere (FELLE 2) ----
   const { data: rader, error: raderFeil } = await supabase
@@ -333,17 +348,28 @@ export default async function handler(req, res) {
     const tekstKilde = fjernTommePlassholderLinjer(tekstMal, grunnverdier)
 
     const byggEpost = (m) => {
-      const verdier = { ...grunnverdier, mottaker_navn: m.navn || '' }
+      // {kursinfolenke} er per MOTTAKER (bygget på deres egen token), ikke per
+      // rad — derfor her og ikke i grunnverdier. Den er aldri tom, så den kan
+      // ikke få strip-regelen til å fjerne en linje.
+      const verdier = {
+        ...grunnverdier,
+        mottaker_navn: m.navn || '',
+        kursinfolenke: kursinfoLenkeFor(m.lenke_token),
+      }
       const emne = fyllPlassholdere(emneMal, verdier)
       const brødtekst = tekstTilHtml(fyllPlassholdere(tekstKilde, verdier))
       const knapptekst = fyllPlassholdere(cfg.knapptekst, verdier)
-      const lenke = lenkeFor(m.lenke_token)
+      const lenke = cfg.knappTil === 'kursinfo'
+        ? kursinfoLenkeFor(m.lenke_token)
+        : lenkeFor(m.lenke_token)
       const html = epostMal({
         overskrift: escapeHtml(emne),
         brødtekst,
         knapptekst,
         knapplenke: lenke,
-        fottekst: 'Lenken er personlig for din skole. Svar på selve e-posten blir ikke lest eller registrert — bruk skjemaet.',
+        fottekst: cfg.knappTil === 'kursinfo'
+          ? 'Lenken er personlig for din skole. Svar på selve e-posten blir ikke lest eller registrert.'
+          : 'Lenken er personlig for din skole. Svar på selve e-posten blir ikke lest eller registrert — bruk skjemaet.',
       })
       return { emne, html, lenke }
     }

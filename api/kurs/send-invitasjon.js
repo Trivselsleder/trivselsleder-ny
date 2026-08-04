@@ -39,10 +39,18 @@ function fyllPlassholdere(mal, verdier) {
     (nokkel in verdier ? (verdier[nokkel] ?? '') : treff))
 }
 
+// En naken URL i malen blir klikkbar. Kjøres ETTER escapeHtml, så det som
+// gjøres om til <a> er allerede ufarliggjort tekst — ingen ny injeksjonsvei.
+// Trengs fordi {kursinfolenke} skrives inn som ren adresse i malteksten.
+function lenkeggjor(escapet) {
+  return escapet.replace(/https?:\/\/[^\s<)"]+/g, (url) =>
+    `<a href="${url}" style="color:#D6006E;">${url}</a>`)
+}
+
 // Ren tekst → HTML: tom linje = nytt avsnitt, enkel linjeskift = <br>.
 // Hele teksten escapes så skoledata/tekst ikke kan injisere HTML.
 function tekstTilHtml(tekst) {
-  const esc = escapeHtml(tekst)
+  const esc = lenkeggjor(escapeHtml(tekst))
   return esc
     .split(/\n[ \t]*\n/)
     .map(a => a.trim())
@@ -137,6 +145,10 @@ export default async function handler(req, res) {
 
   const from = `${avsenderNavn} <${avsenderEpost}>`
   const lenkeFor = (token) => `${nettstedUrl}/svar/${token}`
+  // A5: samme token, annen side. Invitasjonens KNAPP peker fortsatt på
+  // svarskjemaet — skolen har ikke svart ennå. Men {kursinfolenke} er
+  // tilgjengelig i malen for den som vil nevne siden i teksten.
+  const kursinfoLenkeFor = (token) => `${nettstedUrl}/kursinfo/${token}`
 
   // ---- Kurs (hentes direkte på id — ingen embed, så tvetydigheten mellom de to
   //      fremmednøklene kurs_skole→kurs oppstår ikke i det hele tatt) ----
@@ -236,6 +248,7 @@ export default async function handler(req, res) {
       oppmotetid: oppmoteRaa ? String(oppmoteRaa).slice(0, 5) : '',
       vertskapsnotat: kobling.er_vertskap ? vertskapNotat : '',
       mottaker_navn: htla.navn || '',
+      kursinfolenke: kursinfoLenkeFor(htla.lenke_token),
     }
     const emne = fyllPlassholdere(emneMal, verdier)
     const tekstUtenTomme = fjernTommePlassholderLinjer(tekstMal, verdier)

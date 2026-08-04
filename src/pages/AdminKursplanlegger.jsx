@@ -31,6 +31,7 @@ const TOMT_KURS = {
   start_tid: '09:00', slutt_tid: '13:00',
   oppmote_vertskap: '', oppmote_ovrige: '',
   uke: '', dag: '', antall_tl: '', antall_skoler: '', maks_antall: '', merknad: '',
+  kursinfo_tillegg: '',
 }
 
 // Maks antall treff som rendres i dropdownen — å tegne hundrevis av rader er
@@ -714,6 +715,18 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
             <label className="block text-sm text-gray-600 mb-1">Merknad</label>
             <input value={verdi.merknad || ''}
               onChange={e => onEndre({ ...verdi, merknad: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+          </div>
+          {/* A5: vises på kursinformasjonssiden UNDER faktaboksen, over den
+              felles teksten. Står feltet tomt, vises ingenting. Merknad er
+              intern; dette feltet leses av skolen. */}
+          <div className="sm:col-span-3">
+            <label htmlFor="kursinfoTillegg" className="block text-sm text-gray-600 mb-1">
+              Spesielt for dette kurset <span className="text-gray-400">(valgfritt — vises for skolene på kursinformasjonssiden)</span>
+            </label>
+            <textarea id="kursinfoTillegg" rows="3" value={verdi.kursinfo_tillegg || ''}
+              onChange={e => onEndre({ ...verdi, kursinfo_tillegg: e.target.value })}
+              placeholder="F.eks. «Dette kurset har felles opplæring for alle skolene, ikke eget vertskap.»"
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
           </div>
         </div>

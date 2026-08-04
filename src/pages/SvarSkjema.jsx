@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 // Svar-skjema for skoler (erstatter QuestBack).
@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 
 export default function SvarSkjema() {
   const { token } = useParams();
+  const navigate = useNavigate();
 
   const [laster, setLaster] = useState(true);
   const [feil, setFeil] = useState('');
@@ -94,6 +95,14 @@ export default function SvarSkjema() {
     setSender(false);
     if (error) {
       setFeil('Noe gikk galt da vi lagret svaret. Prøv igjen.');
+      return;
+    }
+    // A5: sier skolen JA, er svaret ikke slutten — det er overgangen til «nå
+    // skal dere forberede dere». Da sendes de rett til kursinformasjonssiden,
+    // med kvitteringen øverst der (?takk=1). Sier de NEI, har siden ingenting
+    // å gi dem, og de får den vanlige kvitteringen her.
+    if (kommer === true) {
+      navigate(`/kursinfo/${token}?takk=1`, { replace: true });
       return;
     }
     setFerdig(true);

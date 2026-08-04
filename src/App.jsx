@@ -26,6 +26,7 @@ import AdminKursplanlegger from './pages/AdminKursplanlegger'
 import AdminLedelse from './pages/AdminLedelse'
 import AdminHaller from './pages/AdminHaller'
 import SvarSkjema from './pages/SvarSkjema'
+import KursInfo from './pages/KursInfo'
 import EvalueringSkjema from './pages/EvalueringSkjema'
 import './index.css'
 
@@ -48,6 +49,7 @@ export default function App() {
               <Route path="/auth/feide/callback" element={<FeideCallback />} />
               <Route path="/paamelding" element={<Paamelding />} />
               <Route path="/svar/:token" element={<SvarSkjema />} />
+              <Route path="/kursinfo/:token" element={<KursInfo />} />
               <Route path="/evaluering/:token" element={<EvalueringSkjema />} />
               <Route
                 path="/min-side"
