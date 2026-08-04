@@ -90,7 +90,7 @@ export default async function handler(req, res) {
     .select('nokkel, verdi')
     .in('nokkel', [
       'avsender_navn', 'avsender_epost', 'svar_til_epost', 'nettsted_url', 'motor_aktiv',
-      'epost_invitasjon_emne', 'epost_invitasjon_tekst',
+      'epost_invitasjon_emne', 'epost_invitasjon_tekst', 'epost_vertskap_notat',
     ])
 
   if (innstFeil) {
@@ -104,6 +104,8 @@ export default async function handler(req, res) {
   const motorAktiv = (innst.motor_aktiv || '').trim().toLowerCase()
   const emneMal = innst.epost_invitasjon_emne
   const tekstMal = innst.epost_invitasjon_tekst
+  // Mangler innstillingen → tom streng (linja strippes), ikke avbryt.
+  const vertskapNotat = innst.epost_vertskap_notat || ''
 
   if (!avsenderEpost || !avsenderNavn) {
     return res.status(500).json({
@@ -232,6 +234,7 @@ export default async function handler(req, res) {
       kursdato: kursDato,
       hall: hallNavn,
       oppmotetid: oppmoteRaa ? String(oppmoteRaa).slice(0, 5) : '',
+      vertskapsnotat: kobling.er_vertskap ? vertskapNotat : '',
       mottaker_navn: htla.navn || '',
     }
     const emne = fyllPlassholdere(emneMal, verdier)

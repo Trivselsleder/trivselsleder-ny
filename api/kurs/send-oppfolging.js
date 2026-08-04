@@ -100,6 +100,23 @@ function tekstTilHtml(tekst) {
     .join('\n')
 }
 
+// Er en {plassholder} på en linje tom, fjernes HELE linja før utfylling — «Sted: »
+// eller en synlig {vertskapsnotat} er verre enn ingen linje. Vurderes mot verdiene
+// vi har (grunnverdier), så alltid-tilstede felter som {mottaker_navn} aldri rører
+// hilsen-linja.
+function fjernTommePlassholderLinjer(mal, verdier) {
+  return String(mal || '')
+    .split('\n')
+    .filter(linje => {
+      const tokens = linje.match(/\{(\w+)\}/g) || []
+      return !tokens.some(t => {
+        const nokkel = t.slice(1, -1)
+        return nokkel in verdier && (verdier[nokkel] === '' || verdier[nokkel] == null)
+      })
+    })
+    .join('\n')
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -128,7 +145,7 @@ export default async function handler(req, res) {
     .select('nokkel, verdi')
     .in('nokkel', [
       'avsender_navn', 'avsender_epost', 'svar_til_epost', 'nettsted_url',
-      'motor_aktiv', 'purring_dager', 'trinn3_dager',
+      'motor_aktiv', 'purring_dager', 'trinn3_dager', 'epost_vertskap_notat',
       cfg.emneNokkel, cfg.tekstNokkel,
     ])
 
@@ -146,6 +163,8 @@ export default async function handler(req, res) {
   const trinn3Dager = Number.parseInt(innst.trinn3_dager, 10)
   const emneMal = innst[cfg.emneNokkel]
   const tekstMal = innst[cfg.tekstNokkel]
+  // Mangler innstillingen → tom streng (linja strippes), ikke avbryt.
+  const vertskapNotat = innst.epost_vertskap_notat || ''
 
   if (!avsenderEpost || !avsenderNavn) {
     return res.status(500).json({ error: 'Mangler avsender_navn/avsender_epost i innstillinger-tabellen.' })
@@ -302,15 +321,16 @@ export default async function handler(req, res) {
       kursdato: formaterDato(kurs.dato),
       hall: (kurs.hall_id && hallMap[kurs.hall_id]) || '',
       oppmotetid,
+      // Vertskapsnotat følger er_vertskap på DENNE raden — vertskap får setningen,
+      // øvrige får tom streng (og linja strippes under).
+      vertskapsnotat: row.er_vertskap ? vertskapNotat : '',
       antall_tl: row.antall_tl == null ? '' : String(row.antall_tl),
     }
 
-    // Ingen oppmøtetid satt? Fjern HELE linja som inneholder {oppmotetid} fra malen.
-    // Å falle tilbake på start_tid (når kurset BEGYNNER) ville fått skolen til å møte
-    // for sent — verre enn å utelate linja. De fleste kurs har ingen tid satt ennå.
-    const tekstKilde = oppmotetid
-      ? tekstMal
-      : String(tekstMal).split('\n').filter(l => !l.includes('{oppmotetid}')).join('\n')
+    // Tom plassholder → HELE linja fjernes. Dekker {oppmotetid}, {hall} og
+    // {vertskapsnotat} — å falle tilbake på start_tid, eller vise «Sted: » eller
+    // en literal {vertskapsnotat}, er verre enn å utelate linja.
+    const tekstKilde = fjernTommePlassholderLinjer(tekstMal, grunnverdier)
 
     const byggEpost = (m) => {
       const verdier = { ...grunnverdier, mottaker_navn: m.navn || '' }
