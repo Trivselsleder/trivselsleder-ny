@@ -130,14 +130,15 @@ function KursOversikt() {
   }
 
   // Vertskapsskolene per kurs — så RA ser hvem som har rollen rett i lista.
-  // Flere skoler kan være vertskap på samme kurs.
+  // Flere skoler kan være vertskap på samme kurs. vertskap_bekreftet === false er
+  // et eksplisitt NEI (kurset kan stå uten hall); null = ikke svart ennå.
   function hentVertskap() {
-    supabase.from('kurs_skole').select('kurs_id, skoler(navn)').eq('er_vertskap', true).range(0, 99999)
+    supabase.from('kurs_skole').select('kurs_id, vertskap_bekreftet, skoler(navn)').eq('er_vertskap', true).range(0, 99999)
       .then(({ data }) => {
         const kart = {}
         for (const rad of (data ?? [])) {
           if (!kart[rad.kurs_id]) kart[rad.kurs_id] = []
-          kart[rad.kurs_id].push(rad.skoler?.navn || '—')
+          kart[rad.kurs_id].push({ navn: rad.skoler?.navn || '—', nei: rad.vertskap_bekreftet === false })
         }
         setVertskapPerKurs(kart)
       })
@@ -223,17 +224,22 @@ function KursOversikt() {
             <tbody>
               {kurs.map(k => (
                 <tr key={k.id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{k.navn || '—'}</td>
-                  <td className="px-4 py-3">{formaterDato(k.dato)}</td>
-                  <td className="px-4 py-3">{hallNavn(k.hall_id)}</td>
-                  <td className="px-4 py-3">
-                    {antallPerKurs[k.id] || 0}
+                  <td className="px-4 py-3 font-medium">
+                    {k.navn || '—'}
                     {vertskapPerKurs[k.id]?.length > 0 && (
-                      <div className="mt-0.5 text-xs text-orange-700">
-                        🏠 Vertskap: {vertskapPerKurs[k.id].join(', ')}
+                      <div className="mt-1 text-xs font-normal text-orange-700">
+                        🏠 Vertskap: {vertskapPerKurs[k.id].map(v => v.navn).join(', ')}
+                      </div>
+                    )}
+                    {vertskapPerKurs[k.id]?.some(v => v.nei) && (
+                      <div className="mt-1 text-xs font-semibold text-red-700">
+                        ⚠ Vertskap sa NEI — kurset kan stå uten hall
                       </div>
                     )}
                   </td>
+                  <td className="px-4 py-3">{formaterDato(k.dato)}</td>
+                  <td className="px-4 py-3">{hallNavn(k.hall_id)}</td>
+                  <td className="px-4 py-3">{antallPerKurs[k.id] || 0}</td>
                   <td className="px-4 py-3">{holderNavn(k.kursholder_id)}</td>
                   <td className="px-4 py-3">{k.ra || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">

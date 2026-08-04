@@ -177,7 +177,7 @@ export default async function handler(req, res) {
   const { data: rader, error: raderFeil } = await supabase
     .from('kurs_skole')
     .select(`
-      id, kurs_id, svart, kommer, antall_tl,
+      id, kurs_id, svart, kommer, antall_tl, er_vertskap,
       forste_utsending_at, purring_sendt_at, trinn3_sendt_at,
       paaminnelse_sendt_at, evaluering_sendt_at,
       skoler(navn),
@@ -195,7 +195,7 @@ export default async function handler(req, res) {
   if (kursIder.length > 0) {
     const { data: kursRader, error: kursFeil } = await supabase
       .from('kurs')
-      .select('id, navn, dato, hall_id, start_tid')
+      .select('id, navn, dato, hall_id, start_tid, oppmote_vertskap, oppmote_ovrige')
       .in('id', kursIder)
     if (kursFeil) {
       return res.status(500).json({ error: 'Kunne ikke hente kurs: ' + kursFeil.message })
@@ -289,20 +289,33 @@ export default async function handler(req, res) {
       continue
     }
 
+    // OPPMØTETID: styres av er_vertskap på DENNE svar-raden (skolen), ikke av
+    // mottakerrollen. Vertskap møter tidligere for å rigge; øvrige møter senere.
+    // Alle mottakere ved samme skole får samme tid. time kommer som «HH:MM:SS».
+    const oppmoteRaa = row.er_vertskap ? kurs.oppmote_vertskap : kurs.oppmote_ovrige
+    const oppmotetid = oppmoteRaa ? String(oppmoteRaa).slice(0, 5) : ''
+
     // Plassholder-verdier felles for raden (mottaker_navn settes per mottaker)
     const grunnverdier = {
       skolenavn: skoleNavn,
       kursnavn: kurs.navn || '',
       kursdato: formaterDato(kurs.dato),
       hall: (kurs.hall_id && hallMap[kurs.hall_id]) || '',
-      oppmotetid: kurs.start_tid || '',
+      oppmotetid,
       antall_tl: row.antall_tl == null ? '' : String(row.antall_tl),
     }
+
+    // Ingen oppmøtetid satt? Fjern HELE linja som inneholder {oppmotetid} fra malen.
+    // Å falle tilbake på start_tid (når kurset BEGYNNER) ville fått skolen til å møte
+    // for sent — verre enn å utelate linja. De fleste kurs har ingen tid satt ennå.
+    const tekstKilde = oppmotetid
+      ? tekstMal
+      : String(tekstMal).split('\n').filter(l => !l.includes('{oppmotetid}')).join('\n')
 
     const byggEpost = (m) => {
       const verdier = { ...grunnverdier, mottaker_navn: m.navn || '' }
       const emne = fyllPlassholdere(emneMal, verdier)
-      const brødtekst = tekstTilHtml(fyllPlassholdere(tekstMal, verdier))
+      const brødtekst = tekstTilHtml(fyllPlassholdere(tekstKilde, verdier))
       const knapptekst = fyllPlassholdere(cfg.knapptekst, verdier)
       const lenke = lenkeFor(m.lenke_token)
       const html = epostMal({
