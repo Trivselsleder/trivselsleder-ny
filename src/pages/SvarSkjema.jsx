@@ -158,6 +158,18 @@ export default function SvarSkjema() {
               {kobling.kurs_start_tid && <> kl. {kobling.kurs_start_tid.slice(0,5)}{kobling.kurs_slutt_tid && <>–{kobling.kurs_slutt_tid.slice(0,5)}</>}</>}
             </p>
           )}
+          {/* Oppmøtetiden er valgt etter er_vertskap inne i RPC-en — vi bare viser den.
+              Er den ikke satt, vises ingenting (ingen tom linje, ingen fallback til starttid). */}
+          {kobling.kurs_oppmotetid && (
+            <p className="text-sm text-gray-700 mt-1">
+              <span className="text-gray-500">Oppmøte:</span> <strong>{kobling.kurs_oppmotetid.slice(0, 5)}</strong>
+              {kobling.er_vertskap && (
+                <span className="block text-xs text-gray-500 mt-0.5">
+                  Dere er vertskap og møter tidligere enn kursstart for å rigge til.
+                </span>
+              )}
+            </p>
+          )}
         </div>
 
         <fieldset className="mb-8">
