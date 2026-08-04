@@ -136,8 +136,8 @@ export default function SvarOversikt({ kurs, onLukk }) {
   async function lagreSvar() {
     setSkjemaFeil('')
     if (kommer === null) { setSkjemaFeil('Velg om skolen kommer eller ikke.'); return }
-    if (kommer === true && (antallTl === '' || Number(antallTl) < 0)) {
-      setSkjemaFeil('Fyll inn hvor mange trivselsledere som kommer.'); return
+    if (kommer === true && antallTl !== '' && Number(antallTl) < 0) {
+      setSkjemaFeil('Antallet kan ikke være negativt.'); return
     }
     if (kommer === false && arsakIkkeKomme.trim() === '') {
       setSkjemaFeil('Skriv kort hvorfor skolen ikke kommer.'); return
@@ -156,7 +156,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
     const { error } = await supabase.rpc('lagre_skole_svar', {
       token: redigerRad.lenke_token,
       p_kommer: kommer,
-      p_antall_tl: kommer ? Number(antallTl) : null,
+      p_antall_tl: (kommer && antallTl !== '') ? Number(antallTl) : null,
       p_er_vertskap: visVertskap ? vertskapBekreftet : (redigerRad.vertskap_bekreftet ?? null),
       p_arsak_ikke_komme: kommer ? null : arsakIkkeKomme.trim(),
       p_arsak_ikke_vertskap: visVertskap
@@ -387,7 +387,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
 
             {kommer === true && (
               <div className="mb-5">
-                <label htmlFor="ra-antallTl" className="block text-sm font-medium text-gray-800 mb-1">Ca. hvor mange trivselsledere?</label>
+                <label htmlFor="ra-antallTl" className="block text-sm font-medium text-gray-800 mb-1">Ca. hvor mange trivselsledere? <span className="font-normal text-gray-500">(valgfritt)</span></label>
                 <input
                   id="ra-antallTl"
                   type="number"
