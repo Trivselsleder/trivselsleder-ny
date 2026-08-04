@@ -226,7 +226,12 @@ export default function SvarOversikt({ kurs, onLukk }) {
                 <div key={r.id} className="border border-gray-200 rounded-xl p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-medium text-gray-900">{r.skoler?.navn || 'Ukjent skole'}</p>
+                      <p className="font-medium text-gray-900">
+                        {r.skoler?.navn || 'Ukjent skole'}
+                        {r.er_vertskap && (
+                          <span className="ml-2 align-middle text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full">Vertskap</span>
+                        )}
+                      </p>
                       <p className="text-sm text-gray-500">{r.skoler?.kommunenavn || ''}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">

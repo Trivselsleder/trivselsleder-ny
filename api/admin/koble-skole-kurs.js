@@ -50,6 +50,30 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, kobling: data })
   }
 
+  if (req.method === 'PATCH') {
+    // Peke ut (eller fjerne) vertskap på én kurs_skole-rad. Flere skoler kan være
+    // vertskap på samme kurs — dette er en ren av/på per rad, ikke «velg én».
+    const { koblingId, erVertskap } = req.body
+    if (!koblingId || typeof erVertskap !== 'boolean') {
+      return res.status(400).json({ error: 'Mangler koblingId eller erVertskap (boolean)' })
+    }
+
+    const { data, error } = await supabase
+      .from('kurs_skole')
+      .update({ er_vertskap: erVertskap })
+      .eq('id', koblingId)
+      .select('id, er_vertskap')
+      .maybeSingle()
+
+    if (error) {
+      return res.status(500).json({ error: 'Kunne ikke oppdatere vertskap: ' + error.message })
+    }
+    if (!data) {
+      return res.status(404).json({ error: 'Fant ingen kobling å oppdatere — lukk og åpne modalen på nytt.' })
+    }
+    return res.status(200).json({ ok: true, kobling: data })
+  }
+
   if (req.method === 'DELETE') {
     // Fjern en skole fra kurset (angre-veien for unntakskobling).
     // Sletter kurs_skole-raden — dermed også evt. svar og svar-lenke (lenke_token).

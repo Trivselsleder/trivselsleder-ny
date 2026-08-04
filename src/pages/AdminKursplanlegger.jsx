@@ -29,6 +29,7 @@ const TOMT_KURS = {
   navn: '', nettverk: '', hall_id: '', dato: '',
   kursholder_id: '', backup_kursholder_id: '', ra: '', sesong: '',
   start_tid: '09:00', slutt_tid: '13:00',
+  oppmote_vertskap: '', oppmote_ovrige: '',
   uke: '', dag: '', antall_tl: '', antall_skoler: '', maks_antall: '', merknad: '',
 }
 
@@ -103,6 +104,7 @@ function KursOversikt() {
   const [svarKurs, setSvarKurs] = useState(null)  // kurset vi ser svar for
   const [lenkeKurs, setLenkeKurs] = useState(null)  // kurset vi sender lenker for
   const [antallPerKurs, setAntallPerKurs] = useState({})
+  const [vertskapPerKurs, setVertskapPerKurs] = useState({})  // kurs_id → [skolenavn]
 
   function hentKurs() {
     supabase.from('kurs').select('*').order('dato', { ascending: true }).range(0, 9999)
@@ -112,6 +114,7 @@ function KursOversikt() {
         setLaster(false)
       })
     hentAntall()
+    hentVertskap()
   }
 
   function hentAntall() {
@@ -123,6 +126,20 @@ function KursOversikt() {
           teller[rad.kurs_id] = (teller[rad.kurs_id] || 0) + 1
         }
         setAntallPerKurs(teller)
+      })
+  }
+
+  // Vertskapsskolene per kurs — så RA ser hvem som har rollen rett i lista.
+  // Flere skoler kan være vertskap på samme kurs.
+  function hentVertskap() {
+    supabase.from('kurs_skole').select('kurs_id, skoler(navn)').eq('er_vertskap', true).range(0, 99999)
+      .then(({ data }) => {
+        const kart = {}
+        for (const rad of (data ?? [])) {
+          if (!kart[rad.kurs_id]) kart[rad.kurs_id] = []
+          kart[rad.kurs_id].push(rad.skoler?.navn || '—')
+        }
+        setVertskapPerKurs(kart)
       })
   }
 
@@ -209,7 +226,14 @@ function KursOversikt() {
                   <td className="px-4 py-3 font-medium">{k.navn || '—'}</td>
                   <td className="px-4 py-3">{formaterDato(k.dato)}</td>
                   <td className="px-4 py-3">{hallNavn(k.hall_id)}</td>
-                  <td className="px-4 py-3">{antallPerKurs[k.id] || 0}</td>
+                  <td className="px-4 py-3">
+                    {antallPerKurs[k.id] || 0}
+                    {vertskapPerKurs[k.id]?.length > 0 && (
+                      <div className="mt-0.5 text-xs text-orange-700">
+                        🏠 Vertskap: {vertskapPerKurs[k.id].join(', ')}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-4 py-3">{holderNavn(k.kursholder_id)}</td>
                   <td className="px-4 py-3">{k.ra || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -241,7 +265,7 @@ function KursOversikt() {
       )}
 
       {skoleKurs && (
-        <SkoleKobling kurs={skoleKurs} onLukk={() => { setSkoleKurs(null); hentAntall() }} />
+        <SkoleKobling kurs={skoleKurs} onLukk={() => { setSkoleKurs(null); hentAntall(); hentVertskap() }} />
       )}
 
       {svarKurs && (
@@ -283,7 +307,7 @@ function SkoleKobling({ kurs, onLukk }) {
     // Skoler allerede koblet til kurset (inkl. svar-info til fjern-vernet)
     const { data: kobl, error: koblFeil } = await supabase
       .from('kurs_skole')
-      .select('id, skole_id, svart, kommer, antall_tl, arsak_ikke_komme, skoler(navn, kommunenavn)')
+      .select('id, skole_id, svart, kommer, antall_tl, arsak_ikke_komme, er_vertskap, skoler(navn, kommunenavn)')
       .eq('kurs_id', kurs.id)
       .range(0, 9999)
     if (koblFeil) setFeilmelding('Kunne ikke hente koblede skoler: ' + koblFeil.message)
@@ -325,6 +349,28 @@ function SkoleKobling({ kurs, onLukk }) {
 
   const koblendeIder = new Set(koblede.map(k => k.skole_id))
   const ikkeKoblet = nettverkSkoler.filter(s => !koblendeIder.has(s.id))
+
+  // Peke ut / fjerne vertskap per skole. Optimistisk, med tilbakerulling ved feil.
+  // Går via service-rolle-endepunktet (samme som unntak/fjern), så RLS ikke stopper det.
+  async function settVertskap(koblingId, erVertskap) {
+    setFeilmelding(null)
+    setKoblede(prev => prev.map(k => k.id === koblingId ? { ...k, er_vertskap: erVertskap } : k))
+    try {
+      const res = await fetch('/api/admin/koble-skole-kurs', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ koblingId, erVertskap }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setFeilmelding(data.error || 'Kunne ikke oppdatere vertskap')
+        setKoblede(prev => prev.map(k => k.id === koblingId ? { ...k, er_vertskap: !erVertskap } : k))
+      }
+    } catch (e) {
+      setFeilmelding('Nettverksfeil ved vertskap: ' + e.message)
+      setKoblede(prev => prev.map(k => k.id === koblingId ? { ...k, er_vertskap: !erVertskap } : k))
+    }
+  }
 
   async function leggTil(skole) {
     setFeilmelding(null)
@@ -417,16 +463,29 @@ function SkoleKobling({ kurs, onLukk }) {
               ) : (
                 <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg">
                   {koblede.map(k => (
-                    <li key={k.id} className="flex items-center justify-between px-4 py-2 text-sm">
-                      <span>
+                    <li key={k.id} className="flex items-center justify-between gap-3 px-4 py-2 text-sm">
+                      <span className="min-w-0">
                         {k.skoler?.navn || '—'} <span className="text-gray-400">{k.skoler?.kommunenavn || ''}</span>
+                        {k.er_vertskap && (
+                          <span className="ml-2 text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full">Vertskap</span>
+                        )}
                         {k.svart && (
                           <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                             har svart: {svarTekst(k)}
                           </span>
                         )}
                       </span>
-                      <button onClick={() => setBekreftFjern(k)} className="text-red-600 hover:underline">Fjern</button>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer whitespace-nowrap">
+                          <input
+                            type="checkbox"
+                            checked={!!k.er_vertskap}
+                            onChange={e => settVertskap(k.id, e.target.checked)}
+                          />
+                          Vertskap
+                        </label>
+                        <button onClick={() => setBekreftFjern(k)} className="text-red-600 hover:underline">Fjern</button>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -582,6 +641,20 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
             <input type="time" value={verdi.slutt_tid || ''}
               onChange={e => onEndre({ ...verdi, slutt_tid: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Oppmøte vertskap</label>
+            <input type="time" value={verdi.oppmote_vertskap || ''}
+              onChange={e => onEndre({ ...verdi, oppmote_vertskap: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+            <p className="text-xs text-gray-400 mt-1">Når vertskapet møter for å rigge. Valgfritt.</p>
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Oppmøte øvrige skoler</label>
+            <input type="time" value={verdi.oppmote_ovrige || ''}
+              onChange={e => onEndre({ ...verdi, oppmote_ovrige: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+            <p className="text-xs text-gray-400 mt-1">Når øvrige skoler møter. Valgfritt — ikke det samme som starttid.</p>
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Uke (auto)</label>
