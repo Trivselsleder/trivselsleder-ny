@@ -63,8 +63,8 @@ export default function SvarSkjema() {
       setFeil('Velg om dere kommer eller ikke.');
       return;
     }
-    if (kommer === true && (antallTl === '' || Number(antallTl) < 0)) {
-      setFeil('Fyll inn hvor mange trivselsledere som kommer.');
+    if (kommer === true && antallTl !== '' && Number(antallTl) < 0) {
+      setFeil('Antallet kan ikke være negativt.');
       return;
     }
     if (kommer === false && arsakIkkeKomme.trim() === '') {
@@ -81,7 +81,7 @@ export default function SvarSkjema() {
     const { error } = await supabase.rpc('lagre_skole_svar', {
       token: token,
       p_kommer: kommer,
-      p_antall_tl: kommer ? Number(antallTl) : null,
+      p_antall_tl: (kommer && antallTl !== '') ? Number(antallTl) : null,
       p_er_vertskap: visVertskap ? erVertskap : null,
       p_arsak_ikke_komme: kommer ? null : arsakIkkeKomme.trim(),
       p_arsak_ikke_vertskap:
@@ -207,7 +207,8 @@ export default function SvarSkjema() {
         {kommer === true && (
           <div className="mb-8">
             <label htmlFor="antallTl" className="block text-lg font-semibold text-gray-900 mb-2">
-              Ca. hvor mange trivselsledere kommer?
+              Ca. hvor mange trivselsledere kommer?{' '}
+              <span className="font-normal text-gray-500">(valgfritt)</span>
             </label>
             <input
               id="antallTl"
