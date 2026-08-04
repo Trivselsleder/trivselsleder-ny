@@ -25,23 +25,46 @@ function formaterDato(iso) {
   }
 }
 
-function epostHtml({ kursNavn, kursDato, lenke }) {
-  const datolinje = kursDato ? ` (${kursDato})` : ''
-  return epostMal({
-    overskrift: `Invitasjon til kurs: ${kursNavn}`,
-    brødtekst: `
-      <p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px;">
-        Skolen deres er invitert til kurset <strong>${kursNavn}</strong>${datolinje}.
-        For å melde fra om dere kommer, bruker dere det personlige svarskjemaet nedenfor.
-      </p>
-      <p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 24px;">
-        <strong>Viktig:</strong> Svar direkte på denne e-posten blir ikke registrert.
-        Du må klikke på knappen og svare i skjemaet for at vi skal få svaret ditt.
-      </p>`,
-    knapptekst: 'Åpne svarskjemaet',
-    knapplenke: lenke,
-    fottekst: 'Lenken er personlig for din skole. Svar på selve e-posten blir ikke lest eller registrert — bruk skjemaet.',
-  })
+function escapeHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+// Bytt ut {plassholder} med verdier. Ukjente plassholdere står urørt.
+function fyllPlassholdere(mal, verdier) {
+  return String(mal || '').replace(/\{(\w+)\}/g, (treff, nokkel) =>
+    (nokkel in verdier ? (verdier[nokkel] ?? '') : treff))
+}
+
+// Ren tekst → HTML: tom linje = nytt avsnitt, enkel linjeskift = <br>.
+// Hele teksten escapes så skoledata/tekst ikke kan injisere HTML.
+function tekstTilHtml(tekst) {
+  const esc = escapeHtml(tekst)
+  return esc
+    .split(/\n[ \t]*\n/)
+    .map(a => a.trim())
+    .filter(Boolean)
+    .map(a => `<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 16px;">${a.replace(/\n/g, '<br>')}</p>`)
+    .join('\n')
+}
+
+// Er en {plassholder} på en linje tom, fjernes HELE linja før utfylling — en
+// invitasjon som sier «Sted: » er verre enn en som ikke nevner sted. Samme regel
+// som strip-logikken i påminnelsen, generalisert til alle plassholderne.
+function fjernTommePlassholderLinjer(mal, verdier) {
+  return String(mal || '')
+    .split('\n')
+    .filter(linje => {
+      const tokens = linje.match(/\{(\w+)\}/g) || []
+      return !tokens.some(t => {
+        const nokkel = t.slice(1, -1)
+        return nokkel in verdier && (verdier[nokkel] === '' || verdier[nokkel] == null)
+      })
+    })
+    .join('\n')
 }
 
 export default async function handler(req, res) {
@@ -65,7 +88,10 @@ export default async function handler(req, res) {
   const { data: innstRader, error: innstFeil } = await supabase
     .from('innstillinger')
     .select('nokkel, verdi')
-    .in('nokkel', ['avsender_navn', 'avsender_epost', 'svar_til_epost', 'nettsted_url', 'motor_aktiv'])
+    .in('nokkel', [
+      'avsender_navn', 'avsender_epost', 'svar_til_epost', 'nettsted_url', 'motor_aktiv',
+      'epost_invitasjon_emne', 'epost_invitasjon_tekst',
+    ])
 
   if (innstFeil) {
     return res.status(500).json({ error: 'Kunne ikke lese innstillinger: ' + innstFeil.message })
@@ -76,6 +102,8 @@ export default async function handler(req, res) {
   const svarTilEpost = innst.svar_til_epost
   const nettstedUrl = (innst.nettsted_url || '').trim().replace(/\/+$/, '')
   const motorAktiv = (innst.motor_aktiv || '').trim().toLowerCase()
+  const emneMal = innst.epost_invitasjon_emne
+  const tekstMal = innst.epost_invitasjon_tekst
 
   if (!avsenderEpost || !avsenderNavn) {
     return res.status(500).json({
@@ -85,6 +113,14 @@ export default async function handler(req, res) {
   if (!nettstedUrl) {
     return res.status(500).json({
       error: 'Mangler nettsted_url i innstillinger-tabellen — kan ikke bygge svarlenke. Legg inn nøkkelen (f.eks. https://trivselsleder-ny.vercel.app) og prøv igjen.',
+    })
+  }
+  // SIKKERHETSVENTIL: uten emne/tekst i basen sender vi ALDRI en tom invitasjon,
+  // og faller ALDRI tilbake på hardkodet tekst. Invitasjonen er navet — den
+  // oppretter mottaker-radene — så heller stopp tydelig enn å sende søppel.
+  if (!emneMal || !emneMal.trim() || !tekstMal || !tekstMal.trim()) {
+    return res.status(500).json({
+      error: 'Mangler epost_invitasjon_emne/epost_invitasjon_tekst i innstillinger-tabellen (eller de er tomme). Legg inn malene før du sender invitasjoner.',
     })
   }
   // NØDBREMS: motor_aktiv = 'nei' → ekte sending nektes (tørrkjøring er lov).
@@ -104,7 +140,7 @@ export default async function handler(req, res) {
   //      fremmednøklene kurs_skole→kurs oppstår ikke i det hele tatt) ----
   const { data: kurs, error: kursFeil } = await supabase
     .from('kurs')
-    .select('id, navn, dato')
+    .select('id, navn, dato, hall_id, oppmote_vertskap, oppmote_ovrige')
     .eq('id', kurs_id)
     .single()
 
@@ -112,12 +148,24 @@ export default async function handler(req, res) {
     return res.status(404).json({ error: 'Fant ikke kurset: ' + (kursFeil?.message || 'ukjent id') })
   }
   const kursDato = formaterDato(kurs.dato)
-  const emne = `Invitasjon til kurs: ${kurs.navn} – Trivselsleder`
+
+  // Hall-navn til {hall}-plassholderen. Service-rollen har SELECT på haller
+  // (verifisert — samme rolle send-oppfolging bruker). Mangler den, feiler vi
+  // tydelig her i stedet for å sende en invitasjon uten sted.
+  let hallNavn = ''
+  if (kurs.hall_id) {
+    const { data: hallRad, error: hallFeil } = await supabase
+      .from('haller').select('navn').eq('id', kurs.hall_id).single()
+    if (hallFeil) {
+      return res.status(500).json({ error: 'Kunne ikke hente hall: ' + hallFeil.message })
+    }
+    hallNavn = hallRad?.navn || ''
+  }
 
   // ---- Alle svar-rader (skoler) på kurset ----
   const { data: koblinger, error: koblingFeil } = await supabase
     .from('kurs_skole')
-    .select('id, forste_utsending_at, skole_id, skoler(navn)')
+    .select('id, forste_utsending_at, skole_id, er_vertskap, skoler(navn)')
     .eq('kurs_id', kurs_id)
     .range(0, 9999)
 
@@ -174,6 +222,28 @@ export default async function handler(req, res) {
     // 5) Egen lenke bygget på mottakerens egen lenke_token
     const lenke = lenkeFor(htla.lenke_token)
 
+    // Bygg e-posten fra malen i innstillinger — nøyaktig samme mønster som de fem
+    // andre. Overskrift/knapptekst/fottekst blir stående i koden (som de andre).
+    // OPPMØTETID styres av er_vertskap på DENNE raden (skolen), ikke mottakerrollen.
+    const oppmoteRaa = kobling.er_vertskap ? kurs.oppmote_vertskap : kurs.oppmote_ovrige
+    const verdier = {
+      skolenavn: skoleNavn,
+      kursnavn: kurs.navn || '',
+      kursdato: kursDato,
+      hall: hallNavn,
+      oppmotetid: oppmoteRaa ? String(oppmoteRaa).slice(0, 5) : '',
+      mottaker_navn: htla.navn || '',
+    }
+    const emne = fyllPlassholdere(emneMal, verdier)
+    const tekstUtenTomme = fjernTommePlassholderLinjer(tekstMal, verdier)
+    const html = epostMal({
+      overskrift: `Invitasjon til kurs: ${escapeHtml(verdier.kursnavn)}`,
+      brødtekst: tekstTilHtml(fyllPlassholdere(tekstUtenTomme, verdier)),
+      knapptekst: 'Åpne svarskjemaet',
+      knapplenke: lenke,
+      fottekst: 'Lenken er personlig for din skole. Svar på selve e-posten blir ikke lest eller registrert — bruk skjemaet.',
+    })
+
     // ---- TØRRKJØRING: ingen Resend, ingen skriving. Bare vis hvem som ville fått ----
     if (torrkjoring) {
       forhandsvisning.push({
@@ -222,7 +292,7 @@ export default async function handler(req, res) {
         from,
         to: htla.epost,
         subject: emne,
-        html: epostHtml({ kursNavn: kurs.navn, kursDato, lenke }),
+        html,
         ...(svarTilEpost ? { replyTo: svarTilEpost } : {}),
       })
       if (rFeil) sendFeil = rFeil.message || String(rFeil)
