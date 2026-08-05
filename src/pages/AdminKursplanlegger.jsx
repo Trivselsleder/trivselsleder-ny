@@ -8,6 +8,7 @@ import AdminHaller from './AdminHaller'
 import AdminKursholdere from './AdminKursholdere'
 import AdminEvaluering from './AdminEvaluering'
 import AdminOppfolging from './AdminOppfolging'
+import { adminFetch } from '../lib/adminFetch'
 
 function ukeNummer(isoDato) {
   if (!isoDato) return ''
@@ -363,7 +364,7 @@ function SkoleKobling({ kurs, onLukk }) {
     setFeilmelding(null)
     setKoblede(prev => prev.map(k => k.id === koblingId ? { ...k, er_vertskap: erVertskap } : k))
     try {
-      const res = await fetch('/api/admin/koble-skole-kurs', {
+      const res = await adminFetch('/api/admin/koble-skole-kurs', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ koblingId, erVertskap }),
@@ -401,7 +402,7 @@ function SkoleKobling({ kurs, onLukk }) {
   async function leggTilUnntak(skole) {
     setFeilmelding(null)
     try {
-      const res = await fetch('/api/admin/koble-skole-kurs', {
+      const res = await adminFetch('/api/admin/koble-skole-kurs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skoleId: skole.id, kursId: kurs.id }),
@@ -425,7 +426,7 @@ function SkoleKobling({ kurs, onLukk }) {
   async function utforFjern() {
     setFeilmelding(null)
     try {
-      const res = await fetch('/api/admin/koble-skole-kurs', {
+      const res = await adminFetch('/api/admin/koble-skole-kurs', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ koblingId: bekreftFjern.id }),

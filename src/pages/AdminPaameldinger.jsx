@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
+import { adminFetch } from '../lib/adminFetch'
 
 const TYPE_LABEL = {
   barnehage: 'Barnehage', barnetrinn: 'Barnetrinn', ungdomstrinn: 'Ungdomstrinn',
@@ -87,7 +88,7 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
     setLagrerNettverk(true)
     setNettverkFeil(null)
     try {
-      const res = await fetch('/api/admin/sett-nettverk', {
+      const res = await adminFetch('/api/admin/sett-nettverk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skoleId: skole.id, nettverk: nettverkAaSette }),
@@ -109,7 +110,7 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
     if (kursListe.length === 0) {
       setKursLaster(true)
       try {
-        const res = await fetch('/api/admin/koble-skole-kurs')
+        const res = await adminFetch('/api/admin/koble-skole-kurs')
         const data = await res.json()
         if (res.ok) setKursListe(data.kurs ?? [])
       } catch (e) {
@@ -126,7 +127,7 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
     }
     setKursFeil(null)
     try {
-      const res = await fetch('/api/admin/koble-skole-kurs', {
+      const res = await adminFetch('/api/admin/koble-skole-kurs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skoleId: skole.id, kursId: valgtKursId }),
@@ -283,7 +284,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
 
     if (nyStatus === 'godkjent') {
       try {
-        const res = await fetch('/api/admin/godkjenn-paamelding', {
+        const res = await adminFetch('/api/admin/godkjenn-paamelding', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ paameldinId: p.id }),
@@ -307,7 +308,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
 
     if (nyStatus === 'avvist') {
       try {
-        const res = await fetch('/api/admin/avvis-paamelding', {
+        const res = await adminFetch('/api/admin/avvis-paamelding', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ paameldinId: p.id }),

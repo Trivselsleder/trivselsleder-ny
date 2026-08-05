@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { ALLE_FYLKER, FYLKER_KOMMUNER, ALLE_KOMMUNER } from '../data/norgeKommuner'
 import { SkoleRedigerForm } from '../components/SkoleRedigerForm'
+import { adminFetch } from '../lib/adminFetch'
 
 const TYPE_LABEL = {
   barnehage:    'Barnehage',
@@ -310,7 +311,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
     setFeil('')
     setLaster(true)
     try {
-      const res = await fetch('/api/admin/opprett-skole', {
+      const res = await adminFetch('/api/admin/opprett-skole', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
