@@ -448,21 +448,9 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
               </svg>
               <p className="text-sm font-semibold text-gray-900">Påmelding avvist</p>
             </div>
-            {avvistResultat.skoleSattInaktiv ? (
-              <p className="text-sm text-gray-600 pl-7">
-                Skolen <strong>{avvistResultat.skoleSattInaktiv.navn}</strong> er satt til <strong>Inaktiv</strong>.
-                Ingenting er slettet — koblinger og brukere er bevart, og skolen reaktiveres automatisk hvis
-                påmeldingen godkjennes på nytt.
-              </p>
-            ) : avvistResultat.varGodkjent ? (
-              <p className="text-sm text-gray-600 pl-7">
-                Fant ingen skole med dette org.nr i registeret — ingenting å deaktivere. Påmeldingen er avvist.
-              </p>
-            ) : (
-              <p className="text-sm text-gray-600 pl-7">
-                Skoleregisteret er ikke berørt (påmeldingen var ikke godkjent fra før).
-              </p>
-            )}
+            <p className="text-sm text-gray-600 pl-7">
+              Skoleregisteret er ikke berørt. Påmeldingen er markert som avvist.
+            </p>
             <div className="flex justify-end pt-1">
               <button
                 onClick={onLukk}
