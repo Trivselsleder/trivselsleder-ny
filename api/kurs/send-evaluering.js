@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { krevCronEllerAnsatt } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 
 // Resend Trinn B, steg 3c del 2: AUTOMATISK utsending av evalueringslenke.
@@ -101,17 +102,28 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Tørrkjøring er standard. Kun eksplisitt torrkjoring:false (body ELLER query)
-  // slår den av. Den daglige cron-jobben vil kalle med torrkjoring=false.
-  const torrkjoring = !(req.body?.torrkjoring === false || req.query?.torrkjoring === 'false')
-  // Testhjelp: hopp over tidsporten for en ekte prøvesending.
-  const ignorerTidspunkt = (req.body?.ignorer_tidspunkt === true || req.query?.ignorer_tidspunkt === 'true')
-
   const supabase = createClient(
     process.env.VITE_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
+
+  // ---- HVEM RINGER PÅ? ---- (manglet fram til 5. august)
+  // Denne har to lovlige innringere: den daglige Vercel-cron-jobben, og en
+  // ansatt som kjører den manuelt. Cron-stien står i vercel.json — altså i
+  // klartekst i repoet — så uten denne sjekken kunne hvem som helst åpne
+  // adressen i en nettleser og utløse ekte evaluerings-e-post.
+  // KREVER at CRON_SECRET er satt i Vercel. Er den ikke satt, stopper
+  // cron-jobben synlig i stedet for at endepunktet står åpent i stillhet.
+  const nekt = await krevCronEllerAnsatt(req, supabase)
+  if (nekt) return res.status(nekt.status).json({ error: nekt.error })
+
+  // Tørrkjøring er standard. Kun eksplisitt torrkjoring:false (body ELLER query)
+  // slår den av. Den daglige cron-jobben vil kalle med torrkjoring=false.
+  // Leses ETTER vakten, så en fremmed får 401 og ikke et hint om hva vi vil ha.
+  const torrkjoring = !(req.body?.torrkjoring === false || req.query?.torrkjoring === 'false')
+  // Testhjelp: hopp over tidsporten for en ekte prøvesending.
+  const ignorerTidspunkt = (req.body?.ignorer_tidspunkt === true || req.query?.ignorer_tidspunkt === 'true')
 
   const naa = () => new Date().toISOString()
 

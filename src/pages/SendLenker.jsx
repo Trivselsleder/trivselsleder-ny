@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { adminFetch } from '../lib/adminFetch'
 
 // «Send invitasjoner» for ett kurs. Hovedhandlingen er automatisk utsending via
 // api/kurs/send-invitasjon (torrkjoring:false), som sender kursinvitasjonen til
@@ -68,7 +69,7 @@ export default function SendLenker({ kurs, onLukk }) {
     // Tørrkjøring: nekter aldri, returnerer motor_aktiv. Feiler den, lar vi
     // knappen stå på — serveren stopper uansett en ekte sending når bremsen er på.
     try {
-      const res = await fetch('/api/kurs/send-invitasjon', {
+      const res = await adminFetch('/api/kurs/send-invitasjon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kurs_id: kurs.id, torrkjoring: true }),
@@ -117,7 +118,7 @@ export default function SendLenker({ kurs, onLukk }) {
     setSender(true)
     setResultat(null)
     try {
-      const res = await fetch('/api/kurs/send-invitasjon', {
+      const res = await adminFetch('/api/kurs/send-invitasjon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kurs_id: kurs.id, torrkjoring: false }),

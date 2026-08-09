@@ -146,8 +146,10 @@ export default async function handler(req, res) {
     .single()
 
   if (dbError) {
-    console.error('DB-feil:', dbError)
-    return res.status(500).json({ error: `DB-feil: ${dbError.message} (kode: ${dbError.code})` })
+    // Full feil i serverloggen, kort beskjed til kalleren. Den rå Postgres-
+    // teksten røper tabell-, kolonne- og constraint-navn til hele internett.
+    console.error('DB-feil ved påmelding:', dbError)
+    return res.status(500).json({ error: 'Kunne ikke lagre påmeldingen. Prøv igjen, eller kontakt post@trivselsleder.no.' })
   }
 
   // HubSpot: opprett Company (ikke-kritisk – logger feil men stopper ikke innsending)

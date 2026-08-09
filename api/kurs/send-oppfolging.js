@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { krevAnsatt } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 
 // Resend Trinn B, steg 3c del 1: sendefunksjon for de tre KNAPP-STYRTE
@@ -132,6 +133,19 @@ function fjernTommePlassholderLinjer(mal, verdier) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  const supabase = createClient(
+    process.env.VITE_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  // ---- HVEM RINGER PÅ? ---- (manglet fram til 5. august)
+  // Dette endepunktet sender EKTE e-post til skoler. Uten denne sjekken kunne
+  // hvem som helst med en liste kurs_skole_ids utløse en utsending.
+  // Nødbremsen stoppet ekte sending, men den skal ikke være siste forsvar.
+  const nekt = await krevAnsatt(req, supabase)
+  if (nekt) return res.status(nekt.status).json({ error: nekt.error })
+
   const { type, kurs_skole_ids } = req.body || {}
   const torrkjoring = (req.body?.torrkjoring !== false)
 
@@ -142,12 +156,6 @@ export default async function handler(req, res) {
   if (!Array.isArray(kurs_skole_ids) || kurs_skole_ids.length === 0) {
     return res.status(400).json({ error: 'Mangler kurs_skole_ids (liste over radene som skal sendes til).' })
   }
-
-  const supabase = createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
 
   const naa = () => new Date().toISOString()
 

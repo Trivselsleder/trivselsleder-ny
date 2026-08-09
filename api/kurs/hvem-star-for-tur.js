@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { krevAnsatt } from '../_vakt.js'
 
 // Resend Trinn B, steg 3b: "hvem står for tur"-motoren.
 //
@@ -70,13 +71,20 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const kurs_id = req.query?.kurs_id || req.body?.kurs_id || null
-
   const supabase = createClient(
     process.env.VITE_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
+
+  // ---- HVEM RINGER PÅ? ----
+  // Sto åpent fram til 5. august. Et GET-kall uten innlogging returnerte
+  // skolenavn, kontaktnavn og e-postadresser for hele basen. At funksjonen
+  // «bare leser» gjorde den ikke ufarlig — det var nettopp lesingen som lakk.
+  const nekt = await krevAnsatt(req, supabase)
+  if (nekt) return res.status(nekt.status).json({ error: nekt.error })
+
+  const kurs_id = req.query?.kurs_id || req.body?.kurs_id || null
 
   // ---- Terskler (dager) fra innstillinger — kan endres uten kode ----
   const { data: innstRader, error: innstFeil } = await supabase

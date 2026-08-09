@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { adminFetch } from '../lib/adminFetch'
 
 // Steg 3d: samlet oppfølgingsside som erstattet den gamle mailto-løsningen.
 // Kaller hvem-star-for-tur for listene og send-oppfolging for utsendingen.
@@ -150,7 +151,7 @@ export default function AdminOppfolging({ innebygd = false }) {
     setLaster(true)
     setFeil(null)
     try {
-      const res = await fetch('/api/kurs/hvem-star-for-tur', {
+      const res = await adminFetch('/api/kurs/hvem-star-for-tur', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -180,7 +181,7 @@ export default function AdminOppfolging({ innebygd = false }) {
     setSender(type)
     setResultat(prev => ({ ...prev, [type]: null }))
     try {
-      const res = await fetch('/api/kurs/send-oppfolging', {
+      const res = await adminFetch('/api/kurs/send-oppfolging', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, kurs_skole_ids: ids, torrkjoring: false }),

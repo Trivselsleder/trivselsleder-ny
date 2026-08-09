@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { krevAnsatt } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 
 // Resend Trinn B, steg 3a: automatisk førstegangsutsending av kursinvitasjon.
@@ -78,17 +79,23 @@ function fjernTommePlassholderLinjer(mal, verdier) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { kurs_id } = req.body || {}
-  // Tørrkjøring er standard. Kun et eksplisitt torrkjoring:false slår den av.
-  const torrkjoring = (req.body?.torrkjoring !== false)
-
-  if (!kurs_id) return res.status(400).json({ error: 'Mangler kurs_id' })
-
   const supabase = createClient(
     process.env.VITE_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
+
+  // ---- HVEM RINGER PÅ? ---- (manglet fram til 5. august)
+  // Sjekken kommer FØR valideringen av kroppen, så en fremmed får 401 og ikke
+  // 400. Et 400-svar røper at endepunktet finnes og hva det vil ha.
+  const nekt = await krevAnsatt(req, supabase)
+  if (nekt) return res.status(nekt.status).json({ error: nekt.error })
+
+  const { kurs_id } = req.body || {}
+  // Tørrkjøring er standard. Kun et eksplisitt torrkjoring:false slår den av.
+  const torrkjoring = (req.body?.torrkjoring !== false)
+
+  if (!kurs_id) return res.status(400).json({ error: 'Mangler kurs_id' })
 
   const naa = () => new Date().toISOString()
 

@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { epostMal } from '../_epost-mal.js'
+import { trygtOrigin } from '../_vakt.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -29,7 +30,8 @@ export default async function handler(req, res) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
-  const origin = req.headers.origin || 'https://trivselsleder.no'
+  // Kun kjente adresser godtas — se trygtOrigin i api/_vakt.js.
+  const origin = trygtOrigin(req)
 
   const { data, error } = await supabase.auth.admin.generateLink({
     type: 'recovery',

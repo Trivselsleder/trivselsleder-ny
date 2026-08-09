@@ -66,6 +66,18 @@ function faktalinje(etikett, verdi) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  // ---- HVORFOR DENNE ER ÅPEN, MED VILJE ----
+  // Kalles fra evalueringsskjemaet, som skolen fyller ut UTEN å være innlogget
+  // (src/pages/EvalueringSkjema.jsx). Den kan derfor ikke kreve en ansatt.
+  // Beskyttelsen er skolens personlige token — samme modell som svarskjemaet
+  // og kursinfosiden. Uten gyldig token skjer ingenting: mangler token → 400,
+  // ukjent token → 404. Spam til Eivind er dessuten avverget av reservasjonen
+  // lenger nede (eivind_varslet_at) — maks én ekte e-post per evaluering.
+  // KJENT, LITEN LEKKASJE: tørrkjøringssvaret inneholder ville_sendt_til, som
+  // røper eivind_epost til en uinnlogget kaller med gyldig token. Vurdert som
+  // akseptabelt (en forretningsadresse), men notert i RETTELISTE.
+  // Vurdert 5. august sammen med de fire andre api/kurs-endepunktene, som
+  // ALLE fikk vakt. Denne skal ikke ha det.
   const { token } = req.body || {}
   const torrkjoring = (req.body?.torrkjoring !== false)
 

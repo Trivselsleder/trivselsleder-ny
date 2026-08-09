@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { trygtOrigin } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -78,7 +79,8 @@ export default async function handler(req, res) {
     if (!tilgang) return res.status(403).json({ error: 'Du har ikke tilgang til denne skolen.' })
   }
 
-  const origin = req.headers.origin || 'https://trivselsleder.no'
+  // Kun kjente adresser godtas — se trygtOrigin i api/_vakt.js.
+  const origin = trygtOrigin(req)
 
   // Generer invitasjonslenke uten at Supabase sender e-post
   const { data, error: linkFeil } = await supabase.auth.admin.generateLink({

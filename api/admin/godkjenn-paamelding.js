@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { trygtOrigin } from '../_vakt.js'
 import { oppdaterStatus } from '../_hubspot.js'
 import { epostMal } from '../_epost-mal.js'
 
@@ -182,7 +183,8 @@ export default async function handler(req, res) {
     console.error('Nettverksforslag-unntak:', e.message)
   }
 
-  const origin = req.headers.origin || 'https://trivselsleder.no'
+  // Kun kjente adresser godtas — se trygtOrigin i api/_vakt.js.
+  const origin = trygtOrigin(req)
   const resultater = {}
 
   if (p.htla_epost && p.htla_navn) {
