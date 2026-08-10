@@ -26,21 +26,24 @@ export async function krevAnsatt(req, supabase) {
   if (!caller) {
     return { status: 401, error: 'Ugyldig sesjon — last inn siden på nytt.' }
   }
-  // MERK (10. aug 2026): profiles har KUN id, navn, rolle, created_at — ingen
-  // aktiv-kolonne. Den gamle spørringen valgte 'rolle, aktiv' og feilet med
-  // «column profiles.aktiv does not exist» → profil ble null → ALLE innloggede
-  // ansatte fikk 403 på hvert _vakt-endepunkt. (Cron slapp gjennom fordi
-  // CRON_SECRET sjekkes før denne funksjonen — derfor lå feilen skjult siden
-  // 5. aug.) Alle de andre endepunktene velger allerede bare 'rolle'; her gjør
-  // vi det samme.
+  // profiles.aktiv finnes igjen etter at migrasjon 005 ble kjørt 10. aug (den
+  // var skrevet, men aldri kjørt mot live-basen). Vi velger derfor 'rolle,
+  // aktiv' og håndhever begge: feil rolle → 403, og en deaktivert ansatt
+  // (aktiv = false) → 403 selv om sesjonen ennå lever.
+  //
+  // HISTORIKK: 5.–10. aug valgte denne 'rolle, aktiv' mot en base som IKKE hadde
+  // aktiv-kolonnen → spørringen feilet → profil ble null → ALLE innloggede
+  // ansatte fikk 403. (Cron slapp gjennom fordi CRON_SECRET sjekkes FØR denne
+  // funksjonen.) Nå finnes kolonnen; alle eksisterende profiler har aktiv = TRUE
+  // (default), så ingen låses ute.
   const { data: profil } = await supabase
-    .from('profiles').select('rolle').eq('id', caller.id).single()
+    .from('profiles').select('rolle, aktiv').eq('id', caller.id).single()
   if (!ANSATTROLLER.includes(profil?.rolle)) {
     return { status: 403, error: 'Ingen tilgang.' }
   }
-  // Server-side deaktivering av en ansatt er IKKE mulig i dag (ingen aktiv-
-  // kolonne på profiles). Deaktivering håndheves klient-side (ProtectedRoute).
-  // Egen aktiv-kolonne + sjekk her hører til sikkerhets-restlista.
+  if (profil?.aktiv === false) {
+    return { status: 403, error: 'Kontoen er deaktivert.' }
+  }
   return null
 }
 
