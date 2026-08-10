@@ -1,11 +1,18 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "crons": [
     {
       "path": "/api/kurs/send-evaluering?torrkjoring=false",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/kurs/frys-kortantall?torrkjoring=false",
+      "schedule": "0 5 * * *"
     }
   ]
 }

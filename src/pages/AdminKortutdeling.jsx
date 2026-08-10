@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { hentSatser } from '../utils/satser'
+import { adminFetch } from '../lib/adminFetch'
 
 // "Fra kurspåmelding" — kortutdeling kursdeltakere.
 // Antall = TL + 10 % rundet opp. Beløp = antall kort × kortpris (ingen porto, kort deles ut på kurs).
@@ -13,17 +14,28 @@ function beregnKort(antallTl) {
   return Math.ceil(antallTl * 1.1)
 }
 
+// Effektivt kort-tall: er antall_kort satt (frosset ELLER manuelt overstyrt),
+// er DET fasit. Ellers vises det levende beregnede tallet.
+function effektivKort(rad) {
+  return rad.antall_kort != null ? rad.antall_kort : beregnKort(rad.antall_tl)
+}
+function erFrosset(rad) {
+  return rad.antall_kort != null
+}
+
 export default function AdminKortutdeling() {
   const navigate = useNavigate()
   const [rader, setRader] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
   const satser = hentSatser()
+  const [redigerId, setRedigerId] = useState(null)
+  const [utkast, setUtkast] = useState('')
 
   useEffect(() => {
     supabase
       .from('kurs_skole')
-      .select('id, antall_tl, kort_status, skoler(navn, kommunenavn), kurs!kurs_skole_kurs_id_fkey(navn, dato)')
+      .select('id, antall_tl, antall_kort, kort_status, skoler(navn, kommunenavn), kurs!kurs_skole_kurs_id_fkey(navn, dato)')
       .eq('kommer', true)
       .eq('svart', true)
       .range(0, 9999)
@@ -40,15 +52,40 @@ export default function AdminKortutdeling() {
     if (error) alert('Kunne ikke lagre status. Prøv igjen.')
   }
 
-  function belop(antallTl) {
-    return beregnKort(antallTl) * satser.kortpris
+  // Overstyr kort-tallet manuelt (låser raden), eller tilbakestill til levende
+  // beregning ved å sende null. Går via service-endepunktet med sesjonen påhengt.
+  async function lagreAntallKort(id, antallKort) {
+    if (antallKort !== null && (!Number.isInteger(antallKort) || antallKort < 0)) {
+      alert('Skriv et heltall (0 eller mer).'); return
+    }
+    const forrige = rader
+    setRader(rader.map(r => r.id === id ? { ...r, antall_kort: antallKort } : r))
+    setRedigerId(null)
+    const res = await adminFetch('/api/kurs/frys-kortantall', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, antall_kort: antallKort }),
+    })
+    if (!res.ok) {
+      setRader(forrige) // rull tilbake — skjermen (og faktureringssummen) skal aldri vise et tall basen ikke lagret
+      alert('Kunne ikke lagre kort-tallet. Ingenting ble endret. Prøv igjen.')
+    }
   }
 
-  const totaltKort = rader.reduce((sum, r) => sum + beregnKort(r.antall_tl), 0)
+  function startRediger(rad) {
+    setRedigerId(rad.id)
+    setUtkast(String(effektivKort(rad)))
+  }
+
+  function belop(rad) {
+    return effektivKort(rad) * satser.kortpris
+  }
+
+  const totaltKort = rader.reduce((sum, r) => sum + effektivKort(r), 0)
   const totaltTl = rader.reduce((sum, r) => sum + (r.antall_tl || 0), 0)
   const totaltFaktureres = rader
     .filter(r => r.kort_status === 'Fakturer')
-    .reduce((sum, r) => sum + belop(r.antall_tl), 0)
+    .reduce((sum, r) => sum + belop(r), 0)
 
   function formaterDato(iso) {
     if (!iso) return ''
@@ -64,7 +101,7 @@ export default function AdminKortutdeling() {
 
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Kortutdeling — fra kurspåmelding</h1>
         <p className="text-gray-500 mb-2">
-          Antall kort beregnes automatisk: antall trivselsledere + 10 %, rundet opp. Beløp er eks. mva, uten porto (kort deles ut på kurs).
+          Antall kort beregnes automatisk: antall trivselsledere + 10 %, rundet opp. Beløp er eks. mva, uten porto (kort deles ut på kurs). Tallet er levende til midnatt på kursdagen, så låses det (🔒). Du kan når som helst overstyre et tall manuelt.
         </p>
         <p className="text-sm text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 mb-6 inline-block">
           Prototype til gjennomgang med Camilla — ikke ferdig løsning.
@@ -118,7 +155,36 @@ export default function AdminKortutdeling() {
                           <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{r.kurs?.navn || '—'}</td>
                           <td className="px-4 py-3 text-gray-500 whitespace-nowrap text-xs">{formaterDato(r.kurs?.dato)}</td>
                           <td className="px-4 py-3 text-right text-gray-700">{r.antall_tl ?? '—'}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-[#F47920]">{beregnKort(r.antall_tl)}</td>
+                          <td className="px-4 py-3 text-right">
+                            {redigerId === r.id ? (
+                              <span className="inline-flex items-center gap-1 justify-end">
+                                <input
+                                  type="number" min="0"
+                                  value={utkast}
+                                  onChange={(e) => setUtkast(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') lagreAntallKort(r.id, parseInt(utkast, 10))
+                                    if (e.key === 'Escape') setRedigerId(null)
+                                  }}
+                                  autoFocus
+                                  className="w-16 border border-[#D6006E] rounded-lg px-2 py-1 text-right text-sm focus:outline-none"
+                                />
+                                <button onClick={() => lagreAntallKort(r.id, parseInt(utkast, 10))} className="text-xs text-[#D6006E] hover:underline">Lagre</button>
+                                <button onClick={() => setRedigerId(null)} className="text-xs text-gray-400 hover:underline">Avbryt</button>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 justify-end">
+                                <span className={`font-semibold ${erFrosset(r) ? 'text-gray-900' : 'text-[#F47920]'}`}>{effektivKort(r)}</span>
+                                {erFrosset(r)
+                                  ? <span title="Låst tall — endres ikke automatisk." className="text-gray-400">🔒</span>
+                                  : <span title="Levende beregning (TL + 10 %). Låses ved midnatt på kursdagen." className="text-gray-300 text-xs">beregnes</span>}
+                                <button onClick={() => startRediger(r)} className="text-xs text-gray-400 hover:text-[#D6006E] hover:underline">endre</button>
+                                {erFrosset(r) && (
+                                  <button onClick={() => lagreAntallKort(r.id, null)} title="Tilbakestill til levende beregning" className="text-xs text-gray-300 hover:text-gray-500 hover:underline">↺</button>
+                                )}
+                              </span>
+                            )}
+                          </td>
                           <td className="px-4 py-3">
                             <select
                               value={r.kort_status || 'Ikke behandlet'}
@@ -132,7 +198,7 @@ export default function AdminKortutdeling() {
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
                             {r.kort_status === 'Fakturer'
-                              ? <span className="font-semibold text-gray-900">{belop(r.antall_tl)} kr</span>
+                              ? <span className="font-semibold text-gray-900">{belop(r)} kr</span>
                               : <span className="text-gray-300">—</span>}
                           </td>
                         </tr>
