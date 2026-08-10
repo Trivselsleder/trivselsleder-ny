@@ -113,6 +113,7 @@ function KursOversikt() {
   const [sokTreff, setSokTreff] = useState('')  // debounced søketekst
   const [raFilter, setRaFilter] = useState('')
   const [nettverkFilter, setNettverkFilter] = useState('')
+  const [sesongFilter, setSesongFilter] = useState('')
 
   function hentKurs() {
     supabase.from('kurs').select('*').order('dato', { ascending: true }).range(0, 9999)
@@ -205,11 +206,13 @@ function KursOversikt() {
   // Unike verdier til nedtrekkene, hentet fra de innlastede kursene.
   const raValg = [...new Set(kurs.map(k => k.ra).filter(Boolean))].sort()
   const nettverkValg = [...new Set(kurs.map(k => k.nettverk).filter(Boolean))].sort()
+  const sesongValg = [...new Set(kurs.map(k => k.sesong).filter(Boolean))].sort()
 
   // Filtrering skjer klient-side på kursene som allerede er lastet.
   const filtrerteKurs = kurs.filter(k => {
     if (raFilter && k.ra !== raFilter) return false
     if (nettverkFilter && k.nettverk !== nettverkFilter) return false
+    if (sesongFilter && k.sesong !== sesongFilter) return false
     if (sokTreff) {
       const navn = (k.navn || '').toLowerCase()
       const hall = hallNavn(k.hall_id).toLowerCase()
@@ -283,6 +286,11 @@ function KursOversikt() {
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option value="">Alle nettverk</option>
             {nettverkValg.map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+          <select value={sesongFilter} onChange={e => setSesongFilter(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">Alle sesonger</option>
+            {sesongValg.map(sx => <option key={sx} value={sx}>{sx}</option>)}
           </select>
           <span className="text-sm text-gray-500">
             Viser {filtrerteKurs.length} av {kurs.length} kurs
@@ -689,6 +697,15 @@ function SkoleKobling({ kurs, onLukk }) {
 function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, onLagre, onAvbryt }) {
   const aktiveHoldere = kursholdere.filter(k => k.aktiv)
   const nettverk = [...new Set(nettverkData.map(d => d.nettverk).filter(Boolean))].sort()
+  // Faste sesongvalg: Vår/Høst + år, generert rundt inneværende år så lista
+  // holder seg oppdatert uten kodeendring. Like verdier gjør filter og
+  // kopiering sesong→sesong pålitelig.
+  const sesongAlternativer = (() => {
+    const iAar = new Date().getFullYear()
+    const liste = []
+    for (let a = iAar - 1; a <= iAar + 2; a++) liste.push(`Vår ${a}`, `Høst ${a}`)
+    return liste
+  })()
 
   function velgNettverk(valgtNettverk) {
     const match = nettverkData.find(d => d.nettverk === valgtNettverk && d.ansvarlig)
@@ -759,6 +776,15 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
             <input type="number" value={verdi.uke || ''}
               onChange={e => onEndre({ ...verdi, uke: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Sesong</label>
+            <select value={verdi.sesong || ''}
+              onChange={e => onEndre({ ...verdi, sesong: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white">
+              <option value="">— Velg sesong —</option>
+              {sesongAlternativer.map(sx => <option key={sx} value={sx}>{sx}</option>)}
+            </select>
           </div>
           <div className="sm:col-span-3">
             <label className="block text-sm text-gray-600 mb-1">Hall</label>
