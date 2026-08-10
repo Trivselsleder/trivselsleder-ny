@@ -12,6 +12,7 @@ import KulturkortBestill from './pages/KulturkortBestill'
 import AdminKulturkort from './pages/AdminKulturkort'
 import AdminBestillinger from './pages/AdminBestillinger'
 import AdminKortutdeling from './pages/AdminKortutdeling'
+import AdminKortoversikt from './pages/AdminKortoversikt'
 import AdminOppfolging from './pages/AdminOppfolging'
 import LoggInn from './pages/LoggInn'
 import SettPassord from './pages/SettPassord'
@@ -119,6 +120,7 @@ export default function App() {
               <Route path="/admin/tekster" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminTekster /></ProtectedRoute>} />
               <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle="superadmin"><AdminLedelse /></ProtectedRoute>} />
               <Route path="/admin/kortutdeling" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortutdeling /></ProtectedRoute>} />
+              <Route path="/admin/kortoversikt" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortoversikt /></ProtectedRoute>} />
               <Route path="/admin/oppfolging" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminOppfolging /></ProtectedRoute>} />
             </Routes>
           </main>

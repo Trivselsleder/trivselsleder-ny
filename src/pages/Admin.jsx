@@ -38,17 +38,10 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
-    tittel: 'Kulturkort-bestillinger',
-    beskrivelse: 'Se bestillinger og kortutdeling fra skoler.',
-    ikon: '📦',
-    til: '/admin/bestillinger',
-    roller: ['superadmin', 'ansatt'],
-  },
-  {
-    tittel: 'Kortutdeling (fra kurspåmelding)',
-    beskrivelse: 'PROTOTYPE: Beregnet kortantall per skole til gjennomgang med Camilla.',
+    tittel: 'Kulturkort — kort og bestillinger',
+    beskrivelse: 'Alt kulturkort på ett sted: kort fra kurs og bestillinger i posten, med kilde og filter.',
     ikon: '🎟️',
-    til: '/admin/kortutdeling',
+    til: '/admin/kortoversikt',
     roller: ['superadmin', 'ansatt'],
   },
   {
