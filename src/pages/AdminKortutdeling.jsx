@@ -6,7 +6,7 @@ import { hentSatser } from '../utils/satser'
 // "Fra kurspåmelding" — kortutdeling kursdeltakere.
 // Antall = TL + 10 % rundet opp. Beløp = antall kort × kortpris (ingen porto, kort deles ut på kurs).
 
-const STATUSVALG = ['Ikke behandlet', 'Fakturer', 'Gratis']
+const STATUSVALG = ['Ikke behandlet', 'Fakturer', 'Gratis', 'Ikke ønsket']
 
 function beregnKort(antallTl) {
   if (!antallTl || antallTl < 0) return 0
