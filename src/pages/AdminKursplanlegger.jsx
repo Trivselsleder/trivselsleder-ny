@@ -108,6 +108,12 @@ function KursOversikt() {
   const [antallPerKurs, setAntallPerKurs] = useState({})
   const [vertskapPerKurs, setVertskapPerKurs] = useState({})  // kurs_id → [skolenavn]
 
+  // Klient-side filter over tabellen (ingen nye databasespørringer).
+  const [sok, setSok] = useState('')
+  const [sokTreff, setSokTreff] = useState('')  // debounced søketekst
+  const [raFilter, setRaFilter] = useState('')
+  const [nettverkFilter, setNettverkFilter] = useState('')
+
   function hentKurs() {
     supabase.from('kurs').select('*').order('dato', { ascending: true }).range(0, 9999)
       .then(({ data, error }) => {
@@ -156,6 +162,12 @@ function KursOversikt() {
       .then(({ data }) => setNettverkData(data ?? []))
   }, [])
 
+  // Debounce søketekst — samme 300 ms-mønster som hall-søket i SokbarVelger.
+  useEffect(() => {
+    const t = setTimeout(() => setSokTreff(sok.trim().toLowerCase()), 300)
+    return () => clearTimeout(t)
+  }, [sok])
+
   function rensKurs(obj) {
     const renset = { ...obj }
     delete renset.id; delete renset.created_at; delete renset.status
@@ -190,6 +202,49 @@ function KursOversikt() {
   const hallNavn = id => haller.find(h => h.id === id)?.navn || '—'
   const holderNavn = id => kursholdere.find(k => k.id === id)?.navn || '—'
 
+  // Unike verdier til nedtrekkene, hentet fra de innlastede kursene.
+  const raValg = [...new Set(kurs.map(k => k.ra).filter(Boolean))].sort()
+  const nettverkValg = [...new Set(kurs.map(k => k.nettverk).filter(Boolean))].sort()
+
+  // Filtrering skjer klient-side på kursene som allerede er lastet.
+  const filtrerteKurs = kurs.filter(k => {
+    if (raFilter && k.ra !== raFilter) return false
+    if (nettverkFilter && k.nettverk !== nettverkFilter) return false
+    if (sokTreff) {
+      const navn = (k.navn || '').toLowerCase()
+      const hall = hallNavn(k.hall_id).toLowerCase()
+      if (!navn.includes(sokTreff) && !hall.includes(sokTreff)) return false
+    }
+    return true
+  })
+
+  // Laster ned de FILTRERTE radene som CSV. Samme mønster som eksporten i
+  // AdminSkoler.jsx / AdminEvaluering.jsx (BOM + semikolon for norsk Excel).
+  function eksporterKursCSV(liste) {
+    const kolonner = ['Kurs', 'Dato', 'Uke', 'Hall', 'Antall skoler', 'Kursholder', 'RA', 'Nettverk', 'Sesong']
+    const rader = liste.map(k => [
+      k.navn ?? '',
+      formaterDato(k.dato),
+      k.uke || ukeNummer(k.dato) || '',
+      hallNavn(k.hall_id),
+      antallPerKurs[k.id] || 0,
+      holderNavn(k.kursholder_id),
+      k.ra ?? '',
+      k.nettverk ?? '',
+      k.sesong ?? '',
+    ])
+    const csv = [kolonner, ...rader]
+      .map(rad => rad.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';'))
+      .join('\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `kurs-export-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div>
       <KursMetaOversikt />
@@ -210,6 +265,33 @@ function KursOversikt() {
       )}
 
       {!laster && kurs.length > 0 && (
+        <>
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <input
+            type="text"
+            value={sok}
+            onChange={e => setSok(e.target.value)}
+            placeholder="Søk kurs eller hall …"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-56"
+          />
+          <select value={raFilter} onChange={e => setRaFilter(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">Alle RA</option>
+            {raValg.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <select value={nettverkFilter} onChange={e => setNettverkFilter(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">Alle nettverk</option>
+            {nettverkValg.map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+          <span className="text-sm text-gray-500">
+            Viser {filtrerteKurs.length} av {kurs.length} kurs
+          </span>
+          <button onClick={() => eksporterKursCSV(filtrerteKurs)}
+            className="ml-auto bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90 text-sm">
+            Eksporter til regneark
+          </button>
+        </div>
         <div className="overflow-hidden border border-gray-200 rounded-xl">
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-600">
@@ -224,7 +306,14 @@ function KursOversikt() {
               </tr>
             </thead>
             <tbody>
-              {kurs.map(k => (
+              {filtrerteKurs.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
+                    Ingen kurs matcher søket.
+                  </td>
+                </tr>
+              )}
+              {filtrerteKurs.map(k => (
                 <tr key={k.id} className="border-t border-gray-100 hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium">
                     {k.navn || '—'}
@@ -257,6 +346,7 @@ function KursOversikt() {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       {(nyForm || redigerer) && (
