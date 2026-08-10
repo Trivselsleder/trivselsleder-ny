@@ -26,17 +26,21 @@ export async function krevAnsatt(req, supabase) {
   if (!caller) {
     return { status: 401, error: 'Ugyldig sesjon — last inn siden på nytt.' }
   }
+  // MERK (10. aug 2026): profiles har KUN id, navn, rolle, created_at — ingen
+  // aktiv-kolonne. Den gamle spørringen valgte 'rolle, aktiv' og feilet med
+  // «column profiles.aktiv does not exist» → profil ble null → ALLE innloggede
+  // ansatte fikk 403 på hvert _vakt-endepunkt. (Cron slapp gjennom fordi
+  // CRON_SECRET sjekkes før denne funksjonen — derfor lå feilen skjult siden
+  // 5. aug.) Alle de andre endepunktene velger allerede bare 'rolle'; her gjør
+  // vi det samme.
   const { data: profil } = await supabase
-    .from('profiles').select('rolle, aktiv').eq('id', caller.id).single()
+    .from('profiles').select('rolle').eq('id', caller.id).single()
   if (!ANSATTROLLER.includes(profil?.rolle)) {
     return { status: 403, error: 'Ingen tilgang.' }
   }
-  // Deaktivert bruker: ProtectedRoute.jsx:16 stenger dem ute av skjermbildene,
-  // men en gyldig sesjon lever videre til den utløper. Uten denne linjen kunne
-  // en avslått ansatt fortsatt lese skolelister og utløse utsending via API-et.
-  if (profil?.aktiv === false) {
-    return { status: 403, error: 'Kontoen er deaktivert.' }
-  }
+  // Server-side deaktivering av en ansatt er IKKE mulig i dag (ingen aktiv-
+  // kolonne på profiles). Deaktivering håndheves klient-side (ProtectedRoute).
+  // Egen aktiv-kolonne + sjekk her hører til sikkerhets-restlista.
   return null
 }
 
