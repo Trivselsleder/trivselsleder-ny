@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -135,6 +136,34 @@ export default async function handler(req, res) {
 
   const leveringsadresse = `${gate}, ${postnummer} ${poststed}`
   const data = { skolenavn, antallKort, kontaktperson, epost, leveringsadresse, kortpris, porto, total, melding }
+
+  // Lagre bestillingen i databasen — delt kilde for admin-lista. Service-nøkkel
+  // går utenom RLS. Feiler dette, logger vi det men lar e-postene gå: e-posten
+  // er sikkerhetsnettet, så en bestilling går aldri tapt.
+  try {
+    const db = createClient(
+      process.env.VITE_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+    const { error: dbFeil } = await db.from('kulturkort_bestillinger').insert({
+      skolenavn,
+      antall_kort: parseInt(antallKort, 10) || 0,
+      kontaktperson,
+      epost,
+      gate,
+      postnummer,
+      poststed,
+      melding: melding || null,
+      kortpris: Math.round(Number(kortpris) || 0),
+      porto: Math.round(Number(porto) || 0),
+      total: Math.round(Number(total) || 0),
+      status: 'Ny',
+    })
+    if (dbFeil) console.error('Kunne ikke lagre bestilling i DB:', dbFeil.message)
+  } catch (e) {
+    console.error('Uventet feil ved lagring av bestilling:', e)
+  }
 
   try {
     await Promise.all([

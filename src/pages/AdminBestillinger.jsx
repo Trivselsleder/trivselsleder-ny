@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { hentSatser, lagreSatser, STANDARD_SATSER } from '../utils/satser'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
-const LS_KEY = 'kulturkort_bestillinger'
 const STATUSER = ['Ny', 'Fakturert', 'Levert']
 
 function nestStatus(gjeldende) {
@@ -24,23 +24,26 @@ function formaterDato(iso) {
   })
 }
 
-function lesBestillinger() {
-  try {
-    return JSON.parse(localStorage.getItem(LS_KEY) || '[]')
-  } catch {
-    return []
-  }
-}
-
-function lagreBestillinger(liste) {
-  localStorage.setItem(LS_KEY, JSON.stringify(liste))
-}
-
 export default function AdminBestillinger() {
   const { t } = useTranslation()
   const { loggUt } = useAuth()
   const navigate = useNavigate()
-  const [bestillinger, setBestillinger] = useState(lesBestillinger)
+  const [bestillinger, setBestillinger] = useState([])
+  const [laster, setLaster] = useState(true)
+  const [feil, setFeil] = useState(null)
+
+  useEffect(() => {
+    supabase
+      .from('kulturkort_bestillinger')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(0, 9999)
+      .then(({ data, error }) => {
+        if (error) setFeil(error.message)
+        else setBestillinger(data ?? [])
+        setLaster(false)
+      })
+  }, [])
   const [filter, setFilter] = useState('Alle')
   const [satser, setSatser] = useState(hentSatser)
   const [satserLagret, setSatserLagret] = useState(false)
@@ -56,12 +59,17 @@ export default function AdminBestillinger() {
     Levert: bestillinger.filter(b => b.status === 'Levert').length,
   }), [bestillinger])
 
-  function byttStatus(id) {
-    const oppdatert = bestillinger.map(b =>
-      b.id === id ? { ...b, status: nestStatus(b.status) } : b
-    )
-    setBestillinger(oppdatert)
-    lagreBestillinger(oppdatert)
+  async function byttStatus(id) {
+    const forrige = bestillinger
+    const rad = bestillinger.find(b => b.id === id)
+    const nyStatus = nestStatus(rad.status)
+    setBestillinger(bestillinger.map(b => b.id === id ? { ...b, status: nyStatus } : b))
+    const { error } = await supabase
+      .from('kulturkort_bestillinger').update({ status: nyStatus }).eq('id', id)
+    if (error) {
+      setBestillinger(forrige) // rull tilbake om lagring feilet
+      alert('Kunne ikke lagre status. Prøv igjen.')
+    }
   }
 
   async function handleLoggUt() {
@@ -130,6 +138,9 @@ export default function AdminBestillinger() {
           ))}
         </div>
 
+        {laster && <p className="text-gray-400 mb-4">Laster …</p>}
+        {feil && <p className="text-red-600 mb-4">Feil: {feil}</p>}
+
         {/* Tabell */}
         {filtrerte.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 text-center text-gray-400">
@@ -159,7 +170,7 @@ export default function AdminBestillinger() {
                   {filtrerte.map(b => (
                     <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap text-xs">
-                        {formaterDato(b.dato)}
+                        {formaterDato(b.created_at)}
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
                         {b.skolenavn}
@@ -170,7 +181,7 @@ export default function AdminBestillinger() {
                           {b.epost}
                         </a>
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-gray-900">{b.antallKort}</td>
+                      <td className="px-4 py-3 text-right font-medium text-gray-900">{b.antall_kort}</td>
                       <td className="px-4 py-3 text-gray-600 text-xs whitespace-nowrap">
                         {b.gate}, {b.postnummer} {b.poststed}
                       </td>
