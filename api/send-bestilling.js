@@ -140,6 +140,7 @@ export default async function handler(req, res) {
   // Lagre bestillingen i databasen — delt kilde for admin-lista. Service-nøkkel
   // går utenom RLS. Feiler dette, logger vi det men lar e-postene gå: e-posten
   // er sikkerhetsnettet, så en bestilling går aldri tapt.
+  let lagringsfeil = null
   try {
     const db = createClient(
       process.env.VITE_SUPABASE_URL,
@@ -160,8 +161,9 @@ export default async function handler(req, res) {
       total: Math.round(Number(total) || 0),
       status: 'Ny',
     })
-    if (dbFeil) console.error('Kunne ikke lagre bestilling i DB:', dbFeil.message)
+    if (dbFeil) { lagringsfeil = dbFeil.message; console.error('Kunne ikke lagre bestilling i DB:', dbFeil.message) }
   } catch (e) {
+    lagringsfeil = String((e && e.message) || e)
     console.error('Uventet feil ved lagring av bestilling:', e)
   }
 
@@ -182,7 +184,7 @@ export default async function handler(req, res) {
       }),
     ])
 
-    return res.status(200).json({ ok: true })
+    return res.status(200).json({ ok: true, lagret: !lagringsfeil, ...(lagringsfeil ? { lagringsfeil } : {}) })
   } catch (err) {
     console.error('Resend feil:', err)
     return res.status(500).json({ error: 'Kunne ikke sende e-post' })
