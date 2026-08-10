@@ -39,3 +39,10 @@ create policy "Ansatte oppdaterer bestillinger"
   on public.kulturkort_bestillinger for update
   using (exists (select 1 from public.profiles p
                  where p.id = auth.uid() and p.rolle in ('superadmin','ansatt')));
+
+-- Tabell-rettigheter (GRANT). En ny tabell har INGEN privilegier for anon/
+-- authenticated/service_role som standard — RLS styrer rader, men GRANT styrer
+-- om rollen i det hele tatt får røre tabellen. Uten disse fikk både admin-lesing
+-- (authenticated) og innsettingen fra skjemaet (service_role) «permission denied».
+grant select, update on public.kulturkort_bestillinger to authenticated;
+grant all    on public.kulturkort_bestillinger to service_role;
