@@ -310,13 +310,14 @@ function KursOversikt() {
                 <th className="px-4 py-3">Skoler</th>
                 <th className="px-4 py-3">Kursholder</th>
                 <th className="px-4 py-3">RA</th>
+                <th className="px-4 py-3">Sesong</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
               {filtrerteKurs.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
+                  <td colSpan={8} className="px-4 py-6 text-center text-gray-400">
                     Ingen kurs matcher søket.
                   </td>
                 </tr>
@@ -341,6 +342,7 @@ function KursOversikt() {
                   <td className="px-4 py-3">{antallPerKurs[k.id] || 0}</td>
                   <td className="px-4 py-3">{holderNavn(k.kursholder_id)}</td>
                   <td className="px-4 py-3">{k.ra || '—'}</td>
+                  <td className="px-4 py-3">{k.sesong || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <button onClick={() => setSkoleKurs(k)} className="text-orange hover:underline mr-3">Skoler</button>
                     <button onClick={() => setSvarKurs(k)} className="text-orange hover:underline mr-3">Se svar</button>
@@ -386,7 +388,13 @@ function KursOversikt() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 max-w-sm w-full">
             <h3 className="text-lg font-semibold mb-2">Slette kurs?</h3>
-            <p className="text-gray-600 mb-6">Vil du slette «{bekreftSlett.navn || 'dette kurset'}»? Dette kan ikke angres.</p>
+            <p className="text-gray-600 mb-6">
+              Vil du slette «{bekreftSlett.navn || 'dette kurset'}»?
+              {antallPerKurs[bekreftSlett.id] > 0 && (
+                <> Kurset har <strong>{antallPerKurs[bekreftSlett.id]} skole{antallPerKurs[bekreftSlett.id] === 1 ? '' : 'r'}</strong> koblet til seg — koblingene, svarene og eventuelle evalueringer for dette kurset slettes også permanent.</>
+              )}
+              {' '}Dette kan ikke angres.
+            </p>
             <div className="flex justify-end gap-3">
               <button onClick={() => setBekreftSlett(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Avbryt</button>
               <button onClick={() => slettKurs(bekreftSlett.id)} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:opacity-90">Slett</button>
@@ -696,6 +704,15 @@ function SkoleKobling({ kurs, onLukk }) {
 
 function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, onLagre, onAvbryt }) {
   const aktiveHoldere = kursholdere.filter(k => k.aktiv)
+  // Vis også en allerede valgt (men deaktivert) kursholder, så koblingen ikke
+  // forsvinner stille når kurset åpnes/lagres på nytt.
+  const holderValg = (valgtId) => {
+    if (valgtId && !aktiveHoldere.some(k => k.id === valgtId)) {
+      const inaktiv = kursholdere.find(k => k.id === valgtId)
+      if (inaktiv) return [...aktiveHoldere, { ...inaktiv, navn: inaktiv.navn + ' (deaktivert)' }]
+    }
+    return aktiveHoldere
+  }
   const nettverk = [...new Set(nettverkData.map(d => d.nettverk).filter(Boolean))].sort()
   // Faste sesongvalg: Vår/Høst + år, generert rundt inneværende år så lista
   // holder seg oppdatert uten kodeendring. Like verdier gjør filter og
@@ -819,7 +836,7 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
               onChange={e => onEndre({ ...verdi, kursholder_id: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white">
               <option value="">— Velg kursholder —</option>
-              {aktiveHoldere.map(k => <option key={k.id} value={k.id}>{k.navn}</option>)}
+              {holderValg(verdi.kursholder_id).map(k => <option key={k.id} value={k.id}>{k.navn}</option>)}
             </select>
           </div>
           <div>
@@ -828,7 +845,7 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
               onChange={e => onEndre({ ...verdi, backup_kursholder_id: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white">
               <option value="">— Velg backup —</option>
-              {aktiveHoldere.map(k => <option key={k.id} value={k.id}>{k.navn}</option>)}
+              {holderValg(verdi.backup_kursholder_id).map(k => <option key={k.id} value={k.id}>{k.navn}</option>)}
             </select>
           </div>
           <div>

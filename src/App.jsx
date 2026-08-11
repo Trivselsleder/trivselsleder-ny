@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -10,8 +10,6 @@ import Kontakt from './pages/Kontakt'
 import Kulturkort from './pages/Kulturkort'
 import KulturkortBestill from './pages/KulturkortBestill'
 import AdminKulturkort from './pages/AdminKulturkort'
-import AdminBestillinger from './pages/AdminBestillinger'
-import AdminKortutdeling from './pages/AdminKortutdeling'
 import AdminKortoversikt from './pages/AdminKortoversikt'
 import AdminOppfolging from './pages/AdminOppfolging'
 import AdminEvaluering from './pages/AdminEvaluering'
@@ -110,17 +108,10 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/admin/bestillinger"
-                element={
-                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
-                    <AdminBestillinger />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/admin/bestillinger" element={<Navigate to="/admin/kortoversikt" replace />} />
               <Route path="/admin/tekster" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminTekster /></ProtectedRoute>} />
               <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle="superadmin"><AdminLedelse /></ProtectedRoute>} />
-              <Route path="/admin/kortutdeling" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortutdeling /></ProtectedRoute>} />
+              <Route path="/admin/kortutdeling" element={<Navigate to="/admin/kortoversikt" replace />} />
               <Route path="/admin/kortoversikt" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortoversikt /></ProtectedRoute>} />
               <Route path="/admin/oppfolging" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminOppfolging /></ProtectedRoute>} />
               <Route path="/admin/evalueringer" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminEvaluering /></ProtectedRoute>} />

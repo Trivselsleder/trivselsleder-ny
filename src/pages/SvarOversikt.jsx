@@ -71,7 +71,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
   async function flyttSkole(id, nyttKursId) {
     const { error } = await supabase.rpc('flytt_skole_til_kurs', { p_id: id, p_nytt_kurs_id: nyttKursId })
     if (error) {
-      alert('Kunne ikke flytte skolen. Prøv igjen.')
+      alert(error.message || 'Kunne ikke flytte skolen. Prøv igjen.')
       return
     }
     // Slå opp navnene FØR hent() fjerner raden fra denne lista (den hører nå til
