@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
   const { data: callerProfil } = await supabase
     .from('profiles')
-    .select('rolle')
+    .select('rolle, aktiv')
     .eq('id', caller.id)
     .single()
 
@@ -61,6 +61,9 @@ export default async function handler(req, res) {
 
   if (!['superadmin', 'ansatt', 'skoleadmin'].includes(callerRolle)) {
     return res.status(403).json({ error: 'Ingen tilgang.' })
+  }
+  if (callerProfil?.aktiv === false) {
+    return res.status(403).json({ error: 'Kontoen er deaktivert.' })
   }
 
   const { epost, navn, rolle, skoleId } = req.body
