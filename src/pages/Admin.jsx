@@ -45,6 +45,13 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
+    tittel: 'Evalueringer',
+    beskrivelse: 'Skolenes evalueringer av lekekursene: vurderinger, gullkorn og kjøpsinteresse.',
+    ikon: '⭐',
+    til: '/admin/evalueringer',
+    roller: ['superadmin', 'ansatt'],
+  },
+  {
     tittel: 'Tekster og maler',
     beskrivelse: 'Rediger e-postene, kursinformasjonssiden, avsenderadresser og tidsfrister.',
     ikon: '✏️',

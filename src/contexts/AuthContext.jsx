@@ -25,9 +25,14 @@ export function AuthProvider({ children }) {
       setLaster(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    // MERK: ikke `await` supabase-kall DIREKTE inne i onAuthStateChange — det kan
+    // låse auth-klienten (kjent Supabase-felle) og gi en hengende «laster»-spinner
+    // ved oppstart. Vi deferrer profil-hentingen ut av lytteren med setTimeout(0),
+    // så låsen slippes med en gang og getSession-grenen får satt laster=false raskt.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (session) {
+      if (!session) { setBruker(null); return }
+      setTimeout(async () => {
         setBruker(await hentProfil(session.user.id))
         if (_event === 'SIGNED_IN') {
           supabase.from('brukslogg').insert({
@@ -36,9 +41,7 @@ export function AuthProvider({ children }) {
             side:          window.location.pathname,
           })
         }
-      } else {
-        setBruker(null)
-      }
+      }, 0)
     })
 
     return () => subscription.unsubscribe()

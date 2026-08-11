@@ -14,6 +14,7 @@ import AdminBestillinger from './pages/AdminBestillinger'
 import AdminKortutdeling from './pages/AdminKortutdeling'
 import AdminKortoversikt from './pages/AdminKortoversikt'
 import AdminOppfolging from './pages/AdminOppfolging'
+import AdminEvaluering from './pages/AdminEvaluering'
 import LoggInn from './pages/LoggInn'
 import SettPassord from './pages/SettPassord'
 import MinSide from './pages/MinSide'
@@ -122,6 +123,7 @@ export default function App() {
               <Route path="/admin/kortutdeling" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortutdeling /></ProtectedRoute>} />
               <Route path="/admin/kortoversikt" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortoversikt /></ProtectedRoute>} />
               <Route path="/admin/oppfolging" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminOppfolging /></ProtectedRoute>} />
+              <Route path="/admin/evalueringer" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminEvaluering /></ProtectedRoute>} />
             </Routes>
           </main>
           <Footer />
