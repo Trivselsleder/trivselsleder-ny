@@ -35,16 +35,15 @@ function epostHtml(navn, rolle, skolenavn, inviteLenke) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { epost, navn, rolle, skoleId } = req.body
-  if (!epost || !navn || !rolle) return res.status(400).json({ error: 'Mangler påkrevde felt.' })
-
   const supabase = createClient(
     process.env.VITE_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
-  // Verifiser at kallet kommer fra en innlogget bruker
+  // Verifiser innlogging FØR kroppen valideres, så en uinnlogget ikke får vite
+  // om skjemaet var gyldig. (Selve tilgangen for skoleadmin sjekkes lenger nede,
+  // siden den avhenger av hvilken skole og rolle invitasjonen gjelder.)
   const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Ikke autentisert.' })
   const token = authHeader.slice(7)
@@ -63,6 +62,9 @@ export default async function handler(req, res) {
   if (!['superadmin', 'ansatt', 'skoleadmin'].includes(callerRolle)) {
     return res.status(403).json({ error: 'Ingen tilgang.' })
   }
+
+  const { epost, navn, rolle, skoleId } = req.body
+  if (!epost || !navn || !rolle) return res.status(400).json({ error: 'Mangler påkrevde felt.' })
 
   // Skoleadmin kan kun invitere til sin egen skole, og kun skolerolle
   if (callerRolle === 'skoleadmin') {

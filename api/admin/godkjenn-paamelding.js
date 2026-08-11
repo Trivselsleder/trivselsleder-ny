@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { trygtOrigin } from '../_vakt.js'
+import { trygtOrigin, krevAnsatt } from '../_vakt.js'
 import { oppdaterStatus } from '../_hubspot.js'
 import { epostMal } from '../_epost-mal.js'
 
@@ -75,31 +75,22 @@ async function inviterEllerKnytt(supabase, { epost, navn, rolle, skoleId, skolen
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { paameldinId } = req.body
-  if (!paameldinId) return res.status(400).json({ error: 'Mangler paameldinId' })
-
   const supabase = createClient(
     process.env.VITE_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
-  // ---- HVEM RINGER PÅ? ----
-  // Dette endepunktet bruker service-nøkkelen og går utenom alle sperrer. Da
-  // MÅ det selv sjekke hvem som kaller — ellers står det åpent for hele
-  // internett. Manglet fram til 4. aug (funnet av agenttest 3).
-  // Samme mønster som api/auth/inviter-bruker.js.
-  const authHeader = req.headers.authorization
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Ikke autentisert.' })
-  }
-  const { data: { user: caller } } = await supabase.auth.getUser(authHeader.slice(7))
-  if (!caller) return res.status(401).json({ error: 'Ugyldig sesjon — last inn siden på nytt.' })
-  const { data: callerProfil } = await supabase
-    .from('profiles').select('rolle').eq('id', caller.id).single()
-  if (!['superadmin', 'ansatt'].includes(callerProfil?.rolle)) {
-    return res.status(403).json({ error: 'Ingen tilgang.' })
-  }
+  // ---- HVEM RINGER PÅ? (FØR vi rører kroppen) ----
+  // Service-nøkkelen går utenom alle sperrer, så endepunktet må selv sjekke
+  // hvem som kaller. Sjekken ligger nå FØR kropp-valideringen, så en uinnlogget
+  // ikke får vite om skjemaet var gyldig. krevAnsatt fanger også deaktiverte
+  // kontoer (aktiv = false).
+  const vakt = await krevAnsatt(req, supabase)
+  if (vakt) return res.status(vakt.status).json({ error: vakt.error })
+
+  const { paameldinId } = req.body
+  if (!paameldinId) return res.status(400).json({ error: 'Mangler paameldinId' })
 
   const { data: p, error: hentFeil } = await supabase
     .from('paameldinger')
