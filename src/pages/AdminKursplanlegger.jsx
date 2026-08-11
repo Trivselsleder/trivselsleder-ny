@@ -155,7 +155,7 @@ function KursOversikt() {
 
   useEffect(() => {
     hentKurs()
-    supabase.from('haller').select('id, navn').order('navn').range(0, 9999)
+    supabase.from('haller').select('id, navn, vanlig_vertskap, alternative_haller').order('navn').range(0, 9999)
       .then(({ data }) => setHaller(data ?? []))
     supabase.from('kursholdere').select('id, navn, aktiv').order('navn').range(0, 9999)
       .then(({ data }) => setKursholdere(data ?? []))
@@ -797,6 +797,21 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
               }}
               placeholder="Skriv for å søke etter hall …"
             />
+            {(() => {
+              const valgtHall = haller.find(h => h.id === verdi.hall_id)
+              if (!valgtHall || (!valgtHall.vanlig_vertskap && !valgtHall.alternative_haller)) return null
+              return (
+                <div className="mt-2 text-xs bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-600">
+                  {valgtHall.vanlig_vertskap && (
+                    <p>💡 <span className="font-medium">Vanlig vertskap her:</span> {valgtHall.vanlig_vertskap}</p>
+                  )}
+                  {valgtHall.alternative_haller && (
+                    <p className="mt-1"><span className="font-medium">Alternative haller:</span> {valgtHall.alternative_haller}</p>
+                  )}
+                  <p className="mt-1 text-gray-400">Forslag fra hallregisteret — RA peker ut faktisk vertskap per skole i svar-oversikten.</p>
+                </div>
+              )
+            })()}
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Kursholder</label>
