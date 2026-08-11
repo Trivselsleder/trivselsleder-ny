@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
 const TOM_HALL = {
-  navn: '', adresse: '', kommune: '', fylke: '',
-  nettverk: '', kontaktperson: '', epost: '', telefon: '', pris: '', merknad: '',
+  navn: '', kommune: '', fylke: '', nettverk: '',
+  vanlig_vertskap: '', alternative_haller: '',
+  kontaktperson: '', epost: '', telefon: '', merknad: '',
 }
 
 // Deler en celle med flere verdier (komma eller linjeskift) til en liste
@@ -151,6 +152,7 @@ export default function AdminHaller() {
                 <th className="px-4 py-3">Navn</th>
                 <th className="px-4 py-3">Kommune</th>
                 <th className="px-4 py-3">Nettverk</th>
+                <th className="px-4 py-3">Vanlig vertskap</th>
                 <th className="px-4 py-3 w-8"></th>
               </tr>
             </thead>
@@ -186,6 +188,9 @@ export default function AdminHaller() {
                       <td className="px-4 py-3 cursor-pointer" onClick={() => setÅpen(erÅpen ? null : h.id)}>
                         {h.nettverk || '—'}
                       </td>
+                      <td className="px-4 py-3 cursor-pointer text-gray-600" onClick={() => setÅpen(erÅpen ? null : h.id)}>
+                        {h.vanlig_vertskap || '—'}
+                      </td>
                       <td
                         className="px-4 py-3 text-gray-400 cursor-pointer text-center"
                         onClick={() => setÅpen(erÅpen ? null : h.id)}
@@ -196,7 +201,7 @@ export default function AdminHaller() {
 
                     {erÅpen && (
                       <tr className="bg-gray-50 border-t border-gray-100">
-                        <td colSpan={5} className="px-4 py-4">
+                        <td colSpan={6} className="px-4 py-4">
                           {!harKontakt && (
                             <p className="text-gray-400 text-sm mb-4">Ingen kontaktinfo registrert.</p>
                           )}
@@ -308,9 +313,10 @@ function FragmentRad({ children }) {
 
 function HallSkjema({ verdi, erNy, onEndre, onLagre, onAvbryt }) {
   const felter = [
-    ['navn', 'Navn *'], ['adresse', 'Adresse'], ['kommune', 'Kommune'],
-    ['fylke', 'Fylke'], ['nettverk', 'Nettverk'], ['kontaktperson', 'Kontaktperson'],
-    ['epost', 'E-post'], ['telefon', 'Telefon'], ['pris', 'Pris'], ['merknad', 'Merknad'],
+    ['navn', 'Navn *'], ['kommune', 'Kommune'], ['fylke', 'Fylke'],
+    ['nettverk', 'Nettverk'], ['vanlig_vertskap', 'Vanlig vertskap'],
+    ['kontaktperson', 'Kontaktperson'], ['epost', 'E-post'], ['telefon', 'Telefon'],
+    ['alternative_haller', 'Alternative haller'], ['merknad', 'Merknad'],
   ]
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 overflow-y-auto">
@@ -318,7 +324,7 @@ function HallSkjema({ verdi, erNy, onEndre, onLagre, onAvbryt }) {
         <h3 className="text-lg font-semibold mb-4">{erNy ? 'Ny hall' : 'Rediger hall'}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {felter.map(([nøkkel, etikett]) => (
-            <div key={nøkkel} className={nøkkel === 'merknad' ? 'sm:col-span-2' : ''}>
+            <div key={nøkkel} className={nøkkel === 'merknad' || nøkkel === 'alternative_haller' ? 'sm:col-span-2' : ''}>
               <label className="block text-sm text-gray-600 mb-1">{etikett}</label>
               <input
                 value={verdi[nøkkel] || ''}
