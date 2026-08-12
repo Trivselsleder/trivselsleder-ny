@@ -218,7 +218,7 @@ export default async function handler(req, res) {
     .from('kurs_skole')
     .select(`
       id, kurs_id, svart, kommer, evaluering_sendt_at,
-      skoler(navn),
+      skoler(navn, hktl_navn, hktl_epost),
       kurs_skole_mottaker!kurs_skole_mottaker_kurs_skole_id_fkey(id, rolle, navn, epost)
     `)
     .eq('svart', true)
@@ -267,8 +267,27 @@ export default async function handler(req, res) {
       continue
     }
 
+    // FELLE 1: Evalueringen sendes måneder etter JA-svaret. Hovedkontakten kan
+    // ha byttet i mellomtiden (f.eks. HTLA slutter til sommeren, skolen
+    // registrerer ny). Evalueringen skal treffe DEN som er hovedkontakt NÅ.
+    // Vi beholder den frosne mottaker-rad-id-en (for logg-FK + audit-stempel),
+    // men bruker skolens nåværende hovedkontakt (skoler.hktl_*) som adresse.
+    // Faller tilbake til den frosne adressen om skolen mangler gyldig nåværende
+    // hovedkontakt. Evalueringslenken er per skole (evalueringer.token), så den
+    // virker uansett hvem som er mottaker.
     const alle = row.kurs_skole_mottaker || []
-    const htla = alle.find(m => m.rolle === 'htla' && gyldigEpost(m.epost)) || null
+    const frossenHtla = alle.find(m => m.rolle === 'htla') || null
+    let htla = null
+    if (frossenHtla) {
+      const naaEpost = row.skoler?.hktl_epost
+      const brukNaa = gyldigEpost(naaEpost)
+      const bruktEpost = brukNaa ? naaEpost.trim() : frossenHtla.epost
+      const naaNavn = (row.skoler?.hktl_navn || '').trim()
+      const bruktNavn = brukNaa ? (naaNavn || frossenHtla.navn || '') : frossenHtla.navn
+      if (gyldigEpost(bruktEpost)) {
+        htla = { ...frossenHtla, epost: bruktEpost, navn: bruktNavn }
+      }
+    }
     if (!htla) {
       hoppet_over.push({ kurs_skole_id: row.id, skole: skoleNavn, grunn: 'ingen hovedkontakt (htla) med e-post' })
       continue

@@ -317,19 +317,17 @@ export default async function handler(req, res) {
     const alle = row.kurs_skole_mottaker || []
     let mottakere
     if (cfg.mottakerRolle === 'htla') {
+      // FELLE 1: Rollen HTLA = skolens hovedkontakt. Mottaker-radene er frosset
+      // ved invitasjon, men hovedkontakten kan ha byttet siden (f.eks. HTLA
+      // slutter til sommeren, skolen registrerer ny). Alle HTLA-e-poster etter
+      // invitasjonen (purring og påminnelse) skal treffe DEN som er hovedkontakt
+      // NÅ. Vi beholder den frosne rad-id-en og den personlige lenke_token-en
+      // (så lenken virker og loggen peker på en gyldig mottaker), men bruker
+      // skolens nåværende hovedkontakt (skoler.hktl_navn/epost) som adresse.
+      // Faller tilbake til den frosne adressen om skolen mangler gyldig
+      // nåværende hovedkontakt.
       const h = alle.find(m => m.rolle === 'htla')
-      if (!h) {
-        mottakere = []
-      } else if (type === 'paaminnelse') {
-        // FELLE 1 (kun påminnelse): Rollen HTLA = skolens hovedkontakt.
-        // Mottaker-radene er frosset ved invitasjon, men mellom JA-svaret og
-        // kursdato kan hovedkontakten ha byttet (f.eks. HTLA slutter til
-        // sommeren, skolen registrerer ny). Påminnelsen skal treffe DEN som er
-        // hovedkontakt NÅ. Vi beholder den frosne rad-id-en og den personlige
-        // lenke_token-en (så kursinfo-lenken virker og loggen peker på en
-        // gyldig mottaker), men bruker skolens nåværende hovedkontakt
-        // (skoler.hktl_navn/epost) som adresse. Faller tilbake til den frosne
-        // adressen om skolen ikke har en gyldig nåværende hovedkontakt.
+      if (h) {
         const naaEpost = row.skoler?.hktl_epost
         const brukNaa = gyldigEpost(naaEpost)
         const bruktEpost = brukNaa ? naaEpost.trim() : h.epost
@@ -341,8 +339,7 @@ export default async function handler(req, res) {
           ? [{ ...h, epost: bruktEpost, navn: bruktNavn }]
           : []
       } else {
-        // purring o.l.: bruk den frosne hovedkontakten som før.
-        mottakere = gyldigEpost(h.epost) ? [h] : []
+        mottakere = []
       }
     } else { // tla — alle øvrige med e-post
       mottakere = alle.filter(m => m.rolle === 'tla' && gyldigEpost(m.epost))

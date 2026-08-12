@@ -171,12 +171,13 @@ export default async function handler(req, res) {
     const hovedkontakt = mottakere.find(m => m.rolle === 'htla') || null
     const tlaListe = mottakere.filter(m => m.rolle === 'tla')
 
-    // FELLE 1 (kun påminnelse): påminnelsen sendes til skolens NÅVÆRENDE
-    // hovedkontakt (skoler.hktl_*), ikke den frosne mottakerraden. Vi speiler
-    // samme oppslag her så RA ser DEN adressen som faktisk vil få e-posten.
-    // Purring og evaluering beholder den frosne hovedkontakten (som før).
+    // FELLE 1: alle HTLA-e-poster etter invitasjonen (purring, påminnelse,
+    // evaluering) sendes til skolens NÅVÆRENDE hovedkontakt (skoler.hktl_*),
+    // ikke den frosne mottakerraden — kontakten kan ha byttet i mellomtiden. Vi
+    // speiler samme oppslag her så RA ser DEN adressen som faktisk vil få
+    // e-posten (samme regel som send-oppfolging/send-evaluering).
     const naaHktlEpost = k.skoler?.hktl_epost
-    const paaminnelseKontakt = hovedkontakt
+    const naavarendeHovedkontakt = hovedkontakt
       ? (gyldigEpost(naaHktlEpost)
           ? {
               ...hovedkontakt,
@@ -215,8 +216,8 @@ export default async function handler(req, res) {
 
     // ---- 1) PURRING: ikke svart, gammel nok, ikke purret ennå ----
     if (ikkeSvart && !k.purring_sendt_at && dager !== null && dager >= purringDager) {
-      if (hovedkontakt && gyldigEpost(hovedkontakt.epost)) {
-        purring.push(medMottaker(hovedkontakt))
+      if (naavarendeHovedkontakt && gyldigEpost(naavarendeHovedkontakt.epost)) {
+        purring.push(medMottaker(naavarendeHovedkontakt))
       } else {
         flaggMangler('purring', 'ingen hovedkontakt (htla) med e-post')
       }
@@ -237,8 +238,8 @@ export default async function handler(req, res) {
     // ---- 3) PÅMINNELSE: svart JA, kurset ikke avholdt ennå, ikke påminnet ----
     //     Ingen dagsregel — RA bestemmer når. Mottaker: hovedkontakt.
     if (svartJa && kursIkkeAvholdt && !k.paaminnelse_sendt_at) {
-      if (paaminnelseKontakt && gyldigEpost(paaminnelseKontakt.epost)) {
-        paaminnelse.push(medMottaker(paaminnelseKontakt))
+      if (naavarendeHovedkontakt && gyldigEpost(naavarendeHovedkontakt.epost)) {
+        paaminnelse.push(medMottaker(naavarendeHovedkontakt))
       } else {
         flaggMangler('paaminnelse', 'ingen hovedkontakt (htla) med e-post')
       }
@@ -247,8 +248,8 @@ export default async function handler(req, res) {
     // ---- 4) EVALUERING: var på kurs (svart JA, kursdato passert), ikke evaluert ----
     //     Mottaker: hovedkontakt.
     if (svartJa && kursPassert && !k.evaluering_sendt_at) {
-      if (hovedkontakt && gyldigEpost(hovedkontakt.epost)) {
-        evaluering.push(medMottaker(hovedkontakt))
+      if (naavarendeHovedkontakt && gyldigEpost(naavarendeHovedkontakt.epost)) {
+        evaluering.push(medMottaker(naavarendeHovedkontakt))
       } else {
         flaggMangler('evaluering', 'ingen hovedkontakt (htla) med e-post')
       }
