@@ -148,6 +148,9 @@ export default async function handler(req, res) {
 
   const { type, kurs_skole_ids } = req.body || {}
   const torrkjoring = (req.body?.torrkjoring !== false)
+  // FELLE 2 (påminnelse): RA kan velge å ta MED øvrige TL-ansvarlige (TLA) i
+  // tillegg til hovedkontakten. Gjelder bare påminnelse; ignoreres ellers.
+  const taMedTla = (req.body?.ta_med_tla === true)
 
   const cfg = TYPER[type]
   if (!cfg) {
@@ -222,7 +225,7 @@ export default async function handler(req, res) {
       id, kurs_id, svart, kommer, antall_tl, er_vertskap,
       forste_utsending_at, purring_sendt_at, trinn3_sendt_at,
       paaminnelse_sendt_at, evaluering_sendt_at,
-      skoler(navn),
+      skoler(navn, hktl_navn, hktl_epost),
       kurs_skole_mottaker!kurs_skole_mottaker_kurs_skole_id_fkey(id, rolle, navn, epost, lenke_token)
     `)
     .in('id', kurs_skole_ids)
@@ -314,10 +317,50 @@ export default async function handler(req, res) {
     const alle = row.kurs_skole_mottaker || []
     let mottakere
     if (cfg.mottakerRolle === 'htla') {
-      const h = alle.find(m => m.rolle === 'htla' && gyldigEpost(m.epost))
-      mottakere = h ? [h] : []
+      const h = alle.find(m => m.rolle === 'htla')
+      if (!h) {
+        mottakere = []
+      } else if (type === 'paaminnelse') {
+        // FELLE 1 (kun påminnelse): Rollen HTLA = skolens hovedkontakt.
+        // Mottaker-radene er frosset ved invitasjon, men mellom JA-svaret og
+        // kursdato kan hovedkontakten ha byttet (f.eks. HTLA slutter til
+        // sommeren, skolen registrerer ny). Påminnelsen skal treffe DEN som er
+        // hovedkontakt NÅ. Vi beholder den frosne rad-id-en og den personlige
+        // lenke_token-en (så kursinfo-lenken virker og loggen peker på en
+        // gyldig mottaker), men bruker skolens nåværende hovedkontakt
+        // (skoler.hktl_navn/epost) som adresse. Faller tilbake til den frosne
+        // adressen om skolen ikke har en gyldig nåværende hovedkontakt.
+        const naaEpost = row.skoler?.hktl_epost
+        const brukNaa = gyldigEpost(naaEpost)
+        const bruktEpost = brukNaa ? naaEpost.trim() : h.epost
+        // Navn: bruk nåværende hovedkontakts navn, men fall tilbake til det
+        // frosne navnet hvis skolen har e-post uten navn (unngår «Hei ,»).
+        const naaNavn = (row.skoler?.hktl_navn || '').trim()
+        const bruktNavn = brukNaa ? (naaNavn || h.navn || '') : h.navn
+        mottakere = gyldigEpost(bruktEpost)
+          ? [{ ...h, epost: bruktEpost, navn: bruktNavn }]
+          : []
+      } else {
+        // purring o.l.: bruk den frosne hovedkontakten som før.
+        mottakere = gyldigEpost(h.epost) ? [h] : []
+      }
     } else { // tla — alle øvrige med e-post
       mottakere = alle.filter(m => m.rolle === 'tla' && gyldigEpost(m.epost))
+    }
+
+    // FELLE 2: Ved påminnelse kan RA velge å ta MED øvrige TL-ansvarlige (TLA) i
+    // tillegg til hovedkontakten (sikkerhet + fleksibilitet). Vi legger til de
+    // TLA-mottakerne som har gyldig e-post, uten å duplisere en adresse som
+    // allerede er med (f.eks. hvis hovedkontakten også står som TLA).
+    if (type === 'paaminnelse' && taMedTla) {
+      const finnesAlt = new Set(mottakere.map(m => (m.epost || '').trim().toLowerCase()))
+      for (const t of alle) {
+        if (t.rolle !== 'tla' || !gyldigEpost(t.epost)) continue
+        const nokkel = t.epost.trim().toLowerCase()
+        if (finnesAlt.has(nokkel)) continue
+        finnesAlt.add(nokkel)
+        mottakere.push(t)
+      }
     }
 
     if (mottakere.length === 0) {

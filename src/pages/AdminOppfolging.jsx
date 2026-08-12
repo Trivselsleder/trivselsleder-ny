@@ -17,7 +17,7 @@ function formaterDager(n) {
 }
 
 // Én valgbar seksjon (purring, ikke-hørt, påminnelse) med avkryssing og knapp.
-function Seksjon({ tittel, forklaring, farge, knappeverb, rader, valgt, settValgt, onSend, sender, motorOff, resultat }) {
+function Seksjon({ tittel, forklaring, farge, knappeverb, rader, valgt, settValgt, onSend, sender, motorOff, resultat, ekstraValg }) {
   const alleIder = rader.map(r => r.kurs_skole_id)
   const valgteIder = alleIder.filter(id => valgt.has(id))
   const alleValgt = rader.length > 0 && valgteIder.length === rader.length
@@ -40,6 +40,7 @@ function Seksjon({ tittel, forklaring, farge, knappeverb, rader, valgt, settValg
         <div className="max-w-2xl min-w-0">
           <h2 className="text-lg font-semibold text-gray-900">{tittel}</h2>
           <p className="text-sm text-gray-500 mt-1">{forklaring}</p>
+          {ekstraValg}
         </div>
         <div className="text-right flex-shrink-0">
           <button
@@ -147,6 +148,9 @@ export default function AdminOppfolging({ innebygd = false }) {
   const [sender, setSender] = useState(null) // hvilken type som sendes nå
   const [resultat, setResultat] = useState({}) // { purring: {...}, ... }
 
+  // FELLE 2: RA kan velge å ta MED øvrige TL-ansvarlige når påminnelsen sendes.
+  const [taMedTlaPaam, setTaMedTlaPaam] = useState(false)
+
   async function hentLister() {
     setLaster(true)
     setFeil(null)
@@ -175,7 +179,7 @@ export default function AdminOppfolging({ innebygd = false }) {
 
   useEffect(() => { hentLister() }, [])
 
-  async function send(type, ids, label) {
+  async function send(type, ids, label, extra = {}) {
     if (ids.length === 0) return
     if (!window.confirm(`${label} til ${ids.length} ${ids.length === 1 ? 'skole' : 'skoler'}? Dette sender e-post nå.`)) return
     setSender(type)
@@ -184,7 +188,7 @@ export default function AdminOppfolging({ innebygd = false }) {
       const res = await adminFetch('/api/kurs/send-oppfolging', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, kurs_skole_ids: ids, torrkjoring: false }),
+        body: JSON.stringify({ type, kurs_skole_ids: ids, torrkjoring: false, ...extra }),
       })
       const d = await res.json()
       if (!res.ok) {
@@ -327,10 +331,27 @@ export default function AdminOppfolging({ innebygd = false }) {
             rader={radPaaminnelse}
             valgt={valgtPaaminnelse}
             settValgt={setValgtPaaminnelse}
-            onSend={(ids) => send('paaminnelse', ids, 'Send påminnelse')}
+            onSend={(ids) => send('paaminnelse', ids, 'Send påminnelse', { ta_med_tla: taMedTlaPaam })}
             sender={sender === 'paaminnelse'}
             motorOff={motorOff}
             resultat={resultat.paaminnelse}
+            ekstraValg={
+              <label className="mt-3 flex items-start gap-2 text-sm text-gray-600 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={taMedTlaPaam}
+                  onChange={(e) => setTaMedTlaPaam(e.target.checked)}
+                  className="mt-0.5"
+                />
+                <span>
+                  Ta også med øvrige TL-ansvarlige (TLA)
+                  <span className="block text-xs text-gray-400">
+                    Påminnelsen går normalt bare til hovedkontakten. Kryss av her for å sende den til
+                    skolens øvrige TL-ansvarlige også.
+                  </span>
+                </span>
+              </label>
+            }
           />
 
           {/* Seksjon 4: ingen knapp — bare oversikt over hvem som mangler kontaktinfo */}

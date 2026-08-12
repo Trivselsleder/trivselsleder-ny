@@ -138,7 +138,7 @@ export default async function handler(req, res) {
       id, kurs_id, svart, kommer,
       forste_utsending_at, purring_sendt_at, trinn3_sendt_at,
       paaminnelse_sendt_at, evaluering_sendt_at,
-      skoler(navn),
+      skoler(navn, hktl_navn, hktl_epost),
       kurs_skole_mottaker!kurs_skole_mottaker_kurs_skole_id_fkey(id, rolle, navn, epost)
     `)
     .in('kurs_id', kursIder)
@@ -170,6 +170,21 @@ export default async function handler(req, res) {
     const mottakere = k.kurs_skole_mottaker || []
     const hovedkontakt = mottakere.find(m => m.rolle === 'htla') || null
     const tlaListe = mottakere.filter(m => m.rolle === 'tla')
+
+    // FELLE 1 (kun påminnelse): påminnelsen sendes til skolens NÅVÆRENDE
+    // hovedkontakt (skoler.hktl_*), ikke den frosne mottakerraden. Vi speiler
+    // samme oppslag her så RA ser DEN adressen som faktisk vil få e-posten.
+    // Purring og evaluering beholder den frosne hovedkontakten (som før).
+    const naaHktlEpost = k.skoler?.hktl_epost
+    const paaminnelseKontakt = hovedkontakt
+      ? (gyldigEpost(naaHktlEpost)
+          ? {
+              ...hovedkontakt,
+              epost: naaHktlEpost.trim(),
+              navn: (k.skoler?.hktl_navn || '').trim() || hovedkontakt.navn,
+            }
+          : hovedkontakt)
+      : null
 
     // Felles grunnobjekt for en rad; mottaker fylles inn av hver liste.
     const grunn = {
@@ -222,8 +237,8 @@ export default async function handler(req, res) {
     // ---- 3) PÅMINNELSE: svart JA, kurset ikke avholdt ennå, ikke påminnet ----
     //     Ingen dagsregel — RA bestemmer når. Mottaker: hovedkontakt.
     if (svartJa && kursIkkeAvholdt && !k.paaminnelse_sendt_at) {
-      if (hovedkontakt && gyldigEpost(hovedkontakt.epost)) {
-        paaminnelse.push(medMottaker(hovedkontakt))
+      if (paaminnelseKontakt && gyldigEpost(paaminnelseKontakt.epost)) {
+        paaminnelse.push(medMottaker(paaminnelseKontakt))
       } else {
         flaggMangler('paaminnelse', 'ingen hovedkontakt (htla) med e-post')
       }
