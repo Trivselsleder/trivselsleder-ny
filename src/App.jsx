@@ -29,6 +29,19 @@ import AdminTekster from './pages/AdminTekster'
 import SvarSkjema from './pages/SvarSkjema'
 import KursInfo from './pages/KursInfo'
 import EvalueringSkjema from './pages/EvalueringSkjema'
+// Fase 3 — skolens skall (steg 1)
+import SkoleLayout from './components/SkoleLayout'
+import SkoleAdministratorer from './pages/skole/SkoleAdministratorer'
+import SkoleAnsatte from './pages/skole/SkoleAnsatte'
+import SkoleKundeinformasjon from './pages/skole/SkoleKundeinformasjon'
+import SkoleBestillinger from './pages/skole/SkoleBestillinger'
+import SkoleDokumenter from './pages/skole/SkoleDokumenter'
+import SkoleAktiviteter from './pages/skole/SkoleAktiviteter'
+import SkoleMoveIt from './pages/skole/SkoleMoveIt'
+import SkoleAktivLaering from './pages/skole/SkoleAktivLaering'
+import SkolePeriodeplaner from './pages/skole/SkolePeriodeplaner'
+import SkoleTLhjulet from './pages/skole/SkoleTLhjulet'
+import SkoleDriftAvTL from './pages/skole/SkoleDriftAvTL'
 import './index.css'
 
 export default function App() {
@@ -56,10 +69,23 @@ export default function App() {
                 path="/min-side"
                 element={
                   <ProtectedRoute>
-                    <MinSide />
+                    <SkoleLayout />
                   </ProtectedRoute>
                 }
-              />
+              >
+                <Route index element={<MinSide />} />
+                <Route path="administratorer" element={<SkoleAdministratorer />} />
+                <Route path="ansatte" element={<SkoleAnsatte />} />
+                <Route path="kundeinformasjon" element={<SkoleKundeinformasjon />} />
+                <Route path="bestillinger" element={<SkoleBestillinger />} />
+                <Route path="dokumenter" element={<SkoleDokumenter />} />
+                <Route path="aktiviteter" element={<SkoleAktiviteter />} />
+                <Route path="move-it" element={<SkoleMoveIt />} />
+                <Route path="aktiv-laering" element={<SkoleAktivLaering />} />
+                <Route path="periodeplaner" element={<SkolePeriodeplaner />} />
+                <Route path="tl-hjulet" element={<SkoleTLhjulet />} />
+                <Route path="drift-av-tl" element={<SkoleDriftAvTL />} />
+              </Route>
               <Route
                 path="/admin"
                 element={
@@ -111,6 +137,7 @@ export default function App() {
               <Route path="/admin/bestillinger" element={<Navigate to="/admin/kortoversikt" replace />} />
               <Route path="/admin/tekster" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminTekster /></ProtectedRoute>} />
               <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle="superadmin"><AdminLedelse /></ProtectedRoute>} />
+              <Route path="/admin/haller" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminHaller /></ProtectedRoute>} />
               <Route path="/admin/kortutdeling" element={<Navigate to="/admin/kortoversikt" replace />} />
               <Route path="/admin/kortoversikt" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortoversikt /></ProtectedRoute>} />
               <Route path="/admin/oppfolging" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminOppfolging /></ProtectedRoute>} />
