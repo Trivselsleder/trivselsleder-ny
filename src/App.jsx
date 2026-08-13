@@ -29,7 +29,7 @@ import AdminTekster from './pages/AdminTekster'
 import SvarSkjema from './pages/SvarSkjema'
 import KursInfo from './pages/KursInfo'
 import EvalueringSkjema from './pages/EvalueringSkjema'
-// Fase 3 — skolens skall (steg 1)
+// Fase 3 — skolens skall (steg 1) + bibliotek (steg 3)
 import SkoleLayout from './components/SkoleLayout'
 import SkoleAdministratorer from './pages/skole/SkoleAdministratorer'
 import SkoleAnsatte from './pages/skole/SkoleAnsatte'
@@ -37,6 +37,7 @@ import SkoleKundeinformasjon from './pages/skole/SkoleKundeinformasjon'
 import SkoleBestillinger from './pages/skole/SkoleBestillinger'
 import SkoleDokumenter from './pages/skole/SkoleDokumenter'
 import SkoleAktiviteter from './pages/skole/SkoleAktiviteter'
+import SkoleLek from './pages/skole/SkoleLek'
 import SkoleMoveIt from './pages/skole/SkoleMoveIt'
 import SkoleAktivLaering from './pages/skole/SkoleAktivLaering'
 import SkolePeriodeplaner from './pages/skole/SkolePeriodeplaner'
@@ -80,6 +81,7 @@ export default function App() {
                 <Route path="bestillinger" element={<SkoleBestillinger />} />
                 <Route path="dokumenter" element={<SkoleDokumenter />} />
                 <Route path="aktiviteter" element={<SkoleAktiviteter />} />
+                <Route path="aktiviteter/:id" element={<SkoleLek />} />
                 <Route path="move-it" element={<SkoleMoveIt />} />
                 <Route path="aktiv-laering" element={<SkoleAktivLaering />} />
                 <Route path="periodeplaner" element={<SkolePeriodeplaner />} />
