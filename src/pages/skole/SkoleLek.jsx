@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { hentLek, hentDokumenter, loggBruk } from '../../lib/leker'
 import { erFavoritt, settFavoritt } from '../../lib/favoritter'
-import { hentPlaner, leggTilOppforing } from '../../lib/periodeplan'
+import { hentPlaner, leggTilRad } from '../../lib/periodeplan'
 import { hentHjul, leggLekTilHjul } from '../../lib/hjul'
+import { skrivUtLek } from '../../lib/lekPdf'
 import { useAuth } from '../../contexts/AuthContext'
 import LekRedigering from '../../components/LekRedigering'
 
@@ -70,7 +71,7 @@ export default function SkoleLek() {
 
   async function leggIPlan(plan) {
     try {
-      await leggTilOppforing(plan.id, { ressursId: id, rekkefolge: plan.oppforinger.length })
+      await leggTilRad(plan.id, id, plan.rader.length)
       visMelding(`Lagt til i «${plan.navn}»`)
       setPlaner(await hentPlaner())
     } catch (e) {
@@ -111,7 +112,6 @@ export default function SkoleLek() {
     )
 
   const t = lek.tekst
-  const knapp = 'text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:border-orange hover:text-orange transition'
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6">
       <Link to="/min-side/aktiviteter" className="text-sm text-orange">← Tilbake til Aktiviteter</Link>
@@ -126,6 +126,52 @@ export default function SkoleLek() {
         >
           {fav ? '♥' : '♡'}
         </button>
+      </div>
+
+      {/* Legg til – fullbredde, som dagens side */}
+      <div className="mt-4 space-y-2">
+        <button onClick={() => setAapen(aapen === 'plan' ? null : 'plan')}
+          className="w-full bg-magenta text-white font-semibold py-3 rounded-xl hover:bg-magenta/90 transition">
+          Legg til i periodeplan
+        </button>
+        <button onClick={() => setAapen(aapen === 'hjul' ? null : 'hjul')}
+          className="w-full bg-magenta text-white font-semibold py-3 rounded-xl hover:bg-magenta/90 transition">
+          Legg til i TL-hjul
+        </button>
+        {melding && <p className="text-sm text-magenta">{melding}</p>}
+
+        {aapen === 'plan' && (
+          <div className="border border-gray-200 rounded-xl p-3">
+            <p className="text-xs text-gray-400 mb-2">Velg periodeplan</p>
+            {planer.length === 0 ? (
+              <p className="text-sm text-gray-500">Du har ingen planer ennå. <Link to="/min-side/periodeplaner" className="text-orange">Lag en plan →</Link></p>
+            ) : (
+              <div className="flex flex-col">
+                {planer.map((p) => (
+                  <button key={p.id} onClick={() => leggIPlan(p)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
+                    {p.navn} <span className="text-gray-400">· {p.rader.length} leker</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {aapen === 'hjul' && (
+          <div className="border border-gray-200 rounded-xl p-3">
+            <p className="text-xs text-gray-400 mb-2">Velg TL-hjul</p>
+            {hjul.length === 0 ? (
+              <p className="text-sm text-gray-500">Du har ingen hjul ennå. <Link to="/min-side/tl-hjulet" className="text-orange">Lag et hjul →</Link></p>
+            ) : (
+              <div className="flex flex-col">
+                {hjul.map((h) => (
+                  <button key={h.id} onClick={() => leggPaaHjul(h)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
+                    {h.navn} <span className="text-gray-400">· {h.leker.length} leker</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 rounded-xl p-4 text-sm">
@@ -180,63 +226,19 @@ export default function SkoleLek() {
         </div>
       )}
 
-      {/* Handlinger */}
-      <div className="mt-8">
-        <div className="flex flex-wrap gap-2">
-          <button onClick={() => setAapen(aapen === 'plan' ? null : 'plan')} className={knapp}>
-            Legg til i periodeplan
-          </button>
-          <button onClick={() => setAapen(aapen === 'hjul' ? null : 'hjul')} className={knapp}>
-            Legg til i TL-hjul
-          </button>
-          <button disabled className="text-sm bg-gray-100 text-gray-400 px-4 py-2 rounded-full cursor-not-allowed">
-            Last ned som PDF (kommer)
-          </button>
-          {intern && (
-            <button onClick={() => setRediger(true)} className="text-sm bg-magenta text-white px-4 py-2 rounded-full hover:bg-magenta/90 transition">
-              Rediger lek
-            </button>
-          )}
+      {/* PDF-versjon + rediger */}
+      <div className="mt-8 bg-gray-50 rounded-2xl p-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl" aria-hidden>📄</span>
+          <div>
+            <p className="font-bold text-gray-900">PDF-versjon</p>
+            <button onClick={() => skrivUtLek(lek)} className="text-sm text-orange hover:underline">Last ned som PDF</button>
+          </div>
         </div>
-
-        {melding && <p className="text-sm text-magenta mt-3">{melding}</p>}
-
-        {aapen === 'plan' && (
-          <div className="mt-3 border border-gray-200 rounded-xl p-3 max-w-sm">
-            <p className="text-xs text-gray-400 mb-2">Velg periodeplan</p>
-            {planer.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                Du har ingen planer ennå. <Link to="/min-side/periodeplaner" className="text-orange">Lag en plan →</Link>
-              </p>
-            ) : (
-              <div className="flex flex-col">
-                {planer.map((p) => (
-                  <button key={p.id} onClick={() => leggIPlan(p)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
-                    {p.navn} <span className="text-gray-400">· {p.oppforinger.length}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {aapen === 'hjul' && (
-          <div className="mt-3 border border-gray-200 rounded-xl p-3 max-w-sm">
-            <p className="text-xs text-gray-400 mb-2">Velg TL-hjul</p>
-            {hjul.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                Du har ingen hjul ennå. <Link to="/min-side/tl-hjulet" className="text-orange">Lag et hjul →</Link>
-              </p>
-            ) : (
-              <div className="flex flex-col">
-                {hjul.map((h) => (
-                  <button key={h.id} onClick={() => leggPaaHjul(h)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
-                    {h.navn} <span className="text-gray-400">· {h.leker.length}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        {intern && (
+          <button onClick={() => setRediger(true)} className="text-sm bg-magenta text-white px-4 py-2 rounded-full hover:bg-magenta/90 transition shrink-0">
+            Rediger lek
+          </button>
         )}
       </div>
     </div>
