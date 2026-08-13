@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { hentLeker, loggBruk } from '../../lib/leker'
+import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
 
 export default function SkoleAktiviteter() {
@@ -13,12 +14,15 @@ export default function SkoleAktiviteter() {
   const [fUtstyr, setFUtstyr] = useState('')
   const [utenUtstyr, setUtenUtstyr] = useState(false)
   const [fSesong, setFSesong] = useState('')
+  const [favoritter, setFavoritter] = useState(new Set())
+  const [kunFav, setKunFav] = useState(false)
 
   useEffect(() => {
     hentLeker()
       .then(setAlle)
       .catch((e) => setFeil(e.message))
       .finally(() => setLaster(false))
+    hentMineFavoritter().then(setFavoritter).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -56,12 +60,13 @@ export default function SkoleAktiviteter() {
       if (fUtstyr && !l.utstyr.includes(fUtstyr)) return false
       if (utenUtstyr && !l.utenUtstyr) return false
       if (fSesong && !l.sesong.includes(fSesong)) return false
+      if (kunFav && !favoritter.has(l.id)) return false
       return true
     })
-  }, [alle, sok, fEgnet, fTrinn, fSted, fUtstyr, utenUtstyr, fSesong])
+  }, [alle, sok, fEgnet, fTrinn, fSted, fUtstyr, utenUtstyr, fSesong, kunFav, favoritter])
 
   function nullstill() {
-    setSok(''); setFEgnet(''); setFTrinn(''); setFSted(''); setFUtstyr(''); setUtenUtstyr(false); setFSesong('')
+    setSok(''); setFEgnet(''); setFTrinn(''); setFSted(''); setFUtstyr(''); setUtenUtstyr(false); setFSesong(''); setKunFav(false)
   }
 
   const selCls = 'text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-orange'
@@ -107,6 +112,10 @@ export default function SkoleAktiviteter() {
           <input type="checkbox" checked={utenUtstyr} onChange={(e) => setUtenUtstyr(e.target.checked)} />
           Uten utstyr
         </label>
+        <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
+          <input type="checkbox" checked={kunFav} onChange={(e) => setKunFav(e.target.checked)} />
+          <span className="text-magenta">♥</span> Kun favoritter
+        </label>
         <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange px-2">Nullstill</button>
       </div>
 
@@ -120,7 +129,7 @@ export default function SkoleAktiviteter() {
             <div className="text-center text-gray-400 py-16">Ingen leker matchet. Prøv å nullstille filtrene.</div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
-              {treff.map((l) => <LekeKort key={l.id} lek={l} />)}
+              {treff.map((l) => <LekeKort key={l.id} lek={l} favoritt={favoritter.has(l.id)} />)}
             </div>
           )}
         </>

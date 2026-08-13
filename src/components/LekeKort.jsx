@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-export default function LekeKort({ lek }) {
+export default function LekeKort({ lek, favoritt = false }) {
   return (
     <Link
       to={`/min-side/aktiviteter/${lek.id}`}
@@ -8,7 +8,10 @@ export default function LekeKort({ lek }) {
     >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-bold text-gray-900">{lek.tittel}</h3>
-        {lek.harVideo && <span title="Har video" className="text-orange shrink-0">▶</span>}
+        <span className="flex items-center gap-1 shrink-0">
+          {favoritt && <span title="Favoritt" className="text-magenta">♥</span>}
+          {lek.harVideo && <span title="Har video" className="text-orange">▶</span>}
+        </span>
       </div>
       {lek.tekst.formaal && (
         <p className="text-sm text-gray-500 mt-1 line-clamp-2">{lek.tekst.formaal}</p>

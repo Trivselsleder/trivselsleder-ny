@@ -69,6 +69,24 @@ export async function settHjulLeker(hjulId, ressursIder) {
   }
 }
 
+// Legg én lek til på et hjul (til slutt). Returnerer 'lagt' eller 'fantes'
+// hvis leken allerede lå på hjulet (unique-brudd 23505).
+export async function leggLekTilHjul(hjulId, ressursId) {
+  const { data } = await supabase
+    .from('tl_hjul_lek')
+    .select('rekkefolge')
+    .eq('hjul_id', hjulId)
+    .order('rekkefolge', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const neste = (data?.rekkefolge ?? -1) + 1
+  const { error } = await supabase
+    .from('tl_hjul_lek')
+    .insert({ hjul_id: hjulId, ressurs_id: ressursId, rekkefolge: neste })
+  if (error && error.code !== '23505') throw error
+  return error?.code === '23505' ? 'fantes' : 'lagt'
+}
+
 export async function giHjulNavn(hjulId, navn) {
   const { error } = await supabase.from('tl_hjul').update({ navn }).eq('id', hjulId)
   if (error) throw error

@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { hentLek, hentDokumenter, loggBruk } from '../../lib/leker'
+import { erFavoritt, settFavoritt } from '../../lib/favoritter'
+import { hentPlaner, leggTilOppforing } from '../../lib/periodeplan'
+import { hentHjul, leggLekTilHjul } from '../../lib/hjul'
 
 const BUNNY_LIB = '727245'
 const PUNKTER = [
@@ -20,6 +23,13 @@ export default function SkoleLek() {
   const [dok, setDok] = useState([])
   const [feil, setFeil] = useState(null)
 
+  const [fav, setFav] = useState(false)
+  const [planer, setPlaner] = useState([])
+  const [hjul, setHjul] = useState([])
+  const [aapen, setAapen] = useState(null) // 'plan' | 'hjul' | null
+  const [melding, setMelding] = useState(null)
+  const meldingTimer = useRef(null)
+
   useEffect(() => {
     let aktiv = true
     hentLek(id)
@@ -30,8 +40,48 @@ export default function SkoleLek() {
       })
       .catch((e) => aktiv && setFeil(e.message))
     hentDokumenter(id).then((d) => aktiv && setDok(d))
+    erFavoritt(id).then((f) => aktiv && setFav(f))
+    hentPlaner().then((p) => aktiv && setPlaner(p)).catch(() => {})
+    hentHjul().then((h) => aktiv && setHjul(h)).catch(() => {})
     return () => { aktiv = false }
   }, [id])
+
+  function visMelding(tekst) {
+    setMelding(tekst)
+    setAapen(null)
+    if (meldingTimer.current) clearTimeout(meldingTimer.current)
+    meldingTimer.current = window.setTimeout(() => setMelding(null), 2800)
+  }
+
+  async function toggleFav() {
+    const ny = !fav
+    setFav(ny)
+    try {
+      await settFavoritt(id, ny)
+    } catch {
+      setFav(!ny) // rulle tilbake ved feil
+    }
+  }
+
+  async function leggIPlan(plan) {
+    try {
+      await leggTilOppforing(plan.id, { ressursId: id, rekkefolge: plan.oppforinger.length })
+      visMelding(`Lagt til i «${plan.navn}»`)
+      setPlaner(await hentPlaner())
+    } catch (e) {
+      visMelding('Kunne ikke legge til: ' + e.message)
+    }
+  }
+
+  async function leggPaaHjul(h) {
+    try {
+      const res = await leggLekTilHjul(h.id, id)
+      visMelding(res === 'fantes' ? `Ligger allerede på «${h.navn}»` : `Lagt til på «${h.navn}»`)
+      setHjul(await hentHjul())
+    } catch (e) {
+      visMelding('Kunne ikke legge til: ' + e.message)
+    }
+  }
 
   if (feil)
     return (
@@ -42,10 +92,22 @@ export default function SkoleLek() {
   if (!lek) return <div className="max-w-3xl mx-auto px-4 py-12 text-gray-400">Laster …</div>
 
   const t = lek.tekst
+  const knapp = 'text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:border-orange hover:text-orange transition'
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6">
       <Link to="/min-side/aktiviteter" className="text-sm text-orange">← Tilbake til Aktiviteter</Link>
-      <h1 className="text-3xl font-bold text-gray-900 mt-2">{lek.tittel}</h1>
+
+      <div className="flex items-start justify-between gap-3 mt-2">
+        <h1 className="text-3xl font-bold text-gray-900">{lek.tittel}</h1>
+        <button
+          onClick={toggleFav}
+          aria-label={fav ? 'Fjern favoritt' : 'Legg til favoritt'}
+          title={fav ? 'Fjern favoritt' : 'Legg til favoritt'}
+          className={`shrink-0 text-2xl leading-none mt-1 transition ${fav ? 'text-magenta' : 'text-gray-300 hover:text-magenta'}`}
+        >
+          {fav ? '♥' : '♡'}
+        </button>
+      </div>
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 rounded-xl p-4 text-sm">
         <div><div className="text-gray-400">Sted</div><div className="font-medium capitalize">{lek.sted || '—'}</div></div>
@@ -99,10 +161,59 @@ export default function SkoleLek() {
         </div>
       )}
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        <button disabled className="text-sm bg-gray-100 text-gray-400 px-4 py-2 rounded-full cursor-not-allowed">Legg til i periodeplan (kommer)</button>
-        <button disabled className="text-sm bg-gray-100 text-gray-400 px-4 py-2 rounded-full cursor-not-allowed">Legg til i TL-hjul (kommer)</button>
-        <button disabled className="text-sm bg-gray-100 text-gray-400 px-4 py-2 rounded-full cursor-not-allowed">Last ned som PDF (kommer)</button>
+      {/* Handlinger */}
+      <div className="mt-8">
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => setAapen(aapen === 'plan' ? null : 'plan')} className={knapp}>
+            Legg til i periodeplan
+          </button>
+          <button onClick={() => setAapen(aapen === 'hjul' ? null : 'hjul')} className={knapp}>
+            Legg til i TL-hjul
+          </button>
+          <button disabled className="text-sm bg-gray-100 text-gray-400 px-4 py-2 rounded-full cursor-not-allowed">
+            Last ned som PDF (kommer)
+          </button>
+        </div>
+
+        {melding && <p className="text-sm text-magenta mt-3">{melding}</p>}
+
+        {aapen === 'plan' && (
+          <div className="mt-3 border border-gray-200 rounded-xl p-3 max-w-sm">
+            <p className="text-xs text-gray-400 mb-2">Velg periodeplan</p>
+            {planer.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                Du har ingen planer ennå. <Link to="/min-side/periodeplaner" className="text-orange">Lag en plan →</Link>
+              </p>
+            ) : (
+              <div className="flex flex-col">
+                {planer.map((p) => (
+                  <button key={p.id} onClick={() => leggIPlan(p)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
+                    {p.navn} <span className="text-gray-400">· {p.oppforinger.length}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {aapen === 'hjul' && (
+          <div className="mt-3 border border-gray-200 rounded-xl p-3 max-w-sm">
+            <p className="text-xs text-gray-400 mb-2">Velg TL-hjul</p>
+            {hjul.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                Du har ingen hjul ennå. <Link to="/min-side/tl-hjulet" className="text-orange">Lag et hjul →</Link>
+              </p>
+            ) : (
+              <div className="flex flex-col">
+                {hjul.map((h) => (
+                  <button key={h.id} onClick={() => leggPaaHjul(h)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
+                    {h.navn} <span className="text-gray-400">· {h.leker.length}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
