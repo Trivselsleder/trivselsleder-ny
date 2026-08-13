@@ -41,7 +41,9 @@ import SkoleLek from './pages/skole/SkoleLek'
 import SkoleMoveIt from './pages/skole/SkoleMoveIt'
 import SkoleAktivLaering from './pages/skole/SkoleAktivLaering'
 import SkolePeriodeplaner from './pages/skole/SkolePeriodeplaner'
+import SkolePeriodeplan from './pages/skole/SkolePeriodeplan'
 import SkoleTLhjulet from './pages/skole/SkoleTLhjulet'
+import SkoleHjul from './pages/skole/SkoleHjul'
 import SkoleDriftAvTL from './pages/skole/SkoleDriftAvTL'
 import './index.css'
 
@@ -85,7 +87,9 @@ export default function App() {
                 <Route path="move-it" element={<SkoleMoveIt />} />
                 <Route path="aktiv-laering" element={<SkoleAktivLaering />} />
                 <Route path="periodeplaner" element={<SkolePeriodeplaner />} />
+                <Route path="periodeplaner/:id" element={<SkolePeriodeplan />} />
                 <Route path="tl-hjulet" element={<SkoleTLhjulet />} />
+                <Route path="tl-hjulet/:id" element={<SkoleHjul />} />
                 <Route path="drift-av-tl" element={<SkoleDriftAvTL />} />
               </Route>
               <Route
