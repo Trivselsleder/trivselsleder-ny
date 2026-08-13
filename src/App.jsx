@@ -42,6 +42,7 @@ import SkoleMoveIt from './pages/skole/SkoleMoveIt'
 import SkoleAktivLaering from './pages/skole/SkoleAktivLaering'
 import SkolePeriodeplaner from './pages/skole/SkolePeriodeplaner'
 import SkolePeriodeplan from './pages/skole/SkolePeriodeplan'
+import DeltPeriodeplan from './pages/DeltPeriodeplan'
 import SkoleTLhjulet from './pages/skole/SkoleTLhjulet'
 import SkoleHjul from './pages/skole/SkoleHjul'
 import SkoleDriftAvTL from './pages/skole/SkoleDriftAvTL'
@@ -68,6 +69,7 @@ export default function App() {
               <Route path="/svar/:token" element={<SvarSkjema />} />
               <Route path="/kursinfo/:token" element={<KursInfo />} />
               <Route path="/evaluering/:token" element={<EvalueringSkjema />} />
+              <Route path="/plan/:token" element={<DeltPeriodeplan />} />
               <Route
                 path="/min-side"
                 element={
