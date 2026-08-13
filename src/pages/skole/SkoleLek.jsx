@@ -4,6 +4,8 @@ import { hentLek, hentDokumenter, loggBruk } from '../../lib/leker'
 import { erFavoritt, settFavoritt } from '../../lib/favoritter'
 import { hentPlaner, leggTilOppforing } from '../../lib/periodeplan'
 import { hentHjul, leggLekTilHjul } from '../../lib/hjul'
+import { useAuth } from '../../contexts/AuthContext'
+import LekRedigering from '../../components/LekRedigering'
 
 const BUNNY_LIB = '727245'
 const PUNKTER = [
@@ -19,9 +21,12 @@ const PUNKTER = [
 
 export default function SkoleLek() {
   const { id } = useParams()
+  const { bruker } = useAuth()
+  const intern = ['superadmin', 'ansatt'].includes(bruker?.rolle)
   const [lek, setLek] = useState(null)
   const [dok, setDok] = useState([])
   const [feil, setFeil] = useState(null)
+  const [rediger, setRediger] = useState(false)
 
   const [fav, setFav] = useState(false)
   const [planer, setPlaner] = useState([])
@@ -90,6 +95,20 @@ export default function SkoleLek() {
       </div>
     )
   if (!lek) return <div className="max-w-3xl mx-auto px-4 py-12 text-gray-400">Laster …</div>
+
+  if (rediger && intern)
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <button onClick={() => setRediger(false)} className="text-sm text-orange">← Tilbake til leken</button>
+        <div className="mt-3">
+          <LekRedigering
+            lek={lek}
+            onLagret={async () => { setRediger(false); setLek(await hentLek(id)) }}
+            onAvbryt={() => setRediger(false)}
+          />
+        </div>
+      </div>
+    )
 
   const t = lek.tekst
   const knapp = 'text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:border-orange hover:text-orange transition'
@@ -173,6 +192,11 @@ export default function SkoleLek() {
           <button disabled className="text-sm bg-gray-100 text-gray-400 px-4 py-2 rounded-full cursor-not-allowed">
             Last ned som PDF (kommer)
           </button>
+          {intern && (
+            <button onClick={() => setRediger(true)} className="text-sm bg-magenta text-white px-4 py-2 rounded-full hover:bg-magenta/90 transition">
+              Rediger lek
+            </button>
+          )}
         </div>
 
         {melding && <p className="text-sm text-magenta mt-3">{melding}</p>}

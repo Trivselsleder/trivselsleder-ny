@@ -69,6 +69,22 @@ export async function hentDokumenter(ressursId) {
   return data || []
 }
 
+// --- Redigering (kun interne; RLS på ressurser/ressurs_innhold = fase3_intern) ---
+
+export async function lagreLekMeta(ressursId, felter) {
+  const { error } = await supabase.from('ressurser').update(felter).eq('id', ressursId)
+  if (error) throw error
+}
+
+// Oppdaterer (eller oppretter) innholdsraden for ett språk. Endringslogg- og
+// ferskhet-triggere i basen håndterer historikk + «utdatert»-merking automatisk.
+export async function lagreInnhold(ressursId, sprak, felter) {
+  const { error } = await supabase
+    .from('ressurs_innhold')
+    .upsert({ ressurs_id: ressursId, sprak, ...felter }, { onConflict: 'ressurs_id,sprak' })
+  if (error) throw error
+}
+
 export async function loggBruk(hendelse, { ressursId = null, sokTekst = null } = {}) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
