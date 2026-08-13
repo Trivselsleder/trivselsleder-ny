@@ -2,25 +2,43 @@ import { supabase } from './supabase'
 import { hentMinSkole, lekTittel } from './skole'
 
 const HJUL_VELG = `
-  id, navn, beskrivelse, status, opprettet_at,
+  id, navn, beskrivelse, status, rotasjoner, skriftstorrelse, opprettet_at,
   tl_hjul_lek ( id, rekkefolge, ressurs_id,
-    ressurser ( id, ressurs_innhold ( sprak, tittel ) ) )
+    ressurser (
+      id,
+      ressurs_innhold ( sprak, tittel ),
+      ressurs_egnet ( egnet_kategori ( navn ) ),
+      ressurs_utstyr ( utstyr ( navn ) ),
+      medier ( type, bunny_video_id, alt_tekst )
+    ) )
 `
+
+function formLekPaaHjul(k) {
+  const res = k.ressurser
+  const video = (res?.medier || []).find((m) => m.type === 'video' && m.bunny_video_id) || null
+  return {
+    koblingId: k.id,
+    ressursId: k.ressurs_id,
+    tittel: res ? lekTittel(res) : 'Slettet lek',
+    egnet: (res?.ressurs_egnet || []).map((x) => x.egnet_kategori?.navn).filter(Boolean),
+    utstyr: (res?.ressurs_utstyr || []).map((x) => x.utstyr?.navn).filter(Boolean),
+    video,
+    harVideo: !!video,
+  }
+}
 
 export function formHjul(rad) {
   const leker = (rad.tl_hjul_lek || [])
     .slice()
     .sort((a, b) => a.rekkefolge - b.rekkefolge)
-    .map((k) => ({
-      koblingId: k.id,
-      ressursId: k.ressurs_id,
-      tittel: lekTittel(k.ressurser),
-    }))
+    .map(formLekPaaHjul)
   return {
     id: rad.id,
     navn: rad.navn,
     beskrivelse: rad.beskrivelse,
     status: rad.status,
+    rotasjoner: rad.rotasjoner ?? 6,
+    skriftstorrelse: rad.skriftstorrelse ?? 16,
     leker,
   }
 }
@@ -41,11 +59,11 @@ export async function hentHjulEn(id) {
   return formHjul(data)
 }
 
-export async function opprettHjul({ navn, beskrivelse = null, leker = [] }) {
+export async function opprettHjul({ navn, beskrivelse = null, leker = [], rotasjoner = 6, skriftstorrelse = 16 }) {
   const skoleId = await hentMinSkole()
   const { data, error } = await supabase
     .from('tl_hjul')
-    .insert({ navn, beskrivelse, skole_id: skoleId })
+    .insert({ navn, beskrivelse, skole_id: skoleId, rotasjoner, skriftstorrelse })
     .select('id')
     .single()
   if (error) throw error
@@ -69,8 +87,7 @@ export async function settHjulLeker(hjulId, ressursIder) {
   }
 }
 
-// Legg én lek til på et hjul (til slutt). Returnerer 'lagt' eller 'fantes'
-// hvis leken allerede lå på hjulet (unique-brudd 23505).
+// Legg én lek til på et hjul (til slutt). 'lagt' | 'fantes' (unique-brudd 23505).
 export async function leggLekTilHjul(hjulId, ressursId) {
   const { data } = await supabase
     .from('tl_hjul_lek')
@@ -87,12 +104,38 @@ export async function leggLekTilHjul(hjulId, ressursId) {
   return error?.code === '23505' ? 'fantes' : 'lagt'
 }
 
-export async function giHjulNavn(hjulId, navn) {
-  const { error } = await supabase.from('tl_hjul').update({ navn }).eq('id', hjulId)
+export async function oppdaterHjul(hjulId, felter) {
+  const { error } = await supabase.from('tl_hjul').update(felter).eq('id', hjulId)
   if (error) throw error
 }
 
+// bakoverkompatibelt alias
+export async function giHjulNavn(hjulId, navn) {
+  return oppdaterHjul(hjulId, { navn })
+}
+
 export async function arkiverHjul(hjulId) {
-  const { error } = await supabase.from('tl_hjul').update({ status: 'arkivert' }).eq('id', hjulId)
+  return oppdaterHjul(hjulId, { status: 'arkivert' })
+}
+
+// Kopier hjul (til nytt semester). Dupliserer oppsett + kakestykker.
+export async function kopierHjul(hjulId, nyNavn) {
+  const kilde = await hentHjulEn(hjulId)
+  const skoleId = await hentMinSkole()
+  const { data, error } = await supabase
+    .from('tl_hjul')
+    .insert({
+      navn: nyNavn || `${kilde.navn} (kopi)`,
+      beskrivelse: kilde.beskrivelse,
+      skole_id: skoleId,
+      rotasjoner: kilde.rotasjoner,
+      skriftstorrelse: kilde.skriftstorrelse,
+    })
+    .select('id')
+    .single()
   if (error) throw error
+  const nyId = data.id
+  const ider = kilde.leker.map((l) => l.ressursId).filter(Boolean)
+  if (ider.length) await settHjulLeker(nyId, ider)
+  return nyId
 }
