@@ -21,7 +21,7 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
 - Innlogging: Feide OIDC (Sikt) + brukernavn/passord
 - Søk-agenter: SerpAPI (Production, 15000/mnd)
 - AI: Claude API
-- Video: Vimeo Pro
+- Video: Bunny.net Stream (EU-lagring, signerte URL-er) — VALGT (erstatter tidligere Vimeo Pro)
 - Fakturering: Tripletex (planlagt)
 
 ## Brandfarger (offisielle, i src/index.css)
