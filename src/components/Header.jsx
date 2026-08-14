@@ -21,7 +21,7 @@ export default function Header() {
   const activeClass = 'text-orange'
 
   const otherLang = i18n.language === 'sv' ? 'no' : 'sv'
-  const langLabel = i18n.language === 'sv' ? '🇳🇴 NO' : '🇸🇪 SV'
+  const langLabel = i18n.language === 'sv' ? '🌐 Svenska' : '🌐 Norsk'
 
   async function handleLoggUt() {
     await loggUt()
@@ -51,7 +51,7 @@ export default function Header() {
             <button
               onClick={() => i18n.changeLanguage(otherLang)}
               className="text-sm text-gray-500 hover:text-orange font-medium transition-colors px-2 py-1 rounded-lg hover:bg-gray-50"
-              title={otherLang === 'sv' ? 'Byt till svenska' : 'Bytt til norsk'}
+              title={otherLang === 'sv' ? 'Bytt til svensk' : 'Byt till norska'}
             >
               {langLabel}
             </button>
