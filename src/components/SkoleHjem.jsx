@@ -44,8 +44,8 @@ const CSS = `
 .tlh-month .thumb{flex:0 0 84px;height:84px;border-radius:12px;background:linear-gradient(135deg,#FDEEE2,#FAD9E7);display:flex;align-items:center;justify-content:center;color:#d59a6a;font-weight:800}
 .tlh-month h3{font-size:17px}
 .tlh-month .why{font-size:13px;color:var(--grey);margin-top:3px}
-.tlh-mine{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
-.tlh-mine a{flex:1;min-width:120px;text-decoration:none;color:var(--dark);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;font-weight:700;font-size:14px}
+.tlh-mine{display:flex;gap:10px;flex-wrap:nowrap;margin-top:6px}
+.tlh-mine a{flex:1;min-width:0;text-decoration:none;color:var(--dark);border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;font-weight:700;font-size:14px}
 .tlh-mine a:hover{border-color:var(--magenta);color:#b0125f}
 .tlh-mine a small{display:block;font-weight:400;color:var(--grey);font-size:12px;margin-top:3px}
 .tlh-results h2{font-size:18px;margin-bottom:2px;color:var(--dark)}
@@ -76,6 +76,10 @@ function parseQ(t) {
   else if (/friminutt/.test(t)) { f.egnet = 'Friminutt'; f._key = 'friminutt' }
   else if (/fysak|uteskole/.test(t)) { f.egnet = 'FYSAK'; f._key = 'fysak' }
   else if (/bli.?kjent|klassemilj|trivsel|første skoledag/.test(t)) { f.egnet = 'Bli kjent / klassemiljø'; f._key = 'kjent' }
+  else if (/sosial kompetanse|vennskap|inkluder/.test(t)) { f.egnet = 'Sosial kompetanse'; f._key = 'sosial' }
+  else if (/tl-?mester|turnering/.test(t)) { f.egnet = 'TL-Mester'; f._key = 'mester' }
+  else if (/100\s*\+|hundre|mange elever|stor gruppe/.test(t)) { f.egnet = 'Leker for 100+ elever'; f._key = '100' }
+  else if (/barnehage|førskole/.test(t)) { f.trinn = 'Barnehage'; f._key = 'barnehage' }
   if (/\bute|utend|uteskole/.test(t)) f.sted = 'Ute'
   else if (/\binne|klasserom/.test(t)) f.sted = 'Inne'
   const mt = t.match(/(\d+)\s*(barn|elever|stk)/); if (mt) f.antall = '~' + mt[1] + ' barn'
@@ -221,11 +225,15 @@ export default function SkoleHjem({ fornavn = null }) {
               <a onClick={() => run('Friminuttleker for mellomtrinnet')}><span className="ic">🏃</span> Friminutt</a>
               <a onClick={() => run('Kroppsøving oppvarming for hel klasse')}><span className="ic">🤸</span> Kroppsøving</a>
               <a onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}><span className="ic">🧩</span> SFO / AKS</a>
-              <a onClick={() => run('Aktiv læring matematikk ute 5. trinn')}><span className="ic">📚</span> Aktiv læring</a>
+              <Link to="/min-side/aktiv-laering"><span className="ic">📚</span> Aktiv læring</Link>
               <a onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}><span className="ic">⏸️</span> Aktive pauser</a>
               <a onClick={() => run('FYSAK uteskole lavterskel')}><span className="ic">🌲</span> FYSAK</a>
               <a onClick={() => run('Bli kjent og godt klassemiljø første skoledag')}><span className="ic">🤝</span> Bli kjent / klassemiljø</a>
               <a onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}><span className="ic">🎪</span> Aktivitetsdager</a>
+              <a onClick={() => run('Sosial kompetanse og vennskap')}><span className="ic">🤗</span> Sosial kompetanse</a>
+              <a onClick={() => run('TL-Mester turnering')}><span className="ic">🏅</span> TL-Mester</a>
+              <a onClick={() => run('Leker for over 100 elever samtidig')}><span className="ic">👥</span> Leker for 100+ elever</a>
+              <a onClick={() => run('Leker for barnehage')}><span className="ic">🧸</span> Barnehage</a>
             </div>
           </div>
           <div className="tlh-panel">

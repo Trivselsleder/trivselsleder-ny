@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
-// Ny informasjonsarkitektur (IA-skolens-side-forslag): seks tydelige innganger
-// + samlemeny «Skolen min». Move it / Aktiv læring smelter inn i «Finn en lek».
+// Ny informasjonsarkitektur (IA-skolens-side-forslag): tydelige innganger
+// + samlemeny «Skolen min». Aktiv læring er egen fane (eget innhold: Fag + Trinn).
 const faner = [
   { label: 'Min side', to: '/min-side', end: true },
   { label: 'Finn en lek', to: '/min-side/aktiviteter' },
+  { label: 'Aktiv læring', to: '/min-side/aktiv-laering' },
   { label: 'Periodeplaner', to: '/min-side/periodeplaner' },
   { label: 'TL-hjul', to: '/min-side/tl-hjulet' },
   { label: 'Maler & materiell', to: '/min-side/dokumenter' },
