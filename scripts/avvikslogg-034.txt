@@ -1,0 +1,69 @@
+PRØVEIMPORT – 20 leker valgt (av 204 med ren metadatablokk).
+Valgte nid+tittel:
+  1422: Aktiviteter med fallskjerm
+  2461: TP- Bowling
+  2464: Slangesisten
+  2698: Fisken i det røde hav
+  2778: Bowling
+  2871: Bjørnen sover
+  4040: Hilseball
+  1036: Moonball challenge
+  1056: Crazyking
+  1226: Minuttball
+  1231: Kinesisk fotball
+  1232: Speedminton
+  1238: Bumball
+  1240: Dartspill
+  1244: Ballder
+  1248: Steinen bak ryggen
+  1252: 50-leken
+  1263: Høy og lav
+  1264: Jamad, Haywan, Nabat
+  1265: Ka pa kera
+
+AVVIK (45):
+  nid 1422 «Aktiviteter med fallskjerm»: sted ikke tolket: 'På et stort og flatt område.'
+  nid 1422 «Aktiviteter med fallskjerm»: game_category «Presisjon» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1422 «Aktiviteter med fallskjerm»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 1422 «Aktiviteter med fallskjerm»: inline bilde-fids ikke løst: 14337
+  nid 2461 «TP- Bowling»: sted ikke tolket: 'Lite og flatt område'
+  nid 2461 «TP- Bowling»: game_category «Ballaktiviteter» ikke koblet (taksonomikartlegging gjenstår)
+  nid 2464 «Slangesisten»: game_category «Sisten» ikke koblet (taksonomikartlegging gjenstår)
+  nid 2464 «Slangesisten»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 2698 «Fisken i det røde hav»: game_category «Reaksjon» ikke koblet (taksonomikartlegging gjenstår)
+  nid 2698 «Fisken i det røde hav»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 2778 «Bowling»: game_category «Presisjon» ikke koblet (taksonomikartlegging gjenstår)
+  nid 2778 «Bowling»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 2871 «Bjørnen sover»: game_category «Lek til musikk og rytme» ikke koblet (taksonomikartlegging gjenstår)
+  nid 2871 «Bjørnen sover»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 4040 «Hilseball»: game_category «Minglestasjon» ikke koblet (taksonomikartlegging gjenstår)
+  nid 4040 «Hilseball»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 1036 «Moonball challenge»: game_category «Ballaktiviteter» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1036 «Moonball challenge»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 1036 «Moonball challenge»: inline bilde-fids ikke løst: 6789, 14260
+  nid 1056 «Crazyking»: sted ikke tolket: 'Flatt område der ballen spretter fint'
+  nid 1056 «Crazyking»: game_category «Ballaktiviteter» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1056 «Crazyking»: inline bilde-fids ikke løst: 4865
+  nid 1226 «Minuttball»: sted ikke tolket: 'Forholdsvis stort område'
+  nid 1226 «Minuttball»: antall ikke tolket: 'Mange'
+  nid 1226 «Minuttball»: game_category «Strategi» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1226 «Minuttball»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 1231 «Kinesisk fotball»: game_category «Ballaktiviteter» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1232 «Speedminton»: flere tall – tolket som min/max
+  nid 1232 «Speedminton»: game_category «Presisjon» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1238 «Bumball»: game_category «Strategi» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1240 «Dartspill»: sted ikke tolket: 'Mot vegg eller et tre'
+  nid 1240 «Dartspill»: game_category «Presisjon» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1244 «Ballder»: antall ikke tolket: 'Mange'
+  nid 1244 «Ballder»: game_category «Ballaktiviteter» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1248 «Steinen bak ryggen»: sted ikke tolket: 'På et flatt område'
+  nid 1248 «Steinen bak ryggen»: game_category «Utføres i gruppe» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1248 «Steinen bak ryggen»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 1248 «Steinen bak ryggen»: inline bilde-fids ikke løst: 14347
+  nid 1252 «50-leken»: antall ikke tolket: 'Mange'
+  nid 1252 «50-leken»: game_category «Orientering» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1252 «50-leken»: har video-flagg – avventer Bunny-opplasting (ingen medier-rad laget)
+  nid 1263 «Høy og lav»: game_category «Sisten» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1264 «Jamad, Haywan, Nabat»: antall ikke tolket: 'Mange'
+  nid 1264 «Jamad, Haywan, Nabat»: game_category «Stafett» ikke koblet (taksonomikartlegging gjenstår)
+  nid 1265 «Ka pa kera»: game_category «Presisjon» ikke koblet (taksonomikartlegging gjenstår)
