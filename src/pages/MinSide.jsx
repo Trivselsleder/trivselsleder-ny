@@ -416,11 +416,77 @@ function SkoleansattSeksjon({ brukerId }) {
   )
 }
 
+// Forhåndsvisning for intern/superadmin: slik ser skolens «Min side» ut (les-modus).
+function SkoleForhandsvisning({ skoleNavn = 'Demoskolen' }) {
+  const [skole, setSkole] = useState(null)
+  const [ansatte, setAnsatte] = useState([])
+  const [laster, setLaster] = useState(true)
+
+  useEffect(() => {
+    let aktiv = true
+    supabase.from('skoler').select(SKOLE_FELT).eq('navn', skoleNavn).limit(1).maybeSingle()
+      .then(async ({ data }) => {
+        if (!aktiv) return
+        setSkole(data ?? null)
+        if (data?.id) {
+          const { data: a } = await supabase
+            .from('bruker_skole')
+            .select('rolle, aktiv, profiles(id, navn, epost, rolle)')
+            .eq('skole_id', data.id)
+          if (aktiv) setAnsatte(a ?? [])
+        }
+        if (aktiv) setLaster(false)
+      })
+    return () => { aktiv = false }
+  }, [skoleNavn])
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl bg-petrol/5 border border-petrol/20 px-4 py-3 text-sm text-petrol">
+        👁️ Forhåndsvisning — slik ser «Min side» ut for en skoleadmin (viser {skoleNavn}). Kun synlig for deg som superadmin.
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 className="font-semibold text-gray-800 mb-4">Min skole</h2>
+        {laster ? (
+          <div className="h-12 flex items-center"><div className="w-5 h-5 border-2 border-orange border-t-transparent rounded-full animate-spin" /></div>
+        ) : skole ? (
+          <SkoleInfoVisning skole={skole} />
+        ) : (
+          <p className="text-sm text-amber-600">Fant ikke skolen «{skoleNavn}».</p>
+        )}
+      </div>
+      {skole && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 className="font-semibold text-gray-800 mb-4">Ansatte på skolen</h2>
+          {ansatte.length === 0 ? (
+            <p className="text-sm text-gray-400 py-2">Ingen ansatte registrert ennå.</p>
+          ) : (
+            <ul className="divide-y divide-gray-50">
+              {ansatte.map((a, i) => (
+                <li key={a.profiles?.id ?? i} className="flex items-center justify-between py-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{a.profiles?.navn ?? '–'}</p>
+                    <p className="text-xs text-gray-400">{a.profiles?.epost ?? '–'}</p>
+                  </div>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${ROLLE_STIL[a.rolle] ?? 'bg-gray-100 text-gray-600'}`}>
+                    {ROLLE_LABEL[a.rolle] ?? a.rolle}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function MinSide() {
   const { bruker, session, loggUt } = useAuth()
   const navigate = useNavigate()
   const [lokalProfil, setLokalProfil] = useState(null)
   const [profilFeil, setProfilFeil] = useState(null)
+  const [visForhandsvis, setVisForhandsvis] = useState(false)
 
   useEffect(() => {
     if (bruker || !session) return
@@ -498,7 +564,17 @@ export default function MinSide() {
               <AdminLenke to="/admin/bestillinger"  label="Kulturkort-bestillinger" />
               <AdminLenke to="/admin/kulturkort"    label="Kulturkort-partnere" />
             </div>
+            <button
+              onClick={() => setVisForhandsvis((v) => !v)}
+              className="mt-4 text-sm font-medium text-petrol hover:underline"
+            >
+              {visForhandsvis ? '✕ Skjul forhåndsvisning' : '👁️ Se hvordan «Min side» ser ut for en skole'}
+            </button>
           </div>
+        )}
+
+        {visForhandsvis && ['superadmin', 'ansatt'].includes(rolle) && (
+          <SkoleForhandsvisning skoleNavn="Demoskolen" />
         )}
 
         {/* Skoleadmin: min skole + ansatte */}
