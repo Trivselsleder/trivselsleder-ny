@@ -1,21 +1,32 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
+import { hentMinSkoleNavn } from '../lib/skole'
 
 export default function Header() {
   const { t, i18n } = useTranslation()
   const { session, bruker, loggUt } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [skoleNavn, setSkoleNavn] = useState(null)
 
-  const navLinks = [
+  useEffect(() => {
+    if (!session) { setSkoleNavn(null); return }
+    let aktiv = true
+    hentMinSkoleNavn().then((n) => { if (aktiv) setSkoleNavn(n) }).catch(() => {})
+    return () => { aktiv = false }
+  }, [session])
+
+  const offentlige = [
     { label: t('nav.omOss'), to: '/om-oss' },
     { label: t('nav.forSkoler'), to: '/for-skoler' },
     { label: t('nav.kulturkortet'), to: '/kulturkortet' },
     { label: t('nav.kontakt'), to: '/kontakt' },
-    ...(bruker?.rolle === 'superadmin' ? [{ label: 'Admin', to: '/admin' }] : []),
   ]
+  const adminLenke = bruker?.rolle === 'superadmin' ? [{ label: 'Admin', to: '/admin' }] : []
+  // Innlogget skole: skjul de offentlige markedsføringslenkene, behold Admin (superadmin).
+  const navLinks = session ? adminLenke : [...offentlige, ...adminLenke]
 
   const baseClass = 'text-gray-700 hover:text-orange font-medium transition-colors'
   const activeClass = 'text-orange'
@@ -32,9 +43,17 @@ export default function Header() {
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-orange">Trivselsleder</span>
-          </Link>
+          <div className="flex items-center gap-3 min-w-0">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-orange">Trivselsleder</span>
+            </Link>
+            {session && skoleNavn && (
+              <Link to="/min-side" title="Til Min side" className="hidden sm:flex items-center gap-3 min-w-0">
+                <span className="text-gray-300" aria-hidden>|</span>
+                <span className="text-gray-700 font-semibold truncate hover:text-orange transition-colors">{skoleNavn}</span>
+              </Link>
+            )}
+          </div>
 
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
@@ -95,6 +114,9 @@ export default function Header() {
 
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 flex flex-col gap-4">
+          {session && skoleNavn && (
+            <Link to="/min-side" onClick={() => setMenuOpen(false)} className="text-gray-800 font-bold text-lg">{skoleNavn}</Link>
+          )}
           {navLinks.map((link) => (
             <NavLink
               key={link.to}

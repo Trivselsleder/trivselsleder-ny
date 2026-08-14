@@ -16,6 +16,26 @@ export async function hentMinSkole() {
   return data?.skole_id ?? null
 }
 
+// Navnet på skolen brukeren jobber i (til header). Faller tilbake til en skole
+// RLS lar oss lese (intern/superadmin ser alle) om ingen aktiv medlemskap finnes.
+export async function hentMinSkoleNavn() {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: bs } = await supabase
+    .from('bruker_skole')
+    .select('skoler ( navn )')
+    .eq('bruker_id', user.id)
+    .eq('aktiv', true)
+    .limit(1)
+    .maybeSingle()
+  if (bs?.skoler?.navn) return bs.skoler.navn
+  // Ingen egen skole (typisk intern/superadmin): vis en skole RLS lar oss lese.
+  // Foretrekk «Demoskolen» for test/demo, ellers første i lista.
+  const { data: liste } = await supabase.from('skoler').select('navn').order('navn').limit(100)
+  const demo = (liste || []).find((s) => s.navn === 'Demoskolen')
+  return demo?.navn ?? liste?.[0]?.navn ?? null
+}
+
 export function lekTittel(ressurs) {
   const inn = ressurs?.ressurs_innhold || []
   return (
