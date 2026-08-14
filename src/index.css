@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-orange: #F47920;
-  --color-magenta: #D6006E;
+  /* Grafisk identitet v2.0 (offisiell) */
+  --color-orange: #FF7B31;   /* primær oransje */
+  --color-magenta: #D6006E;  /* utgått – erstattes app-vidt i eget branding-pass */
+  --color-petrol: #106C75;   /* sekundær */
+  --color-teal: #54A1AB;     /* sekundær lys */
+  --color-tlred: #CF442F;    /* tertiær rød */
+  --color-tlgold: #F2B01E;   /* varm komplement */
 }

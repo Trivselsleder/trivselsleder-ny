@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { hentHjulEn, settHjulLeker, oppdaterHjul, arkiverHjul, kopierHjul } from '../../lib/hjul'
+import { hentHjulEn, settHjulSegmenter, oppdaterHjul, arkiverHjul, kopierHjul, hentKategorier, opprettKategori } from '../../lib/hjul'
 import Lykkehjul from '../../components/Lykkehjul'
-import LekeVelger from '../../components/LekeVelger'
+import KakestykkeVelger from '../../components/KakestykkeVelger'
+import HjulKategori from '../../components/HjulKategori'
 
 export default function SkoleHjul() {
   const { id } = useParams()
@@ -13,9 +14,20 @@ export default function SkoleHjul() {
   const [rediger, setRediger] = useState(false)
   const [navn, setNavn] = useState('')
   const [rotasjoner, setRotasjoner] = useState(6)
-  const [skrift, setSkrift] = useState(16)
-  const [valgte, setValgte] = useState([]) // {id, tittel}
+  const [skrift, setSkrift] = useState(20)
+  const [kategoriId, setKategoriId] = useState(null)
+  const [kategorier, setKategorier] = useState([])
+  const [valgte, setValgte] = useState([]) // {kind,id?,tittel,key}
   const [lagrer, setLagrer] = useState(false)
+  const friTeller = useRef(0)
+
+  function segmenterFraHjul(h) {
+    friTeller.current = 0
+    return h.leker.map((l) => {
+      if (l.fri) { friTeller.current += 1; return { kind: 'fri', tittel: l.tekst, key: 'fri-' + friTeller.current } }
+      return { kind: 'lek', id: l.ressursId, tittel: l.tittel, key: 'lek-' + l.ressursId }
+    })
+  }
 
   function last() {
     setLaster(true)
@@ -26,28 +38,47 @@ export default function SkoleHjul() {
         setNavn(h.navn)
         setRotasjoner(h.rotasjoner)
         setSkrift(h.skriftstorrelse)
-        setValgte(h.leker.map((l) => ({ id: l.ressursId, tittel: l.tittel })))
+        setKategoriId(h.kategoriId)
+        setValgte(segmenterFraHjul(h))
       })
       .catch((e) => setFeil(e.message))
       .finally(() => setLaster(false))
   }
   useEffect(last, [id])
+  useEffect(() => { hentKategorier().then(setKategorier).catch(() => {}) }, [])
 
   function toggleLek(lek) {
     setValgte((v) =>
-      v.some((x) => x.id === lek.id) ? v.filter((x) => x.id !== lek.id) : [...v, { id: lek.id, tittel: lek.tittel }]
+      v.some((x) => x.kind === 'lek' && x.id === lek.id)
+        ? v.filter((x) => !(x.kind === 'lek' && x.id === lek.id))
+        : [...v, { kind: 'lek', id: lek.id, tittel: lek.tittel, key: 'lek-' + lek.id }]
     )
   }
+  function leggFri(tekst) {
+    friTeller.current += 1
+    setValgte((v) => [...v, { kind: 'fri', tittel: tekst, key: 'fri-ny-' + friTeller.current }])
+  }
+  function fjern(item) { setValgte((v) => v.filter((x) => x.key !== item.key)) }
 
-  // Live-forhåndsvisning i redigering (nok data til emoji/farge/tittel).
-  const forhandsLeker = valgte.map((x) => ({ ressursId: x.id, tittel: x.tittel, egnet: [], utstyr: [], harVideo: false }))
+  const forhandsLeker = valgte.map((x) =>
+    x.kind === 'fri'
+      ? { fri: true, tittel: x.tittel, tekst: x.tittel, egnet: [], utstyr: [], harVideo: false }
+      : { fri: false, ressursId: x.id, tittel: x.tittel, egnet: [], utstyr: [], harVideo: false }
+  )
+  const segmenter = valgte.map((x) => (x.kind === 'fri' ? { fri: true, tekst: x.tittel } : { ressursId: x.id }))
+
+  async function nyKategori(navnStr) {
+    const k = await opprettKategori(navnStr)
+    setKategorier((ks) => [...ks, k])
+    return k
+  }
 
   async function lagre() {
     if (lagrer) return
     setLagrer(true)
     try {
-      await oppdaterHjul(id, { navn: navn.trim() || hjul.navn, rotasjoner, skriftstorrelse: skrift })
-      await settHjulLeker(id, valgte.map((x) => x.id))
+      await oppdaterHjul(id, { navn: navn.trim() || hjul.navn, rotasjoner, skriftstorrelse: skrift, kategori_id: kategoriId })
+      await settHjulSegmenter(id, segmenter)
       setRediger(false)
       last()
     } catch (e) { setFeil(e.message) } finally { setLagrer(false) }
@@ -73,7 +104,10 @@ export default function SkoleHjul() {
       <Link to="/min-side/tl-hjulet" className="text-sm text-gray-500 hover:text-orange">← Alle hjul</Link>
 
       <div className="flex items-center justify-between gap-4 mt-2 flex-wrap">
-        <h1 className="text-2xl font-bold text-gray-900">{hjul.navn}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-gray-900">{hjul.navn}</h1>
+          {hjul.kategoriNavn && <span className="text-xs bg-petrol/10 text-petrol px-2 py-0.5 rounded-full">{hjul.kategoriNavn}</span>}
+        </div>
         {!rediger && (
           <div className="flex items-center gap-2">
             <button onClick={() => setRediger(true)} className="text-sm border border-gray-300 text-gray-600 px-4 py-2 rounded-full hover:bg-gray-50">Rediger</button>
@@ -84,12 +118,14 @@ export default function SkoleHjul() {
 
       {!rediger && (
         <div className="mt-6">
-          <Lykkehjul leker={hjul.leker} rotasjoner={hjul.rotasjoner} skriftstorrelse={hjul.skriftstorrelse} />
+          <Lykkehjul leker={hjul.leker} rotasjoner={hjul.rotasjoner} skriftstorrelse={hjul.skriftstorrelse} kategoriNavn={hjul.kategoriNavn} />
           <div className="mt-8">
-            <h2 className="font-bold text-gray-900 text-sm">Leker på hjulet ({hjul.leker.length})</h2>
+            <h2 className="font-bold text-gray-900 text-sm">Kakestykker ({hjul.leker.length})</h2>
             <div className="flex flex-wrap gap-2 mt-2">
               {hjul.leker.map((l) => (
-                <Link key={l.koblingId} to={`/min-side/aktiviteter/${l.ressursId}`} className="text-sm bg-orange/10 text-orange px-3 py-1 rounded-full hover:bg-orange/20">{l.tittel}</Link>
+                l.fri
+                  ? <span key={l.koblingId} className="text-sm bg-petrol/10 text-petrol px-3 py-1 rounded-full">✎ {l.tittel}</span>
+                  : <Link key={l.koblingId} to={`/min-side/aktiviteter/${l.ressursId}`} className="text-sm bg-orange/10 text-orange px-3 py-1 rounded-full hover:bg-orange/20">{l.tittel}</Link>
               ))}
             </div>
           </div>
@@ -102,27 +138,20 @@ export default function SkoleHjul() {
             <input type="text" value={navn} onChange={(e) => setNavn(e.target.value)}
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange" />
 
+            <HjulKategori verdi={kategoriId} kategorier={kategorier} onEndre={setKategoriId} onNyKategori={nyKategori} />
+
             <div className="flex flex-wrap gap-6 mt-4">
               <label className="text-xs text-gray-500">Rotasjoner: <span className="text-gray-700 font-medium">{rotasjoner}</span>
-                <input type="range" min="3" max="12" value={rotasjoner} onChange={(e) => setRotasjoner(Number(e.target.value))} className="block w-40 mt-1 accent-magenta" />
+                <input type="range" min="3" max="12" value={rotasjoner} onChange={(e) => setRotasjoner(Number(e.target.value))} className="block w-40 mt-1 accent-orange" />
               </label>
               <label className="text-xs text-gray-500">Skriftstørrelse: <span className="text-gray-700 font-medium">{skrift}</span>
-                <input type="range" min="10" max="28" value={skrift} onChange={(e) => setSkrift(Number(e.target.value))} className="block w-40 mt-1 accent-magenta" />
+                <input type="range" min="10" max="28" value={skrift} onChange={(e) => setSkrift(Number(e.target.value))} className="block w-40 mt-1 accent-orange" />
               </label>
             </div>
 
-            <p className="text-sm text-gray-500 mt-4 mb-2">Valgte leker: <span className="font-medium text-gray-700">{valgte.length}</span></p>
-            {valgte.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {valgte.map((x) => (
-                  <span key={x.id} className="text-xs bg-magenta/10 text-magenta px-2 py-1 rounded-full flex items-center gap-1">
-                    {x.tittel}
-                    <button onClick={() => toggleLek(x)} className="hover:text-magenta/70" aria-label="Fjern">×</button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <LekeVelger valgteIder={valgte.map((x) => x.id)} onVelg={toggleLek} modus="toggle" />
+            <div className="mt-4">
+              <KakestykkeVelger valgte={valgte} onToggleLek={toggleLek} onLeggFri={leggFri} onFjern={fjern} />
+            </div>
 
             <div className="flex items-center gap-3 mt-4">
               <button onClick={lagre} disabled={lagrer} className="bg-orange text-white font-medium px-6 py-2.5 rounded-full hover:bg-orange/90 transition disabled:opacity-50">
@@ -135,7 +164,7 @@ export default function SkoleHjul() {
 
           <div>
             <p className="text-xs text-gray-400 mb-2 text-center">Forhåndsvisning</p>
-            <Lykkehjul leker={forhandsLeker} rotasjoner={rotasjoner} skriftstorrelse={skrift} kanApneLek={false} />
+            <Lykkehjul leker={forhandsLeker} rotasjoner={rotasjoner} skriftstorrelse={skrift} kanApneLek={false} kategoriNavn={hjul.kategoriNavn} />
           </div>
         </div>
       )}
