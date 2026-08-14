@@ -4,6 +4,19 @@ import { hentLeker, loggBruk } from '../../lib/leker'
 import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
 
+// Kanonisk «egnet for»-liste = de 12 inngangene på Min side (speiles her, uansett
+// hva testdataene tilfeldigvis inneholder). Rekkefølgen følger boksene på hero-en.
+const EGNET = [
+  'Friminutt', 'Kroppsøving', 'SFO/AKS', 'Aktiv læring', 'Aktive pauser', 'FYSAK',
+  'Bli kjent / klassemiljø', 'Aktivitetsdager', 'Sosial kompetanse', 'TL-Mester',
+  'Leker for 100+ elever', 'Barnehage',
+]
+// Kuraterte samlinger + skoletype (fra dagens side). Full aktivitetstype-taksonomi
+// («de 100+») fylles ved innholdsimporten; strukturen står klar her.
+const SAMLINGER = ['Favoritter', 'Månedens leker', 'Lekekurs', 'Utfordringer', 'Move it', 'Kropp og hjerne']
+const SKOLETYPE = ['Barnehage', 'Barnetrinn', 'Ungdomstrinn', 'Kombinert', 'SFO']
+const AKTIVITETSTYPE_EKS = 'Balanse · Ball · Sisten · Snø · Stafett · Samarbeid · Musikk og dans …'
+
 export default function SkoleAktiviteter() {
   const [alle, setAlle] = useState([])
   const [laster, setLaster] = useState(true)
@@ -17,6 +30,7 @@ export default function SkoleAktiviteter() {
   const [fSesong, setFSesong] = useState('')
   const [favoritter, setFavoritter] = useState(new Set())
   const [kunFav, setKunFav] = useState(false)
+  const [blaApen, setBlaApen] = useState(false)
   const [params] = useSearchParams()
 
   useEffect(() => {
@@ -24,6 +38,7 @@ export default function SkoleAktiviteter() {
     const eg = params.get('egnet'); if (eg) setFEgnet(eg)
     const st = params.get('sted'); if (st) setFSted(st)
     const sk = params.get('sok'); if (sk) setSok(sk)
+    if (params.get('bla') === '1') setBlaApen(true)
   }, [params])
 
   useEffect(() => {
@@ -41,18 +56,20 @@ export default function SkoleAktiviteter() {
   }, [sok])
 
   const valg = useMemo(() => {
-    const e = new Set()
     const tr = new Map()
     const u = new Set()
     const s = new Set()
     alle.forEach((l) => {
-      l.egnet.forEach((x) => e.add(x))
       l.trinn.forEach((x) => tr.set(x.kode, x.navn))
       l.utstyr.forEach((x) => u.add(x))
       l.sesong.forEach((x) => s.add(x))
     })
+    // «Egnet for» drives av den kanoniske lista, forent med evt. ekstra dataverdier.
+    const dataEgnet = new Set()
+    alle.forEach((l) => l.egnet.forEach((x) => dataEgnet.add(x)))
+    const egnet = [...EGNET, ...[...dataEgnet].filter((x) => !EGNET.includes(x))]
     return {
-      egnet: [...e].sort(),
+      egnet,
       trinn: [...tr.entries()],
       utstyr: [...u].sort(),
       sesong: [...s].sort(),
@@ -77,8 +94,14 @@ export default function SkoleAktiviteter() {
   function nullstill() {
     setSok(''); setFEgnet(''); setFTrinn(''); setFSted(''); setFUtstyr(''); setUtenUtstyr(false); setFSesong(''); setKunFav(false)
   }
+  // Klikk på ett chip = sett (eller skru av) filteret.
+  const bytt = (naa, ny, sett) => sett(naa === ny ? '' : ny)
 
   const selCls = 'text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-orange'
+  const chip = (aktiv) =>
+    `text-sm rounded-full px-3 py-1.5 border transition-colors cursor-pointer ${
+      aktiv ? 'bg-orange text-white border-orange' : 'bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange'
+    }`
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -128,6 +151,77 @@ export default function SkoleAktiviteter() {
         <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange px-2">Nullstill</button>
       </div>
 
+      {/* Bla i kategorier — hele taksonomien synlig, gruppert, klikkbar. Lukket som standard. */}
+      <div className="mt-3 border border-gray-200 rounded-xl overflow-hidden">
+        <button
+          onClick={() => setBlaApen((v) => !v)}
+          aria-expanded={blaApen}
+          className="w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+        >
+          <span className={`text-[11px] transition-transform ${blaApen ? 'rotate-90' : ''}`}>▶</span>
+          Bla i kategorier
+          <span className="font-normal text-gray-400">— se alt uten å søke</span>
+        </button>
+
+        {blaApen && (
+          <div className="px-4 pb-4 pt-1 space-y-4 border-t border-gray-100">
+            <Gruppe tittel="Egnet for">
+              {valg.egnet.map((x) => (
+                <button key={x} className={chip(fEgnet === x)} onClick={() => bytt(fEgnet, x, setFEgnet)}>{x}</button>
+              ))}
+            </Gruppe>
+
+            {valg.trinn.length > 0 && (
+              <Gruppe tittel="Trinn">
+                {valg.trinn.map(([kode, navn]) => (
+                  <button key={kode} className={chip(fTrinn === kode)} onClick={() => bytt(fTrinn, kode, setFTrinn)}>{navn}</button>
+                ))}
+              </Gruppe>
+            )}
+
+            <Gruppe tittel="Sted">
+              <button className={chip(fSted === 'inne')} onClick={() => bytt(fSted, 'inne', setFSted)}>Inne</button>
+              <button className={chip(fSted === 'ute')} onClick={() => bytt(fSted, 'ute', setFSted)}>Ute</button>
+            </Gruppe>
+
+            {valg.utstyr.length > 0 && (
+              <Gruppe tittel="Utstyr">
+                <button className={chip(utenUtstyr)} onClick={() => setUtenUtstyr((v) => !v)}>Uten utstyr</button>
+                {valg.utstyr.map((x) => (
+                  <button key={x} className={chip(fUtstyr === x)} onClick={() => bytt(fUtstyr, x, setFUtstyr)}>{x}</button>
+                ))}
+              </Gruppe>
+            )}
+
+            {valg.sesong.length > 0 && (
+              <Gruppe tittel="Sesong">
+                {valg.sesong.map((x) => (
+                  <button key={x} className={chip(fSesong === x)} onClick={() => bytt(fSesong, x, setFSesong)}>{x}</button>
+                ))}
+              </Gruppe>
+            )}
+
+            <Gruppe tittel="Samlinger">
+              <button className={chip(kunFav)} onClick={() => setKunFav((v) => !v)}>Favoritter</button>
+              {SAMLINGER.filter((s) => s !== 'Favoritter').map((s) => (
+                <button key={s} className={chip(sok === s)} onClick={() => setSok(s)}>{s}</button>
+              ))}
+            </Gruppe>
+
+            <Gruppe tittel="Skoletype">
+              {SKOLETYPE.map((s) => (
+                <button key={s} className={chip(sok === s)} onClick={() => setSok(s)}>{s}</button>
+              ))}
+            </Gruppe>
+
+            <div>
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Aktivitetstype</div>
+              <p className="text-sm text-gray-400">{AKTIVITETSTYPE_EKS} <span className="italic">— fylles ved innholdsimporten.</span></p>
+            </div>
+          </div>
+        )}
+      </div>
+
       {laster && <p className="text-gray-400 mt-8">Laster leker …</p>}
       {feil && <p className="text-red-500 mt-8">Kunne ikke hente leker: {feil}</p>}
 
@@ -143,6 +237,15 @@ export default function SkoleAktiviteter() {
           )}
         </>
       )}
+    </div>
+  )
+}
+
+function Gruppe({ tittel, children }) {
+  return (
+    <div>
+      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{tittel}</div>
+      <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   )
 }
