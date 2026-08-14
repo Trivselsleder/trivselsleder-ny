@@ -30,3 +30,6 @@ dist-ssr
 
 # Lokal forhåndsvisning av e-postmaler (ikke del av produksjonskoden)
 test-epost/
+
+# agent-/verktoy-skrap
+.claude/
