@@ -45,6 +45,30 @@ export function formLek(rad) {
   }
 }
 
+// Vis trinn kompakt: «3. trinn, 4. … 7. trinn» → «3.–7. trinn».
+// Sammenhengende tall slås til intervall; ikke-numeriske (barnehage, svenske) beholdes.
+export function trinnKort(trinnListe) {
+  const navn = (trinnListe || []).map((t) => (typeof t === 'string' ? t : t?.navn)).filter(Boolean)
+  const tall = []
+  const andre = []
+  for (const n of navn) {
+    const m = /^(\d+)\.?\s*trinn/i.exec(n)
+    if (m) tall.push(Number(m[1]))
+    else andre.push(n)
+  }
+  const unike = [...new Set(tall)].sort((a, b) => a - b)
+  const grupper = []
+  let i = 0
+  while (i < unike.length) {
+    let j = i
+    while (j + 1 < unike.length && unike[j + 1] === unike[j] + 1) j++
+    grupper.push(unike[i] === unike[j] ? `${unike[i]}. trinn` : `${unike[i]}.–${unike[j]}. trinn`)
+    i = j + 1
+  }
+  const deler = [...grupper, ...andre]
+  return deler.length ? deler.join(', ') : '—'
+}
+
 export async function hentLeker() {
   const { data, error } = await supabase
     .from('ressurser')

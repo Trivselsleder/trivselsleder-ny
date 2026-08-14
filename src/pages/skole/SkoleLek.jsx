@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { hentLek, hentDokumenter, loggBruk } from '../../lib/leker'
+import { hentLek, hentDokumenter, loggBruk, trinnKort } from '../../lib/leker'
 import { erFavoritt, settFavoritt } from '../../lib/favoritter'
 import { hentPlaner, leggTilRad } from '../../lib/periodeplan'
 import { hentHjul, leggLekTilHjul } from '../../lib/hjul'
@@ -177,7 +177,7 @@ export default function SkoleLek() {
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 rounded-xl p-4 text-sm">
         <div><div className="text-gray-400">Sted</div><div className="font-medium capitalize">{lek.sted || '—'}</div></div>
         <div><div className="text-gray-400">Antall</div><div className="font-medium">{lek.antallMin}–{lek.antallMaks}</div></div>
-        <div><div className="text-gray-400">Trinn</div><div className="font-medium">{lek.trinn.map((x) => x.navn).join(', ') || '—'}</div></div>
+        <div><div className="text-gray-400">Trinn</div><div className="font-medium">{trinnKort(lek.trinn)}</div></div>
         <div><div className="text-gray-400">Utstyr</div><div className="font-medium">{lek.utstyr.join(', ') || 'Ingen'}</div></div>
       </div>
 

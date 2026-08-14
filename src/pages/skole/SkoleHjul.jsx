@@ -145,7 +145,7 @@ export default function SkoleHjul() {
                 <input type="range" min="3" max="12" value={rotasjoner} onChange={(e) => setRotasjoner(Number(e.target.value))} className="block w-40 mt-1 accent-orange" />
               </label>
               <label className="text-xs text-gray-500">Skriftstørrelse: <span className="text-gray-700 font-medium">{skrift}</span>
-                <input type="range" min="10" max="28" value={skrift} onChange={(e) => setSkrift(Number(e.target.value))} className="block w-40 mt-1 accent-orange" />
+                <input type="range" min="8" max="28" value={skrift} onChange={(e) => setSkrift(Number(e.target.value))} className="block w-40 mt-1 accent-orange" />
               </label>
             </div>
 
