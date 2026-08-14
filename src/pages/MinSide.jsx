@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { SkoleRedigerForm } from '../components/SkoleRedigerForm'
+import SkoleHjem from '../components/SkoleHjem'
 
 const ROLLE_LABEL = {
   superadmin:  'Superadmin (Trivselsleder AS)',
@@ -511,6 +512,17 @@ export default function MinSide() {
     navigate('/logg-inn')
   }
 
+  const erSkole = ['skoleadmin', 'skoleansatt', 'feide'].includes(rolle)
+  if (erSkole) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <SkoleHjem fornavn={profil?.navn ? profil.navn.split(' ')[0] : null} />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-2xl mx-auto space-y-6">
@@ -574,7 +586,12 @@ export default function MinSide() {
         )}
 
         {visForhandsvis && ['superadmin', 'ansatt'].includes(rolle) && (
-          <SkoleForhandsvisning skoleNavn="Demoskolen" />
+          <div className="space-y-4">
+            <div className="rounded-xl bg-petrol/5 border border-petrol/20 px-4 py-3 text-sm text-petrol">
+              👁️ Slik ser «Min side» ut for en skole. Kun synlig for deg som superadmin.
+            </div>
+            <SkoleHjem fornavn={null} />
+          </div>
         )}
 
         {/* Skoleadmin: min skole + ansatte */}

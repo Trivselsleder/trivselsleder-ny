@@ -8,7 +8,7 @@ const faner = [
   { label: 'Finn en lek', to: '/min-side/aktiviteter' },
   { label: 'Periodeplaner', to: '/min-side/periodeplaner' },
   { label: 'TL-hjul', to: '/min-side/tl-hjulet' },
-  { label: 'Maler & skjemaer', to: '/min-side/dokumenter' },
+  { label: 'Maler & materiell', to: '/min-side/dokumenter' },
   { label: 'Slik lykkes du med TL', to: '/min-side/drift-av-tl' },
 ]
 

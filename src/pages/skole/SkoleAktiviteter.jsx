@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { hentLeker, loggBruk } from '../../lib/leker'
 import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
@@ -16,6 +17,14 @@ export default function SkoleAktiviteter() {
   const [fSesong, setFSesong] = useState('')
   const [favoritter, setFavoritter] = useState(new Set())
   const [kunFav, setKunFav] = useState(false)
+  const [params] = useSearchParams()
+
+  useEffect(() => {
+    if (params.get('fav') === '1') setKunFav(true)
+    const eg = params.get('egnet'); if (eg) setFEgnet(eg)
+    const st = params.get('sted'); if (st) setFSted(st)
+    const sk = params.get('sok'); if (sk) setSok(sk)
+  }, [params])
 
   useEffect(() => {
     hentLeker()
