@@ -46,9 +46,9 @@ function KontaktBlokk({ tittel, navn, epost, telefon }) {
   if (!navn && !epost) return null
   return (
     <div>
-      <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide mb-1">{tittel}</p>
+      <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide mb-1">{tittel}</p>
       <InfoRad label="Navn" verdi={navn} />
-      <InfoRad label="E-post" verdi={epost && <a href={`mailto:${epost}`} className="text-[#F47920] hover:underline">{epost}</a>} />
+      <InfoRad label="E-post" verdi={epost && <a href={`mailto:${epost}`} className="text-[#FF7B31] hover:underline">{epost}</a>} />
       <InfoRad label="Telefon" verdi={telefon} />
     </div>
   )
@@ -162,7 +162,7 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
 
   return (
     <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 space-y-3">
-      <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide">Nettverk</p>
+      <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide">Nettverk</p>
 
       {!visUnntak ? (
         <>
@@ -222,7 +222,7 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
             <button
               onClick={bekreftNettverk}
               disabled={lagrerNettverk}
-              className="bg-[#F47920] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-50"
+              className="bg-[#FF7B31] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
             >
               {lagrerNettverk ? 'Lagrer…' : 'Bekreft nettverk'}
             </button>
@@ -359,15 +359,15 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
         <div className="px-6 py-5 space-y-5">
 
           <div>
-            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide mb-1">Skole</p>
+            <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide mb-1">Skole</p>
             <InfoRad label="Skolenavn" verdi={p.skolenavn} />
             <InfoRad label="Type" verdi={TYPE_LABEL[p.type] ?? p.type} />
             <InfoRad label="Antall elever" verdi={p.antall_elever} />
-            <InfoRad label="Hjemmeside" verdi={p.hjemmeside && <a href={p.hjemmeside} target="_blank" rel="noreferrer" className="text-[#F47920] hover:underline">{p.hjemmeside}</a>} />
+            <InfoRad label="Hjemmeside" verdi={p.hjemmeside && <a href={p.hjemmeside} target="_blank" rel="noreferrer" className="text-[#FF7B31] hover:underline">{p.hjemmeside}</a>} />
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide mb-1">Adresse</p>
+            <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide mb-1">Adresse</p>
             <InfoRad label="Gateadresse" verdi={p.gateadresse} />
             <InfoRad label="Postnr / poststed" verdi={`${p.postnummer} ${p.poststed}`} />
             <InfoRad label="Kommune" verdi={p.kommune} />
@@ -375,7 +375,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide mb-1">Faktura</p>
+            <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide mb-1">Faktura</p>
             <InfoRad label="Org.nr" verdi={p.organisasjonsnummer} />
             <InfoRad label="Fakturaadresse" verdi={p.fakturaadresse} />
             <InfoRad label="Fakturareferanse" verdi={p.fakturareferanse} />
@@ -388,7 +388,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
 
           {p.merknader && (
             <div>
-              <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide mb-1">Merknader</p>
+              <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide mb-1">Merknader</p>
               <p className="text-sm text-gray-700 whitespace-pre-wrap">{p.merknader}</p>
             </div>
           )}
@@ -434,7 +434,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
             <div className="flex justify-end pt-1">
               <button
                 onClick={onLukk}
-                className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors"
+                className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
               >
                 Lukk
               </button>
@@ -454,7 +454,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
             <div className="flex justify-end pt-1">
               <button
                 onClick={onLukk}
-                className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors"
+                className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
               >
                 Lukk
               </button>
@@ -587,7 +587,7 @@ export default function AdminPaameldinger() {
         {/* Innhold */}
         {laster ? (
           <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#FF7B31] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : feil ? (
           <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-red-600 text-sm">{feil}</div>
@@ -628,7 +628,7 @@ export default function AdminPaameldinger() {
                         <a
                           href={`mailto:${p.rektor_epost}`}
                           onClick={e => e.stopPropagation()}
-                          className="text-[#F47920] hover:underline"
+                          className="text-[#FF7B31] hover:underline"
                         >
                           {p.rektor_epost}
                         </a>

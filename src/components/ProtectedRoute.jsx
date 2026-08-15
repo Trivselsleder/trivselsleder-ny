@@ -7,7 +7,7 @@ export default function ProtectedRoute({ children, kreverRolle }) {
   if (laster) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#FF7B31] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }

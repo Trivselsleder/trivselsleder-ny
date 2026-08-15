@@ -71,11 +71,22 @@ export async function hentPlanEn(id) {
 
 const STD_DAGER = ['MANDAG', 'TIRSDAG', 'ONSDAG', 'TORSDAG', 'FREDAG']
 
-export async function opprettPlan({ navn, aar = null, uker = [], dager = STD_DAGER, orientering = 'landscape' }) {
+// Nivå = hvem planen gjelder for (velges på forhånd). Lagres i et hjørne av
+// `ansvarlige`-jsonb-en (`_nivaa`) for å slippe schema-endring — PDF/rutenett
+// leser bare ansvarlige[dag], så nøkkelen er usynlig der.
+export const NIVAA = [
+  { v: 'barne', l: 'Barneskole' },
+  { v: 'ungdom', l: 'Ungdomsskole' },
+  { v: 'hele', l: 'Hele skolen' },
+]
+export function planNivaa(plan) { return plan?.ansvarlige?._nivaa || null }
+export function nivaaLabel(v) { return NIVAA.find((n) => n.v === v)?.l || null }
+
+export async function opprettPlan({ navn, aar = null, uker = [], dager = STD_DAGER, orientering = 'landscape', nivaa = null }) {
   const skoleId = await hentMinSkole()
   const { data, error } = await supabase
     .from('periodeplan')
-    .insert({ navn, aar, uker, dager, orientering, skole_id: skoleId })
+    .insert({ navn, aar, uker, dager, orientering, skole_id: skoleId, ansvarlige: nivaa ? { _nivaa: nivaa } : {} })
     .select('id')
     .single()
   if (error) throw error

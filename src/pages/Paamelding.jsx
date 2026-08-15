@@ -43,7 +43,7 @@ function Felt({ label, name, type = 'text', required, value, onChange, placehold
         onChange={onChange}
         required={required}
         placeholder={placeholder}
-        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
       />
       {hint && <p className="text-xs text-gray-400 mt-1">{hint}</p>}
     </div>
@@ -196,7 +196,7 @@ export default function Paamelding() {
                   value={form.type}
                   onChange={onChange}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920] bg-white"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31] bg-white"
                 >
                   <option value="">Velg type</option>
                   <option value="barnehage">Barnehage</option>
@@ -270,7 +270,7 @@ export default function Paamelding() {
                 onChange={onChange}
                 rows={4}
                 placeholder="Andre opplysninger eller spørsmål…"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920] resize-none"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31] resize-none"
               />
             </div>
           </div>
@@ -284,7 +284,7 @@ export default function Paamelding() {
             <button
               type="submit"
               disabled={laster}
-              className="bg-[#F47920] text-white font-semibold px-8 py-3 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60 text-sm"
+              className="bg-[#FF7B31] text-white font-semibold px-8 py-3 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60 text-sm"
             >
               {laster ? 'Sender…' : 'Send påmelding'}
             </button>

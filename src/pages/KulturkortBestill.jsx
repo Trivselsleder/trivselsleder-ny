@@ -72,7 +72,7 @@ export default function KulturkortBestill() {
           />
           <Link
             to="/kulturkortet"
-            className="inline-block bg-[#F47920] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#d4681a] transition-colors"
+            className="inline-block bg-[#FF7B31] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#d4681a] transition-colors"
           >
             {t('bestill.takkKnapp')}
           </Link>
@@ -85,7 +85,7 @@ export default function KulturkortBestill() {
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-lg mx-auto">
         <div className="text-center mb-8">
-          <Link to="/kulturkortet" className="text-[#F47920] text-sm hover:underline">
+          <Link to="/kulturkortet" className="text-[#FF7B31] text-sm hover:underline">
             {t('bestill.tilbake')}
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-2">{t('bestill.title')}</h1>
@@ -106,7 +106,7 @@ export default function KulturkortBestill() {
               value={form.skolenavn}
               onChange={handleChange}
               placeholder={t('bestill.skolenavnPlaceholder')}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             />
           </div>
 
@@ -123,7 +123,7 @@ export default function KulturkortBestill() {
               value={form.antallKort}
               onChange={handleChange}
               placeholder={t('bestill.antallPlaceholder')}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             />
             {pris && (
               <div className="mt-3 rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-sm space-y-1.5">
@@ -137,7 +137,7 @@ export default function KulturkortBestill() {
                 </div>
                 <div className="flex justify-between font-bold text-gray-900 border-t border-gray-200 pt-1.5 mt-1.5">
                   <span>{t('bestill.prisTotal')}</span>
-                  <span className="text-[#F47920]">
+                  <span className="text-[#FF7B31]">
                     {pris.total} kr
                     <span className="font-normal text-gray-400 text-xs ml-1">({t('bestill.prisEksMva')})</span>
                   </span>
@@ -158,7 +158,7 @@ export default function KulturkortBestill() {
               value={form.kontaktperson}
               onChange={handleChange}
               placeholder={t('bestill.kontaktpersonPlaceholder')}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             />
           </div>
 
@@ -174,7 +174,7 @@ export default function KulturkortBestill() {
               value={form.epost}
               onChange={handleChange}
               placeholder={t('bestill.epostPlaceholder')}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             />
           </div>
 
@@ -191,7 +191,7 @@ export default function KulturkortBestill() {
               onChange={handleChange}
               placeholder={t('bestill.gatePlaceholder')}
               aria-label={t('bestill.gateLabel')}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             />
             <div className="grid grid-cols-2 gap-3">
               <input
@@ -204,7 +204,7 @@ export default function KulturkortBestill() {
                 onChange={handleChange}
                 placeholder={t('bestill.postnummerPlaceholder')}
                 aria-label={t('bestill.postnummerLabel')}
-                className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
               />
               <input
                 name="poststed"
@@ -214,7 +214,7 @@ export default function KulturkortBestill() {
                 onChange={handleChange}
                 placeholder={t('bestill.poststedPlaceholder')}
                 aria-label={t('bestill.poststedLabel')}
-                className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
               />
             </div>
           </fieldset>
@@ -230,13 +230,13 @@ export default function KulturkortBestill() {
               value={form.melding}
               onChange={handleChange}
               placeholder={t('bestill.tilleggsinfoPlaceholder')}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920] resize-none"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31] resize-none"
             />
           </div>
 
           {/* Prissammendrag */}
           {pris && (
-            <div className="rounded-xl bg-gradient-to-r from-[#F47920]/10 to-[#D6006E]/10 border border-[#F47920]/20 px-4 py-4 space-y-1.5 text-sm">
+            <div className="rounded-xl bg-gradient-to-r from-[#FF7B31]/10 to-[#D6006E]/10 border border-[#FF7B31]/20 px-4 py-4 space-y-1.5 text-sm">
               <div className="flex justify-between text-gray-600">
                 <span>{t('bestill.prisKort', { antall: form.antallKort })}</span>
                 <span>{pris.kortpris} kr</span>
@@ -245,9 +245,9 @@ export default function KulturkortBestill() {
                 <span>{t('bestill.prisPorto')}</span>
                 <span>{pris.porto} kr</span>
               </div>
-              <div className="flex justify-between font-bold text-gray-900 border-t border-[#F47920]/20 pt-2 mt-1">
+              <div className="flex justify-between font-bold text-gray-900 border-t border-[#FF7B31]/20 pt-2 mt-1">
                 <span>{t('bestill.prisTotal')}</span>
-                <span className="text-[#F47920] text-base">
+                <span className="text-[#FF7B31] text-base">
                   {pris.total} kr
                   <span className="font-normal text-gray-400 text-xs ml-1">({t('bestill.prisEksMva')})</span>
                 </span>
@@ -262,7 +262,7 @@ export default function KulturkortBestill() {
           <button
             type="submit"
             disabled={sender}
-            className="w-full bg-gradient-to-r from-[#F47920] to-[#D6006E] text-white font-bold py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60 text-base"
+            className="w-full bg-gradient-to-r from-[#FF7B31] to-[#D6006E] text-white font-bold py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60 text-base"
           >
             {sender ? t('bestill.senderKnapp') : t('bestill.sendKnapp')}
           </button>

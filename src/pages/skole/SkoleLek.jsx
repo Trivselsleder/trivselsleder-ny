@@ -92,10 +92,10 @@ export default function SkoleLek() {
   if (feil)
     return (
       <div className="max-w-3xl mx-auto px-4 py-12 text-gray-500">
-        Fant ikke leken. <Link className="text-orange" to="/min-side/aktiviteter">← Tilbake til Aktiviteter</Link>
+        Fant ikke leken. <Link className="text-orange" to="/min-side/aktiviteter">← Tilbake til Finn en lek</Link>
       </div>
     )
-  if (!lek) return <div className="max-w-3xl mx-auto px-4 py-12 text-gray-400">Laster …</div>
+  if (!lek) return <div className="max-w-3xl mx-auto px-4 py-12 text-gray-500">Laster …</div>
 
   if (rediger && intern)
     return (
@@ -114,7 +114,7 @@ export default function SkoleLek() {
   const t = lek.tekst
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      <Link to="/min-side/aktiviteter" className="text-sm text-orange">← Tilbake til Aktiviteter</Link>
+      <Link to="/min-side/aktiviteter" className="text-sm text-orange">← Tilbake til Finn en lek</Link>
 
       <div className="flex items-start justify-between gap-3 mt-2">
         <h1 className="text-3xl font-bold text-gray-900">{lek.tittel}</h1>
@@ -122,7 +122,7 @@ export default function SkoleLek() {
           onClick={toggleFav}
           aria-label={fav ? 'Fjern favoritt' : 'Legg til favoritt'}
           title={fav ? 'Fjern favoritt' : 'Legg til favoritt'}
-          className={`shrink-0 text-2xl leading-none mt-1 transition ${fav ? 'text-magenta' : 'text-gray-300 hover:text-magenta'}`}
+          className={`shrink-0 text-2xl leading-none mt-1 transition ${fav ? 'text-tlred' : 'text-gray-300 hover:text-tlred'}`}
         >
           {fav ? '♥' : '♡'}
         </button>
@@ -131,25 +131,25 @@ export default function SkoleLek() {
       {/* Legg til – fullbredde, som dagens side */}
       <div className="mt-4 space-y-2">
         <button onClick={() => setAapen(aapen === 'plan' ? null : 'plan')}
-          className="w-full bg-magenta text-white font-semibold py-3 rounded-xl hover:bg-magenta/90 transition">
+          className="w-full bg-petrol text-white font-semibold py-3 rounded-xl hover:bg-petrol/90 transition">
           Legg til i periodeplan
         </button>
         <button onClick={() => setAapen(aapen === 'hjul' ? null : 'hjul')}
-          className="w-full bg-magenta text-white font-semibold py-3 rounded-xl hover:bg-magenta/90 transition">
+          className="w-full bg-petrol text-white font-semibold py-3 rounded-xl hover:bg-petrol/90 transition">
           Legg til i TL-hjul
         </button>
-        {melding && <p className="text-sm text-magenta">{melding}</p>}
+        {melding && <p className="text-sm text-petrol">{melding}</p>}
 
         {aapen === 'plan' && (
           <div className="border border-gray-200 rounded-xl p-3">
-            <p className="text-xs text-gray-400 mb-2">Velg periodeplan</p>
+            <p className="text-xs text-gray-500 mb-2">Velg periodeplan</p>
             {planer.length === 0 ? (
               <p className="text-sm text-gray-500">Du har ingen planer ennå. <Link to="/min-side/periodeplaner" className="text-orange">Lag en plan →</Link></p>
             ) : (
               <div className="flex flex-col">
                 {planer.map((p) => (
                   <button key={p.id} onClick={() => leggIPlan(p)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
-                    {p.navn} <span className="text-gray-400">· {p.rader.length} leker</span>
+                    {p.navn} <span className="text-gray-500">· {p.rader.length} leker</span>
                   </button>
                 ))}
               </div>
@@ -158,14 +158,14 @@ export default function SkoleLek() {
         )}
         {aapen === 'hjul' && (
           <div className="border border-gray-200 rounded-xl p-3">
-            <p className="text-xs text-gray-400 mb-2">Velg TL-hjul</p>
+            <p className="text-xs text-gray-500 mb-2">Velg TL-hjul</p>
             {hjul.length === 0 ? (
               <p className="text-sm text-gray-500">Du har ingen hjul ennå. <Link to="/min-side/tl-hjulet" className="text-orange">Lag et hjul →</Link></p>
             ) : (
               <div className="flex flex-col">
                 {hjul.map((h) => (
                   <button key={h.id} onClick={() => leggPaaHjul(h)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
-                    {h.navn} <span className="text-gray-400">· {h.leker.length} leker</span>
+                    {h.navn} <span className="text-gray-500">· {h.leker.length} leker</span>
                   </button>
                 ))}
               </div>
@@ -175,15 +175,15 @@ export default function SkoleLek() {
       </div>
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 rounded-xl p-4 text-sm">
-        <div><div className="text-gray-400">Sted</div><div className="font-medium capitalize">{lek.sted || '—'}</div></div>
-        <div><div className="text-gray-400">Antall</div><div className="font-medium">{lek.antallMin}–{lek.antallMaks}</div></div>
-        <div><div className="text-gray-400">Trinn</div><div className="font-medium">{trinnKort(lek.trinn)}</div></div>
-        <div><div className="text-gray-400">Utstyr</div><div className="font-medium">{lek.utstyr.join(', ') || 'Ingen'}</div></div>
+        <div><div className="text-gray-500">Sted</div><div className="font-medium capitalize">{lek.sted || '—'}</div></div>
+        <div><div className="text-gray-500">Antall</div><div className="font-medium">{lek.antallMin}–{lek.antallMaks}</div></div>
+        <div><div className="text-gray-500">Trinn</div><div className="font-medium">{trinnKort(lek.trinn)}</div></div>
+        <div><div className="text-gray-500">Utstyr</div><div className="font-medium">{lek.utstyr.join(', ') || 'Ingen'}</div></div>
       </div>
 
       <div className="flex flex-wrap gap-1 mt-3">
         {lek.egnet.map((e) => <span key={e} className="text-xs bg-orange/10 text-orange px-2 py-0.5 rounded-full">{e}</span>)}
-        {lek.kanLedesAvElever && <span className="text-xs bg-magenta/10 text-magenta px-2 py-0.5 rounded-full">Kan ledes av elever</span>}
+        {lek.kanLedesAvElever && <span className="text-xs bg-petrol/10 text-petrol px-2 py-0.5 rounded-full">Kan ledes av elever</span>}
         {lek.sesong.map((s) => <span key={s} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{s}</span>)}
       </div>
 
@@ -201,7 +201,7 @@ export default function SkoleLek() {
               />
             </div>
           ) : (
-            <div className="bg-gray-100 text-gray-400 rounded-xl p-6 text-center text-sm">Video kommer</div>
+            <div className="bg-gray-100 text-gray-500 rounded-xl p-6 text-center text-sm">Video kommer</div>
           )}
         </div>
       )}
@@ -236,7 +236,7 @@ export default function SkoleLek() {
           </div>
         </div>
         {intern && (
-          <button onClick={() => setRediger(true)} className="text-sm bg-magenta text-white px-4 py-2 rounded-full hover:bg-magenta/90 transition shrink-0">
+          <button onClick={() => setRediger(true)} className="text-sm bg-petrol text-white px-4 py-2 rounded-full hover:bg-petrol/90 transition shrink-0">
             Rediger lek
           </button>
         )}

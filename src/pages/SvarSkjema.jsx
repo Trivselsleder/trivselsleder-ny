@@ -150,7 +150,7 @@ export default function SvarSkjema() {
           Fyll ut skjemaet under, så registrerer vi svaret deres.
         </p>
 
-        <div className="mb-8 rounded-xl border-l-4 border-[#F47920] bg-orange-50 px-4 py-3">
+        <div className="mb-8 rounded-xl border-l-4 border-[#FF7B31] bg-orange-50 px-4 py-3">
           {kobling.skole_navn && (
             <p className="text-sm text-gray-700">
               <span className="text-gray-500">Skole:</span> <strong>{kobling.skole_navn}</strong>

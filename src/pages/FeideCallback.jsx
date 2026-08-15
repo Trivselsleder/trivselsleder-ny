@@ -56,7 +56,7 @@ export default function FeideCallback() {
             </svg>
           </div>
           <p className="text-gray-700 text-sm">{feil}</p>
-          <a href="/logg-inn" className="text-[#F47920] hover:underline text-sm block">
+          <a href="/logg-inn" className="text-[#FF7B31] hover:underline text-sm block">
             Tilbake til innlogging
           </a>
         </div>
@@ -67,7 +67,7 @@ export default function FeideCallback() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm text-center space-y-4">
-        <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin mx-auto" />
+        <div className="w-8 h-8 border-4 border-[#FF7B31] border-t-transparent rounded-full animate-spin mx-auto" />
         <p className="text-gray-600 text-sm">Logger inn med Feide…</p>
       </div>
     </div>

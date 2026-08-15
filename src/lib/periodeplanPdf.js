@@ -41,11 +41,11 @@ export function byggHtml(plan, { print = false } = {}) {
 <style>
   @page { size: A4 ${landscape ? 'landscape' : 'portrait'}; margin: 12mm; }
   *{box-sizing:border-box} body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1f2937;margin:0}
-  header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #F47920;padding-bottom:8px;margin-bottom:12px}
+  header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #FF7B31;padding-bottom:8px;margin-bottom:12px}
   h1{margin:0;font-size:20px} .uke{font-size:14px;color:#6b7280;font-weight:600}
   table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
   th,td{border:1px solid #d1d5db;padding:5px 6px;vertical-align:top}
-  thead th{background:#F47920;color:#fff;text-align:center;font-size:12px}
+  thead th{background:#FF7B31;color:#fff;text-align:center;font-size:12px}
   th.lek{background:#fff;color:#111827;text-align:left;width:190px;font-weight:600}
   th.lek .ikon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;margin-right:6px;font-size:12px;vertical-align:middle}
   tr.ans td.ans, tr.ans th{background:#fde9dc;font-weight:600;text-align:center}

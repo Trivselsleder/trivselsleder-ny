@@ -107,7 +107,7 @@ function TypeMultiselect({ value, onChange }) {
         <div className="relative">
           <button
             onMouseDown={() => setAapen(v => !v)}
-            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 bg-white hover:border-[#F47920] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#F47920]/30"
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 bg-white hover:border-[#FF7B31] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30"
           >
             {triggerLabel}
             <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +124,7 @@ function TypeMultiselect({ value, onChange }) {
                     className="w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
                   >
                     <span className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                      value.includes(t) ? 'bg-[#F47920] border-[#F47920]' : 'border-gray-300'
+                      value.includes(t) ? 'bg-[#FF7B31] border-[#FF7B31]' : 'border-gray-300'
                     }`}>
                       {value.includes(t) && (
                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,11 +141,11 @@ function TypeMultiselect({ value, onChange }) {
         </div>
 
         {value.map(t => (
-          <span key={t} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F47920]/10 text-[#F47920] border border-[#F47920]/20">
+          <span key={t} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#FF7B31]/10 text-[#FF7B31] border border-[#FF7B31]/20">
             {TYPE_LABEL[t]}
             <button
               onClick={() => onChange(value.filter(v => v !== t))}
-              className="text-[#F47920]/60 hover:text-[#F47920] ml-0.5"
+              className="text-[#FF7B31]/60 hover:text-[#FF7B31] ml-0.5"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
@@ -207,7 +207,7 @@ function Combobox({ label, value, onChange, alternativer, labelFn, disabled = fa
           placeholder="Alle"
           onFocus={() => { setAapen(true); setSoek('') }}
           onChange={e => { setSoek(e.target.value); setAapen(true) }}
-          className="w-full border border-gray-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920] cursor-pointer"
+          className="w-full border border-gray-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31] cursor-pointer"
         />
         {value && !aapen ? (
           <button
@@ -240,7 +240,7 @@ function Combobox({ label, value, onChange, alternativer, labelFn, disabled = fa
                     onMouseDown={() => velg(a)}
                     className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                       value === a
-                        ? 'bg-[#F47920]/10 text-[#F47920] font-medium'
+                        ? 'bg-[#FF7B31]/10 text-[#FF7B31] font-medium'
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
@@ -279,7 +279,7 @@ function InputFelt({ label, type = 'text', value, onChange, required = false, pl
         onChange={e => onChange(e.target.value)}
         required={required}
         placeholder={placeholder}
-        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
       />
     </div>
   )
@@ -372,7 +372,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
             <div className="flex justify-end pt-2">
               <button
                 onClick={onLukk}
-                className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors"
+                className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
               >
                 Lukk
               </button>
@@ -383,7 +383,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
 
             {/* Skoleinfo */}
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide">Skole</p>
+              <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide">Skole</p>
               <InputFelt label="Skolenavn" value={form.navn} onChange={v => felt('navn', v)} required placeholder="Bakke barneskole" />
               <div className="grid grid-cols-2 gap-3">
                 <InputFelt label="Org.nr" value={form.orgNr} onChange={v => felt('orgNr', v)} placeholder="123 456 789" />
@@ -392,7 +392,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
                   <select
                     value={form.type}
                     onChange={e => felt('type', e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
                   >
                     <option value="">–</option>
                     {TYPE_VALG.map(t => <option key={t} value={t}>{TYPE_LABEL[t]}</option>)}
@@ -405,7 +405,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
                   <select
                     value={form.status}
                     onChange={e => felt('status', e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
                   >
                     {STATUS_VALG.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -416,14 +416,14 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
 
             {/* Plassering */}
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide">Plassering</p>
+              <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide">Plassering</p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Fylke</label>
                   <select
                     value={form.fylke}
                     onChange={e => settFylke(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
                   >
                     <option value="">–</option>
                     {ALLE_FYLKER.map(f => <option key={f} value={f}>{f}</option>)}
@@ -434,7 +434,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
                   <select
                     value={form.kommunenavn}
                     onChange={e => felt('kommunenavn', e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
                   >
                     <option value="">–</option>
                     {kommuneAlternativer.map(k => <option key={k} value={k}>{k}</option>)}
@@ -445,7 +445,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
 
             {/* Kontakter */}
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide">
+              <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide">
                 Kontakter <span className="text-gray-400 font-normal normal-case tracking-normal">– inviteres automatisk</span>
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -467,7 +467,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
               <button
                 type="submit"
                 disabled={laster}
-                className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-50"
+                className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
               >
                 {laster ? 'Oppretter…' : 'Opprett skole'}
               </button>
@@ -702,7 +702,7 @@ export default function AdminSkoler() {
             <button
               onClick={() => eksporterCSV(filtrerte)}
               disabled={laster || filtrerte.length === 0}
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-[#F47920] hover:text-[#F47920] transition-colors disabled:opacity-40"
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-[#FF7B31] hover:text-[#FF7B31] transition-colors disabled:opacity-40"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -712,7 +712,7 @@ export default function AdminSkoler() {
             </button>
             <button
               onClick={() => setVisOpprett(true)}
-              className="flex items-center gap-2 bg-[#F47920] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e06910] transition-colors"
+              className="flex items-center gap-2 bg-[#FF7B31] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -768,7 +768,7 @@ export default function AdminSkoler() {
         {/* Tabell */}
         {laster ? (
           <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#FF7B31] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : feil ? (
           <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-red-600 text-sm">{feil}</div>
@@ -789,7 +789,7 @@ export default function AdminSkoler() {
                         ref={el => { if (el) el.indeterminate = noenValgt && !alleFiltrertValgt }}
                         onChange={toggleVelgAlle}
                         onClick={e => e.stopPropagation()}
-                        className="w-4 h-4 accent-[#F47920] cursor-pointer"
+                        className="w-4 h-4 accent-[#FF7B31] cursor-pointer"
                       />
                     </th>
                     <th className="text-left px-4 py-3">Skolenavn</th>
@@ -808,7 +808,7 @@ export default function AdminSkoler() {
                           type="checkbox"
                           checked={valgte.has(s.id)}
                           onChange={() => toggleVelgEn(s.id)}
-                          className="w-4 h-4 accent-[#F47920] cursor-pointer"
+                          className="w-4 h-4 accent-[#FF7B31] cursor-pointer"
                         />
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{s.navn}</td>
@@ -855,7 +855,7 @@ export default function AdminSkoler() {
             <select
               value={epostRolle}
               onChange={e => setEpostRolle(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
             >
               <option value="rektor">Rektor</option>
               <option value="hktl">Hovedkontakt TL</option>
@@ -869,7 +869,7 @@ export default function AdminSkoler() {
             <button
               onClick={sendEpost}
               disabled={valgteAdresser.length === 0 || valgteAdresser.length > 50}
-              className="flex items-center gap-1.5 bg-[#F47920] text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-40"
+              className="flex items-center gap-1.5 bg-[#FF7B31] text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-40"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

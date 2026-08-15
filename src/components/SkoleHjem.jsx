@@ -7,7 +7,7 @@ import { hentHjul } from '../lib/hjul'
 
 // Bygget 1:1 fra min-side-mockup_4.html (den vi har iterert på), koblet til ekte data.
 const CSS = `
-.tlh{ --o:#FF7B31; --magenta:#D6006E; --dark:#2B2B2B; --grey:#5B6470; --line:#ECEEF1; --soft:#FDEEE2; }
+.tlh{ --o:#FF7B31; --magenta:#106C75; --dark:#2B2B2B; --grey:#5B6470; --line:#ECEEF1; --soft:#FDEEE2; }
 .tlh *{box-sizing:border-box}
 .tlh-hero{background:linear-gradient(135deg,#fff 0%,#FFF6EF 100%);border-bottom:1px solid var(--line);border-radius:20px;padding:34px 26px 26px}
 .tlh-hero h1{font-size:30px;font-weight:800;letter-spacing:-.3px;color:var(--dark)}
@@ -20,7 +20,7 @@ const CSS = `
 .tlh-searchbox button:hover{filter:brightness(.95)}
 .tlh-chips{margin-top:14px;display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 .tlh-chips .lbl{color:var(--grey);font-size:13px;margin-right:2px}
-.tlh-chip{border:1px solid #E4D3C4;background:#fff;color:#8a5a2f;font-size:13.5px;padding:7px 13px;border-radius:999px;cursor:pointer;transition:.12s}
+.tlh-chip{border:1px solid #E4D3C4;background:#fff;color:#8a5a2f;font-size:13.5px;font-family:inherit;padding:7px 13px;border-radius:999px;cursor:pointer;transition:.12s}
 .tlh-chip:hover{background:var(--soft);border-color:var(--o)}
 .tlh-parse{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
 .tlh-parse .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -29,31 +29,31 @@ const CSS = `
 .tlh-fchip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);color:#b5590f;font-weight:700;font-size:13px;padding:6px 11px;border-radius:8px}
 .tlh-parse .note{margin-top:10px;font-size:13px;color:var(--grey)}
 .tlh-backlink{display:inline-block;margin-top:16px}
-.tlh-backlink a{color:var(--o);font-weight:700;text-decoration:none;font-size:14px;cursor:pointer}
+.tlh-backlink a,.tlh-backlink button{color:var(--o);font-weight:700;text-decoration:none;font-size:14px;font-family:inherit;background:none;border:0;padding:0;cursor:pointer}
 .tlh-brow{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:22px}
 .tlh-panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
 .tlh-panel h2{font-size:16px;margin-bottom:4px;color:var(--dark)}
 .tlh-panel .s{color:var(--grey);font-size:13.5px;margin-bottom:14px}
 .tlh-ctx{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tlh-ctx a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--dark);border:1px solid var(--line);border-radius:11px;padding:11px 12px;font-weight:600;font-size:14px;transition:.12s;cursor:pointer}
-.tlh-ctx a:hover{border-color:var(--o);background:#FFF8F2}
+.tlh-ctx a,.tlh-ctx button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;text-decoration:none;color:var(--dark);background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 12px;font-weight:600;font-size:14px;font-family:inherit;transition:.12s;cursor:pointer}
+.tlh-ctx a:hover,.tlh-ctx button:hover{border-color:var(--o);background:#FFF8F2}
 .tlh-ctx .ic{width:26px;height:26px;border-radius:8px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 26px}
 .tlh-month{display:flex;gap:14px;align-items:center;text-decoration:none;color:inherit;border-radius:12px;padding:6px;margin:-6px}
 .tlh-month:hover{background:#fff7f1}
-.tlh-month:hover h3{color:#b0125f}
-.tlh-month .thumb{flex:0 0 84px;height:84px;border-radius:12px;background:linear-gradient(135deg,#FDEEE2,#FAD9E7);display:flex;align-items:center;justify-content:center;color:#d59a6a;font-weight:800}
+.tlh-month:hover h3{color:#0d565e}
+.tlh-month .thumb{flex:0 0 84px;height:84px;border-radius:12px;background:linear-gradient(135deg,#FDEEE2,#FBE9C7);display:flex;align-items:center;justify-content:center;color:#c98a3a;font-weight:800}
 .tlh-month h3{font-size:17px}
 .tlh-month .why{font-size:13px;color:var(--grey);margin-top:3px}
 .tlh-mine{display:flex;gap:10px;flex-wrap:nowrap;margin-top:6px}
 .tlh-mine a{flex:1;min-width:0;text-decoration:none;color:var(--dark);border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;font-weight:700;font-size:14px}
-.tlh-mine a:hover{border-color:var(--magenta);color:#b0125f}
+.tlh-mine a:hover{border-color:var(--magenta);color:#0d565e}
 .tlh-mine a small{display:block;font-weight:400;color:var(--grey);font-size:12px;margin-top:3px}
 .tlh-results h2{font-size:18px;margin-bottom:2px;color:var(--dark)}
 .tlh-results .cnt{color:var(--grey);font-size:14px;margin-bottom:16px}
 .tlh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .tlh-lek{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:.14s;cursor:pointer;text-decoration:none;color:inherit;display:block}
 .tlh-lek:hover{box-shadow:0 8px 22px rgba(0,0,0,.08);transform:translateY(-2px)}
-.tlh-lek .ph{height:104px;background:linear-gradient(135deg,#FDEEE2,#FAD9E7);display:flex;align-items:center;justify-content:center;color:#d59a6a;font-size:13px;font-weight:700;letter-spacing:.5px}
+.tlh-lek .ph{height:104px;background:linear-gradient(135deg,#FDEEE2,#FBE9C7);display:flex;align-items:center;justify-content:center;color:#c98a3a;font-size:13px;font-weight:700;letter-spacing:.5px}
 .tlh-lek .body{padding:12px 14px}
 .tlh-lek h3{font-size:16px;margin-bottom:6px}
 .tlh-lek .meta{font-size:12.5px;color:var(--grey);margin-bottom:9px}
@@ -68,12 +68,12 @@ const CSS = `
 function parseQ(t) {
   t = (t || '').toLowerCase()
   const f = {}
-  if (/sfo|aks/.test(t)) { f.egnet = 'SFO / AKS'; f._key = 'sfo' }
+  if (/sfo|aks/.test(t)) { f.egnet = 'SFO/AKS'; f._key = 'sfo' }
   else if (/kroppsøv|gymtime/.test(t)) { f.egnet = 'Kroppsøving'; f._key = 'kroppsøv' }
   else if (/aktive? pause/.test(t)) { f.egnet = 'Aktive pauser'; f._key = 'aktive pause' }
   else if (/aktivitetsdag/.test(t)) { f.egnet = 'Aktivitetsdager'; f._key = 'aktivitetsdag' }
-  else if (/aktiv læring|matte|matematikk|norsk|\bfag\b/.test(t)) { f.egnet = 'Aktiv læring'; f._key = 'aktiv læring' }
   else if (/friminutt/.test(t)) { f.egnet = 'Friminutt'; f._key = 'friminutt' }
+  else if (/aktiv læring|matte|matematikk|\bnorsk\b|\bfag\b/.test(t)) { f.egnet = 'Aktiv læring'; f._key = 'aktiv læring' }
   else if (/fysak|uteskole/.test(t)) { f.egnet = 'FYSAK'; f._key = 'fysak' }
   else if (/bli.?kjent|klassemilj|trivsel|første skoledag/.test(t)) { f.egnet = 'Bli kjent / klassemiljø'; f._key = 'kjent' }
   else if (/sosial kompetanse|vennskap|inkluder/.test(t)) { f.egnet = 'Sosial kompetanse'; f._key = 'sosial' }
@@ -131,14 +131,14 @@ export default function SkoleHjem({ fornavn = null }) {
 
   const parsed = useMemo(() => (aktivQ ? parseQ(aktivQ) : null), [aktivQ])
   const resultater = useMemo(() => {
-    if (!aktivQ) return []
+    if (!aktivQ) return { items: [], direkte: false }
     const f = parsed
     const qq = aktivQ.toLowerCase()
     const ranked = alle
       .map((l) => ({ l, s: score(l, f) + (l.n.toLowerCase().includes(qq) ? 1 : 0) }))
       .sort((a, b) => b.s - a.s)
     const treff = ranked.filter((x) => x.s > 0)
-    return (treff.length ? treff : ranked).slice(0, 6).map((x) => x.l)
+    return { items: (treff.length ? treff : ranked).slice(0, 6).map((x) => x.l), direkte: treff.length > 0 }
   }, [aktivQ, parsed, alle])
 
   function run(tekst) {
@@ -165,16 +165,16 @@ export default function SkoleHjem({ fornavn = null }) {
         <div className="tlh-searchbox">
           <svg viewBox="0 0 24 24" fill="none" stroke="#FF7B31" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
           <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') run() }}
-            type="text" placeholder="F.eks. leker til SFO utendørs til 10 barn på 4. trinn" />
-          <button onClick={() => run()}>Vis leker</button>
+            type="text" aria-label="Beskriv situasjonen din" placeholder="F.eks. leker til SFO utendørs til 10 barn på 4. trinn" />
+          <button type="button" onClick={() => run()}>Vis leker</button>
         </div>
         <div className="tlh-chips">
           <span className="lbl">Prøv:</span>
-          <span className="tlh-chip" onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}>SFO ute · 4. trinn</span>
-          <span className="tlh-chip" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}>Aktiv pause · inne</span>
-          <span className="tlh-chip" onClick={() => run('Kroppsøving oppvarming for hel klasse')}>Kroppsøving · oppvarming</span>
-          <span className="tlh-chip" onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}>Aktivitetsdag</span>
-          <span className="tlh-chip" onClick={() => run('Aktiv læring matematikk ute 5. trinn')}>Aktiv læring · matte</span>
+          <button type="button" className="tlh-chip" onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}>SFO ute · 4. trinn</button>
+          <button type="button" className="tlh-chip" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}>Aktiv pause · inne</button>
+          <button type="button" className="tlh-chip" onClick={() => run('Kroppsøving oppvarming for hel klasse')}>Kroppsøving · oppvarming</button>
+          <button type="button" className="tlh-chip" onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}>Aktivitetsdag</button>
+          <button type="button" className="tlh-chip" onClick={() => run('Aktiv læring matematikk ute 5. trinn')}>Aktiv læring · matte</button>
         </div>
 
         {aktivQ && (
@@ -185,19 +185,23 @@ export default function SkoleHjem({ fornavn = null }) {
                 <span key={i} className="tlh-fchip">{v}</span>
               )) : <span className="said">Fritekstsøk i hele biblioteket</span>}
             </div>
-            <div className="note">Vi oversetter det du skriver til filtrene under (egnet&nbsp;for · sted · antall · trinn · utstyr). Feltet blir smartere etter hvert.</div>
+            <div className="note">Vi tolker søket til egnet&nbsp;for, sted og utstyr nå. Trinn og antall vises som forståelse og teller mer etter hvert.</div>
           </div>
         )}
-        {aktivQ && <div className="tlh-backlink"><a onClick={reset}>← Tilbake til Min side</a></div>}
+        {aktivQ && <div className="tlh-backlink"><button type="button" onClick={reset}>← Tilbake til Min side</button></div>}
       </section>
 
       {/* Resultater (inline) */}
       {aktivQ && (
         <section className="tlh-results" style={{ marginTop: 26 }}>
-          <h2>Leker som passer</h2>
-          <div className="cnt">{resultater.length} leker som passer — sortert etter treff</div>
+          <h2>{resultater.direkte ? 'Leker som passer' : 'Fant ingen direkte treff'}</h2>
+          <div className="cnt">
+            {resultater.direkte
+              ? `${resultater.items.length} leker som passer — sortert etter treff`
+              : 'Her er noen forslag i stedet — prøv å justere søket for bedre treff'}
+          </div>
           <div className="tlh-grid">
-            {resultater.map((l) => (
+            {resultater.items.map((l) => (
               <Link key={l.id} to={`/min-side/aktiviteter/${l.id}`} className="tlh-lek">
                 <div className="ph">{(l.n.split(' ')[0] || '').toUpperCase()}</div>
                 <div className="body">
@@ -210,7 +214,7 @@ export default function SkoleHjem({ fornavn = null }) {
                 </div>
               </Link>
             ))}
-            {resultater.length === 0 && <p className="cnt">Ingen leker matchet ennå — prøv en annen beskrivelse.</p>}
+            {resultater.items.length === 0 && <p className="cnt">Ingen leker matchet ennå — prøv en annen beskrivelse.</p>}
           </div>
         </section>
       )}
@@ -222,18 +226,18 @@ export default function SkoleHjem({ fornavn = null }) {
             <h2>Søk i biblioteket</h2>
             <p className="s">60 aktive minutter — én lek om gangen.</p>
             <div className="tlh-ctx">
-              <a onClick={() => run('Friminuttleker for mellomtrinnet')}><span className="ic">🏃</span> Friminutt</a>
-              <a onClick={() => run('Kroppsøving oppvarming for hel klasse')}><span className="ic">🤸</span> Kroppsøving</a>
-              <a onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}><span className="ic">🧩</span> SFO / AKS</a>
+              <button type="button" onClick={() => run('Friminuttleker for mellomtrinnet')}><span className="ic">🏃</span> Friminutt</button>
+              <button type="button" onClick={() => run('Kroppsøving oppvarming for hel klasse')}><span className="ic">🤸</span> Kroppsøving</button>
+              <button type="button" onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}><span className="ic">🧩</span> SFO/AKS</button>
               <Link to="/min-side/aktiv-laering"><span className="ic">📚</span> Aktiv læring</Link>
-              <a onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}><span className="ic">⏸️</span> Aktive pauser</a>
-              <a onClick={() => run('FYSAK uteskole lavterskel')}><span className="ic">🌲</span> FYSAK</a>
-              <a onClick={() => run('Bli kjent og godt klassemiljø første skoledag')}><span className="ic">🤝</span> Bli kjent / klassemiljø</a>
-              <a onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}><span className="ic">🎪</span> Aktivitetsdager</a>
-              <a onClick={() => run('Sosial kompetanse og vennskap')}><span className="ic">🤗</span> Sosial kompetanse</a>
-              <a onClick={() => run('TL-Mester turnering')}><span className="ic">🏅</span> TL-Mester</a>
-              <a onClick={() => run('Leker for over 100 elever samtidig')}><span className="ic">👥</span> Leker for 100+ elever</a>
-              <a onClick={() => run('Leker for barnehage')}><span className="ic">🧸</span> Barnehage</a>
+              <button type="button" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}><span className="ic">⏸️</span> Aktive pauser</button>
+              <button type="button" onClick={() => run('FYSAK uteskole lavterskel')}><span className="ic">🌲</span> FYSAK</button>
+              <button type="button" onClick={() => run('Bli kjent og godt klassemiljø første skoledag')}><span className="ic">🤝</span> Bli kjent / klassemiljø</button>
+              <button type="button" onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}><span className="ic">🎪</span> Aktivitetsdager</button>
+              <button type="button" onClick={() => run('Sosial kompetanse og vennskap')}><span className="ic">🤗</span> Sosial kompetanse</button>
+              <button type="button" onClick={() => run('TL-Mester turnering')}><span className="ic">🏅</span> TL-Mester</button>
+              <button type="button" onClick={() => run('Leker for over 100 elever samtidig')}><span className="ic">👥</span> Leker for 100+ elever</button>
+              <button type="button" onClick={() => run('Leker for barnehage')}><span className="ic">🧸</span> Barnehage</button>
             </div>
           </div>
           <div className="tlh-panel">

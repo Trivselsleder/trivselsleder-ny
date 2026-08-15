@@ -177,7 +177,7 @@ export default function AdminBestillinger() {
                       </td>
                       <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{b.kontaktperson}</td>
                       <td className="px-4 py-3">
-                        <a href={`mailto:${b.epost}`} className="text-[#F47920] hover:underline">
+                        <a href={`mailto:${b.epost}`} className="text-[#FF7B31] hover:underline">
                           {b.epost}
                         </a>
                       </td>
@@ -187,7 +187,7 @@ export default function AdminBestillinger() {
                       </td>
                       <td className="px-4 py-3 text-right text-gray-700">{b.kortpris} kr</td>
                       <td className="px-4 py-3 text-right text-gray-700">{b.porto} kr</td>
-                      <td className="px-4 py-3 text-right font-semibold text-[#F47920]">
+                      <td className="px-4 py-3 text-right font-semibold text-[#FF7B31]">
                         {b.total} kr
                         <span className="block text-[10px] font-normal text-gray-400">
                           {t('adminBestillinger.eksMva')}
@@ -233,7 +233,7 @@ export default function AdminBestillinger() {
                   min="1"
                   value={satser.kortpris}
                   onChange={e => setSatser(s => ({ ...s, kortpris: Number(e.target.value) }))}
-                  className="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                  className="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
                 />
                 <span className="text-sm text-gray-500">kr / kort</span>
               </div>
@@ -249,7 +249,7 @@ export default function AdminBestillinger() {
                     ...s,
                     portoSatser: [...s.portoSatser, { fraAntall: (s.portoSatser.at(-1)?.tilAntall ?? 0) + 1, tilAntall: null, porto: 99 }]
                   }))}
-                  className="text-xs text-[#F47920] hover:underline"
+                  className="text-xs text-[#FF7B31] hover:underline"
                 >
                   + Legg til trinn
                 </button>
@@ -268,7 +268,7 @@ export default function AdminBestillinger() {
                           ny[i] = { ...ny[i], fraAntall: Number(e.target.value) }
                           return { ...s, portoSatser: ny }
                         })}
-                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
                       />
                       <span className="text-xs text-gray-400">–</span>
                       <input
@@ -281,7 +281,7 @@ export default function AdminBestillinger() {
                           ny[i] = { ...ny[i], tilAntall: e.target.value === '' ? null : Number(e.target.value) }
                           return { ...s, portoSatser: ny }
                         })}
-                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
                       />
                       <span className="text-xs text-gray-500">kort</span>
                     </div>
@@ -296,7 +296,7 @@ export default function AdminBestillinger() {
                           ny[i] = { ...ny[i], porto: Number(e.target.value) }
                           return { ...s, portoSatser: ny }
                         })}
-                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                        className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
                       />
                       <span className="text-xs text-gray-500">kr porto</span>
                     </div>
@@ -323,7 +323,7 @@ export default function AdminBestillinger() {
                   setSatserLagret(true)
                   setTimeout(() => setSatserLagret(false), 2500)
                 }}
-                className="bg-[#F47920] text-white font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm"
+                className="bg-[#FF7B31] text-white font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm"
               >
                 {satserLagret ? 'Lagret!' : 'Lagre innstillinger'}
               </button>

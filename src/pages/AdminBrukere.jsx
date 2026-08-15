@@ -86,7 +86,7 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
               onChange={e => felt('epost', e.target.value)}
               required
               placeholder="navn@skole.no"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
             />
           </div>
 
@@ -98,7 +98,7 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
               onChange={e => felt('navn', e.target.value)}
               required
               placeholder="Fornavn Etternavn"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
             />
           </div>
 
@@ -107,7 +107,7 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
             <select
               value={form.rolle}
               onChange={e => { felt('rolle', e.target.value); felt('skoleId', '') }}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
             >
               {ROLLE_VALG.map(r => (
                 <option key={r} value={r}>{ROLLE_LABEL[r]}</option>
@@ -121,7 +121,7 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
               <select
                 value={form.skoleId}
                 onChange={e => felt('skoleId', e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
               >
                 <option value="">Velg skole…</option>
                 {skoler.map(s => (
@@ -144,7 +144,7 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
             <button
               type="submit"
               disabled={laster}
-              className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-50"
+              className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
             >
               {laster ? 'Sender…' : 'Send invitasjon'}
             </button>
@@ -223,7 +223,7 @@ export default function AdminBrukere() {
           </div>
           <button
             onClick={() => setVisInviter(true)}
-            className="flex items-center gap-2 bg-[#F47920] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e06910] transition-colors"
+            className="flex items-center gap-2 bg-[#FF7B31] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -251,7 +251,7 @@ export default function AdminBrukere() {
 
         {laster ? (
           <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#FF7B31] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : feil ? (
           <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-red-600 text-sm">{feil}</div>
@@ -291,7 +291,7 @@ export default function AdminBrukere() {
                           <select
                             value={b.rolle}
                             onChange={e => oppdaterRolle(b.id, e.target.value)}
-                            className={`text-xs font-semibold px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 ${ROLLE_STIL[b.rolle] ?? 'bg-gray-100 text-gray-600'}`}
+                            className={`text-xs font-semibold px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 ${ROLLE_STIL[b.rolle] ?? 'bg-gray-100 text-gray-600'}`}
                           >
                             {ROLLE_VALG.map(r => (
                               <option key={r} value={r}>{ROLLE_LABEL[r]}</option>

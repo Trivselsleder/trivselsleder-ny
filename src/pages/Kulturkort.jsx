@@ -90,7 +90,7 @@ export default function Kulturkort() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#F47920] to-[#D6006E] text-white py-16 px-4">
+      <div className="bg-gradient-to-br from-[#FF7B31] to-[#D6006E] text-white py-16 px-4">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('kulturkort.title')}</h1>
           <p className="text-xl md:text-2xl opacity-90 mb-2">
@@ -115,26 +115,26 @@ export default function Kulturkort() {
               placeholder={t('kulturkort.sokPlaceholder')}
               value={søk}
               onChange={e => setSøk(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-2 text-sm flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="border border-gray-300 rounded-lg px-4 py-2 text-sm flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             />
             <select
               value={valgtFylke || alleFylkerVal}
               onChange={handleFylke}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             >
               {fylker.map(f => <option key={f}>{f}</option>)}
             </select>
             <select
               value={valgtKommune || alleKommunerVal}
               onChange={handleKommune}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             >
               {kommunerIFylke.map(k => <option key={k}>{k}</option>)}
             </select>
             <select
               value={valgtType || alleTyperVal}
               onChange={e => setValgtType(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
             >
               {typer.map(tv => <option key={tv}>{tv}</option>)}
             </select>
@@ -149,7 +149,7 @@ export default function Kulturkort() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         {laster ? (
           <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#FF7B31] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : filtrert.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
@@ -171,7 +171,7 @@ export default function Kulturkort() {
                     </h3>
                     <p className="text-xs text-gray-500 mt-0.5">{partner.kommune}</p>
                     {partner.type && (
-                      <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full bg-[#F47920]/10 text-[#F47920]">
+                      <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full bg-[#FF7B31]/10 text-[#FF7B31]">
                         {partner.type}
                       </span>
                     )}

@@ -7,7 +7,7 @@ export function RedigerInput({ label, type = 'text', value, onChange, placeholde
         value={value ?? ''}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
       />
     </div>
   )
@@ -31,21 +31,21 @@ export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, on
       </div>
       <RedigerInput label="Nettverk" value={form.nettverk} onChange={v => felt('nettverk', v)} placeholder="f.eks. Oslo øst" />
 
-      <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-2">Rektor</p>
+      <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide pt-2">Rektor</p>
       <div className="grid grid-cols-3 gap-3">
         <RedigerInput label="Navn"    value={form.rektor_navn}    onChange={v => felt('rektor_navn', v)} />
         <RedigerInput label="E-post"  type="email" value={form.rektor_epost}   onChange={v => felt('rektor_epost', v)} />
         <RedigerInput label="Telefon" type="tel"   value={form.rektor_telefon} onChange={v => felt('rektor_telefon', v)} />
       </div>
 
-      <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-2">Hovedkontakt TL</p>
+      <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide pt-2">Hovedkontakt TL</p>
       <div className="grid grid-cols-3 gap-3">
         <RedigerInput label="Navn"    value={form.hktl_navn}    onChange={v => felt('hktl_navn', v)} />
         <RedigerInput label="E-post"  type="email" value={form.hktl_epost}   onChange={v => felt('hktl_epost', v)} />
         <RedigerInput label="Telefon" type="tel"   value={form.hktl_telefon} onChange={v => felt('hktl_telefon', v)} />
       </div>
 
-      <p className="text-xs font-semibold text-[#F47920] uppercase tracking-wide pt-2">TL-ansvarlig</p>
+      <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide pt-2">TL-ansvarlig</p>
       {form.tla_kontakter.map((tla, i) => (
         <div key={i} className="grid grid-cols-3 gap-3 items-end">
           <RedigerInput label="Navn"   value={tla.navn}   onChange={v => settTla(i, 'navn', v)} />
@@ -58,7 +58,8 @@ export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, on
               <button
                 type="button"
                 onClick={() => fjernTla(i)}
-                className="mb-0.5 text-gray-300 hover:text-red-400 transition-colors text-lg leading-none"
+                className="mb-0.5 text-gray-400 hover:text-red-500 transition-colors text-lg leading-none"
+                aria-label="Fjern TL-ansvarlig"
                 title="Fjern"
               >×</button>
             )}
@@ -69,11 +70,11 @@ export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, on
         <button
           type="button"
           onClick={leggTilTla}
-          className="text-xs text-[#F47920] hover:text-[#e06910] font-medium"
+          className="text-xs text-[#FF7B31] hover:text-[#e8641c] font-medium"
         >+ Legg til TL-ansvarlig</button>
       )}
 
-      {lagreFeil && <p className="text-sm text-red-500">{lagreFeil}</p>}
+      {lagreFeil && <p role="alert" className="text-sm text-red-600">{lagreFeil}</p>}
       <div className="flex items-center justify-end gap-3 pt-1">
         <button type="button" onClick={onAvbryt} className="text-sm text-gray-500 hover:text-gray-800">
           Avbryt
@@ -81,7 +82,7 @@ export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, on
         <button
           type="submit"
           disabled={lagrer}
-          className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-50"
+          className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
         >
           {lagrer ? 'Lagrer…' : 'Lagre'}
         </button>

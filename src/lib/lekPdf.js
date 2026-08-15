@@ -33,7 +33,7 @@ export function byggLekHtml(lek) {
 <style>
   @page { size: A4; margin: 18mm; }
   body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1f2937;margin:0;line-height:1.5}
-  header{border-bottom:3px solid #F47920;padding-bottom:10px;margin-bottom:14px}
+  header{border-bottom:3px solid #FF7B31;padding-bottom:10px;margin-bottom:14px}
   h1{margin:0;font-size:24px}
   .meta{font-size:12px;color:#374151;margin-top:8px}
   h2{font-size:14px;color:#111827;margin:14px 0 2px}

@@ -28,7 +28,8 @@ const EMOJI_REGLER = [
   [/\bkjegle|bumerang|frisbee/i, '🥏'],
 ]
 
-const FARGER = ['#F47920', '#D6006E', '#0EA5E9', '#16A34A', '#7C3AED', '#EAB308', '#EF4444', '#0891B2', '#DB2777', '#65A30D']
+// TL-identitet v2.0 (ingen rosa): oransje, petrol, teal, rød, gull + noen nøytrale for variasjon.
+const FARGER = ['#FF7B31', '#106C75', '#54A1AB', '#CF442F', '#F2B01E', '#0EA5E9', '#16A34A', '#0891B2', '#7C3AED', '#65A30D']
 
 function tekstFor(lek) {
   const utstyr = (lek.utstyr || []).join(' ')

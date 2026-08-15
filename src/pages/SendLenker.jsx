@@ -12,7 +12,7 @@ import { adminFetch } from '../lib/adminFetch'
 // hovedknappen og et rolig banner forklarer hvorfor. Serveren håndhever bremsen
 // uansett — knappen er bare den synlige delen.
 
-const ORANSJE = '#F47920'
+const ORANSJE = '#FF7B31'
 
 function formaterDato(iso) {
   if (!iso) return ''

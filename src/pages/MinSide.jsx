@@ -23,10 +23,10 @@ function AdminLenke({ to, label }) {
   return (
     <Link
       to={to}
-      className="flex items-center justify-between px-5 py-3 rounded-xl border border-gray-200 hover:border-[#F47920] hover:bg-[#F47920]/5 transition-colors group"
+      className="flex items-center justify-between px-5 py-3 rounded-xl border border-gray-200 hover:border-[#FF7B31] hover:bg-[#FF7B31]/5 transition-colors group"
     >
-      <span className="font-medium text-gray-700 group-hover:text-[#F47920]">{label}</span>
-      <svg className="w-4 h-4 text-gray-400 group-hover:text-[#F47920]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <span className="font-medium text-gray-700 group-hover:text-[#FF7B31]">{label}</span>
+      <svg className="w-4 h-4 text-gray-400 group-hover:text-[#FF7B31]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
     </Link>
@@ -87,7 +87,7 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
               type="email" required value={form.epost}
               onChange={e => felt('epost', e.target.value)}
               placeholder="navn@skole.no"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
             />
           </div>
           <div>
@@ -96,14 +96,14 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
               type="text" required value={form.navn}
               onChange={e => felt('navn', e.target.value)}
               placeholder="Fornavn Etternavn"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Rolle *</label>
             <select
               value={form.rolle} onChange={e => felt('rolle', e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]/30 focus:border-[#F47920]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
             >
               <option value="skoleansatt">Skoleansatt</option>
               <option value="skoleadmin">Skoleadmin</option>
@@ -116,7 +116,7 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
             </button>
             <button
               type="submit" disabled={laster}
-              className="bg-[#F47920] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e06910] transition-colors disabled:opacity-50"
+              className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
             >
               {laster ? 'Sender…' : 'Send invitasjon'}
             </button>
@@ -292,7 +292,7 @@ function SkoleadminSeksjon({ brukerId }) {
           {skole && !redigerer && (
             <button
               onClick={startRedigering}
-              className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#F47920] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#FF7B31] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-1.414a2 2 0 01.586-1.414z" />
@@ -304,7 +304,7 @@ function SkoleadminSeksjon({ brukerId }) {
 
         {laster ? (
           <div className="h-12 flex items-center">
-            <div className="w-5 h-5 border-2 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-[#FF7B31] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : !skole ? (
           <p className="text-sm text-amber-600">Ingen skole er knyttet til denne brukeren ennå.</p>
@@ -337,7 +337,7 @@ function SkoleadminSeksjon({ brukerId }) {
             <h2 className="font-semibold text-gray-800">Ansatte på skolen</h2>
             <button
               onClick={() => setVisInviter(true)}
-              className="flex items-center gap-1.5 text-sm font-medium text-[#F47920] hover:text-[#e06910] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-[#FF7B31] hover:text-[#e8641c] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -348,7 +348,7 @@ function SkoleadminSeksjon({ brukerId }) {
 
           {laster ? (
             <div className="py-4 flex justify-center">
-              <div className="w-5 h-5 border-2 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-[#FF7B31] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : andreAnsatte.length === 0 ? (
             <p className="text-sm text-gray-400 py-2">Ingen andre ansatte registrert ennå.</p>
@@ -406,7 +406,7 @@ function SkoleansattSeksjon({ brukerId }) {
       <h2 className="font-semibold text-gray-800 mb-4">Min skole</h2>
       {laster ? (
         <div className="h-12 flex items-center">
-          <div className="w-5 h-5 border-2 border-[#F47920] border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-[#FF7B31] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : skole ? (
         <SkoleInfoVisning skole={skole} />
@@ -538,7 +538,7 @@ export default function MinSide() {
                 {rolle ? (
                   <>
                     Du er innlogget som{' '}
-                    <span className="font-medium text-[#F47920]">
+                    <span className="font-medium text-[#FF7B31]">
                       {ROLLE_LABEL[rolle] ?? rolle}
                     </span>
                   </>

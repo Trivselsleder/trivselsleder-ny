@@ -48,7 +48,7 @@ export default function SettPassord() {
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm">
         {!klar ? (
           <div className="text-center space-y-4">
-            <div className="w-8 h-8 border-4 border-[#F47920] border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-8 h-8 border-4 border-[#FF7B31] border-t-transparent rounded-full animate-spin mx-auto" />
             <p className="text-gray-600 text-sm">Bekrefter lenke…</p>
           </div>
         ) : ferdig ? (
@@ -76,7 +76,7 @@ export default function SettPassord() {
                   required
                   autoFocus
                   minLength={8}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
                 />
               </div>
               <div>
@@ -86,14 +86,14 @@ export default function SettPassord() {
                   value={bekreft}
                   onChange={e => { setBekreft(e.target.value); setFeil('') }}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
                 />
               </div>
               {feil && <p className="text-red-500 text-xs">{feil}</p>}
               <button
                 type="submit"
                 disabled={laster}
-                className="w-full bg-[#F47920] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
+                className="w-full bg-[#FF7B31] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
               >
                 {laster ? 'Lagrer…' : 'Sett nytt passord'}
               </button>

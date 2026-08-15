@@ -30,6 +30,7 @@ export default function SkoleAktiviteter() {
   const [fSesong, setFSesong] = useState('')
   const [favoritter, setFavoritter] = useState(new Set())
   const [kunFav, setKunFav] = useState(false)
+  const [kunVideo, setKunVideo] = useState(false)
   const [blaApen, setBlaApen] = useState(false)
   const [params] = useSearchParams()
 
@@ -86,13 +87,14 @@ export default function SkoleAktiviteter() {
       if (fUtstyr && !l.utstyr.includes(fUtstyr)) return false
       if (utenUtstyr && !l.utenUtstyr) return false
       if (fSesong && !l.sesong.includes(fSesong)) return false
+      if (kunVideo && !l.harVideo) return false
       if (kunFav && !favoritter.has(l.id)) return false
       return true
     })
-  }, [alle, sok, fEgnet, fTrinn, fSted, fUtstyr, utenUtstyr, fSesong, kunFav, favoritter])
+  }, [alle, sok, fEgnet, fTrinn, fSted, fUtstyr, utenUtstyr, fSesong, kunVideo, kunFav, favoritter])
 
   function nullstill() {
-    setSok(''); setFEgnet(''); setFTrinn(''); setFSted(''); setFUtstyr(''); setUtenUtstyr(false); setFSesong(''); setKunFav(false)
+    setSok(''); setFEgnet(''); setFTrinn(''); setFSted(''); setFUtstyr(''); setUtenUtstyr(false); setFSesong(''); setKunVideo(false); setKunFav(false)
   }
   // Klikk på ett chip = sett (eller skru av) filteret.
   const bytt = (naa, ny, sett) => sett(naa === ny ? '' : ny)
@@ -102,6 +104,8 @@ export default function SkoleAktiviteter() {
     `text-sm rounded-full px-3 py-1.5 border transition-colors cursor-pointer ${
       aktiv ? 'bg-orange text-white border-orange' : 'bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange'
     }`
+  // Merkelapper som ennå ikke har eget filter-felt (kobles ved innholdsimport).
+  const chipKommer = 'text-sm rounded-full px-3 py-1.5 border border-dashed border-gray-200 text-gray-400 bg-gray-50 cursor-default'
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,24 +123,24 @@ export default function SkoleAktiviteter() {
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2 items-center">
-        <select className={selCls} value={fEgnet} onChange={(e) => setFEgnet(e.target.value)}>
+        <select className={selCls} aria-label="Egnet for" value={fEgnet} onChange={(e) => setFEgnet(e.target.value)}>
           <option value="">Egnet for …</option>
           {valg.egnet.map((x) => <option key={x} value={x}>{x}</option>)}
         </select>
-        <select className={selCls} value={fTrinn} onChange={(e) => setFTrinn(e.target.value)}>
+        <select className={selCls} aria-label="Trinn" value={fTrinn} onChange={(e) => setFTrinn(e.target.value)}>
           <option value="">Trinn …</option>
           {valg.trinn.map(([kode, navn]) => <option key={kode} value={kode}>{navn}</option>)}
         </select>
-        <select className={selCls} value={fSted} onChange={(e) => setFSted(e.target.value)}>
+        <select className={selCls} aria-label="Sted" value={fSted} onChange={(e) => setFSted(e.target.value)}>
           <option value="">Sted …</option>
           <option value="inne">Inne</option>
           <option value="ute">Ute</option>
         </select>
-        <select className={selCls} value={fUtstyr} onChange={(e) => setFUtstyr(e.target.value)}>
+        <select className={selCls} aria-label="Utstyr" value={fUtstyr} onChange={(e) => setFUtstyr(e.target.value)}>
           <option value="">Utstyr …</option>
           {valg.utstyr.map((x) => <option key={x} value={x}>{x}</option>)}
         </select>
-        <select className={selCls} value={fSesong} onChange={(e) => setFSesong(e.target.value)}>
+        <select className={selCls} aria-label="Sesong" value={fSesong} onChange={(e) => setFSesong(e.target.value)}>
           <option value="">Sesong …</option>
           {valg.sesong.map((x) => <option key={x} value={x}>{x}</option>)}
         </select>
@@ -145,8 +149,12 @@ export default function SkoleAktiviteter() {
           Uten utstyr
         </label>
         <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
+          <input type="checkbox" checked={kunVideo} onChange={(e) => setKunVideo(e.target.checked)} />
+          <span className="text-orange" aria-hidden="true">▶</span> Med video
+        </label>
+        <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
           <input type="checkbox" checked={kunFav} onChange={(e) => setKunFav(e.target.checked)} />
-          <span className="text-magenta">♥</span> Kun favoritter
+          <span className="text-tlred" aria-hidden="true">♥</span> Kun favoritter
         </label>
         <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange px-2">Nullstill</button>
       </div>
@@ -204,20 +212,21 @@ export default function SkoleAktiviteter() {
             <Gruppe tittel="Samlinger">
               <button className={chip(kunFav)} onClick={() => setKunFav((v) => !v)}>Favoritter</button>
               {SAMLINGER.filter((s) => s !== 'Favoritter').map((s) => (
-                <button key={s} className={chip(sok === s)} onClick={() => setSok(s)}>{s}</button>
+                <span key={s} className={chipKommer} title="Kobles til presist filter ved innholdsimporten">{s}</span>
               ))}
             </Gruppe>
 
             <Gruppe tittel="Skoletype">
               {SKOLETYPE.map((s) => (
-                <button key={s} className={chip(sok === s)} onClick={() => setSok(s)}>{s}</button>
+                <span key={s} className={chipKommer} title="Kobles til presist filter ved innholdsimporten">{s}</span>
               ))}
             </Gruppe>
 
             <div>
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Aktivitetstype</div>
-              <p className="text-sm text-gray-400">{AKTIVITETSTYPE_EKS} <span className="italic">— fylles ved innholdsimporten.</span></p>
+              <p className="text-sm text-gray-500">{AKTIVITETSTYPE_EKS} <span className="italic">— fylles ved innholdsimporten.</span></p>
             </div>
+            <p className="text-xs text-gray-400">Grå merkelapper er synlige nå og kobles til presist filter når innholds-taksonomien importeres.</p>
           </div>
         )}
       </div>
@@ -227,9 +236,11 @@ export default function SkoleAktiviteter() {
 
       {!laster && !feil && (
         <>
-          <p className="text-sm text-gray-400 mt-5">Viser {treff.length} av {alle.length} leker</p>
-          {treff.length === 0 ? (
-            <div className="text-center text-gray-400 py-16">Ingen leker matchet. Prøv å nullstille filtrene.</div>
+          {alle.length > 0 && <p className="text-sm text-gray-500 mt-5">Viser {treff.length} av {alle.length} leker</p>}
+          {alle.length === 0 ? (
+            <div className="text-center text-gray-500 py-16">Ingen leker publisert ennå. Innholdet importeres i innholdsjobben.</div>
+          ) : treff.length === 0 ? (
+            <div className="text-center text-gray-500 py-16">Ingen leker matchet. Prøv å nullstille filtrene.</div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
               {treff.map((l) => <LekeKort key={l.id} lek={l} favoritt={favoritter.has(l.id)} />)}

@@ -4,12 +4,12 @@ export default function LekeKort({ lek, favoritt = false }) {
   return (
     <Link
       to={`/min-side/aktiviteter/${lek.id}`}
-      className="block bg-white rounded-2xl border border-gray-200 hover:border-magenta hover:shadow-md transition p-4"
+      className="block bg-white rounded-2xl border border-gray-200 hover:border-petrol hover:shadow-md transition p-4"
     >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-bold text-gray-900">{lek.tittel}</h3>
         <span className="flex items-center gap-1 shrink-0">
-          {favoritt && <span title="Favoritt" className="text-magenta">♥</span>}
+          {favoritt && <span title="Favoritt" className="text-tlred">♥</span>}
           {lek.harVideo && <span title="Har video" className="text-orange">▶</span>}
         </span>
       </div>

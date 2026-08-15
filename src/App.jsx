@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -43,6 +43,7 @@ import SkoleAktivLaering from './pages/skole/SkoleAktivLaering'
 import SkolePeriodeplaner from './pages/skole/SkolePeriodeplaner'
 import SkolePeriodeplan from './pages/skole/SkolePeriodeplan'
 import DeltPeriodeplan from './pages/DeltPeriodeplan'
+import SkjermPlan from './pages/SkjermPlan'
 import SkoleTLhjulet from './pages/skole/SkoleTLhjulet'
 import SkoleHjul from './pages/skole/SkoleHjul'
 import SkoleDriftAvTL from './pages/skole/SkoleDriftAvTL'
@@ -53,7 +54,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <div className="min-h-screen flex flex-col">
-          <Header />
+          <KanskjeHeader />
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Home />} />
@@ -70,6 +71,7 @@ export default function App() {
               <Route path="/kursinfo/:token" element={<KursInfo />} />
               <Route path="/evaluering/:token" element={<EvalueringSkjema />} />
               <Route path="/plan/:token" element={<DeltPeriodeplan />} />
+              <Route path="/skjerm/:token" element={<SkjermPlan />} />
               <Route
                 path="/min-side"
                 element={
@@ -152,9 +154,14 @@ export default function App() {
               <Route path="/admin/evalueringer" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminEvaluering /></ProtectedRoute>} />
             </Routes>
           </main>
-          <Footer />
+          <KanskjeFooter />
         </div>
       </AuthProvider>
     </BrowserRouter>
   )
 }
+
+// Oppslags-TV (/skjerm/:token) skal ikke vise nettstedsmeny/footer.
+function utenChrome(pathname) { return pathname.startsWith('/skjerm/') }
+function KanskjeHeader() { return utenChrome(useLocation().pathname) ? null : <Header /> }
+function KanskjeFooter() { return utenChrome(useLocation().pathname) ? null : <Footer /> }

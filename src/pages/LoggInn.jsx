@@ -65,8 +65,8 @@ export default function LoggInn() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#F47920]/10 mb-3">
-            <svg className="w-7 h-7 text-[#F47920]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#FF7B31]/10 mb-3">
+            <svg className="w-7 h-7 text-[#FF7B31]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
@@ -84,7 +84,7 @@ export default function LoggInn() {
                 onChange={e => { setEpost(e.target.value); setFeil('') }}
                 required
                 autoFocus
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
               />
             </div>
             <div>
@@ -94,21 +94,21 @@ export default function LoggInn() {
                 value={passord}
                 onChange={e => { setPassord(e.target.value); setFeil('') }}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
               />
             </div>
             {feil && <p className="text-red-500 text-xs">{feil}</p>}
             <button
               type="submit"
               disabled={laster}
-              className="w-full bg-[#F47920] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
+              className="w-full bg-[#FF7B31] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
             >
               {laster ? 'Logger inn…' : 'Logg inn'}
             </button>
             <button
               type="button"
               onClick={() => setVisGlemt(true)}
-              className="w-full text-sm text-[#F47920] hover:underline text-center"
+              className="w-full text-sm text-[#FF7B31] hover:underline text-center"
             >
               Glemt passord?
             </button>
@@ -153,14 +153,14 @@ export default function LoggInn() {
                     onChange={e => { setGlemmtEpost(e.target.value); setGlemmtFeil('') }}
                     required
                     autoFocus
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F47920]"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
                   />
                 </div>
                 {glemmtFeil && <p className="text-red-500 text-xs">{glemmtFeil}</p>}
                 <button
                   type="submit"
                   disabled={glemmtLaster}
-                  className="w-full bg-[#F47920] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
+                  className="w-full bg-[#FF7B31] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
                 >
                   {glemmtLaster ? 'Sender…' : 'Send tilbakestillingslenke'}
                 </button>
@@ -185,7 +185,7 @@ export default function LoggInn() {
                 <button
                   type="button"
                   onClick={() => { setVisGlemt(false); setGlemmtSendt(false); setGlemmtEpost('') }}
-                  className="text-sm text-[#F47920] hover:underline"
+                  className="text-sm text-[#FF7B31] hover:underline"
                 >
                   Tilbake til innlogging
                 </button>

@@ -74,6 +74,7 @@ export async function hentLeker() {
     .from('ressurser')
     .select(VELG)
     .eq('status', 'publisert')
+    .neq('ressurstype', 'aktiv_laering') // aktiv læring er egen side (Fag + Trinn)
   if (error) throw error
   return (data || []).map(formLek)
 }
@@ -91,6 +92,61 @@ export async function hentDokumenter(ressursId) {
     .eq('ressurs_id', ressursId)
     .eq('status', 'publisert')
   return data || []
+}
+
+// Aktiv læring = egen innholdstype (ressurstype='aktiv_laering'), med Fag + Trinn.
+// Prøver rik spørring med fag; faller trygt tilbake til lek-filtrering hvis
+// fag-koblingen ikke finnes ennå (da er fag tomt til taksonomien importeres).
+export async function hentAktivLaering() {
+  try {
+    const { data, error } = await supabase
+      .from('ressurser')
+      .select(`${VELG}, ressurs_fag ( fag ( navn ) )`)
+      .eq('status', 'publisert')
+      .eq('ressurstype', 'aktiv_laering')
+    if (error) throw error
+    return (data || []).map((r) => ({
+      ...formLek(r),
+      fag: (r.ressurs_fag || []).map((x) => x.fag?.navn).filter(Boolean),
+    }))
+  } catch {
+    // Fag-koblingen finnes ikke ennå — hent aktiv læring uten fag (fag fylles ved import).
+    const { data, error } = await supabase
+      .from('ressurser')
+      .select(VELG)
+      .eq('status', 'publisert')
+      .eq('ressurstype', 'aktiv_laering')
+    if (error) throw error
+    return (data || []).map((r) => ({ ...formLek(r), fag: [] }))
+  }
+}
+
+// Dokumentbank (Maler & materiell): frittstående + lek-koblede dokumenter, facet = Type.
+// Bred select (*) så vi tåler at kolonnenavn (url/fil) varierer; tom liste ved feil.
+export async function hentDokumentbank() {
+  // Bred select (*) så vi tåler kolonnenavn-variasjon. Ekte feil bobler opp til
+  // siden (vises som feil, ikke som «tom bank»). Publisert-filter gjøres klientside
+  // i tilfelle status-kolonnen ikke finnes.
+  const { data, error } = await supabase.from('dokumenter').select('*')
+  if (error) throw error
+  return (data || [])
+    .filter((d) => d.status === undefined || d.status === null || d.status === 'publisert')
+    .map(formDokument)
+}
+
+function formDokument(d) {
+  // Bare ekte http(s)-lenker blir klikkbare. Storage-stier («dokumenter/x.pdf») lar
+  // vi ligge til lagrings-URL wires ordentlig ved import — unngår 404-lenker.
+  const kandidat = d.url || d.fil_url || d.lenke || null
+  const url = typeof kandidat === 'string' && /^https?:\/\//.test(kandidat) ? kandidat : null
+  return {
+    id: d.id,
+    tittel: d.tittel || 'Uten tittel',
+    type: d.type || 'Annet',
+    sprak: d.sprak || d.maalform || null,
+    ressursId: d.ressurs_id ?? null,
+    url,
+  }
 }
 
 // --- Redigering (kun interne; RLS på ressurser/ressurs_innhold = fase3_intern) ---
