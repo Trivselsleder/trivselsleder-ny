@@ -22,3 +22,25 @@ export const publiserWebinar = (id) => kall('publiser', { id })
 export const avpubliserWebinar = (id) => kall('avpubliser', { id })
 export const slettWebinar = (id) => kall('slett', { id })
 export const hentPameldingerAdmin = (id) => kall('pameldinger', { id }).then((r) => r.pameldinger || [])
+
+// Invitasjon (eget endepunkt). torrkjoring=true gir forhåndsvisning uten å sende.
+export async function inviterWebinar(webinarId, segment, torrkjoring = true) {
+  const { data: { session } } = await supabase.auth.getSession()
+  const token = session?.access_token
+  if (!token) throw new Error('Ikke innlogget.')
+  const res = await fetch('/api/webinar/inviter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ webinar_id: webinarId, segment, torrkjoring }),
+  })
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(json.error || 'Noe gikk galt.')
+  return json
+}
+
+// Distinkte nettverk blant aktive skoler (til segment-velgeren).
+export async function hentNettverkListe() {
+  const { data, error } = await supabase.from('skoler').select('nettverk').eq('status', 'Aktiv')
+  if (error) throw error
+  return [...new Set((data || []).map((r) => (r.nettverk || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
+}

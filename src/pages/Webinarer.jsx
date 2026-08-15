@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { hentOffentligeWebinarer, datoLang, klokkeslett, datoBlokk } from '../lib/webinar'
 import Nedtelling from '../components/webinar/Nedtelling'
 import PameldingSkjema from '../components/webinar/PameldingSkjema'
@@ -10,13 +10,21 @@ export default function Webinarer() {
   const [liste, setListe] = useState(null)
   const [feil, setFeil] = useState(null)
   const [valgt, setValgt] = useState(null)
+  const [params] = useSearchParams()
 
   useEffect(() => {
     let aktiv = true
     hentOffentligeWebinarer()
-      .then((d) => { if (aktiv) setListe(d) })
+      .then((d) => {
+        if (!aktiv) return
+        setListe(d)
+        // Dyplenke fra invitasjon: ?meld=<id> åpner påmelding direkte
+        const meldId = params.get('meld')
+        if (meldId) { const w = d.find((x) => x.id === meldId); if (w) setValgt(w) }
+      })
       .catch((e) => { if (aktiv) { setFeil(e.message); setListe([]) } })
     return () => { aktiv = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const neste = liste && liste.length ? liste[0] : null

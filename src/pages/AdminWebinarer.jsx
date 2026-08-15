@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   hentWebinarerAdmin, opprettWebinar, oppdaterWebinar,
   publiserWebinar, avpubliserWebinar, slettWebinar, hentPameldingerAdmin,
+  inviterWebinar, hentNettverkListe,
 } from '../lib/webinarAdmin'
 import { TYPE_ETIKETT, datoLang, klokkeslett } from '../lib/webinar'
 
@@ -30,6 +31,12 @@ export default function AdminWebinarer() {
   const [typeFilter, setTypeFilter] = useState('alle')
   const [utvidet, setUtvidet] = useState(null)     // webinar-id vist med påmeldingsliste
   const [pameldinger, setPameldinger] = useState({})
+  const [inviter, setInviter] = useState(null)     // webinar under invitasjon
+  const [nettverkListe, setNettverkListe] = useState([])
+  const [segment, setSegment] = useState({ type: 'alle_aktive' })
+  const [forhaands, setForhaands] = useState(null) // dry-run-resultat
+  const [inviterer, setInviterer] = useState(false)
+  const [inviteResultat, setInviteResultat] = useState(null)
 
   function last() {
     hentWebinarerAdmin().then(setListe).catch((e) => { setFeil(e.message); setListe([]) })
@@ -75,6 +82,20 @@ export default function AdminWebinarer() {
       try { const p = await hentPameldingerAdmin(id); setPameldinger((s) => ({ ...s, [id]: p })) }
       catch (e) { setFeil(e.message) }
     }
+  }
+
+  function apneInviter(w) {
+    setInviter(w); setSegment({ type: 'alle_aktive' }); setForhaands(null); setInviteResultat(null); setFeil(null)
+    hentNettverkListe().then(setNettverkListe).catch(() => setNettverkListe([]))
+  }
+  async function kjorInvitasjon(torrkjoring) {
+    setInviterer(true); setFeil(null)
+    try {
+      const r = await inviterWebinar(inviter.id, segment, torrkjoring)
+      if (r.error) { setFeil(r.error); if (torrkjoring) setForhaands(null) }
+      else if (torrkjoring) { setForhaands(r); setInviteResultat(null) }
+      else { setInviteResultat(r); setForhaands(null) }
+    } catch (e) { setFeil(e.message) } finally { setInviterer(false) }
   }
 
   const felt = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20'
@@ -130,6 +151,7 @@ export default function AdminWebinarer() {
                   {w.status === 'publisert'
                     ? <button onClick={() => bytt(w.id, false)} className="text-xs border border-gray-300 rounded-full px-3 py-1.5 hover:border-gray-400">Avpubliser</button>
                     : <button onClick={() => bytt(w.id, true)} className="text-xs bg-petrol text-white rounded-full px-3 py-1.5 hover:bg-petrol/90">Publiser</button>}
+                  {w.status === 'publisert' && <button onClick={() => apneInviter(w)} className="text-xs bg-orange/10 text-orange rounded-full px-3 py-1.5 hover:bg-orange/20 font-medium">Inviter</button>}
                   <button onClick={() => setSkjema({ ...w, starter_at: tilLokal(w.starter_at), maks_antall: w.maks_antall || '', beskrivelse: w.beskrivelse || '', mote_lenke: w.mote_lenke || '' })} className="text-xs border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange">Rediger</button>
                   <button onClick={() => fjern(w.id)} className="text-xs text-gray-400 hover:text-red-600 px-1" aria-label="Slett">🗑</button>
                 </div>
@@ -158,6 +180,76 @@ export default function AdminWebinarer() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Invitasjons-modal */}
+      {inviter && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={() => { if (!inviterer) setInviter(null) }}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-lg font-bold text-gray-900">Inviter til webinar</h2>
+              <button onClick={() => setInviter(null)} className="text-gray-400 hover:text-gray-700 text-xl" aria-label="Lukk">×</button>
+            </div>
+            <p className="text-sm text-gray-500 mb-3 truncate">{inviter.tittel}</p>
+            {feil && <p className="text-sm text-red-600 mb-2" role="alert">{feil}</p>}
+
+            <fieldset className="space-y-2">
+              <legend className="text-xs font-semibold text-gray-600 mb-1">Hvem skal inviteres?</legend>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="radio" name="seg" checked={segment.type === 'alle_aktive'} onChange={() => { setSegment({ type: 'alle_aktive' }); setForhaands(null); setInviteResultat(null) }} className="accent-orange" />
+                Alle aktive skoler (kunder)
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="radio" name="seg" checked={segment.type === 'nettverk'} onChange={() => { setSegment({ type: 'nettverk', nettverk: nettverkListe[0] || '' }); setForhaands(null); setInviteResultat(null) }} className="accent-orange" />
+                Ett nettverk:
+                <select
+                  disabled={segment.type !== 'nettverk'}
+                  value={segment.nettverk || ''}
+                  onChange={(e) => { setSegment({ type: 'nettverk', nettverk: e.target.value }); setForhaands(null) }}
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-sm disabled:opacity-50"
+                >
+                  {nettverkListe.length === 0 && <option value="">(ingen nettverk)</option>}
+                  {nettverkListe.map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </label>
+              <label className="flex items-start gap-2 text-sm">
+                <input type="radio" name="seg" checked={segment.type === 'prospekt'} onChange={() => { setSegment({ type: 'prospekt' }); setForhaands(null); setInviteResultat(null) }} className="accent-orange mt-0.5" />
+                <span>Potensielle skoler (ekstern)
+                  <span className="block text-xs text-[#B5560F]">⚠ Sperret til rektorlista er kvalitetssikret (rektorliste_qa_ok = «ja»). Forhåndsvisning er alltid tillatt.</span>
+                </span>
+              </label>
+            </fieldset>
+
+            <div className="flex items-center gap-2 mt-4">
+              <button onClick={() => kjorInvitasjon(true)} disabled={inviterer || (segment.type === 'nettverk' && !segment.nettverk)} className="text-sm border border-gray-300 rounded-full px-4 py-1.5 hover:border-orange hover:text-orange disabled:opacity-50">
+                {inviterer ? '…' : 'Forhåndsvis'}
+              </button>
+              {forhaands && forhaands.antall_mottakere > 0 && (
+                <button onClick={() => { if (window.confirm(`Sende invitasjon til ${forhaands.antall_mottakere} mottakere?`)) kjorInvitasjon(false) }} disabled={inviterer} className="text-sm font-semibold bg-orange text-white rounded-full px-5 py-1.5 hover:bg-orange/90 disabled:opacity-50">
+                  Send til {forhaands.antall_mottakere}
+                </button>
+              )}
+            </div>
+
+            {forhaands && (
+              <div className="mt-3 rounded-xl bg-gray-50 border border-gray-200 p-3">
+                <p className="text-sm text-gray-700"><b>{forhaands.antall_mottakere}</b> mottakere{forhaands.uten_epost ? ` · ${forhaands.uten_epost} skoler uten e-post` : ''}</p>
+                {forhaands.antall_mottakere === 0 && <p className="text-sm text-gray-500 mt-1">Ingen å invitere (alle kan alt være påmeldt eller mangle e-post).</p>}
+                {forhaands.forhandsvisning?.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {forhaands.forhandsvisning.slice(0, 15).map((m, i) => <span key={i} className="text-xs bg-white border border-gray-200 rounded-full px-2 py-0.5 text-gray-600">{m.epost}</span>)}
+                    {forhaands.antall_mottakere > 15 && <span className="text-xs text-gray-500 self-center">+ {forhaands.antall_mottakere - 15} til</span>}
+                  </div>
+                )}
+              </div>
+            )}
+            {inviteResultat && (
+              <p className="mt-3 text-sm text-[#106C75]" role="status" aria-live="polite">
+                Sendt <b>{inviteResultat.sendt}</b> invitasjoner{inviteResultat.hoppet_over ? ` · hoppet over ${inviteResultat.hoppet_over} (alt invitert)` : ''}{inviteResultat.feilet ? ` · ${inviteResultat.feilet.length} feilet` : ''}{inviteResultat.avkortet ? ` · ${inviteResultat.gjenstaar} gjenstår — kjør igjen` : ''}.
+              </p>
+            )}
+          </div>
         </div>
       )}
 
