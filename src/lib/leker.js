@@ -1,5 +1,12 @@
 import { supabase } from './supabase'
 
+// Kanoniske lister (vises alltid i nedtrekk, uansett hva testdataene inneholder).
+export const TRINN_NO = [
+  ['bhg', 'Barnehage'], ['1', '1. trinn'], ['2', '2. trinn'], ['3', '3. trinn'], ['4', '4. trinn'],
+  ['5', '5. trinn'], ['6', '6. trinn'], ['7', '7. trinn'], ['8', '8. trinn'], ['9', '9. trinn'], ['10', '10. trinn'],
+]
+export const SESONGER = ['Vinter', 'Vår', 'Sommer', 'Høst']
+
 const VELG = `
   id, sted, antall_min, antall_maks, kan_ledes_av_elever, redaksjonell_rating, ressurstype, status,
   ressurs_innhold ( sprak, tittel, formaal, forberedelse, inndeling, utgangsposisjon, kronologi, regler, variasjoner, instruktoernotat ),

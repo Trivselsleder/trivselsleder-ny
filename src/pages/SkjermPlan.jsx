@@ -152,7 +152,10 @@ export default function SkjermPlan() {
                       <th className="text-left p-3 lg:p-4">
                         <div className="flex items-center gap-3">
                           <span className="inline-flex items-center justify-center w-10 h-10 lg:w-14 lg:h-14 rounded-xl text-xl lg:text-3xl shrink-0" style={{ background: lekFarge(lek) }}>{lekEmoji(lek)}</span>
-                          <span className="text-xl lg:text-3xl font-bold leading-tight">{lek.tittel}</span>
+                          <div>
+                            <span className="block text-xl lg:text-3xl font-bold leading-tight">{lek.tittel}</span>
+                            {(r.celler || {})._sted && <span className="block text-base lg:text-xl text-gray-500 mt-0.5">📍 {(r.celler || {})._sted}</span>}
+                          </div>
                         </div>
                       </th>
                       {dager.map((d) => {

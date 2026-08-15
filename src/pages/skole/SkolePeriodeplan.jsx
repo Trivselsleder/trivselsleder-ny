@@ -35,6 +35,7 @@ export default function SkolePeriodeplan() {
   const [melding, setMelding] = useState(null)
   const [skjermAapen, setSkjermAapen] = useState(false)
   const [qrSrc, setQrSrc] = useState('')
+  const [bibliotekApen, setBibliotekApen] = useState(true)
   const meldingTimer = useRef(null)
 
   // Last plan ved id-bytte (setter laster + guarder mot ut-av-rekkefølge-svar).
@@ -101,6 +102,22 @@ export default function SkolePeriodeplan() {
     }))
     if (nye === undefined) return
     try { await settRadCeller(radId, nye) } catch (e) { visMelding('Kunne ikke lagre celle: ' + e.message); refetch() }
+  }
+  // Sted/lokasjon per lek — lagres i celler._sted (jsonb-hjørne, ingen schema-endring).
+  async function onSted(radId, sted) {
+    let nye
+    setPlan((p) => ({
+      ...p,
+      rader: p.rader.map((r) => {
+        if (r.id !== radId) return r
+        const celler = { ...(r.celler || {}) }
+        if (sted) celler._sted = sted; else delete celler._sted
+        nye = celler
+        return { ...r, celler }
+      }),
+    }))
+    if (nye === undefined) return
+    try { await settRadCeller(radId, nye) } catch (e) { visMelding('Kunne ikke lagre sted: ' + e.message); refetch() }
   }
   async function onAnsvarlig(dag, verdi) {
     let nye
@@ -242,10 +259,14 @@ export default function SkolePeriodeplan() {
 
       {melding && <p role="status" className="text-sm text-petrol mt-2">{melding}</p>}
 
-      <div className="grid lg:grid-cols-[300px_1fr] gap-4 mt-4">
+      <div className={`grid gap-4 mt-4 ${bibliotekApen ? 'lg:grid-cols-[300px_1fr]' : 'grid-cols-1'}`}>
         {/* Sidebar: Lekbiblioteket */}
+        {bibliotekApen && (
         <aside className="rounded-2xl border border-gray-200 bg-white p-4 h-max lg:sticky lg:top-24">
-          <h2 className="text-xs font-bold uppercase tracking-wide text-gray-500">🎲 Lekbiblioteket</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wide text-gray-500">🎲 Lekbiblioteket</h2>
+            <button onClick={() => setBibliotekApen(false)} className="text-xs text-gray-500 hover:text-orange" title="Skjul biblioteket så du ser hele uka">Skjul ⟨</button>
+          </div>
           <input value={sok} onChange={(e) => setSok(e.target.value)}
             placeholder={alleLeker.length ? `Søk blant ${alleLeker.length} leker …` : 'Søk i biblioteket …'} aria-label="Søk i biblioteket"
             className="w-full mt-3 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20" />
@@ -271,9 +292,15 @@ export default function SkolePeriodeplan() {
             )}
           </div>
         </aside>
+        )}
 
         {/* Hoved: rutenett */}
         <main className="min-w-0">
+          {!bibliotekApen && (
+            <button onClick={() => setBibliotekApen(true)} className="mb-3 text-sm border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:border-orange hover:text-orange transition">
+              📚 Vis biblioteket
+            </button>
+          )}
           {visning === 'dag' && (
             <div className="flex flex-wrap gap-1.5 mb-3">
               {plan.dager.map((d) => (
@@ -295,6 +322,7 @@ export default function SkolePeriodeplan() {
             onAnsvarlig={onAnsvarlig}
             onSlettRad={onSlettRad}
             onFlyttRad={onFlyttRad}
+            onSted={onSted}
           />
 
           {/* Verktøy */}
@@ -309,6 +337,22 @@ export default function SkolePeriodeplan() {
           {panel === 'tl' && <div className="mt-3"><TlListeManager onEndret={() => hentDeltakere().then(setDeltakere)} /></div>}
         </main>
       </div>
+
+      {/* Flytende «Se arket»-forhåndsvisning (nede til høyre) */}
+      <button
+        onClick={() => skrivUtPlan(plan)}
+        className="hidden lg:flex fixed bottom-5 right-5 z-30 items-center gap-3 bg-white border border-gray-200 shadow-lg rounded-2xl pl-4 pr-3 py-3 hover:border-orange transition text-left"
+        title="Åpne planen som ferdig ark (PDF)"
+      >
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-petrol/60"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-petrol"></span>
+        </span>
+        <span>
+          <span className="block text-xs font-bold text-gray-900">Arket · bygges live</span>
+          <span className="block text-xs text-gray-500">Klikk for å se hele planen →</span>
+        </span>
+      </button>
 
       {/* Vis på skjerm-modal */}
       {skjermAapen && (

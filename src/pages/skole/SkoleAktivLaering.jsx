@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { hentAktivLaering } from '../../lib/leker'
+import { hentAktivLaering, TRINN_NO } from '../../lib/leker'
 import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
 
@@ -37,7 +37,11 @@ export default function SkoleAktivLaering() {
       ;(l.fag || []).forEach((f) => dataFag.add(f))
     })
     const fag = [...FAG, ...[...dataFag].filter((f) => !FAG.includes(f))]
-    return { trinn: [...tr.entries()], fag }
+    // Aktiv læring følger LK20 (1.–10. trinn) — kanonisk liste, uten barnehage.
+    const kanon = TRINN_NO.filter(([k]) => k !== 'bhg')
+    const kanonKoder = new Set(kanon.map(([k]) => k))
+    const trinn = [...kanon, ...[...tr.entries()].filter(([k]) => !kanonKoder.has(k))]
+    return { trinn, fag }
   }, [alle])
 
   const treff = useMemo(() => {

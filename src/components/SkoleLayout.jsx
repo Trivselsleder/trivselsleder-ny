@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
 // Ny informasjonsarkitektur (IA-skolens-side-forslag): tydelige innganger
@@ -27,16 +28,37 @@ const lenkeCls = ({ isActive }) =>
 
 export default function SkoleLayout() {
   const [apen, setApen] = useState(false)
-  const ref = useRef(null)
+  const [pos, setPos] = useState({ top: 0, right: 0 })
+  const knappRef = useRef(null)
+  const menyRef = useRef(null)
   const { pathname } = useLocation()
   const skolenMinAktiv = skolenMin.some((s) => pathname.startsWith(s.to))
 
+  function plasser() {
+    const r = knappRef.current?.getBoundingClientRect()
+    if (r) setPos({ top: r.bottom + 4, right: Math.max(8, window.innerWidth - r.right) })
+  }
+  // Portal-menyen posisjoneres fra knappens rect → slipper unna at fane-raden
+  // har overflow (som ellers klipper et vanlig absolutt nedtrekk).
+  useLayoutEffect(() => { if (apen) plasser() }, [apen])
   useEffect(() => { setApen(false) }, [pathname])
   useEffect(() => {
-    function utenfor(e) { if (ref.current && !ref.current.contains(e.target)) setApen(false) }
+    if (!apen) return
+    function utenfor(e) {
+      if (knappRef.current?.contains(e.target)) return
+      if (menyRef.current?.contains(e.target)) return
+      setApen(false)
+    }
+    function reposEllerLukk() { setApen(false) }
     document.addEventListener('mousedown', utenfor)
-    return () => document.removeEventListener('mousedown', utenfor)
-  }, [])
+    window.addEventListener('resize', reposEllerLukk)
+    window.addEventListener('scroll', reposEllerLukk, true)
+    return () => {
+      document.removeEventListener('mousedown', utenfor)
+      window.removeEventListener('resize', reposEllerLukk)
+      window.removeEventListener('scroll', reposEllerLukk, true)
+    }
+  }, [apen])
 
   return (
     <div>
@@ -48,39 +70,46 @@ export default function SkoleLayout() {
             ))}
 
             {/* Skolen min ▾ – samler skolens egen administrasjon */}
-            <div className="relative" ref={ref}>
-              <button
-                onClick={() => setApen((v) => !v)}
-                aria-haspopup="true"
-                aria-expanded={apen}
-                className={`whitespace-nowrap px-3 sm:px-4 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-1 ${
-                  skolenMinAktiv ? 'border-orange text-orange' : 'border-transparent text-gray-600 hover:text-orange hover:border-gray-300'
-                }`}
-              >
-                Skolen min
-                <span className={`text-[10px] transition-transform ${apen ? 'rotate-180' : ''}`}>▾</span>
-              </button>
-              {apen && (
-                <div className="absolute right-0 sm:left-0 mt-1 w-56 bg-white border border-gray-200 rounded-xl shadow-lg py-1 z-50">
-                  {skolenMin.map((s) => (
-                    <NavLink
-                      key={s.to}
-                      to={s.to}
-                      className={({ isActive }) =>
-                        `block px-4 py-2.5 text-sm transition-colors ${
-                          isActive ? 'text-orange bg-orange/5 font-medium' : 'text-gray-600 hover:text-orange hover:bg-gray-50'
-                        }`
-                      }
-                    >
-                      {s.label}
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </div>
+            <button
+              ref={knappRef}
+              onClick={() => setApen((v) => !v)}
+              aria-haspopup="true"
+              aria-expanded={apen}
+              className={`whitespace-nowrap px-3 sm:px-4 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-1 ${
+                skolenMinAktiv ? 'border-orange text-orange' : 'border-transparent text-gray-600 hover:text-orange hover:border-gray-300'
+              }`}
+            >
+              Skolen min
+              <span className={`text-[10px] transition-transform ${apen ? 'rotate-180' : ''}`}>▾</span>
+            </button>
           </div>
         </nav>
       </div>
+
+      {apen && createPortal(
+        <div
+          ref={menyRef}
+          style={{ position: 'fixed', top: pos.top, right: pos.right, zIndex: 60 }}
+          className="w-56 bg-white border border-gray-200 rounded-xl shadow-lg py-1"
+        >
+          {skolenMin.map((s) => (
+            <NavLink
+              key={s.to}
+              to={s.to}
+              onClick={() => setApen(false)}
+              className={({ isActive }) =>
+                `block px-4 py-2.5 text-sm transition-colors ${
+                  isActive ? 'text-orange bg-orange/5 font-medium' : 'text-gray-600 hover:text-orange hover:bg-gray-50'
+                }`
+              }
+            >
+              {s.label}
+            </NavLink>
+          ))}
+        </div>,
+        document.body,
+      )}
+
       <div className="py-6">
         <Outlet />
       </div>

@@ -30,8 +30,9 @@ export function byggHtml(plan, { print = false } = {}) {
       const celler = dager
         .map((d) => `<td class="tl">${esc((r.celler || {})[d]) || ''}</td>`)
         .join('')
+      const sted = (r.celler || {})._sted
       return `<tr>
-        <th class="lek"><span class="ikon" style="background:${farge}">${emoji}</span>${esc(r.lek?.tittel)}</th>
+        <th class="lek"><span class="ikon" style="background:${farge}">${emoji}</span>${esc(r.lek?.tittel)}${sted ? `<div class="sted">📍 ${esc(sted)}</div>` : ''}</th>
         ${celler}
       </tr>`
     })
@@ -48,6 +49,7 @@ export function byggHtml(plan, { print = false } = {}) {
   thead th{background:#FF7B31;color:#fff;text-align:center;font-size:12px}
   th.lek{background:#fff;color:#111827;text-align:left;width:190px;font-weight:600}
   th.lek .ikon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;margin-right:6px;font-size:12px;vertical-align:middle}
+  th.lek .sted{font-weight:400;font-size:9px;color:#6b7280;margin-top:2px}
   tr.ans td.ans, tr.ans th{background:#fde9dc;font-weight:600;text-align:center}
   td.tl{text-align:center;font-size:10px;color:#374151}
   tbody tr:nth-child(even) td.tl{background:#faf7f5}

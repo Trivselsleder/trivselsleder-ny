@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { hentLeker, loggBruk } from '../../lib/leker'
+import { hentLeker, loggBruk, TRINN_NO, SESONGER } from '../../lib/leker'
 import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
 
@@ -65,15 +65,19 @@ export default function SkoleAktiviteter() {
       l.utstyr.forEach((x) => u.add(x))
       l.sesong.forEach((x) => s.add(x))
     })
-    // «Egnet for» drives av den kanoniske lista, forent med evt. ekstra dataverdier.
+    // Egnet/Trinn/Sesong drives av kanoniske lister (alltid komplett + i rekkefølge),
+    // forent med evt. ekstra verdier som måtte finnes i dataene.
     const dataEgnet = new Set()
     alle.forEach((l) => l.egnet.forEach((x) => dataEgnet.add(x)))
     const egnet = [...EGNET, ...[...dataEgnet].filter((x) => !EGNET.includes(x))]
+    const kanonKoder = new Set(TRINN_NO.map(([k]) => k))
+    const trinn = [...TRINN_NO, ...[...tr.entries()].filter(([k]) => !kanonKoder.has(k))]
+    const sesong = [...SESONGER, ...[...s].filter((x) => !SESONGER.includes(x))]
     return {
       egnet,
-      trinn: [...tr.entries()],
+      trinn,
       utstyr: [...u].sort(),
-      sesong: [...s].sort(),
+      sesong,
     }
   }, [alle])
 

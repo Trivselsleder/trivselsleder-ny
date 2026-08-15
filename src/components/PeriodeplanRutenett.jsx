@@ -4,7 +4,7 @@ import { lekEmoji, lekFarge } from '../lib/lekIkon'
 // A2-stylet ukerutenett: dager som kolonner, leker som rader, TL-klasser som «chips»
 // i cellene, ansvarlig (TL-vakt) per dag. Samme data-plumbing som før
 // (onCelle / onAnsvarlig / onSlettRad / onFlyttRad) — bare rikere presentasjon.
-export default function PeriodeplanRutenett({ plan, deltakere, onCelle, onAnsvarlig, onSlettRad, onFlyttRad, dagerVises }) {
+export default function PeriodeplanRutenett({ plan, deltakere, onCelle, onAnsvarlig, onSlettRad, onFlyttRad, onSted, dagerVises }) {
   const dager = dagerVises && dagerVises.length ? dagerVises : (plan.dager || [])
   const navnListe = [...new Set((deltakere || []).flatMap((d) => [d.navn, d.gruppe].filter(Boolean)))]
 
@@ -26,7 +26,7 @@ export default function PeriodeplanRutenett({ plan, deltakere, onCelle, onAnsvar
               <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Lek</span>
             </th>
             {dager.map((d) => (
-              <th key={d} scope="col" className="px-3 py-3 min-w-[150px] border-b border-gray-100 border-l border-gray-100">
+              <th key={d} scope="col" className="px-3 py-3 min-w-[124px] border-b border-gray-100 border-l border-gray-100">
                 <span className="inline-block text-sm font-bold text-white bg-orange rounded-full px-3 py-1">{d}</span>
               </th>
             ))}
@@ -73,6 +73,7 @@ export default function PeriodeplanRutenett({ plan, deltakere, onCelle, onAnsvar
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-gray-900 leading-snug">{tittel}</p>
                         {meta && <p className="text-xs text-gray-500 mt-0.5">{meta}</p>}
+                        <StedInline verdi={r.celler?._sted || ''} onLagre={(v) => onSted(r.id, v)} />
                       </div>
                       <span className="flex flex-col leading-none text-gray-500 -mt-0.5">
                         <button onClick={() => onFlyttRad(idx, -1)} disabled={idx === 0} className="p-1 hover:text-orange disabled:opacity-30 text-xs" aria-label={`Flytt ${tittel} opp`} title="Opp">▲</button>
@@ -97,6 +98,34 @@ export default function PeriodeplanRutenett({ plan, deltakere, onCelle, onAnsvar
         {navnListe.map((n) => <option key={n} value={n} />)}
       </datalist>
     </div>
+  )
+}
+
+// Sted/lokasjon per lek (📍) — lagres i celler._sted (jsonb-hjørne, ingen schema-endring).
+function StedInline({ verdi, onLagre }) {
+  const [rediger, setRediger] = useState(false)
+  if (rediger) {
+    return (
+      <input
+        autoFocus
+        defaultValue={verdi}
+        placeholder="Sted, f.eks. Skolegården"
+        aria-label="Sted"
+        onBlur={(e) => { const v = e.target.value.trim(); if (v !== verdi) onLagre(v); setRediger(false) }}
+        onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') { e.currentTarget.value = verdi; setRediger(false) } }}
+        className="mt-1 w-full text-xs px-2 py-1 rounded-lg border border-orange focus:outline-none focus:ring-2 focus:ring-orange/20"
+      />
+    )
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => setRediger(true)}
+      className="mt-0.5 inline-flex items-center gap-1 text-xs text-gray-500 hover:text-orange"
+      aria-label={verdi ? `Sted: ${verdi}` : 'Legg til sted'}
+    >
+      <span aria-hidden="true">📍</span>{verdi || <span className="text-gray-400">Legg til sted</span>}
+    </button>
   )
 }
 
