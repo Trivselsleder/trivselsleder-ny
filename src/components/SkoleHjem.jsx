@@ -4,6 +4,8 @@ import { hentLeker, trinnKort } from '../lib/leker'
 import { hentMineFavoritter } from '../lib/favoritter'
 import { hentPlaner } from '../lib/periodeplan'
 import { hentHjul } from '../lib/hjul'
+import { hentKommendeWebinarer, datoBlokk, klokkeslett } from '../lib/webinar'
+import { useNedtelling } from './webinar/Nedtelling'
 
 // Bygget 1:1 fra min-side-mockup_4.html (den vi har iterert på), koblet til ekte data.
 const CSS = `
@@ -117,8 +119,10 @@ export default function SkoleHjem({ fornavn = null }) {
   const [q, setQ] = useState('')
   const [aktivQ, setAktivQ] = useState(null)   // satt tekst = viser resultater
   const [teller, setTeller] = useState({ planer: null, hjul: null, fav: null })
+  const [nesteWebinar, setNesteWebinar] = useState(undefined) // undefined=laster, null=ingen
 
   useEffect(() => {
+    hentKommendeWebinarer().then((liste) => setNesteWebinar(liste[0] || null)).catch(() => setNesteWebinar(null))
     hentLeker().then((r) => setAlle(r.map(visLek))).catch(() => {})
     Promise.allSettled([hentPlaner(), hentHjul(), hentMineFavoritter()]).then(([p, h, f]) => {
       setTeller({
@@ -259,6 +263,46 @@ export default function SkoleHjem({ fornavn = null }) {
           </div>
         </div>
       )}
+
+      {/* Webinar-boks — alltid synlig i idle, viser nærmeste eller rolig tomtilstand */}
+      {!aktivQ && nesteWebinar !== undefined && (
+        <WebinarBoks webinar={nesteWebinar} />
+      )}
     </div>
+  )
+}
+
+// Boks på Min side: nærmeste webinar (m/ nedtelling) eller tomtilstand. Klikk → /min-side/webinarer.
+function WebinarBoks({ webinar }) {
+  const n = useNedtelling(webinar?.starter_at || new Date().toISOString(), webinar?.varighet_min)
+  if (!webinar) {
+    return (
+      <Link to="/min-side/webinarer" className="block mt-5 rounded-2xl border border-gray-200 bg-white p-5 hover:border-orange/40 transition-colors">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl" aria-hidden="true">🎥</span>
+          <div>
+            <h2 className="font-bold text-gray-900">Webinarer</h2>
+            <p className="text-sm text-gray-500">Ingen planlagte akkurat nå — du får e-post når neste nettverksmøte er klart.</p>
+          </div>
+        </div>
+      </Link>
+    )
+  }
+  const b = datoBlokk(webinar.starter_at)
+  return (
+    <Link to="/min-side/webinarer" className="block mt-5 rounded-2xl border border-petrol/30 bg-petrol/5 p-5 hover:border-petrol/60 transition-colors">
+      <div className="flex items-center gap-4">
+        <div className="shrink-0 w-16 text-center rounded-xl overflow-hidden border border-gray-200 bg-white">
+          <div className="bg-orange text-white text-[11px] font-bold uppercase py-0.5">{b.maaned}</div>
+          <div className="py-1.5"><div className="text-2xl font-extrabold leading-none text-gray-900">{b.dag}</div><div className="text-[11px] text-gray-500 capitalize">{b.ukedag}</div></div>
+        </div>
+        <div className="min-w-0 flex-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-teal">Neste webinar</span>
+          <h2 className="font-bold text-gray-900 leading-snug truncate">{webinar.tittel}</h2>
+          <p className="text-sm text-gray-600">kl. {klokkeslett(webinar.starter_at)} · <span className={n.bliMedNaa ? 'text-petrol font-semibold' : ''}>{n.tekst}</span></p>
+        </div>
+        <span className="shrink-0 text-sm font-semibold text-white bg-orange px-4 py-1.5 rounded-full">Meld på</span>
+      </div>
+    </Link>
   )
 }

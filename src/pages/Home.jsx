@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { hentOffentligeWebinarer, datoLang, klokkeslett } from '../lib/webinar'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -10,7 +12,15 @@ export default function Home() {
     { number: t('home.stat3Number'), label: t('home.stat3Label') },
   ]
 
+  const [nesteWebinar, setNesteWebinar] = useState(null)
+  useEffect(() => {
+    let aktiv = true
+    hentOffentligeWebinarer().then((l) => { if (aktiv) setNesteWebinar(l[0] || null) }).catch(() => {})
+    return () => { aktiv = false }
+  }, [])
+
   return (
+    <>
     <section className="bg-gradient-to-br from-orange/10 via-white to-magenta/10 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center">
         <span className="inline-block bg-orange/10 text-orange font-semibold text-sm px-4 py-1.5 rounded-full mb-6">
@@ -51,5 +61,27 @@ export default function Home() {
         ))}
       </div>
     </section>
+
+    {/* Webinar — alltid synlig invitasjon til nysgjerrige skoler */}
+    <section className="bg-white py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
+      <div className="max-w-4xl mx-auto rounded-3xl bg-gradient-to-br from-petrol/10 to-orange/5 border border-petrol/15 p-8 sm:p-10 text-center">
+        <span className="inline-block bg-orange/10 text-orange font-semibold text-sm px-4 py-1.5 rounded-full mb-4">Gratis intro-webinar</span>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Bli kjent med Trivselsleder — live</h2>
+        <p className="text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
+          Vurderer dere programmet? Bli med på et kort, uforpliktende webinar. Vi viser hva trivselslederne gjør,
+          hvordan dere kommer i gang, og svarer på det dere lurer på.
+        </p>
+        {nesteWebinar && (
+          <p className="mt-5 text-gray-800">
+            <span className="font-semibold">Neste:</span>{' '}
+            <span className="capitalize">{datoLang(nesteWebinar.starter_at)}</span> kl. {klokkeslett(nesteWebinar.starter_at)}
+          </p>
+        )}
+        <Link to="/webinarer" className="inline-block mt-6 bg-orange text-white px-8 py-3.5 rounded-full text-lg font-semibold hover:bg-orange/90 transition-colors shadow-lg shadow-orange/20">
+          Meld skolen på
+        </Link>
+      </div>
+    </section>
+    </>
   )
 }

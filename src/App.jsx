@@ -47,6 +47,8 @@ import SkjermPlan from './pages/SkjermPlan'
 import SkoleTLhjulet from './pages/skole/SkoleTLhjulet'
 import SkoleHjul from './pages/skole/SkoleHjul'
 import SkoleDriftAvTL from './pages/skole/SkoleDriftAvTL'
+import SkoleWebinarer from './pages/skole/SkoleWebinarer'
+import Webinarer from './pages/Webinarer'
 import './index.css'
 
 export default function App() {
@@ -61,6 +63,7 @@ export default function App() {
               <Route path="/om-oss" element={<OmOss />} />
               <Route path="/for-skoler" element={<ForSkoler />} />
               <Route path="/kontakt" element={<Kontakt />} />
+              <Route path="/webinarer" element={<Webinarer />} />
               <Route path="/kulturkortet" element={<Kulturkort />} />
               <Route path="/kulturkortet/bestill" element={<KulturkortBestill />} />
               <Route path="/logg-inn" element={<LoggInn />} />
@@ -95,6 +98,7 @@ export default function App() {
                 <Route path="tl-hjulet" element={<SkoleTLhjulet />} />
                 <Route path="tl-hjulet/:id" element={<SkoleHjul />} />
                 <Route path="drift-av-tl" element={<SkoleDriftAvTL />} />
+                <Route path="webinarer" element={<SkoleWebinarer />} />
               </Route>
               <Route
                 path="/admin"
