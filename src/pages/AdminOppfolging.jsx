@@ -8,7 +8,7 @@ import { adminFetch } from '../lib/adminFetch'
 // så en RA som aldri har sett dette forstår hvorfor en skole står der den står.
 
 // Alle sendeknapper bruker samme farge. Fargeforskjell bør bety noe; i én samlet
-// visning gjorde arvet magenta/oransje det ikke, så alt er oransje nå.
+// visning gjorde arvet petrol/oransje det ikke, så alt er oransje nå.
 const ORANSJE = '#FF7B31'
 
 function formaterDager(n) {

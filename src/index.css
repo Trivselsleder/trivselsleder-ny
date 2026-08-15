@@ -3,8 +3,7 @@
 @theme {
   /* Grafisk identitet v2.0 (offisiell) */
   --color-orange: #FF7B31;   /* primær oransje */
-  --color-magenta: #106C75;  /* utgått rosa fjernet – peker nå til petrol (dok-vedtatt erstatning) */
-  --color-petrol: #106C75;   /* sekundær */
+  --color-petrol: #106C75;   /* sekundær (erstattet utgått «magenta»/rosa fullstendig 15. aug) */
   --color-teal: #54A1AB;     /* sekundær lys */
   --color-tlred: #CF442F;    /* tertiær rød */
   --color-tlgold: #F2B01E;   /* varm komplement */

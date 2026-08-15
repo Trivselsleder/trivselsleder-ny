@@ -55,7 +55,7 @@ export default function ForSkoler() {
         </ul>
       </section>
 
-      <section className="bg-gradient-to-r from-orange to-magenta rounded-2xl p-8 text-white text-center">
+      <section className="bg-gradient-to-r from-orange to-petrol rounded-2xl p-8 text-white text-center">
         <h2 className="text-2xl font-bold mb-3">{t('forSkoler.ctaTitle')}</h2>
         <p className="mb-6 text-white/90">{t('forSkoler.ctaIngress')}</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

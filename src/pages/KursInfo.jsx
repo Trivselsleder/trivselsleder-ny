@@ -46,7 +46,7 @@ function tolkLenker(tekst, nokkel) {
     if (treff.index > sist) deler.push(tekst.slice(sist, treff.index));
     const etikett = treff[1];
     const url = treff[2];
-    const stil = 'text-magenta underline underline-offset-2 hover:no-underline';
+    const stil = 'text-petrol underline underline-offset-2 hover:no-underline';
     if (!trygglenke(url)) {
       deler.push(treff[0]);
     } else if (url.startsWith('/')) {
@@ -278,7 +278,7 @@ export default function KursInfo() {
 
           {/* Spesielt for dette kurset — vises kun når RA har fylt det ut. */}
           {tillegg && (
-            <div className="mb-8 rounded-xl border-l-4 border-magenta bg-pink-50 px-4 py-4">
+            <div className="mb-8 rounded-xl border-l-4 border-petrol bg-petrol/5 px-4 py-4">
               <h2 className="text-base font-bold text-gray-900 mb-2">Spesielt for dette kurset</h2>
               <div className="text-sm [&_p:last-child]:mb-0">
                 <Maltekst tekst={tillegg} />

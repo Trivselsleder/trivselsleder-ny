@@ -83,7 +83,7 @@ export default function LekeVelger({ valgteIder = [], onVelg, modus = 'toggle' }
                     </span>
                   </span>
                   {modus === 'toggle' ? (
-                    <span className={`shrink-0 text-sm ${erValgt ? 'text-magenta font-semibold' : 'text-gray-300'}`}>
+                    <span className={`shrink-0 text-sm ${erValgt ? 'text-petrol font-semibold' : 'text-gray-300'}`}>
                       {erValgt ? '✓ Valgt' : 'Legg til'}
                     </span>
                   ) : (

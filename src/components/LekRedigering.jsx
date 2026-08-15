@@ -62,7 +62,7 @@ export default function LekRedigering({ lek, onLagret, onAvbryt }) {
   const omr = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange min-h-[70px]'
 
   return (
-    <div className="border border-magenta/30 rounded-2xl p-5 bg-magenta/5">
+    <div className="border border-petrol/30 rounded-2xl p-5 bg-petrol/5">
       <div className="flex items-center justify-between">
         <h2 className="font-bold text-gray-900">Rediger lek <span className="text-xs font-normal text-gray-400">({sprak})</span></h2>
         <span className="text-xs text-gray-400">Endringer logges automatisk</span>
@@ -103,7 +103,7 @@ export default function LekRedigering({ lek, onLagret, onAvbryt }) {
       {feil && <p className="text-sm text-red-500 mt-3">Kunne ikke lagre: {feil}</p>}
 
       <div className="flex gap-3 mt-4">
-        <button onClick={lagre} disabled={lagrer} className="bg-magenta text-white font-medium px-6 py-2.5 rounded-full hover:bg-magenta/90 transition disabled:opacity-50">
+        <button onClick={lagre} disabled={lagrer} className="bg-petrol text-white font-medium px-6 py-2.5 rounded-full hover:bg-petrol/90 transition disabled:opacity-50">
           {lagrer ? 'Lagrer …' : 'Lagre endringer'}
         </button>
         <button onClick={onAvbryt} className="text-gray-500 hover:text-gray-700 px-4">Avbryt</button>

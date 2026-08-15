@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <>
-    <section className="bg-gradient-to-br from-orange/10 via-white to-magenta/10 py-20 px-4 sm:px-6 lg:px-8">
+    <section className="bg-gradient-to-br from-orange/10 via-white to-petrol/10 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center">
         <span className="inline-block bg-orange/10 text-orange font-semibold text-sm px-4 py-1.5 rounded-full mb-6">
           {t('home.badge')}
@@ -55,7 +55,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div className="text-3xl font-bold text-magenta mb-1">{stat.number}</div>
+            <div className="text-3xl font-bold text-petrol mb-1">{stat.number}</div>
             <div className="text-gray-600">{stat.label}</div>
           </div>
         ))}

@@ -65,7 +65,7 @@ export default function PeriodeplanOppsett({ plan, onEndre }) {
             <button
               key={v}
               onClick={() => onEndre({ orientering: v })}
-              className={`px-3 py-1 rounded-full text-xs border transition ${plan.orientering === v ? 'bg-magenta text-white border-magenta' : 'bg-white text-gray-500 border-gray-300 hover:border-magenta'}`}
+              className={`px-3 py-1 rounded-full text-xs border transition ${plan.orientering === v ? 'bg-petrol text-white border-petrol' : 'bg-white text-gray-500 border-gray-300 hover:border-petrol'}`}
             >
               {l}
             </button>

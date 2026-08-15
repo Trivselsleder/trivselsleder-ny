@@ -24,6 +24,13 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
+    tittel: 'Webinarer',
+    beskrivelse: 'Opprett interne nettverksmøter og eksterne intro-webinarer. Påmeldte får bekreftelse og påminnelser automatisk.',
+    ikon: '🎥',
+    til: '/admin/webinarer',
+    roller: ['superadmin', 'ansatt'],
+  },
+  {
     tittel: 'Skoler',
     beskrivelse: 'Administrer skoleregisteret og skoleinfo.',
     ikon: '🏫',

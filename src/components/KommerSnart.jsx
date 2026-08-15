@@ -12,7 +12,7 @@ export default function KommerSnart({ tittel, beskrivelse }) {
         <p className="text-gray-500 max-w-md mx-auto">
           {beskrivelse ?? 'Denne delen bygges nå og kommer snart.'}
         </p>
-        <span className="inline-block mt-5 text-xs font-semibold text-magenta bg-magenta/10 px-3 py-1 rounded-full">
+        <span className="inline-block mt-5 text-xs font-semibold text-petrol bg-petrol/10 px-3 py-1 rounded-full">
           Kommer snart
         </span>
       </div>

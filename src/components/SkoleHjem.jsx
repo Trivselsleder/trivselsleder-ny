@@ -9,7 +9,7 @@ import { useNedtelling } from './webinar/Nedtelling'
 
 // Bygget 1:1 fra min-side-mockup_4.html (den vi har iterert på), koblet til ekte data.
 const CSS = `
-.tlh{ --o:#FF7B31; --magenta:#106C75; --dark:#2B2B2B; --grey:#5B6470; --line:#ECEEF1; --soft:#FDEEE2; }
+.tlh{ --o:#FF7B31; --petrol:#106C75; --dark:#2B2B2B; --grey:#5B6470; --line:#ECEEF1; --soft:#FDEEE2; }
 .tlh *{box-sizing:border-box}
 .tlh-hero{background:linear-gradient(135deg,#fff 0%,#FFF6EF 100%);border-bottom:1px solid var(--line);border-radius:20px;padding:34px 26px 26px}
 .tlh-hero h1{font-size:30px;font-weight:800;letter-spacing:-.3px;color:var(--dark)}
@@ -48,7 +48,7 @@ const CSS = `
 .tlh-month .why{font-size:13px;color:var(--grey);margin-top:3px}
 .tlh-mine{display:flex;gap:10px;flex-wrap:nowrap;margin-top:6px}
 .tlh-mine a{flex:1;min-width:0;text-decoration:none;color:var(--dark);border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;font-weight:700;font-size:14px}
-.tlh-mine a:hover{border-color:var(--magenta);color:#0d565e}
+.tlh-mine a:hover{border-color:var(--petrol);color:#0d565e}
 .tlh-mine a small{display:block;font-weight:400;color:var(--grey);font-size:12px;margin-top:3px}
 .tlh-results h2{font-size:18px;margin-bottom:2px;color:var(--dark)}
 .tlh-results .cnt{color:var(--grey);font-size:14px;margin-bottom:16px}

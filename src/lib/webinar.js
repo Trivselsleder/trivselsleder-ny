@@ -48,6 +48,19 @@ export async function meldPaaWebinar({ webinarId, navn, epost, rolle = null, sko
   })
   if (error) throw error
   const rad = Array.isArray(data) ? data[0] : data
+
+  // Fyr av bekreftelse-e-post (m/ møtelenke + .ics). Ikke-blokkerende: skjemaet
+  // viser suksess uansett, og .ics kan lastes ned i nettleseren der og da.
+  if (rad?.status === 'ok' && rad?.pamelding_id) {
+    try {
+      fetch('/api/webinar/send-bekreftelse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pameldingId: rad.pamelding_id }),
+        keepalive: true, // overlever at brukeren navigerer bort rett etter påmelding
+      }).catch(() => { /* stille — påmeldingen er lagret uansett */ })
+    } catch { /* ignorer */ }
+  }
   return rad || { status: 'ok' }
 }
 
@@ -103,6 +116,7 @@ export function byggIcs(webinar) {
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//trivselsleder.no//webinar//NO',
     'BEGIN:VEVENT',
     `UID:webinar-${webinar.id}@trivselsleder.no`,
+    `DTSTAMP:${icsDato(new Date())}`,   // obligatorisk i RFC 5545
     `DTSTART:${start}`, `DTEND:${slutt}`,
     `SUMMARY:${esc(webinar.tittel)}`,
     `DESCRIPTION:${esc(webinar.beskrivelse || 'Webinar fra Trivselsleder. Møtelenke kommer på e-post.')}`,

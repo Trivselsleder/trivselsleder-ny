@@ -86,7 +86,7 @@ export default function GenererAar({ plan, onGenerert }) {
         >
           {jobber ? 'Genererer …' : `Generer ${uker.length} uker`}
         </button>
-        {melding && <span className="text-sm text-magenta">{melding}</span>}
+        {melding && <span className="text-sm text-petrol">{melding}</span>}
       </div>
     </div>
   )

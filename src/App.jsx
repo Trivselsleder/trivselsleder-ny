@@ -49,6 +49,7 @@ import SkoleHjul from './pages/skole/SkoleHjul'
 import SkoleDriftAvTL from './pages/skole/SkoleDriftAvTL'
 import SkoleWebinarer from './pages/skole/SkoleWebinarer'
 import Webinarer from './pages/Webinarer'
+import AdminWebinarer from './pages/AdminWebinarer'
 import './index.css'
 
 export default function App() {
@@ -105,6 +106,14 @@ export default function App() {
                 element={
                   <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
                     <Admin />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/webinarer"
+                element={
+                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
+                    <AdminWebinarer />
                   </ProtectedRoute>
                 }
               />

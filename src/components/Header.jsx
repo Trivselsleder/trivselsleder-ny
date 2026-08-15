@@ -89,7 +89,7 @@ export default function Header() {
             ) : (
               <Link
                 to="/logg-inn"
-                className="bg-magenta text-white px-4 py-2 rounded-full font-medium hover:bg-magenta/90 transition-colors"
+                className="bg-petrol text-white px-4 py-2 rounded-full font-medium hover:bg-petrol/90 transition-colors"
               >
                 {t('nav.loggInn')}
               </Link>
@@ -147,7 +147,7 @@ export default function Header() {
           ) : (
             <Link
               to="/logg-inn"
-              className="bg-magenta text-white px-4 py-3 rounded-full font-medium text-center hover:bg-magenta/90 transition-colors"
+              className="bg-petrol text-white px-4 py-3 rounded-full font-medium text-center hover:bg-petrol/90 transition-colors"
               onClick={() => setMenuOpen(false)}
             >
               {t('nav.loggInn')}
