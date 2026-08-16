@@ -132,7 +132,7 @@ export default function AdminKulturkort() {
           </div>
           <button
             onClick={() => setNyForm({ ...TOMPARTNER })}
-            className="bg-[#FF7B31] text-white font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm flex items-center gap-2 self-start sm:self-auto"
+            className="bg-[#FF7B31] text-gray-900 font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm flex items-center gap-2 self-start sm:self-auto"
           >
             {t('admin.leggTilKnapp')}
           </button>
@@ -218,14 +218,14 @@ export default function AdminKulturkort() {
                       <td className="px-4 py-3 text-gray-600">{partner.fylke}</td>
                       <td className="px-4 py-3 text-gray-600">
                         {partner.type && (
-                          <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-[#FF7B31]/10 text-[#FF7B31] font-medium">
+                          <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-[#FF7B31]/10 text-[#B5560F] font-medium">
                             {partner.type}
                           </span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-xs max-w-36">
                         {partner.epost
-                          ? <a href={`mailto:${partner.epost}`} className="text-gray-500 hover:text-[#FF7B31] hover:underline truncate block" title={partner.epost}>{partner.epost}</a>
+                          ? <a href={`mailto:${partner.epost}`} className="text-gray-500 hover:text-[#B5560F] hover:underline truncate block" title={partner.epost}>{partner.epost}</a>
                           : <span className="text-gray-300">—</span>
                         }
                       </td>
@@ -253,7 +253,7 @@ export default function AdminKulturkort() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
-                          <button onClick={() => setRedigerer(partner)} className="text-xs text-[#FF7B31] hover:underline font-medium">
+                          <button onClick={() => setRedigerer(partner)} className="text-xs text-[#B5560F] hover:underline font-medium">
                             {t('admin.rediger')}
                           </button>
                           <button onClick={() => setBekreftSlett(partner.id)} className="text-xs text-red-500 hover:underline font-medium">
@@ -309,7 +309,7 @@ export default function AdminKulturkort() {
             <button
               onClick={sendEpost}
               disabled={valgteAdresser.length === 0 || valgteAdresser.length > 50}
-              className="flex items-center gap-1.5 bg-[#FF7B31] text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-40"
+              className="flex items-center gap-1.5 bg-[#FF7B31] text-gray-900 text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-40"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -412,7 +412,7 @@ function PartnerModal({ tittel, initial, onLagre, onAvbryt, erNy, lagreLabel, av
             <button
               type="submit"
               disabled={lagrer}
-              className="flex-1 bg-[#FF7B31] text-white font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="flex-1 bg-[#FF7B31] text-gray-900 font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {lagrer ? 'Lagrer…' : lagreLabel}
             </button>

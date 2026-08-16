@@ -61,7 +61,7 @@ export default function AdminKursholdere() {
         <p className="text-gray-500">Egne og eksterne kursholdere som kan settes på kurs.</p>
         <button
           onClick={() => setNyForm({ ...TOM_KURSHOLDER })}
-          className="bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90 whitespace-nowrap"
+          className="bg-orange text-gray-900 px-4 py-2 rounded-lg hover:opacity-90 whitespace-nowrap"
         >
           + Ny kursholder
         </button>
@@ -194,7 +194,7 @@ function KursholderSkjema({ verdi, erNy, onEndre, onLagre, onAvbryt }) {
         <div className="flex justify-end gap-3 mt-6">
           <button onClick={onAvbryt} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Avbryt</button>
           <button onClick={onLagre} disabled={!verdi.navn}
-            className="px-4 py-2 bg-orange text-white rounded-lg hover:opacity-90 disabled:opacity-40">
+            className="px-4 py-2 bg-orange text-gray-900 rounded-lg hover:opacity-90 disabled:opacity-40">
             Lagre
           </button>
         </div>

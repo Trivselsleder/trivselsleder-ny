@@ -39,6 +39,15 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
 - Rød: #CF442F
 - Grå: #EBEBED
 - MERK: Magenta #D6006E er UTGÅTT. Gull/#F2B01E finnes ikke. Gammel oransje #F47920 er erstattet av #FF7B31.
+- TILGJENGELIGHET (satt 16. aug 2026, målt): #FF7B31 gir bare 2,6:1 mot hvitt og kan
+  IKKE brukes som tekstfarge på lys bakgrunn eller med hvit tekst oppå. Regelen er:
+  * fyll/flate/ikon-bakgrunn = #FF7B31 (uendret, vivid)
+  * tekst på hvit/lys bakgrunn = --color-orange-ink #B5560F (4,9:1), hover #8A4109 (7,4:1)
+  * tekst oppå oransje flate = text-gray-900 (6,9:1) — aldri text-white
+  * oransje→petrol-gradient er forbudt: den blir grumsete brun i midten. Bruk
+    petrol→#0b4d54 for mørke band, eller ensfarget flate.
+  * unntak: Footer har mørk bakgrunn — der er vivid #FF7B31 riktig. Logo-ordmerket er
+    logotype og er unntatt kontrastkravet.
 - Fonter: Marvin (overskrifter), Avenir (brødtekst)
 - Logo: BRUK public/tl-logo.png — aldri AI-tegne
 

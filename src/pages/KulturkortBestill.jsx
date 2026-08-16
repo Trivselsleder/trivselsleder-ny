@@ -72,7 +72,7 @@ export default function KulturkortBestill() {
           />
           <Link
             to="/kulturkortet"
-            className="inline-block bg-[#FF7B31] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#d4681a] transition-colors"
+            className="inline-block bg-[#FF7B31] text-gray-900 font-semibold px-6 py-3 rounded-full hover:bg-[#d4681a] transition-colors"
           >
             {t('bestill.takkKnapp')}
           </Link>
@@ -85,7 +85,7 @@ export default function KulturkortBestill() {
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-lg mx-auto">
         <div className="text-center mb-8">
-          <Link to="/kulturkortet" className="text-[#FF7B31] text-sm hover:underline">
+          <Link to="/kulturkortet" className="text-[#B5560F] text-sm hover:underline">
             {t('bestill.tilbake')}
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-2">{t('bestill.title')}</h1>
@@ -137,9 +137,9 @@ export default function KulturkortBestill() {
                 </div>
                 <div className="flex justify-between font-bold text-gray-900 border-t border-gray-200 pt-1.5 mt-1.5">
                   <span>{t('bestill.prisTotal')}</span>
-                  <span className="text-[#FF7B31]">
+                  <span className="text-[#B5560F]">
                     {pris.total} kr
-                    <span className="font-normal text-gray-400 text-xs ml-1">({t('bestill.prisEksMva')})</span>
+                    <span className="font-normal text-gray-500 text-xs ml-1">({t('bestill.prisEksMva')})</span>
                   </span>
                 </div>
               </div>
@@ -222,7 +222,7 @@ export default function KulturkortBestill() {
           {/* Tilleggsinfo */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('bestill.tilleggsinfoLabel')} <span className="text-gray-400 font-normal">{t('bestill.tilleggsinfoValgfritt')}</span>
+              {t('bestill.tilleggsinfoLabel')} <span className="text-gray-500 font-normal">{t('bestill.tilleggsinfoValgfritt')}</span>
             </label>
             <textarea
               name="melding"
@@ -247,9 +247,9 @@ export default function KulturkortBestill() {
               </div>
               <div className="flex justify-between font-bold text-gray-900 border-t border-[#FF7B31]/20 pt-2 mt-1">
                 <span>{t('bestill.prisTotal')}</span>
-                <span className="text-[#FF7B31] text-base">
+                <span className="text-[#B5560F] text-base">
                   {pris.total} kr
-                  <span className="font-normal text-gray-400 text-xs ml-1">({t('bestill.prisEksMva')})</span>
+                  <span className="font-normal text-gray-500 text-xs ml-1">({t('bestill.prisEksMva')})</span>
                 </span>
               </div>
             </div>
@@ -262,12 +262,12 @@ export default function KulturkortBestill() {
           <button
             type="submit"
             disabled={sender}
-            className="w-full bg-[#FF7B31] text-white font-bold py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60 text-base"
+            className="w-full bg-[#FF7B31] text-gray-900 font-bold py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60 text-base"
           >
             {sender ? t('bestill.senderKnapp') : t('bestill.sendKnapp')}
           </button>
 
-          <p className="text-xs text-gray-400 text-center">{t('bestill.mottakerInfo')}</p>
+          <p className="text-xs text-gray-500 text-center">{t('bestill.mottakerInfo')}</p>
         </form>
       </div>
     </div>

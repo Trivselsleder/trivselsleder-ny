@@ -26,7 +26,7 @@ export default function KakestykkeVelger({ valgte, onToggleLek, onLeggFri, onFje
           {valgte.map((x) => (
             <span key={x.key}
               className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${
-                x.kind === 'fri' ? 'bg-petrol/10 text-petrol' : 'bg-orange/10 text-orange'
+                x.kind === 'fri' ? 'bg-petrol/10 text-petrol' : 'bg-orange/10 text-orange-ink'
               }`}>
               {x.kind === 'fri' && <span aria-hidden>✎</span>}
               {x.tittel}

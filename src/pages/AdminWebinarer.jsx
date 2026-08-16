@@ -104,11 +104,11 @@ export default function AdminWebinarer() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center justify-between gap-3 mb-1">
         <h1 className="text-2xl font-extrabold text-gray-900">Webinarer</h1>
-        <button onClick={() => setSkjema({ ...TOM })} className="bg-orange text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-orange/90">+ Nytt webinar</button>
+        <button onClick={() => setSkjema({ ...TOM })} className="bg-orange text-gray-900 text-sm font-semibold px-4 py-2 rounded-full hover:bg-orange/90">+ Nytt webinar</button>
       </div>
       <p className="text-gray-500 text-sm mb-5">
         Opprett interne nettverksmøter og eksterne intro-webinarer. Publiser for å gjøre synlig. Påmeldte får bekreftelse og påminnelser automatisk.
-        <Link to="/admin" className="text-orange ml-2">← Admin</Link>
+        <Link to="/admin" className="text-orange-ink ml-2">← Admin</Link>
       </p>
 
       {feil && <p className="text-sm text-red-600 mb-3" role="alert">{feil}</p>}
@@ -144,15 +144,15 @@ export default function AdminWebinarer() {
                   <h3 className="font-bold text-gray-900 truncate mt-0.5">{w.tittel}</h3>
                   <p className="text-sm text-gray-500 capitalize">{datoLang(w.starter_at)} kl. {klokkeslett(w.starter_at)} · {w.varighet_min} min</p>
                 </div>
-                <button onClick={() => visPameldinger(w.id)} className="shrink-0 text-sm text-gray-600 hover:text-orange" title="Se påmeldte">
+                <button onClick={() => visPameldinger(w.id)} className="shrink-0 text-sm text-gray-600 hover:text-orange-ink" title="Se påmeldte">
                   👥 {w.antall_pameldte}{w.maks_antall ? `/${w.maks_antall}` : ''}
                 </button>
                 <div className="shrink-0 flex items-center gap-1.5">
                   {w.status === 'publisert'
                     ? <button onClick={() => bytt(w.id, false)} className="text-xs border border-gray-300 rounded-full px-3 py-1.5 hover:border-gray-400">Avpubliser</button>
                     : <button onClick={() => bytt(w.id, true)} className="text-xs bg-petrol text-white rounded-full px-3 py-1.5 hover:bg-petrol/90">Publiser</button>}
-                  {w.status === 'publisert' && <button onClick={() => apneInviter(w)} className="text-xs bg-orange/10 text-orange rounded-full px-3 py-1.5 hover:bg-orange/20 font-medium">Inviter</button>}
-                  <button onClick={() => setSkjema({ ...w, starter_at: tilLokal(w.starter_at), maks_antall: w.maks_antall || '', beskrivelse: w.beskrivelse || '', mote_lenke: w.mote_lenke || '' })} className="text-xs border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange">Rediger</button>
+                  {w.status === 'publisert' && <button onClick={() => apneInviter(w)} className="text-xs bg-orange/10 text-orange-ink rounded-full px-3 py-1.5 hover:bg-orange/20 font-medium">Inviter</button>}
+                  <button onClick={() => setSkjema({ ...w, starter_at: tilLokal(w.starter_at), maks_antall: w.maks_antall || '', beskrivelse: w.beskrivelse || '', mote_lenke: w.mote_lenke || '' })} className="text-xs border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange-ink">Rediger</button>
                   <button onClick={() => fjern(w.id)} className="text-xs text-gray-400 hover:text-red-600 px-1" aria-label="Slett">🗑</button>
                 </div>
               </div>
@@ -222,11 +222,11 @@ export default function AdminWebinarer() {
             </fieldset>
 
             <div className="flex items-center gap-2 mt-4">
-              <button onClick={() => kjorInvitasjon(true)} disabled={inviterer || (segment.type === 'nettverk' && !segment.nettverk)} className="text-sm border border-gray-300 rounded-full px-4 py-1.5 hover:border-orange hover:text-orange disabled:opacity-50">
+              <button onClick={() => kjorInvitasjon(true)} disabled={inviterer || (segment.type === 'nettverk' && !segment.nettverk)} className="text-sm border border-gray-300 rounded-full px-4 py-1.5 hover:border-orange hover:text-orange-ink disabled:opacity-50">
                 {inviterer ? '…' : 'Forhåndsvis'}
               </button>
               {forhaands && forhaands.antall_mottakere > 0 && (
-                <button onClick={() => { if (window.confirm(`Sende invitasjon til ${forhaands.antall_mottakere} mottakere?`)) kjorInvitasjon(false) }} disabled={inviterer} className="text-sm font-semibold bg-orange text-white rounded-full px-5 py-1.5 hover:bg-orange/90 disabled:opacity-50">
+                <button onClick={() => { if (window.confirm(`Sende invitasjon til ${forhaands.antall_mottakere} mottakere?`)) kjorInvitasjon(false) }} disabled={inviterer} className="text-sm font-semibold bg-orange text-gray-900 rounded-full px-5 py-1.5 hover:bg-orange/90 disabled:opacity-50">
                   Send til {forhaands.antall_mottakere}
                 </button>
               )}
@@ -289,7 +289,7 @@ export default function AdminWebinarer() {
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button type="button" onClick={() => setSkjema(null)} className="text-sm px-4 py-2 rounded-full border border-gray-300 hover:border-gray-400">Avbryt</button>
-              <button type="submit" disabled={lagrer} className="text-sm font-semibold px-5 py-2 rounded-full bg-orange text-white hover:bg-orange/90 disabled:opacity-50">{lagrer ? 'Lagrer …' : 'Lagre'}</button>
+              <button type="submit" disabled={lagrer} className="text-sm font-semibold px-5 py-2 rounded-full bg-orange text-gray-900 hover:bg-orange/90 disabled:opacity-50">{lagrer ? 'Lagrer …' : 'Lagre'}</button>
             </div>
           </form>
         </div>

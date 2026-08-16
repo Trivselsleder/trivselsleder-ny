@@ -25,8 +25,8 @@ function AdminLenke({ to, label }) {
       to={to}
       className="flex items-center justify-between px-5 py-3 rounded-xl border border-gray-200 hover:border-[#FF7B31] hover:bg-[#FF7B31]/5 transition-colors group"
     >
-      <span className="font-medium text-gray-700 group-hover:text-[#FF7B31]">{label}</span>
-      <svg className="w-4 h-4 text-gray-400 group-hover:text-[#FF7B31]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <span className="font-medium text-gray-700 group-hover:text-[#B5560F]">{label}</span>
+      <svg className="w-4 h-4 text-gray-400 group-hover:text-[#B5560F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
     </Link>
@@ -116,7 +116,7 @@ function InviterSkolebrukerModal({ skoleId, skolenavn, onLukk, onInvitert }) {
             </button>
             <button
               type="submit" disabled={laster}
-              className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
+              className="bg-[#FF7B31] text-gray-900 text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
             >
               {laster ? 'Sender…' : 'Send invitasjon'}
             </button>
@@ -292,7 +292,7 @@ function SkoleadminSeksjon({ brukerId }) {
           {skole && !redigerer && (
             <button
               onClick={startRedigering}
-              className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#FF7B31] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#B5560F] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-1.414a2 2 0 01.586-1.414z" />
@@ -337,7 +337,7 @@ function SkoleadminSeksjon({ brukerId }) {
             <h2 className="font-semibold text-gray-800">Ansatte på skolen</h2>
             <button
               onClick={() => setVisInviter(true)}
-              className="flex items-center gap-1.5 text-sm font-medium text-[#FF7B31] hover:text-[#e8641c] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-[#B5560F] hover:text-[#8A4109] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -538,7 +538,7 @@ export default function MinSide() {
                 {rolle ? (
                   <>
                     Du er innlogget som{' '}
-                    <span className="font-medium text-[#FF7B31]">
+                    <span className="font-medium text-[#B5560F]">
                       {ROLLE_LABEL[rolle] ?? rolle}
                     </span>
                   </>

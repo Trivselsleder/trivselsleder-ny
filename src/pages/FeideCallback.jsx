@@ -56,7 +56,7 @@ export default function FeideCallback() {
             </svg>
           </div>
           <p className="text-gray-700 text-sm">{feil}</p>
-          <a href="/logg-inn" className="text-[#FF7B31] hover:underline text-sm block">
+          <a href="/logg-inn" className="text-[#B5560F] hover:underline text-sm block">
             Tilbake til innlogging
           </a>
         </div>

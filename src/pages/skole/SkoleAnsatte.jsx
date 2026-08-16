@@ -88,7 +88,7 @@ export default function SkoleAnsatte() {
               <button
                 type="submit"
                 disabled={sender}
-                className="bg-orange text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50 whitespace-nowrap"
+                className="bg-orange text-gray-900 text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50 whitespace-nowrap"
               >
                 {sender ? 'Sender…' : 'Send invitasjon'}
               </button>

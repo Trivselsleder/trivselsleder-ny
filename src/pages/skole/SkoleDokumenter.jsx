@@ -42,7 +42,7 @@ export default function SkoleDokumenter() {
 
   const chip = (aktiv) =>
     `text-sm rounded-full px-3 py-1.5 border transition-colors cursor-pointer ${
-      aktiv ? 'bg-orange text-white border-orange' : 'bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange'
+      aktiv ? 'bg-orange text-gray-900 border-orange' : 'bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange-ink'
     }`
 
   return (
@@ -118,7 +118,7 @@ function DokumentKort({ dok }) {
           </div>
         </div>
         {dok.url && (
-          <span className="ml-auto text-orange shrink-0">
+          <span className="ml-auto text-orange-ink shrink-0">
             <span aria-hidden="true">↗</span>
             <span className="sr-only">(åpnes i ny fane)</span>
           </span>

@@ -104,7 +104,7 @@ export default function PameldingSkjema({ webinar, intern = false, skoleId = nul
       <button
         type="submit"
         disabled={sender}
-        className="bg-orange text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-orange/90 disabled:opacity-50"
+        className="bg-orange text-gray-900 text-sm font-semibold px-5 py-2 rounded-full hover:bg-orange/90 disabled:opacity-50"
       >
         {sender ? 'Melder på …' : 'Meld på'}
       </button>

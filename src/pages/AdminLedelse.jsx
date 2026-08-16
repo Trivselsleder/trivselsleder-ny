@@ -140,7 +140,7 @@ export default function AdminLedelse() {
               <div className="border-t border-gray-100 pt-4">
                 <button
                   onClick={() => setVisDetaljer(v => !v)}
-                  className="text-sm text-orange hover:underline"
+                  className="text-sm text-orange-ink hover:underline"
                 >
                   {visDetaljer ? 'Skjul detaljer' : `Vis de ${flaggedeRader.length} flaggede skolene`}
                 </button>
@@ -193,7 +193,7 @@ export default function AdminLedelse() {
               <button
                 onClick={leggTilOrd}
                 disabled={ordJobber || !nyttOrd.trim()}
-                className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold disabled:opacity-40"
+                className="px-4 py-2 rounded-lg bg-orange text-gray-900 text-sm font-semibold disabled:opacity-40"
               >
                 Legg til
               </button>

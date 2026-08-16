@@ -141,11 +141,11 @@ function TypeMultiselect({ value, onChange }) {
         </div>
 
         {value.map(t => (
-          <span key={t} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#FF7B31]/10 text-[#FF7B31] border border-[#FF7B31]/20">
+          <span key={t} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#FF7B31]/10 text-[#B5560F] border border-[#FF7B31]/20">
             {TYPE_LABEL[t]}
             <button
               onClick={() => onChange(value.filter(v => v !== t))}
-              className="text-[#FF7B31]/60 hover:text-[#FF7B31] ml-0.5"
+              className="text-[#B5560F]/60 hover:text-[#B5560F] ml-0.5"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
@@ -240,7 +240,7 @@ function Combobox({ label, value, onChange, alternativer, labelFn, disabled = fa
                     onMouseDown={() => velg(a)}
                     className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                       value === a
-                        ? 'bg-[#FF7B31]/10 text-[#FF7B31] font-medium'
+                        ? 'bg-[#FF7B31]/10 text-[#B5560F] font-medium'
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
@@ -372,7 +372,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
             <div className="flex justify-end pt-2">
               <button
                 onClick={onLukk}
-                className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
+                className="bg-[#FF7B31] text-gray-900 text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
               >
                 Lukk
               </button>
@@ -383,7 +383,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
 
             {/* Skoleinfo */}
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide">Skole</p>
+              <p className="text-xs font-semibold text-[#B5560F] uppercase tracking-wide">Skole</p>
               <InputFelt label="Skolenavn" value={form.navn} onChange={v => felt('navn', v)} required placeholder="Bakke barneskole" />
               <div className="grid grid-cols-2 gap-3">
                 <InputFelt label="Org.nr" value={form.orgNr} onChange={v => felt('orgNr', v)} placeholder="123 456 789" />
@@ -416,7 +416,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
 
             {/* Plassering */}
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide">Plassering</p>
+              <p className="text-xs font-semibold text-[#B5560F] uppercase tracking-wide">Plassering</p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Fylke</label>
@@ -445,7 +445,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
 
             {/* Kontakter */}
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide">
+              <p className="text-xs font-semibold text-[#B5560F] uppercase tracking-wide">
                 Kontakter <span className="text-gray-400 font-normal normal-case tracking-normal">– inviteres automatisk</span>
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -467,7 +467,7 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
               <button
                 type="submit"
                 disabled={laster}
-                className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
+                className="bg-[#FF7B31] text-gray-900 text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
               >
                 {laster ? 'Oppretter…' : 'Opprett skole'}
               </button>
@@ -702,7 +702,7 @@ export default function AdminSkoler() {
             <button
               onClick={() => eksporterCSV(filtrerte)}
               disabled={laster || filtrerte.length === 0}
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-[#FF7B31] hover:text-[#FF7B31] transition-colors disabled:opacity-40"
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-[#FF7B31] hover:text-[#B5560F] transition-colors disabled:opacity-40"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -712,7 +712,7 @@ export default function AdminSkoler() {
             </button>
             <button
               onClick={() => setVisOpprett(true)}
-              className="flex items-center gap-2 bg-[#FF7B31] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
+              className="flex items-center gap-2 bg-[#FF7B31] text-gray-900 text-sm font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -869,7 +869,7 @@ export default function AdminSkoler() {
             <button
               onClick={sendEpost}
               disabled={valgteAdresser.length === 0 || valgteAdresser.length > 50}
-              className="flex items-center gap-1.5 bg-[#FF7B31] text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-40"
+              className="flex items-center gap-1.5 bg-[#FF7B31] text-gray-900 text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-40"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

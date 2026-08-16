@@ -284,7 +284,7 @@ export default function Paamelding() {
             <button
               type="submit"
               disabled={laster}
-              className="bg-[#FF7B31] text-white font-semibold px-8 py-3 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60 text-sm"
+              className="bg-[#FF7B31] text-gray-900 font-semibold px-8 py-3 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60 text-sm"
             >
               {laster ? 'Sender…' : 'Send påmelding'}
             </button>

@@ -90,7 +90,7 @@ export default function SkoleTLhjulet() {
           <p className="text-gray-500 text-sm mt-1">Lag hjul med leker eller fri tekst (klasseliste, trivselsutfordringer, personalet …) og la elevene snurre.</p>
         </div>
         {!nytt && (
-          <button onClick={() => setNytt(true)} className="shrink-0 bg-orange text-white font-medium px-5 py-2.5 rounded-full hover:bg-orange/90 transition">+ Nytt hjul</button>
+          <button onClick={() => setNytt(true)} className="shrink-0 bg-orange text-gray-900 font-medium px-5 py-2.5 rounded-full hover:bg-orange/90 transition">+ Nytt hjul</button>
         )}
       </div>
 
@@ -120,7 +120,7 @@ export default function SkoleTLhjulet() {
 
             <div className="flex gap-3 mt-4">
               <button onClick={lagHjul} disabled={!navn.trim() || valgte.length === 0 || lagrer}
-                className="bg-orange text-white font-medium px-6 py-2.5 rounded-full hover:bg-orange/90 transition disabled:opacity-50">
+                className="bg-orange text-gray-900 font-medium px-6 py-2.5 rounded-full hover:bg-orange/90 transition disabled:opacity-50">
                 {lagrer ? 'Lagrer …' : 'Lag hjul'}
               </button>
               <button onClick={() => { setNytt(false); setNavn(''); setValgte([]); setKategoriId(null) }} className="text-gray-500 hover:text-gray-700 px-4">Avbryt</button>
@@ -153,23 +153,23 @@ export default function SkoleTLhjulet() {
           <div key={h.id} className="bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-5">
             <Link to={`/min-side/tl-hjulet/${h.id}`} className="block">
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-gray-900 hover:text-orange">{h.navn}</h3>
+                <h3 className="font-bold text-gray-900 hover:text-orange-ink">{h.navn}</h3>
                 {h.kategoriNavn && <span className="text-[11px] bg-petrol/10 text-petrol px-2 py-0.5 rounded-full">{h.kategoriNavn}</span>}
               </div>
               <p className="text-sm text-gray-400 mt-1">{h.leker.length} kakestykker</p>
               <div className="flex flex-wrap gap-1 mt-3">
                 {h.leker.slice(0, 4).map((l) => (
-                  <span key={l.koblingId} className={`text-xs px-2 py-0.5 rounded-full ${l.fri ? 'bg-petrol/10 text-petrol' : 'bg-orange/10 text-orange'}`}>{l.tittel}</span>
+                  <span key={l.koblingId} className={`text-xs px-2 py-0.5 rounded-full ${l.fri ? 'bg-petrol/10 text-petrol' : 'bg-orange/10 text-orange-ink'}`}>{l.tittel}</span>
                 ))}
                 {h.leker.length > 4 && <span className="text-xs text-gray-400 px-1">+{h.leker.length - 4}</span>}
               </div>
             </Link>
             <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
-              <button onClick={() => kopier(h)} className="text-xs text-gray-500 hover:text-orange">Kopier</button>
+              <button onClick={() => kopier(h)} className="text-xs text-gray-500 hover:text-orange-ink">Kopier</button>
               {sortering === 'egen' && (
                 <div className="ml-auto flex items-center gap-1">
-                  <button onClick={() => flytt(h, -1)} disabled={i === 0} className="text-gray-400 hover:text-orange disabled:opacity-30 px-1" aria-label="Flytt opp">↑</button>
-                  <button onClick={() => flytt(h, 1)} disabled={i === sortert.length - 1} className="text-gray-400 hover:text-orange disabled:opacity-30 px-1" aria-label="Flytt ned">↓</button>
+                  <button onClick={() => flytt(h, -1)} disabled={i === 0} className="text-gray-400 hover:text-orange-ink disabled:opacity-30 px-1" aria-label="Flytt opp">↑</button>
+                  <button onClick={() => flytt(h, 1)} disabled={i === sortert.length - 1} className="text-gray-400 hover:text-orange-ink disabled:opacity-30 px-1" aria-label="Flytt ned">↓</button>
                 </div>
               )}
             </div>

@@ -295,7 +295,7 @@ export default function AdminEvaluering() {
                 <button
                   onClick={() => lagreSp(s)}
                   disabled={lagrerSp === s.id}
-                  className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold disabled:opacity-40"
+                  className="px-4 py-2 rounded-lg bg-orange text-gray-900 text-sm font-semibold disabled:opacity-40"
                 >
                   {lagrerSp === s.id ? 'Lagrer …' : 'Lagre'}
                 </button>
@@ -371,7 +371,7 @@ export default function AdminEvaluering() {
                 <button
                   onClick={() => lagrePk(p)}
                   disabled={lagrerPk === p.id}
-                  className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold disabled:opacity-40"
+                  className="px-4 py-2 rounded-lg bg-orange text-gray-900 text-sm font-semibold disabled:opacity-40"
                 >
                   {lagrerPk === p.id ? 'Lagrer …' : 'Lagre'}
                 </button>
@@ -441,7 +441,7 @@ export default function AdminEvaluering() {
                           ? <span className="text-gray-700 text-xs">Sendt {formaterDato(m.evaluering_sendt_at)}</span>
                           : <span className="text-gray-400 text-xs">Sendes automatisk kl 13:30 på kursdagen</span>}
                         {m.token && (
-                          <button onClick={() => kopierLenke(m, i)} className="text-orange hover:underline text-xs">
+                          <button onClick={() => kopierLenke(m, i)} className="text-orange-ink hover:underline text-xs">
                             {kopiert === i ? 'Kopiert!' : 'Kopier lenke'}
                           </button>
                         )}
@@ -472,15 +472,15 @@ export default function AdminEvaluering() {
             </div>
             <div className="bg-white border border-gray-200 rounded-xl p-4">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Gjennomføring</p>
-              <p className="text-2xl font-bold text-orange">{snitt('vurd_gjennomforing')}<span className="text-base text-gray-400"> / 6</span></p>
+              <p className="text-2xl font-bold text-orange-ink">{snitt('vurd_gjennomforing')}<span className="text-base text-gray-400"> / 6</span></p>
             </div>
             <div className="bg-white border border-gray-200 rounded-xl p-4">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Info i forkant</p>
-              <p className="text-2xl font-bold text-orange">{snitt('vurd_info')}<span className="text-base text-gray-400"> / 6</span></p>
+              <p className="text-2xl font-bold text-orange-ink">{snitt('vurd_info')}<span className="text-base text-gray-400"> / 6</span></p>
             </div>
             <div className="bg-white border border-gray-200 rounded-xl p-4">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Aktiviteter</p>
-              <p className="text-2xl font-bold text-orange">{snitt('vurd_aktiviteter')}<span className="text-base text-gray-400"> / 6</span></p>
+              <p className="text-2xl font-bold text-orange-ink">{snitt('vurd_aktiviteter')}<span className="text-base text-gray-400"> / 6</span></p>
             </div>
           </div>
 
@@ -541,7 +541,7 @@ export default function AdminEvaluering() {
               <h3 className="text-lg font-semibold text-gray-900">Alle svar</h3>
               <button
                 onClick={lastNedCsv}
-                className="px-4 py-2 rounded-lg bg-orange text-white text-sm font-semibold hover:opacity-90"
+                className="px-4 py-2 rounded-lg bg-orange text-gray-900 text-sm font-semibold hover:opacity-90"
               >
                 Last ned som CSV
               </button>

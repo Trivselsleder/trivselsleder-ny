@@ -66,7 +66,7 @@ export default function LoggInn() {
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#FF7B31]/10 mb-3">
-            <svg className="w-7 h-7 text-[#FF7B31]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-7 h-7 text-[#B5560F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
@@ -101,14 +101,14 @@ export default function LoggInn() {
             <button
               type="submit"
               disabled={laster}
-              className="w-full bg-[#FF7B31] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
+              className="w-full bg-[#FF7B31] text-gray-900 font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
             >
               {laster ? 'Logger inn…' : 'Logg inn'}
             </button>
             <button
               type="button"
               onClick={() => setVisGlemt(true)}
-              className="w-full text-sm text-[#FF7B31] hover:underline text-center"
+              className="w-full text-sm text-[#B5560F] hover:underline text-center"
             >
               Glemt passord?
             </button>
@@ -160,7 +160,7 @@ export default function LoggInn() {
                 <button
                   type="submit"
                   disabled={glemmtLaster}
-                  className="w-full bg-[#FF7B31] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
+                  className="w-full bg-[#FF7B31] text-gray-900 font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
                 >
                   {glemmtLaster ? 'Sender…' : 'Send tilbakestillingslenke'}
                 </button>
@@ -185,7 +185,7 @@ export default function LoggInn() {
                 <button
                   type="button"
                   onClick={() => { setVisGlemt(false); setGlemmtSendt(false); setGlemmtEpost('') }}
-                  className="text-sm text-[#FF7B31] hover:underline"
+                  className="text-sm text-[#B5560F] hover:underline"
                 >
                   Tilbake til innlogging
                 </button>

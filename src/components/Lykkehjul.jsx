@@ -326,7 +326,7 @@ export default function Lykkehjul({ leker, rotasjoner = 6, skriftstorrelse = 20,
         style={{ background: 'linear-gradient(115deg,#FF7B31,#CF442F)', fontSize: 22 }}>
         {fase === 'spinning' ? 'Snurrer …' : fase === 'countdown' ? 'Klar …' : 'SNURR!'}
       </button>
-      <p className="mt-2 text-[11px] text-orange/70 font-semibold">Fri tekst støttes òg — klasseliste, trivselsutfordringer, personalet …</p>
+      <p className="mt-2 text-[11px] text-orange-ink/70 font-semibold">Fri tekst støttes òg — klasseliste, trivselsutfordringer, personalet …</p>
 
       {createPortal(
         <>
@@ -400,7 +400,7 @@ export default function Lykkehjul({ leker, rotasjoner = 6, skriftstorrelse = 20,
                     <Link to={`/min-side/aktiviteter/${vinner.ressursId}`} className="font-bold py-2.5 rounded-full border-2"
                       style={{ borderColor: '#e6b483', color: '#8a5116' }}>Gå til aktivitet →</Link>
                   )}
-                  <button onClick={() => { lukk(); senere(snurr, 300) }} className="text-gray-500 hover:text-orange text-sm py-1">↻ Snurr igjen</button>
+                  <button onClick={() => { lukk(); senere(snurr, 300) }} className="text-gray-500 hover:text-orange-ink text-sm py-1">↻ Snurr igjen</button>
                 </div>
               </div>
             </div>

@@ -173,7 +173,7 @@ export default function AdminKortoversikt() {
               <span className="ml-auto text-sm px-3 py-1 rounded-lg bg-green-100 text-green-700 font-medium">
                 {totaltKort} kort
               </span>
-              <span className="text-sm px-3 py-1 rounded-lg bg-[#FF7B31]/10 text-[#FF7B31] font-medium">
+              <span className="text-sm px-3 py-1 rounded-lg bg-[#FF7B31]/10 text-[#B5560F] font-medium">
                 {totaltBelop} kr
               </span>
             </div>
@@ -224,7 +224,7 @@ export default function AdminKortoversikt() {
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1.5 justify-end">
-                                <span className={`font-semibold ${r.frosset ? 'text-gray-900' : 'text-[#FF7B31]'}`}>{r.antall}</span>
+                                <span className={`font-semibold ${r.frosset ? 'text-gray-900' : 'text-[#B5560F]'}`}>{r.antall}</span>
                                 {r.frosset
                                   ? <span title="Låst tall — endres ikke automatisk." className="text-gray-400">🔒</span>
                                   : <span title="Levende beregning (TL + 10 %). Låses ved midnatt på kursdagen." className="text-gray-300 text-xs">beregnes</span>}
@@ -292,7 +292,7 @@ export default function AdminKortoversikt() {
                     <label className="text-sm font-medium text-gray-700">Portotrapper (basert på antall kort)</label>
                     <button type="button"
                       onClick={() => setSatserForm(s => ({ ...s, portoSatser: [...s.portoSatser, { fraAntall: (s.portoSatser.at(-1)?.tilAntall ?? 0) + 1, tilAntall: null, porto: 99 }] }))}
-                      className="text-xs text-[#FF7B31] hover:underline">+ Legg til trinn</button>
+                      className="text-xs text-[#B5560F] hover:underline">+ Legg til trinn</button>
                   </div>
                   <div className="space-y-2">
                     {satserForm.portoSatser.map((trinn, i) => (
@@ -322,7 +322,7 @@ export default function AdminKortoversikt() {
                 <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
                   <button type="button"
                     onClick={() => { lagreSatser(satserForm); setSatserLagret(true); setTimeout(() => setSatserLagret(false), 2500) }}
-                    className="bg-[#FF7B31] text-white font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm">
+                    className="bg-[#FF7B31] text-gray-900 font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm">
                     {satserLagret ? 'Lagret!' : 'Lagre innstillinger'}
                   </button>
                   <button type="button" onClick={() => setSatserForm(STANDARD_SATSER)}

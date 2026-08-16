@@ -339,7 +339,7 @@ export default function SvarSkjema() {
           type="button"
           onClick={sendInn}
           disabled={sender}
-          className="w-full py-4 px-6 rounded-xl bg-orange-500 text-white text-lg font-semibold hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full py-4 px-6 rounded-xl bg-orange-500 text-gray-900 text-lg font-semibold hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {sender ? 'Sender …' : 'Send svar'}
         </button>

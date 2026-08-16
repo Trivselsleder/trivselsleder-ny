@@ -92,7 +92,7 @@ export default function SkoleLek() {
   if (feil)
     return (
       <div className="max-w-3xl mx-auto px-4 py-12 text-gray-500">
-        Fant ikke leken. <Link className="text-orange" to="/min-side/aktiviteter">← Tilbake til Finn en lek</Link>
+        Fant ikke leken. <Link className="text-orange-ink" to="/min-side/aktiviteter">← Tilbake til Finn en lek</Link>
       </div>
     )
   if (!lek) return <div className="max-w-3xl mx-auto px-4 py-12 text-gray-500">Laster …</div>
@@ -100,7 +100,7 @@ export default function SkoleLek() {
   if (rediger && intern)
     return (
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <button onClick={() => setRediger(false)} className="text-sm text-orange">← Tilbake til leken</button>
+        <button onClick={() => setRediger(false)} className="text-sm text-orange-ink">← Tilbake til leken</button>
         <div className="mt-3">
           <LekRedigering
             lek={lek}
@@ -114,7 +114,7 @@ export default function SkoleLek() {
   const t = lek.tekst
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      <Link to="/min-side/aktiviteter" className="text-sm text-orange">← Tilbake til Finn en lek</Link>
+      <Link to="/min-side/aktiviteter" className="text-sm text-orange-ink">← Tilbake til Finn en lek</Link>
 
       <div className="flex items-start justify-between gap-3 mt-2">
         <h1 className="text-3xl font-bold text-gray-900">{lek.tittel}</h1>
@@ -144,7 +144,7 @@ export default function SkoleLek() {
           <div className="border border-gray-200 rounded-xl p-3">
             <p className="text-xs text-gray-500 mb-2">Velg periodeplan</p>
             {planer.length === 0 ? (
-              <p className="text-sm text-gray-500">Du har ingen planer ennå. <Link to="/min-side/periodeplaner" className="text-orange">Lag en plan →</Link></p>
+              <p className="text-sm text-gray-500">Du har ingen planer ennå. <Link to="/min-side/periodeplaner" className="text-orange-ink">Lag en plan →</Link></p>
             ) : (
               <div className="flex flex-col">
                 {planer.map((p) => (
@@ -160,7 +160,7 @@ export default function SkoleLek() {
           <div className="border border-gray-200 rounded-xl p-3">
             <p className="text-xs text-gray-500 mb-2">Velg TL-hjul</p>
             {hjul.length === 0 ? (
-              <p className="text-sm text-gray-500">Du har ingen hjul ennå. <Link to="/min-side/tl-hjulet" className="text-orange">Lag et hjul →</Link></p>
+              <p className="text-sm text-gray-500">Du har ingen hjul ennå. <Link to="/min-side/tl-hjulet" className="text-orange-ink">Lag et hjul →</Link></p>
             ) : (
               <div className="flex flex-col">
                 {hjul.map((h) => (
@@ -182,7 +182,7 @@ export default function SkoleLek() {
       </div>
 
       <div className="flex flex-wrap gap-1 mt-3">
-        {lek.egnet.map((e) => <span key={e} className="text-xs bg-orange/10 text-orange px-2 py-0.5 rounded-full">{e}</span>)}
+        {lek.egnet.map((e) => <span key={e} className="text-xs bg-orange/10 text-orange-ink px-2 py-0.5 rounded-full">{e}</span>)}
         {lek.kanLedesAvElever && <span className="text-xs bg-petrol/10 text-petrol px-2 py-0.5 rounded-full">Kan ledes av elever</span>}
         {lek.sesong.map((s) => <span key={s} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{s}</span>)}
       </div>
@@ -232,7 +232,7 @@ export default function SkoleLek() {
           <span className="text-2xl" aria-hidden>📄</span>
           <div>
             <p className="font-bold text-gray-900">PDF-versjon</p>
-            <button onClick={() => skrivUtLek(lek)} className="text-sm text-orange hover:underline">Last ned som PDF</button>
+            <button onClick={() => skrivUtLek(lek)} className="text-sm text-orange-ink hover:underline">Last ned som PDF</button>
           </div>
         </div>
         {intern && (

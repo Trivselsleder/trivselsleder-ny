@@ -171,7 +171,7 @@ export default function Kulturkort() {
                     </h3>
                     <p className="text-xs text-gray-500 mt-0.5">{partner.kommune}</p>
                     {partner.type && (
-                      <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full bg-[#FF7B31]/10 text-[#FF7B31]">
+                      <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full bg-[#FF7B31]/10 text-[#B5560F]">
                         {partner.type}
                       </span>
                     )}

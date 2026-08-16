@@ -34,7 +34,7 @@ export default function Webinarer() {
       {/* Intro / hero */}
       <section className="bg-gradient-to-br from-petrol/10 via-white to-orange/10 py-16 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <span className="inline-block bg-orange/10 text-orange font-semibold text-sm px-4 py-1.5 rounded-full mb-5">Gratis · uforpliktende</span>
+          <span className="inline-block bg-orange/10 text-orange-ink font-semibold text-sm px-4 py-1.5 rounded-full mb-5">Gratis · uforpliktende</span>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">Bli kjent med Trivselsleder — live</h1>
           <p className="text-lg text-gray-600 mt-4">
             Vurderer dere programmet? Bli med på et kort intro-webinar. Vi viser hva trivselslederne gjør i praksis,
@@ -47,7 +47,7 @@ export default function Webinarer() {
               <span className="text-xl font-bold text-gray-900 capitalize">{datoLang(neste.starter_at)}</span>
               <span className="text-gray-600">kl. {klokkeslett(neste.starter_at)} · {neste.varighet_min || 40} min</span>
               <Nedtelling starterAt={neste.starter_at} varighetMin={neste.varighet_min} className="mt-1" />
-              <button onClick={() => setValgt(neste)} className="mt-3 bg-orange text-white font-semibold px-6 py-2.5 rounded-full hover:bg-orange/90">
+              <button onClick={() => setValgt(neste)} className="mt-3 bg-orange text-gray-900 font-semibold px-6 py-2.5 rounded-full hover:bg-orange/90">
                 Meld skolen på
               </button>
             </div>
@@ -81,7 +81,7 @@ export default function Webinarer() {
           <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center">
             <p className="text-gray-600">Ingen åpne datoer akkurat nå.</p>
             <p className="text-gray-500 text-sm mt-1">
-              Ta kontakt, så gir vi beskjed om neste webinar — eller <Link to="/kontakt" className="text-orange font-medium">be om en prat</Link>.
+              Ta kontakt, så gir vi beskjed om neste webinar — eller <Link to="/kontakt" className="text-orange-ink font-medium">be om en prat</Link>.
             </p>
           </div>
         ) : (
@@ -91,14 +91,14 @@ export default function Webinarer() {
               return (
                 <li key={w.id} className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4">
                   <div className="shrink-0 w-16 text-center rounded-xl overflow-hidden border border-gray-200">
-                    <div className="bg-orange text-white text-[11px] font-bold uppercase py-0.5">{b.maaned}</div>
+                    <div className="bg-orange text-gray-900 text-[11px] font-bold uppercase py-0.5">{b.maaned}</div>
                     <div className="py-1.5"><div className="text-2xl font-extrabold leading-none">{b.dag}</div><div className="text-[11px] text-gray-500 capitalize">{b.ukedag}</div></div>
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-gray-900 truncate">{w.tittel}</h3>
                     <p className="text-sm text-gray-500">kl. {klokkeslett(w.starter_at)} · {w.varighet_min || 40} min{w.vert_navn ? ` · ${w.vert_navn}` : ''}</p>
                   </div>
-                  <button onClick={() => setValgt(w)} className="shrink-0 bg-orange text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-orange/90">Meld på</button>
+                  <button onClick={() => setValgt(w)} className="shrink-0 bg-orange text-gray-900 text-sm font-semibold px-4 py-2 rounded-full hover:bg-orange/90">Meld på</button>
                 </li>
               )
             })}

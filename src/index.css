@@ -7,4 +7,9 @@
   --color-teal: #54A1AB;     /* sekundær lys */
   --color-tlred: #CF442F;    /* tertiær rød */
   --color-tlgold: #F2B01E;   /* varm komplement */
+
+  /* Tilgjengelighetsvarianter (WCAG 2.1 AA). Primaer oransje #FF7B31 gir bare
+     2,6:1 mot hvitt og kan derfor ikke brukes som tekstfarge paa lys bakgrunn. */
+  --color-orange-ink: #B5560F;      /* oransje TEKST/ikon paa lys bakgrunn - 4,9:1 */
+  --color-orange-ink-dark: #8A4109; /* hover for oransje tekst - 7,4:1 */
 }

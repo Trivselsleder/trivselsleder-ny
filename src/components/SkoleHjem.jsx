@@ -28,7 +28,7 @@ const CSS = `
 .tlh-parse .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .tlh-parse .said{color:var(--grey);font-size:14px}
 .tlh-parse .said b{color:var(--dark)}
-.tlh-fchip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);color:#b5590f;font-weight:700;font-size:13px;padding:6px 11px;border-radius:8px}
+.tlh-fchip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);color:#B5560F;font-weight:700;font-size:13px;padding:6px 11px;border-radius:8px}
 .tlh-parse .note{margin-top:10px;font-size:13px;color:var(--grey)}
 .tlh-backlink{display:inline-block;margin-top:16px}
 .tlh-backlink a,.tlh-backlink button{color:var(--o);font-weight:700;text-decoration:none;font-size:14px;font-family:inherit;background:none;border:0;padding:0;cursor:pointer}
@@ -61,7 +61,7 @@ const CSS = `
 .tlh-lek .meta{font-size:12.5px;color:var(--grey);margin-bottom:9px}
 .tlh-tags{display:flex;gap:6px;flex-wrap:wrap}
 .tlh-tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:#EEF1F4;color:#5B6470}
-.tlh-tag.o{background:var(--soft);color:#b5590f}
+.tlh-tag.o{background:var(--soft);color:#B5560F}
 @media(max-width:820px){.tlh-brow{grid-template-columns:1fr}.tlh-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.tlh-grid{grid-template-columns:1fr}.tlh-hero h1{font-size:24px}}
 `
@@ -293,7 +293,7 @@ function WebinarBoks({ webinar }) {
     <Link to="/min-side/webinarer" className="block mt-5 rounded-2xl border border-petrol/30 bg-petrol/5 p-5 hover:border-petrol/60 transition-colors">
       <div className="flex items-center gap-4">
         <div className="shrink-0 w-16 text-center rounded-xl overflow-hidden border border-gray-200 bg-white">
-          <div className="bg-orange text-white text-[11px] font-bold uppercase py-0.5">{b.maaned}</div>
+          <div className="bg-orange text-gray-900 text-[11px] font-bold uppercase py-0.5">{b.maaned}</div>
           <div className="py-1.5"><div className="text-2xl font-extrabold leading-none text-gray-900">{b.dag}</div><div className="text-[11px] text-gray-500 capitalize">{b.ukedag}</div></div>
         </div>
         <div className="min-w-0 flex-1">
@@ -301,7 +301,7 @@ function WebinarBoks({ webinar }) {
           <h2 className="font-bold text-gray-900 leading-snug truncate">{webinar.tittel}</h2>
           <p className="text-sm text-gray-600">kl. {klokkeslett(webinar.starter_at)} · <span className={n.bliMedNaa ? 'text-petrol font-semibold' : ''}>{n.tekst}</span></p>
         </div>
-        <span className="shrink-0 text-sm font-semibold text-white bg-orange px-4 py-1.5 rounded-full">Meld på</span>
+        <span className="shrink-0 text-sm font-semibold text-gray-900 bg-orange px-4 py-1.5 rounded-full">Meld på</span>
       </div>
     </Link>
   )

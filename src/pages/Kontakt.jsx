@@ -54,14 +54,14 @@ export default function Kontakt() {
             {contactItems.map((item) => (
               <div key={item.label} className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-full bg-orange/10 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-orange-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {item.icon}
                   </svg>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500 mb-0.5">{item.label}</div>
                   {item.href ? (
-                    <a href={item.href} className="text-gray-800 font-medium hover:text-orange transition-colors">
+                    <a href={item.href} className="text-gray-800 font-medium hover:text-orange-ink transition-colors">
                       {item.value}
                     </a>
                   ) : (
@@ -77,7 +77,7 @@ export default function Kontakt() {
           <h2 className="text-xl font-bold text-gray-900 mb-6">{t('kontakt.skjemaTitle')}</h2>
           {sent ? (
             <div className="bg-orange/10 border border-orange/30 rounded-2xl p-8 text-center">
-              <svg className="w-12 h-12 text-orange mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-12 h-12 text-orange-ink mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h3 className="font-bold text-gray-900 text-lg mb-2">{t('kontakt.takkTitle')}</h3>
@@ -119,7 +119,7 @@ export default function Kontakt() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-orange text-white font-semibold py-3 rounded-full hover:bg-orange/90 transition-colors"
+                className="w-full bg-orange text-gray-900 font-semibold py-3 rounded-full hover:bg-orange/90 transition-colors"
               >
                 {t('kontakt.sendKnapp')}
               </button>

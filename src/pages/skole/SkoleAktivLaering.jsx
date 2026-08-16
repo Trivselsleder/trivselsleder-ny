@@ -95,9 +95,9 @@ export default function SkoleAktivLaering() {
         </select>
         <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
           <input type="checkbox" checked={kunVideo} onChange={(e) => setKunVideo(e.target.checked)} />
-          <span className="text-orange">▶</span> Med video
+          <span className="text-orange-ink">▶</span> Med video
         </label>
-        <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange px-2">Nullstill</button>
+        <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange-ink px-2">Nullstill</button>
       </div>
 
       {laster && <p className="text-gray-400 mt-8">Laster aktiv læring …</p>}

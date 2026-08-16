@@ -92,7 +92,7 @@ export default function SkoleDriftAvTL() {
                     {d.sprak && <span className="inline-block text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full mt-2">{d.sprak}</span>}
                   </div>
                   {d.url && (
-                    <span className="ml-auto text-orange shrink-0">
+                    <span className="ml-auto text-orange-ink shrink-0">
                       <span aria-hidden="true">↗</span>
                       <span className="sr-only">(åpnes i ny fane)</span>
                     </span>

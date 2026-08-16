@@ -98,7 +98,7 @@ export default function AdminHaller() {
         <p className="text-gray-500">Felles register over haller som brukes til lekekurs.</p>
         <button
           onClick={() => setNyForm({ ...TOM_HALL })}
-          className="bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90 whitespace-nowrap"
+          className="bg-orange text-gray-900 px-4 py-2 rounded-lg hover:opacity-90 whitespace-nowrap"
         >
           + Ny hall
         </button>
@@ -339,7 +339,7 @@ function HallSkjema({ verdi, erNy, onEndre, onLagre, onAvbryt }) {
           <button
             onClick={onLagre}
             disabled={!verdi.navn}
-            className="px-4 py-2 bg-orange text-white rounded-lg hover:opacity-90 disabled:opacity-40"
+            className="px-4 py-2 bg-orange text-gray-900 rounded-lg hover:opacity-90 disabled:opacity-40"
           >
             Lagre
           </button>

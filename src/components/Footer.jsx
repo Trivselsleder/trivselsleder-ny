@@ -36,7 +36,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+        <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-400">
           <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
           <div className="flex gap-4">
             <Link to="/personvern" className="hover:text-orange transition-colors">{t('footer.personvern')}</Link>

@@ -93,7 +93,7 @@ export default function SettPassord() {
               <button
                 type="submit"
                 disabled={laster}
-                className="w-full bg-[#FF7B31] text-white font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
+                className="w-full bg-[#FF7B31] text-gray-900 font-semibold py-2.5 rounded-full hover:bg-[#d4681a] transition-colors disabled:opacity-60"
               >
                 {laster ? 'Lagrer…' : 'Sett nytt passord'}
               </button>

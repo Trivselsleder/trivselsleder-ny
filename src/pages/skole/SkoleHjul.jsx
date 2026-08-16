@@ -101,7 +101,7 @@ export default function SkoleHjul() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      <Link to="/min-side/tl-hjulet" className="text-sm text-gray-500 hover:text-orange">← Alle hjul</Link>
+      <Link to="/min-side/tl-hjulet" className="text-sm text-gray-500 hover:text-orange-ink">← Alle hjul</Link>
 
       <div className="flex items-center justify-between gap-4 mt-2 flex-wrap">
         <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function SkoleHjul() {
               {hjul.leker.map((l) => (
                 l.fri
                   ? <span key={l.koblingId} className="text-sm bg-petrol/10 text-petrol px-3 py-1 rounded-full">✎ {l.tittel}</span>
-                  : <Link key={l.koblingId} to={`/min-side/aktiviteter/${l.ressursId}`} className="text-sm bg-orange/10 text-orange px-3 py-1 rounded-full hover:bg-orange/20">{l.tittel}</Link>
+                  : <Link key={l.koblingId} to={`/min-side/aktiviteter/${l.ressursId}`} className="text-sm bg-orange/10 text-orange-ink px-3 py-1 rounded-full hover:bg-orange/20">{l.tittel}</Link>
               ))}
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function SkoleHjul() {
             </div>
 
             <div className="flex items-center gap-3 mt-4">
-              <button onClick={lagre} disabled={lagrer} className="bg-orange text-white font-medium px-6 py-2.5 rounded-full hover:bg-orange/90 transition disabled:opacity-50">
+              <button onClick={lagre} disabled={lagrer} className="bg-orange text-gray-900 font-medium px-6 py-2.5 rounded-full hover:bg-orange/90 transition disabled:opacity-50">
                 {lagrer ? 'Lagrer …' : 'Lagre'}
               </button>
               <button onClick={() => { setRediger(false); last() }} className="text-gray-500 hover:text-gray-700 px-4">Avbryt</button>

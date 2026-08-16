@@ -238,7 +238,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
                       <span className={'px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap ' + statusKlasse(r)}>
                         {statusTekst(r)}
                       </span>
-                      <button onClick={() => apneRediger(r)} className="text-xs text-orange hover:underline whitespace-nowrap">
+                      <button onClick={() => apneRediger(r)} className="text-xs text-orange-ink hover:underline whitespace-nowrap">
                         {r.svart ? 'Endre svar' : 'Registrer svar'}
                       </button>
                     </div>
@@ -314,7 +314,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
                       ) : (
                         <button
                           onClick={() => setFlytterRad(r.id)}
-                          className="text-sm text-orange hover:underline"
+                          className="text-sm text-orange-ink hover:underline"
                         >
                           Flytt til annet kurs
                         </button>
@@ -334,7 +334,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
                         className={
                           r.melding_handtert
                             ? 'text-sm text-gray-500 hover:underline'
-                            : 'text-sm bg-orange text-white px-3 py-1.5 rounded-lg hover:opacity-90'
+                            : 'text-sm bg-orange text-gray-900 px-3 py-1.5 rounded-lg hover:opacity-90'
                         }
                       >
                         {r.melding_handtert ? 'Angre' : 'Marker som håndtert'}
@@ -486,7 +486,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
               <button
                 onClick={lagreSvar}
                 disabled={lagrer}
-                className="px-4 py-2 bg-orange text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+                className="px-4 py-2 bg-orange text-gray-900 rounded-lg hover:opacity-90 disabled:opacity-50"
               >
                 {lagrer ? 'Lagrer …' : 'Lagre svar'}
               </button>

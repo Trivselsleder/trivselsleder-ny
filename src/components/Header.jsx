@@ -28,8 +28,8 @@ export default function Header() {
   // Innlogget skole: skjul de offentlige markedsføringslenkene, behold Admin (superadmin).
   const navLinks = session ? adminLenke : [...offentlige, ...adminLenke]
 
-  const baseClass = 'text-gray-700 hover:text-orange font-medium transition-colors'
-  const activeClass = 'text-orange'
+  const baseClass = 'text-gray-700 hover:text-orange-ink font-medium transition-colors'
+  const activeClass = 'text-orange-ink'
 
   const otherLang = i18n.language === 'sv' ? 'no' : 'sv'
   const langLabel = i18n.language === 'sv' ? '🌐 Svenska' : '🌐 Norsk'
@@ -50,7 +50,7 @@ export default function Header() {
             {session && skoleNavn && (
               <Link to="/min-side" title="Til Min side" className="hidden sm:flex items-center gap-3 min-w-0">
                 <span className="text-gray-300" aria-hidden>|</span>
-                <span className="text-gray-700 font-semibold truncate hover:text-orange transition-colors">{skoleNavn}</span>
+                <span className="text-gray-700 font-semibold truncate hover:text-orange-ink transition-colors">{skoleNavn}</span>
               </Link>
             )}
           </div>
@@ -69,7 +69,7 @@ export default function Header() {
             ))}
             <button
               onClick={() => i18n.changeLanguage(otherLang)}
-              className="text-sm text-gray-500 hover:text-orange font-medium transition-colors px-2 py-1 rounded-lg hover:bg-gray-50"
+              className="text-sm text-gray-500 hover:text-orange-ink font-medium transition-colors px-2 py-1 rounded-lg hover:bg-gray-50"
               title={otherLang === 'sv' ? 'Bytt til svensk' : 'Byt till norska'}
             >
               {langLabel}
@@ -97,7 +97,7 @@ export default function Header() {
           </nav>
 
           <button
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:text-orange"
+            className="md:hidden p-2 rounded-lg text-gray-600 hover:text-orange-ink"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Meny"
           >
@@ -123,8 +123,8 @@ export default function Header() {
               to={link.to}
               className={({ isActive }) =>
                 isActive
-                  ? 'font-medium text-lg text-orange'
-                  : 'text-gray-700 font-medium text-lg hover:text-orange'
+                  ? 'font-medium text-lg text-orange-ink'
+                  : 'text-gray-700 font-medium text-lg hover:text-orange-ink'
               }
               onClick={() => setMenuOpen(false)}
             >
@@ -133,14 +133,14 @@ export default function Header() {
           ))}
           <button
             onClick={() => { i18n.changeLanguage(otherLang); setMenuOpen(false) }}
-            className="text-left text-gray-600 font-medium text-lg hover:text-orange"
+            className="text-left text-gray-600 font-medium text-lg hover:text-orange-ink"
           >
             {langLabel}
           </button>
           {session ? (
             <button
               onClick={() => { handleLoggUt(); setMenuOpen(false) }}
-              className="text-left text-gray-600 font-medium text-lg hover:text-orange"
+              className="text-left text-gray-600 font-medium text-lg hover:text-orange-ink"
             >
               Logg ut
             </button>

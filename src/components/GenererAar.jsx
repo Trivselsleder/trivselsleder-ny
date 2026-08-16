@@ -82,7 +82,7 @@ export default function GenererAar({ plan, onGenerert }) {
         <button
           onClick={generer}
           disabled={jobber || uker.length === 0}
-          className="bg-orange text-white font-medium px-5 py-2 rounded-full hover:bg-orange/90 transition disabled:opacity-50"
+          className="bg-orange text-gray-900 font-medium px-5 py-2 rounded-full hover:bg-orange/90 transition disabled:opacity-50"
         >
           {jobber ? 'Genererer …' : `Generer ${uker.length} uker`}
         </button>

@@ -87,7 +87,7 @@ export default function LekeVelger({ valgteIder = [], onVelg, modus = 'toggle' }
                       {erValgt ? '✓ Valgt' : 'Legg til'}
                     </span>
                   ) : (
-                    <span className="shrink-0 text-sm text-orange font-medium">+ Legg til</span>
+                    <span className="shrink-0 text-sm text-orange-ink font-medium">+ Legg til</span>
                   )}
                 </button>
               )

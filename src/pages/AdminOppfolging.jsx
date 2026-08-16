@@ -267,7 +267,7 @@ export default function AdminOppfolging({ innebygd = false }) {
     <div className={innebygd ? '' : 'max-w-5xl mx-auto px-4 py-12'}>
       {!innebygd && (
         <>
-          <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-[#FF7B31] mb-4">
+          <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-[#B5560F] mb-4">
             ← Tilbake til admin
           </button>
           <h1 className="text-3xl font-bold mb-2" style={{ color: ORANSJE }}>Oppfølging</h1>

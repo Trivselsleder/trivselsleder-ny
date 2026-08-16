@@ -23,7 +23,7 @@ const skolenMin = [
 
 const lenkeCls = ({ isActive }) =>
   `whitespace-nowrap px-3 sm:px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-    isActive ? 'border-orange text-orange' : 'border-transparent text-gray-600 hover:text-orange hover:border-gray-300'
+    isActive ? 'border-orange text-orange-ink' : 'border-transparent text-gray-600 hover:text-orange-ink hover:border-gray-300'
   }`
 
 export default function SkoleLayout() {
@@ -76,7 +76,7 @@ export default function SkoleLayout() {
               aria-haspopup="true"
               aria-expanded={apen}
               className={`whitespace-nowrap px-3 sm:px-4 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-1 ${
-                skolenMinAktiv ? 'border-orange text-orange' : 'border-transparent text-gray-600 hover:text-orange hover:border-gray-300'
+                skolenMinAktiv ? 'border-orange text-orange-ink' : 'border-transparent text-gray-600 hover:text-orange-ink hover:border-gray-300'
               }`}
             >
               Skolen min
@@ -99,7 +99,7 @@ export default function SkoleLayout() {
               onClick={() => setApen(false)}
               className={({ isActive }) =>
                 `block px-4 py-2.5 text-sm transition-colors ${
-                  isActive ? 'text-orange bg-orange/5 font-medium' : 'text-gray-600 hover:text-orange hover:bg-gray-50'
+                  isActive ? 'text-orange-ink bg-orange/5 font-medium' : 'text-gray-600 hover:text-orange-ink hover:bg-gray-50'
                 }`
               }
             >

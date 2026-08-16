@@ -177,7 +177,7 @@ export default function AdminBestillinger() {
                       </td>
                       <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{b.kontaktperson}</td>
                       <td className="px-4 py-3">
-                        <a href={`mailto:${b.epost}`} className="text-[#FF7B31] hover:underline">
+                        <a href={`mailto:${b.epost}`} className="text-[#B5560F] hover:underline">
                           {b.epost}
                         </a>
                       </td>
@@ -187,7 +187,7 @@ export default function AdminBestillinger() {
                       </td>
                       <td className="px-4 py-3 text-right text-gray-700">{b.kortpris} kr</td>
                       <td className="px-4 py-3 text-right text-gray-700">{b.porto} kr</td>
-                      <td className="px-4 py-3 text-right font-semibold text-[#FF7B31]">
+                      <td className="px-4 py-3 text-right font-semibold text-[#B5560F]">
                         {b.total} kr
                         <span className="block text-[10px] font-normal text-gray-400">
                           {t('adminBestillinger.eksMva')}
@@ -249,7 +249,7 @@ export default function AdminBestillinger() {
                     ...s,
                     portoSatser: [...s.portoSatser, { fraAntall: (s.portoSatser.at(-1)?.tilAntall ?? 0) + 1, tilAntall: null, porto: 99 }]
                   }))}
-                  className="text-xs text-[#FF7B31] hover:underline"
+                  className="text-xs text-[#B5560F] hover:underline"
                 >
                   + Legg til trinn
                 </button>
@@ -323,7 +323,7 @@ export default function AdminBestillinger() {
                   setSatserLagret(true)
                   setTimeout(() => setSatserLagret(false), 2500)
                 }}
-                className="bg-[#FF7B31] text-white font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm"
+                className="bg-[#FF7B31] text-gray-900 font-semibold px-5 py-2.5 rounded-full hover:bg-[#d4681a] transition-colors text-sm"
               >
                 {satserLagret ? 'Lagret!' : 'Lagre innstillinger'}
               </button>

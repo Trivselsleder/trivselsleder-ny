@@ -27,7 +27,7 @@ export default function PeriodeplanRutenett({ plan, deltakere, onCelle, onAnsvar
             </th>
             {dager.map((d) => (
               <th key={d} scope="col" className="px-3 py-3 min-w-[124px] border-b border-gray-100 border-l border-gray-100">
-                <span className="inline-block text-sm font-bold text-white bg-orange rounded-full px-3 py-1">{d}</span>
+                <span className="inline-block text-sm font-bold text-gray-900 bg-orange rounded-full px-3 py-1">{d}</span>
               </th>
             ))}
           </tr>
@@ -76,8 +76,8 @@ export default function PeriodeplanRutenett({ plan, deltakere, onCelle, onAnsvar
                         <StedInline verdi={r.celler?._sted || ''} onLagre={(v) => onSted(r.id, v)} />
                       </div>
                       <span className="flex flex-col leading-none text-gray-500 -mt-0.5">
-                        <button onClick={() => onFlyttRad(idx, -1)} disabled={idx === 0} className="p-1 hover:text-orange disabled:opacity-30 text-xs" aria-label={`Flytt ${tittel} opp`} title="Opp">▲</button>
-                        <button onClick={() => onFlyttRad(idx, 1)} disabled={idx === plan.rader.length - 1} className="p-1 hover:text-orange disabled:opacity-30 text-xs" aria-label={`Flytt ${tittel} ned`} title="Ned">▼</button>
+                        <button onClick={() => onFlyttRad(idx, -1)} disabled={idx === 0} className="p-1 hover:text-orange-ink disabled:opacity-30 text-xs" aria-label={`Flytt ${tittel} opp`} title="Opp">▲</button>
+                        <button onClick={() => onFlyttRad(idx, 1)} disabled={idx === plan.rader.length - 1} className="p-1 hover:text-orange-ink disabled:opacity-30 text-xs" aria-label={`Flytt ${tittel} ned`} title="Ned">▼</button>
                       </span>
                       <button onClick={() => onSlettRad(r.id)} className="p-1 text-gray-500 hover:text-red-500 shrink-0 text-lg leading-none" aria-label={`Fjern ${tittel}`} title="Fjern rad">×</button>
                     </div>
@@ -121,7 +121,7 @@ function StedInline({ verdi, onLagre }) {
     <button
       type="button"
       onClick={() => setRediger(true)}
-      className="mt-0.5 inline-flex items-center gap-1 text-xs text-gray-500 hover:text-orange"
+      className="mt-0.5 inline-flex items-center gap-1 text-xs text-gray-500 hover:text-orange-ink"
       aria-label={verdi ? `Sted: ${verdi}` : 'Legg til sted'}
     >
       <span aria-hidden="true">📍</span>{verdi || <span className="text-gray-400">Legg til sted</span>}

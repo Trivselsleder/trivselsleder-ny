@@ -232,7 +232,7 @@ export default function SendLenker({ kurs, onLukk }) {
                       <td className="px-4 py-2">{statusCelle(r)}</td>
                       <td className="px-4 py-2 text-right">
                         {r.lenke_token
-                          ? <button onClick={() => kopier(r.lenke_token, r.id)} className="text-orange hover:underline">
+                          ? <button onClick={() => kopier(r.lenke_token, r.id)} className="text-orange-ink hover:underline">
                               {kopiert === r.id ? 'Kopiert!' : 'Kopier lenke'}
                             </button>
                           : <span className="text-red-500 text-xs">mangler token</span>}

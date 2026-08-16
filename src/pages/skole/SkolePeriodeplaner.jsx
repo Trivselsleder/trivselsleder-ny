@@ -53,7 +53,7 @@ export default function SkolePeriodeplaner() {
           <p className="text-gray-500 text-sm mt-1">Ukerutenett med leker, ansvarlige og TL-klasser — som i dag, bare bedre.</p>
         </div>
         {!nytt && (
-          <button onClick={() => setNytt(true)} className="shrink-0 bg-orange text-white font-medium px-5 py-2.5 rounded-full hover:bg-[#e8641c] transition">
+          <button onClick={() => setNytt(true)} className="shrink-0 bg-orange text-gray-900 font-medium px-5 py-2.5 rounded-full hover:bg-[#e8641c] transition">
             + Ny plan
           </button>
         )}
@@ -79,7 +79,7 @@ export default function SkolePeriodeplaner() {
           </div>
           <p className="text-xs text-gray-500 mt-2">Nivået sier hvem planen gjelder for — velg om den er for barneskolen, ungdomsskolen eller hele skolen.</p>
           <div className="flex gap-3 mt-4">
-            <button onClick={lagPlan} disabled={!navn.trim() || lagrer} className="bg-orange text-white font-medium px-6 py-2.5 rounded-full hover:bg-orange/90 transition disabled:opacity-50">
+            <button onClick={lagPlan} disabled={!navn.trim() || lagrer} className="bg-orange text-gray-900 font-medium px-6 py-2.5 rounded-full hover:bg-orange/90 transition disabled:opacity-50">
               {lagrer ? 'Lagrer …' : 'Lag plan'}
             </button>
             <button onClick={() => { setNytt(false); setNavn(''); setAar('') }} className="text-gray-500 hover:text-gray-700 px-4">Avbryt</button>
@@ -106,7 +106,7 @@ export default function SkolePeriodeplaner() {
           <div key={p.id} className="bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-5">
             <Link to={`/min-side/periodeplaner/${p.id}`} className="block">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold text-gray-900 hover:text-orange">{p.navn}</h3>
+                <h3 className="font-bold text-gray-900 hover:text-orange-ink">{p.navn}</h3>
                 {planNivaa(p) && <span className="shrink-0 text-xs bg-orange/10 text-[#B5560F] px-2 py-0.5 rounded-full">{nivaaLabel(planNivaa(p))}</span>}
               </div>
               <p className="text-sm text-gray-400 mt-1">
@@ -115,7 +115,7 @@ export default function SkolePeriodeplaner() {
               <p className="text-xs text-gray-400 mt-1">{p.rader.length} leker · {p.dager.length} dager</p>
             </Link>
             <div className="flex gap-3 mt-3 pt-3 border-t border-gray-100">
-              <button onClick={() => kopier(p)} className="text-xs text-gray-500 hover:text-orange">Kopier</button>
+              <button onClick={() => kopier(p)} className="text-xs text-gray-500 hover:text-orange-ink">Kopier</button>
               <button onClick={() => arkiver(p)} className="text-xs text-gray-400 hover:text-red-500 ml-auto">Arkiver</button>
             </div>
           </div>

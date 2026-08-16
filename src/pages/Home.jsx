@@ -23,12 +23,12 @@ export default function Home() {
     <>
     <section className="bg-gradient-to-br from-orange/10 via-white to-petrol/10 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center">
-        <span className="inline-block bg-orange/10 text-orange font-semibold text-sm px-4 py-1.5 rounded-full mb-6">
+        <span className="inline-block bg-orange/10 text-orange-ink font-semibold text-sm px-4 py-1.5 rounded-full mb-6">
           {t('home.badge')}
         </span>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
           {t('home.heading').split('<orange>')[0]}
-          <span className="text-orange">
+          <span className="text-orange-ink">
             {t('home.heading').split('<orange>')[1]?.split('</orange>')[0]}
           </span>
           {t('home.heading').split('</orange>')[1]}
@@ -39,13 +39,13 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/for-skoler"
-            className="bg-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange/90 transition-colors shadow-lg shadow-orange/20"
+            className="bg-orange text-gray-900 px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange/90 transition-colors shadow-lg shadow-orange/20"
           >
             {t('home.ctaSkoler')}
           </Link>
           <Link
             to="/om-oss"
-            className="bg-white text-gray-800 border-2 border-gray-200 px-8 py-4 rounded-full text-lg font-semibold hover:border-orange hover:text-orange transition-colors"
+            className="bg-white text-gray-800 border-2 border-gray-200 px-8 py-4 rounded-full text-lg font-semibold hover:border-orange hover:text-orange-ink transition-colors"
           >
             {t('home.ctaMer')}
           </Link>
@@ -65,7 +65,7 @@ export default function Home() {
     {/* Webinar — alltid synlig invitasjon til nysgjerrige skoler */}
     <section className="bg-white py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
       <div className="max-w-4xl mx-auto rounded-3xl bg-gradient-to-br from-petrol/10 to-orange/5 border border-petrol/15 p-8 sm:p-10 text-center">
-        <span className="inline-block bg-orange/10 text-orange font-semibold text-sm px-4 py-1.5 rounded-full mb-4">Gratis intro-webinar</span>
+        <span className="inline-block bg-orange/10 text-orange-ink font-semibold text-sm px-4 py-1.5 rounded-full mb-4">Gratis intro-webinar</span>
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Bli kjent med Trivselsleder — live</h2>
         <p className="text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
           Vurderer dere programmet? Bli med på et kort, uforpliktende webinar. Vi viser hva trivselslederne gjør,
@@ -77,7 +77,7 @@ export default function Home() {
             <span className="capitalize">{datoLang(nesteWebinar.starter_at)}</span> kl. {klokkeslett(nesteWebinar.starter_at)}
           </p>
         )}
-        <Link to="/webinarer" className="inline-block mt-6 bg-orange text-white px-8 py-3.5 rounded-full text-lg font-semibold hover:bg-orange/90 transition-colors shadow-lg shadow-orange/20">
+        <Link to="/webinarer" className="inline-block mt-6 bg-orange text-gray-900 px-8 py-3.5 rounded-full text-lg font-semibold hover:bg-orange/90 transition-colors shadow-lg shadow-orange/20">
           Meld skolen på
         </Link>
       </div>

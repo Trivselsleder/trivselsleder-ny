@@ -29,7 +29,7 @@ export default function ForSkoler() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {steps.map((step) => (
             <div key={step.number} className="flex gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-orange text-white font-bold flex items-center justify-center text-lg">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-orange text-gray-900 font-bold flex items-center justify-center text-lg">
                 {step.number}
               </div>
               <div>
@@ -46,7 +46,7 @@ export default function ForSkoler() {
         <ul className="space-y-3">
           {included.map((key) => (
             <li key={key} className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-orange-ink flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               <span className="text-gray-700">{t(key)}</span>
@@ -55,13 +55,13 @@ export default function ForSkoler() {
         </ul>
       </section>
 
-      <section className="bg-gradient-to-r from-orange to-petrol rounded-2xl p-8 text-white text-center">
+      <section className="bg-gradient-to-br from-petrol to-[#0b4d54] rounded-2xl p-8 text-white text-center">
         <h2 className="text-2xl font-bold mb-3">{t('forSkoler.ctaTitle')}</h2>
         <p className="mb-6 text-white/90">{t('forSkoler.ctaIngress')}</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/kontakt"
-            className="bg-white text-orange font-semibold px-8 py-3 rounded-full hover:bg-white/90 transition-colors"
+            className="bg-white text-petrol font-semibold px-8 py-3 rounded-full hover:bg-white/90 transition-colors"
           >
             {t('forSkoler.ctaMeld')}
           </Link>

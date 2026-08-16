@@ -322,10 +322,10 @@ export default function AdminTekster() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-orange mb-4">
+      <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-orange-ink mb-4">
         ← Tilbake til admin
       </button>
-      <h1 className="text-3xl font-bold text-orange mb-2">Tekster og maler</h1>
+      <h1 className="text-3xl font-bold text-orange-ink mb-2">Tekster og maler</h1>
       <p className="text-gray-500 mb-6">
         Alt systemet sender ut. Endringer gjelder fra neste utsending — det som alt er sendt, endres ikke.
       </p>
@@ -480,7 +480,7 @@ export default function AdminTekster() {
           <button
             onClick={() => lagre()}
             disabled={endredeNokler.length === 0 || lagrer}
-            className="px-5 py-2 bg-orange text-white rounded-lg hover:opacity-90 disabled:opacity-40"
+            className="px-5 py-2 bg-orange text-gray-900 rounded-lg hover:opacity-90 disabled:opacity-40"
           >
             {lagrer ? 'Lagrer …' : 'Lagre'}
           </button>

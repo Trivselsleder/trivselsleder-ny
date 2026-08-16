@@ -212,7 +212,7 @@ export default function SkolePeriodeplan() {
   if (!plan) return null
 
   const periode = (plan.uker?.length ? `Uke ${plan.uker.join(', ')}` : 'Ingen uker satt') + (plan.aar ? ` · ${plan.aar}` : '')
-  const knapp = 'text-sm border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:border-orange hover:text-orange transition whitespace-nowrap'
+  const knapp = 'text-sm border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:border-orange hover:text-orange-ink transition whitespace-nowrap'
   const dagerVises = visning === 'dag' && valgtDag ? [valgtDag] : plan.dager
 
   return (
@@ -220,14 +220,14 @@ export default function SkolePeriodeplan() {
       {/* Topp-bar */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0">
-          <Link to="/min-side/periodeplaner" className="text-sm text-gray-500 hover:text-orange">← Alle planer</Link>
+          <Link to="/min-side/periodeplaner" className="text-sm text-gray-500 hover:text-orange-ink">← Alle planer</Link>
           {redigerNavn ? (
             <input value={navn} onChange={(e) => setNavn(e.target.value)} onBlur={lagreNavn} autoFocus aria-label="Plannavn"
               onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') { setNavn(plan.navn); setRedigerNavn(false) } }}
               className="block mt-1 text-2xl font-bold text-gray-900 border-b border-gray-300 focus:outline-none focus:border-orange" />
           ) : (
             <button type="button" onClick={() => setRedigerNavn(true)} aria-label="Endre plannavn" title="Klikk for å endre navn"
-              className="block mt-1 text-2xl font-bold text-gray-900 text-left hover:text-orange transition">{plan.navn}</button>
+              className="block mt-1 text-2xl font-bold text-gray-900 text-left hover:text-orange-ink transition">{plan.navn}</button>
           )}
           <div className="flex items-center gap-2 mt-1 flex-wrap text-sm text-gray-500">
             <label className="flex items-center gap-1">
@@ -246,12 +246,12 @@ export default function SkolePeriodeplan() {
           <div className="inline-flex rounded-full border border-gray-200 p-0.5 bg-white">
             {[['uke', 'Uke'], ['dag', 'Dag']].map(([v, l]) => (
               <button key={v} aria-pressed={visning === v} onClick={() => setVisning(v)}
-                className={`text-sm px-4 py-1.5 rounded-full transition ${visning === v ? 'bg-orange text-white font-medium' : 'text-gray-600 hover:text-orange'}`}>{l}</button>
+                className={`text-sm px-4 py-1.5 rounded-full transition ${visning === v ? 'bg-orange text-gray-900 font-medium' : 'text-gray-600 hover:text-orange-ink'}`}>{l}</button>
             ))}
           </div>
           <button onClick={delLenke} className={knapp}>🔗 Del</button>
           <button onClick={aapneSkjerm} className={knapp}>📺 Vis på skjerm</button>
-          <button onClick={() => skrivUtPlan(plan)} className="text-sm bg-orange text-white font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition whitespace-nowrap">🖨 Se arket</button>
+          <button onClick={() => skrivUtPlan(plan)} className="text-sm bg-orange text-gray-900 font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition whitespace-nowrap">🖨 Se arket</button>
           <button onClick={kopier} className={knapp}>Kopier</button>
           <button onClick={arkiver} className="text-sm text-gray-500 hover:text-red-500 px-2" title="Arkiverer planen og trekker tilbake delingslenka">Arkiver</button>
         </div>
@@ -265,15 +265,15 @@ export default function SkolePeriodeplan() {
         <aside className="rounded-2xl border border-gray-200 bg-white p-4 h-max lg:sticky lg:top-24">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-bold uppercase tracking-wide text-gray-500">🎲 Lekbiblioteket</h2>
-            <button onClick={() => setBibliotekApen(false)} className="text-xs text-gray-500 hover:text-orange" title="Skjul biblioteket så du ser hele uka">Skjul ⟨</button>
+            <button onClick={() => setBibliotekApen(false)} className="text-xs text-gray-500 hover:text-orange-ink" title="Skjul biblioteket så du ser hele uka">Skjul ⟨</button>
           </div>
           <input value={sok} onChange={(e) => setSok(e.target.value)}
             placeholder={alleLeker.length ? `Søk blant ${alleLeker.length} leker …` : 'Søk i biblioteket …'} aria-label="Søk i biblioteket"
             className="w-full mt-3 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20" />
 
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wide text-orange">✨ Smarte forslag</span>
-            <button onClick={lastForslag} className="text-xs text-gray-500 hover:text-orange">{forslag ? 'Oppdater' : 'Vis'}</button>
+            <span className="text-xs font-semibold uppercase tracking-wide text-orange-ink">✨ Smarte forslag</span>
+            <button onClick={lastForslag} className="text-xs text-gray-500 hover:text-orange-ink">{forslag ? 'Oppdater' : 'Vis'}</button>
           </div>
           {forslag && (
             forslag.length === 0 ? <p className="text-xs text-gray-500 mt-1">Ingen forslag akkurat nå.</p> : (
@@ -297,7 +297,7 @@ export default function SkolePeriodeplan() {
         {/* Hoved: rutenett */}
         <main className="min-w-0">
           {!bibliotekApen && (
-            <button onClick={() => setBibliotekApen(true)} className="mb-3 text-sm border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:border-orange hover:text-orange transition">
+            <button onClick={() => setBibliotekApen(true)} className="mb-3 text-sm border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:border-orange hover:text-orange-ink transition">
               📚 Vis biblioteket
             </button>
           )}
@@ -305,7 +305,7 @@ export default function SkolePeriodeplan() {
             <div className="flex flex-wrap gap-1.5 mb-3">
               {plan.dager.map((d) => (
                 <button key={d} aria-pressed={valgtDag === d} onClick={() => setValgtDag(d)}
-                  className={`text-sm px-3 py-1.5 rounded-full border transition ${valgtDag === d ? 'bg-orange text-white border-orange' : 'bg-white text-gray-600 border-gray-300 hover:border-orange'}`}>{d}</button>
+                  className={`text-sm px-3 py-1.5 rounded-full border transition ${valgtDag === d ? 'bg-orange text-gray-900 border-orange' : 'bg-white text-gray-600 border-gray-300 hover:border-orange'}`}>{d}</button>
               ))}
             </div>
           )}
@@ -374,10 +374,10 @@ export default function SkolePeriodeplan() {
                 </div>
                 <div className="mt-4 flex gap-2">
                   <input readOnly value={skjermUrl()} aria-label="Skjerm-lenke" className="flex-1 min-w-0 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600" />
-                  <button onClick={kopierSkjerm} className="text-sm border border-gray-300 rounded-full px-4 py-2 hover:border-orange hover:text-orange whitespace-nowrap">Kopier</button>
+                  <button onClick={kopierSkjerm} className="text-sm border border-gray-300 rounded-full px-4 py-2 hover:border-orange hover:text-orange-ink whitespace-nowrap">Kopier</button>
                 </div>
                 <a href={skjermUrl()} target="_blank" rel="noopener noreferrer"
-                  className="mt-3 block text-center text-sm bg-orange text-white font-medium px-4 py-2.5 rounded-full hover:bg-[#e8641c] transition">
+                  className="mt-3 block text-center text-sm bg-orange text-gray-900 font-medium px-4 py-2.5 rounded-full hover:bg-[#e8641c] transition">
                   Åpne skjermvisning ↗
                 </a>
                 <p className="text-xs text-gray-400 mt-3">Elevnavn vises på skjermen. På selve skjermsiden kan du bytte til «Skjul elevnavn» hvis dere ønsker det.</p>
@@ -404,7 +404,7 @@ function LekeRad({ lek, paa, onLegg }) {
         onClick={onLegg}
         title={paa ? 'Allerede på planen — legg til igjen' : 'Legg til i planen'}
         aria-label={`Legg til ${lek.tittel}`}
-        className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-lg leading-none transition ${paa ? 'bg-gray-100 text-gray-500 hover:bg-orange/10 hover:text-orange' : 'bg-orange/10 text-orange hover:bg-orange hover:text-white'}`}
+        className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-lg leading-none transition ${paa ? 'bg-gray-100 text-gray-500 hover:bg-orange/10 hover:text-orange-ink' : 'bg-orange/10 text-orange-ink hover:bg-orange hover:text-white'}`}
       >+</button>
     </div>
   )

@@ -81,7 +81,7 @@ export default function TlListeManager({ onEndret }) {
         <button
           type="button"
           onClick={() => { setImportApen((v) => !v); setResultat(null) }}
-          className="shrink-0 text-xs font-medium text-orange border border-orange/40 rounded-full px-3 py-1.5 hover:bg-orange/5"
+          className="shrink-0 text-xs font-medium text-orange-ink border border-orange/40 rounded-full px-3 py-1.5 hover:bg-orange/5"
           aria-expanded={importApen}
         >
           {importApen ? 'Lukk import' : 'Importer flere ↓'}
@@ -94,7 +94,7 @@ export default function TlListeManager({ onEndret }) {
       <div className="flex flex-wrap gap-2 mt-3">
         <input value={navn} onChange={(e) => setNavn(e.target.value)} placeholder="Navn (f.eks. Katrine)" className={felt} aria-label="Navn" />
         <input value={gruppe} onChange={(e) => setGruppe(e.target.value)} placeholder="Gruppe/klasse (valgfritt)" className={felt} aria-label="Gruppe eller klasse" />
-        <button onClick={leggTil} disabled={!navn.trim()} className="bg-orange text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-orange/90 disabled:opacity-50">
+        <button onClick={leggTil} disabled={!navn.trim()} className="bg-orange text-gray-900 text-sm font-medium px-4 py-1.5 rounded-full hover:bg-orange/90 disabled:opacity-50">
           Legg til
         </button>
       </div>
@@ -118,7 +118,7 @@ export default function TlListeManager({ onEndret }) {
 
           <div className="flex flex-wrap items-center gap-2 mt-2">
             <input ref={filRef} type="file" accept=".csv,.txt,text/csv,text/plain" onChange={velgFil} className="hidden" />
-            <button type="button" onClick={() => filRef.current?.click()} className="text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange bg-white">
+            <button type="button" onClick={() => filRef.current?.click()} className="text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange-ink bg-white">
               Last opp fil …
             </button>
 
@@ -133,7 +133,7 @@ export default function TlListeManager({ onEndret }) {
               type="button"
               onClick={importer}
               disabled={forhaands.antall === 0 || importerer}
-              className="ml-auto bg-orange text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-orange/90 disabled:opacity-50"
+              className="ml-auto bg-orange text-gray-900 text-sm font-medium px-4 py-1.5 rounded-full hover:bg-orange/90 disabled:opacity-50"
             >
               {importerer ? 'Importerer …' : `Importer ${forhaands.antall || ''}`.trim()}
             </button>

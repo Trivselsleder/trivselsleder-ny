@@ -31,21 +31,21 @@ export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, on
       </div>
       <RedigerInput label="Nettverk" value={form.nettverk} onChange={v => felt('nettverk', v)} placeholder="f.eks. Oslo øst" />
 
-      <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide pt-2">Rektor</p>
+      <p className="text-xs font-semibold text-[#B5560F] uppercase tracking-wide pt-2">Rektor</p>
       <div className="grid grid-cols-3 gap-3">
         <RedigerInput label="Navn"    value={form.rektor_navn}    onChange={v => felt('rektor_navn', v)} />
         <RedigerInput label="E-post"  type="email" value={form.rektor_epost}   onChange={v => felt('rektor_epost', v)} />
         <RedigerInput label="Telefon" type="tel"   value={form.rektor_telefon} onChange={v => felt('rektor_telefon', v)} />
       </div>
 
-      <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide pt-2">Hovedkontakt TL</p>
+      <p className="text-xs font-semibold text-[#B5560F] uppercase tracking-wide pt-2">Hovedkontakt TL</p>
       <div className="grid grid-cols-3 gap-3">
         <RedigerInput label="Navn"    value={form.hktl_navn}    onChange={v => felt('hktl_navn', v)} />
         <RedigerInput label="E-post"  type="email" value={form.hktl_epost}   onChange={v => felt('hktl_epost', v)} />
         <RedigerInput label="Telefon" type="tel"   value={form.hktl_telefon} onChange={v => felt('hktl_telefon', v)} />
       </div>
 
-      <p className="text-xs font-semibold text-[#FF7B31] uppercase tracking-wide pt-2">TL-ansvarlig</p>
+      <p className="text-xs font-semibold text-[#B5560F] uppercase tracking-wide pt-2">TL-ansvarlig</p>
       {form.tla_kontakter.map((tla, i) => (
         <div key={i} className="grid grid-cols-3 gap-3 items-end">
           <RedigerInput label="Navn"   value={tla.navn}   onChange={v => settTla(i, 'navn', v)} />
@@ -70,7 +70,7 @@ export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, on
         <button
           type="button"
           onClick={leggTilTla}
-          className="text-xs text-[#FF7B31] hover:text-[#e8641c] font-medium"
+          className="text-xs text-[#B5560F] hover:text-[#8A4109] font-medium"
         >+ Legg til TL-ansvarlig</button>
       )}
 
@@ -82,7 +82,7 @@ export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, on
         <button
           type="submit"
           disabled={lagrer}
-          className="bg-[#FF7B31] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
+          className="bg-[#FF7B31] text-gray-900 text-sm font-medium px-5 py-2 rounded-full hover:bg-[#e8641c] transition-colors disabled:opacity-50"
         >
           {lagrer ? 'Lagrer…' : 'Lagre'}
         </button>

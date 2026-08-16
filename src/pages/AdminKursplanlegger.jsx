@@ -253,7 +253,7 @@ function KursOversikt() {
       <KursMetaOversikt />
       <div className="flex justify-end mb-6">
         <button onClick={() => setNyForm({ ...TOMT_KURS })}
-          className="bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90">
+          className="bg-orange text-gray-900 px-4 py-2 rounded-lg hover:opacity-90">
           + Nytt kurs
         </button>
       </div>
@@ -296,7 +296,7 @@ function KursOversikt() {
             Viser {filtrerteKurs.length} av {kurs.length} kurs
           </span>
           <button onClick={() => eksporterKursCSV(filtrerteKurs)}
-            className="ml-auto bg-orange text-white px-4 py-2 rounded-lg hover:opacity-90 text-sm">
+            className="ml-auto bg-orange text-gray-900 px-4 py-2 rounded-lg hover:opacity-90 text-sm">
             Eksporter til regneark
           </button>
         </div>
@@ -344,9 +344,9 @@ function KursOversikt() {
                   <td className="px-4 py-3">{k.ra || '—'}</td>
                   <td className="px-4 py-3">{k.sesong || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <button onClick={() => setSkoleKurs(k)} className="text-orange hover:underline mr-3">Skoler</button>
-                    <button onClick={() => setSvarKurs(k)} className="text-orange hover:underline mr-3">Se svar</button>
-                    <button onClick={() => setLenkeKurs(k)} className="text-orange hover:underline mr-3">Send lenker</button>
+                    <button onClick={() => setSkoleKurs(k)} className="text-orange-ink hover:underline mr-3">Skoler</button>
+                    <button onClick={() => setSvarKurs(k)} className="text-orange-ink hover:underline mr-3">Se svar</button>
+                    <button onClick={() => setLenkeKurs(k)} className="text-orange-ink hover:underline mr-3">Send lenker</button>
                     <button onClick={() => kopierKurs(k.id)} className="text-blue-600 hover:underline mr-3">Kopier</button>
                     <button onClick={() => setRedigerer(k)} className="text-blue-600 hover:underline mr-3">Rediger</button>
                     <button onClick={() => setBekreftSlett(k)} className="text-red-600 hover:underline">Slett</button>
@@ -610,7 +610,7 @@ function SkoleKobling({ kurs, onLukk }) {
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium text-gray-700">Forslag fra nettverket ({ikkeKoblet.length})</h4>
                 {ikkeKoblet.length > 0 && (
-                  <button onClick={leggTilAlle} className="text-sm bg-orange text-white px-3 py-1 rounded-lg hover:opacity-90">
+                  <button onClick={leggTilAlle} className="text-sm bg-orange text-gray-900 px-3 py-1 rounded-lg hover:opacity-90">
                     + Legg til alle
                   </button>
                 )}
@@ -626,7 +626,7 @@ function SkoleKobling({ kurs, onLukk }) {
                   {ikkeKoblet.map(s => (
                     <li key={s.id} className="flex items-center justify-between px-4 py-2 text-sm">
                       <span>{s.navn} <span className="text-gray-400">{s.kommunenavn || ''}</span></span>
-                      <button onClick={() => leggTil(s)} className="text-orange hover:underline">+ Legg til</button>
+                      <button onClick={() => leggTil(s)} className="text-orange-ink hover:underline">+ Legg til</button>
                     </li>
                   ))}
                 </ul>
@@ -656,7 +656,7 @@ function SkoleKobling({ kurs, onLukk }) {
                         {koblendeIder.has(s.id) ? (
                           <span className="text-gray-400 text-xs">allerede koblet</span>
                         ) : (
-                          <button onClick={() => leggTilUnntak(s)} className="text-orange hover:underline">+ Legg til</button>
+                          <button onClick={() => leggTilUnntak(s)} className="text-orange-ink hover:underline">+ Legg til</button>
                         )}
                       </li>
                     ))}
@@ -882,7 +882,7 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
         <div className="flex justify-end gap-3 mt-6">
           <button onClick={onAvbryt} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Avbryt</button>
           <button onClick={onLagre} disabled={!verdi.dato}
-            className="px-4 py-2 bg-orange text-white rounded-lg hover:opacity-90 disabled:opacity-40">
+            className="px-4 py-2 bg-orange text-gray-900 rounded-lg hover:opacity-90 disabled:opacity-40">
             Lagre
           </button>
         </div>
@@ -903,16 +903,16 @@ export default function AdminKursplanlegger() {
   ]
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
-      <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-orange mb-4">
+      <button onClick={() => navigate('/admin')} className="text-sm text-gray-500 hover:text-orange-ink mb-4">
         ← Tilbake til admin
       </button>
-      <h1 className="text-3xl font-bold text-orange mb-2">Kursplanlegger</h1>
+      <h1 className="text-3xl font-bold text-orange-ink mb-2">Kursplanlegger</h1>
       <p className="text-gray-500 mb-6">Planlegg lekekurs, send invitasjoner og følg opp svar.</p>
       <div className="flex gap-1 border-b border-gray-200 mb-8">
         {faner.map(f => (
           <button key={f.id} onClick={() => setFane(f.id)}
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              fane === f.id ? 'border-orange text-orange' : 'border-transparent text-gray-500 hover:text-gray-800'
+              fane === f.id ? 'border-orange text-orange-ink' : 'border-transparent text-gray-500 hover:text-gray-800'
             }`}>
             {f.navn}
           </button>

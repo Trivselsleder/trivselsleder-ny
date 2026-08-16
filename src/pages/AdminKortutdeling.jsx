@@ -122,7 +122,7 @@ export default function AdminKortutdeling() {
               <span className="px-3 py-1 rounded-lg bg-green-100 text-green-700 text-sm font-medium">
                 {totaltKort} kort totalt (beregnet)
               </span>
-              <span className="px-3 py-1 rounded-lg bg-[#FF7B31]/10 text-[#FF7B31] text-sm font-medium">
+              <span className="px-3 py-1 rounded-lg bg-[#FF7B31]/10 text-[#B5560F] text-sm font-medium">
                 Til fakturering: {totaltFaktureres} kr eks. mva
               </span>
             </div>
@@ -174,7 +174,7 @@ export default function AdminKortutdeling() {
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1.5 justify-end">
-                                <span className={`font-semibold ${erFrosset(r) ? 'text-gray-900' : 'text-[#FF7B31]'}`}>{effektivKort(r)}</span>
+                                <span className={`font-semibold ${erFrosset(r) ? 'text-gray-900' : 'text-[#B5560F]'}`}>{effektivKort(r)}</span>
                                 {erFrosset(r)
                                   ? <span title="Låst tall — endres ikke automatisk." className="text-gray-400">🔒</span>
                                   : <span title="Levende beregning (TL + 10 %). Låses ved midnatt på kursdagen." className="text-gray-300 text-xs">beregnes</span>}

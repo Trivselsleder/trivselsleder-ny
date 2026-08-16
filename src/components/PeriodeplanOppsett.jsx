@@ -49,7 +49,7 @@ export default function PeriodeplanOppsett({ plan, onEndre }) {
               <button
                 key={d}
                 onClick={() => toggleDag(d)}
-                className={`px-2 py-1 rounded-full text-xs border transition ${på ? 'bg-orange text-white border-orange' : 'bg-white text-gray-500 border-gray-300 hover:border-orange'}`}
+                className={`px-2 py-1 rounded-full text-xs border transition ${på ? 'bg-orange text-gray-900 border-orange' : 'bg-white text-gray-500 border-gray-300 hover:border-orange'}`}
               >
                 {d.slice(0, 3)}
               </button>

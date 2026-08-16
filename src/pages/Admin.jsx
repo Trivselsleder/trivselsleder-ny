@@ -84,7 +84,7 @@ export default function Admin() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-orange mb-2">Admin</h1>
+      <h1 className="text-3xl font-bold text-orange-ink mb-2">Admin</h1>
       <p className="text-gray-500 mb-10">Velg hva du vil administrere.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {vanlige.map(side => (
@@ -94,7 +94,7 @@ export default function Admin() {
             className="group block border border-gray-200 rounded-xl p-6 hover:border-orange hover:shadow-md transition-all"
           >
             <div className="text-4xl mb-3">{side.ikon}</div>
-            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-orange transition-colors">
+            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-orange-ink transition-colors">
               {side.tittel}
             </h2>
             <p className="text-sm text-gray-500 mt-1">{side.beskrivelse}</p>
@@ -108,7 +108,7 @@ export default function Admin() {
             className="group block border border-gray-200 rounded-xl p-6 hover:border-orange hover:shadow-md transition-all"
           >
             <div className="text-4xl mb-3">{siste.ikon}</div>
-            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-orange transition-colors">
+            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-orange-ink transition-colors">
               {siste.tittel}
             </h2>
             <p className="text-sm text-gray-500 mt-1">{siste.beskrivelse}</p>

@@ -12,7 +12,7 @@ export default function WebinarKort({ webinar, paameldt = false, onMeldPaa, komp
     <div className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 hover:border-orange/40 transition-colors">
       {/* Dato-blokk (kalenderark) */}
       <div className="shrink-0 w-16 text-center rounded-xl overflow-hidden border border-gray-200">
-        <div className="bg-orange text-white text-[11px] font-bold uppercase py-0.5">{b.maaned}</div>
+        <div className="bg-orange text-gray-900 text-[11px] font-bold uppercase py-0.5">{b.maaned}</div>
         <div className="py-1.5">
           <div className="text-2xl font-extrabold leading-none text-gray-900">{b.dag}</div>
           <div className="text-[11px] text-gray-500 capitalize">{b.ukedag}</div>
@@ -42,7 +42,7 @@ export default function WebinarKort({ webinar, paameldt = false, onMeldPaa, komp
             <button
               type="button"
               onClick={() => onMeldPaa?.(webinar)}
-              className={`text-sm font-semibold px-4 py-1.5 rounded-full text-white ${n.bliMedNaa ? 'bg-petrol hover:bg-petrol/90' : 'bg-orange hover:bg-orange/90'}`}
+              className={`text-sm font-semibold px-4 py-1.5 rounded-full text-gray-900 ${n.bliMedNaa ? 'bg-petrol hover:bg-petrol/90' : 'bg-orange hover:bg-orange/90'}`}
             >
               {n.bliMedNaa ? 'Bli med nå' : 'Meld på'}
             </button>
@@ -50,7 +50,7 @@ export default function WebinarKort({ webinar, paameldt = false, onMeldPaa, komp
           <button
             type="button"
             onClick={() => lastNedIcs(webinar)}
-            className="text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange"
+            className="text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange-ink"
           >
             Legg i kalender
           </button>

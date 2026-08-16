@@ -100,10 +100,10 @@ export default function SkjermPlan() {
           <div className="text-xs lg:text-base text-gray-500 capitalize">{dato}</div>
         </div>
         <div className="flex flex-col gap-1.5 ml-2 shrink-0 print:hidden">
-          <button onClick={byttSkjul} className="text-xs lg:text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange bg-white">
+          <button onClick={byttSkjul} className="text-xs lg:text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange-ink bg-white">
             {skjul ? 'Vis elevnavn' : 'Skjul elevnavn'}
           </button>
-          <button onClick={fullskjerm} className="text-xs lg:text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange bg-white">
+          <button onClick={fullskjerm} className="text-xs lg:text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange-ink bg-white">
             {erFull ? 'Avslutt fullskjerm' : 'Fullskjerm'}
           </button>
         </div>

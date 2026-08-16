@@ -41,7 +41,7 @@ export default function DeltPeriodeplan() {
           <h1 className="text-2xl font-bold text-gray-900">{plan.navn}</h1>
           <p className="text-sm text-gray-400">Delt periodeplan · skrivebeskyttet</p>
         </div>
-        <button onClick={() => skrivUtPlan(plan)} className="text-sm bg-orange text-white px-4 py-2 rounded-full hover:bg-orange/90">
+        <button onClick={() => skrivUtPlan(plan)} className="text-sm bg-orange text-gray-900 px-4 py-2 rounded-full hover:bg-orange/90">
           Skriv ut / PDF
         </button>
       </div>

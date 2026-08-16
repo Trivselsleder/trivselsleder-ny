@@ -2,12 +2,12 @@ export default function Hero() {
   return (
     <section className="bg-gradient-to-br from-orange/10 via-white to-petrol/10 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center">
-        <span className="inline-block bg-orange/10 text-orange font-semibold text-sm px-4 py-1.5 rounded-full mb-6">
+        <span className="inline-block bg-orange/10 text-orange-ink font-semibold text-sm px-4 py-1.5 rounded-full mb-6">
           For barneskolen
         </span>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
           Gode friminutt for{' '}
-          <span className="text-orange">alle barn</span>
+          <span className="text-orange-ink">alle barn</span>
         </h1>
         <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
           Trivselsleder gir elever verktøy og kunnskap til å skape inkluderende og aktive friminutt — for alle, hver dag.
@@ -15,13 +15,13 @@ export default function Hero() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
             href="#for-skoler"
-            className="bg-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange/90 transition-colors shadow-lg shadow-orange/20"
+            className="bg-orange text-gray-900 px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange/90 transition-colors shadow-lg shadow-orange/20"
           >
             For skoler
           </a>
           <a
             href="#om-oss"
-            className="bg-white text-gray-800 border-2 border-gray-200 px-8 py-4 rounded-full text-lg font-semibold hover:border-orange hover:text-orange transition-colors"
+            className="bg-white text-gray-800 border-2 border-gray-200 px-8 py-4 rounded-full text-lg font-semibold hover:border-orange hover:text-orange-ink transition-colors"
           >
             Les mer
           </a>

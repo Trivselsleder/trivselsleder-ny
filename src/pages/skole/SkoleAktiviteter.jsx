@@ -106,7 +106,7 @@ export default function SkoleAktiviteter() {
   const selCls = 'text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-orange'
   const chip = (aktiv) =>
     `text-sm rounded-full px-3 py-1.5 border transition-colors cursor-pointer ${
-      aktiv ? 'bg-orange text-white border-orange' : 'bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange'
+      aktiv ? 'bg-orange text-gray-900 border-orange' : 'bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange-ink'
     }`
   // Merkelapper som ennå ikke har eget filter-felt (kobles ved innholdsimport).
   const chipKommer = 'text-sm rounded-full px-3 py-1.5 border border-dashed border-gray-200 text-gray-400 bg-gray-50 cursor-default'
@@ -154,13 +154,13 @@ export default function SkoleAktiviteter() {
         </label>
         <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
           <input type="checkbox" checked={kunVideo} onChange={(e) => setKunVideo(e.target.checked)} />
-          <span className="text-orange" aria-hidden="true">▶</span> Med video
+          <span className="text-orange-ink" aria-hidden="true">▶</span> Med video
         </label>
         <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
           <input type="checkbox" checked={kunFav} onChange={(e) => setKunFav(e.target.checked)} />
           <span className="text-tlred" aria-hidden="true">♥</span> Kun favoritter
         </label>
-        <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange px-2">Nullstill</button>
+        <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange-ink px-2">Nullstill</button>
       </div>
 
       {/* Bla i kategorier — hele taksonomien synlig, gruppert, klikkbar. Lukket som standard. */}
