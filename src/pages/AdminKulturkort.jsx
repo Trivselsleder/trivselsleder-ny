@@ -145,8 +145,8 @@ export default function AdminKulturkort() {
               onClick={() => setFilterKategori(val)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 filterKategori === val
-                  ? 'bg-[#D6006E] text-white'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-[#D6006E]'
+                  ? 'bg-[#106C75] text-white'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-[#106C75]'
               }`}
             >
               {label}
@@ -231,7 +231,7 @@ export default function AdminKulturkort() {
                       </td>
                       <td className="px-4 py-3 text-xs max-w-36">
                         {partner.nettside
-                          ? <a href={partner.nettside} target="_blank" rel="noopener noreferrer" className="text-[#D6006E] hover:underline truncate block" title={partner.nettside}>{t('admin.besok')}</a>
+                          ? <a href={partner.nettside} target="_blank" rel="noopener noreferrer" className="text-[#106C75] hover:underline truncate block" title={partner.nettside}>{t('admin.besok')}</a>
                           : <span className="text-gray-300">—</span>
                         }
                       </td>
@@ -412,7 +412,7 @@ function PartnerModal({ tittel, initial, onLagre, onAvbryt, erNy, lagreLabel, av
             <button
               type="submit"
               disabled={lagrer}
-              className="flex-1 bg-gradient-to-r from-[#FF7B31] to-[#D6006E] text-white font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="flex-1 bg-gradient-to-r from-[#FF7B31] to-[#106C75] text-white font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {lagrer ? 'Lagrer…' : lagreLabel}
             </button>
@@ -430,7 +430,7 @@ function Field({ label, name, value, onChange, type = 'text', required, placehol
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-[#D6006E]">*</span>}
+        {label} {required && <span className="text-[#106C75]">*</span>}
       </label>
       <input
         type={type}

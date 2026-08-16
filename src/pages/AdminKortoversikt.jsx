@@ -218,8 +218,8 @@ export default function AdminKortoversikt() {
                                     if (e.key === 'Enter') lagreKortAntall(r.kursSkoleId, parseInt(utkast, 10))
                                     if (e.key === 'Escape') setRedigerId(null)
                                   }}
-                                  className="w-16 border border-[#D6006E] rounded-lg px-2 py-1 text-right text-sm focus:outline-none" />
-                                <button onClick={() => lagreKortAntall(r.kursSkoleId, parseInt(utkast, 10))} className="text-xs text-[#D6006E] hover:underline">Lagre</button>
+                                  className="w-16 border border-[#106C75] rounded-lg px-2 py-1 text-right text-sm focus:outline-none" />
+                                <button onClick={() => lagreKortAntall(r.kursSkoleId, parseInt(utkast, 10))} className="text-xs text-[#106C75] hover:underline">Lagre</button>
                                 <button onClick={() => setRedigerId(null)} className="text-xs text-gray-400 hover:underline">Avbryt</button>
                               </span>
                             ) : (
@@ -228,7 +228,7 @@ export default function AdminKortoversikt() {
                                 {r.frosset
                                   ? <span title="Låst tall — endres ikke automatisk." className="text-gray-400">🔒</span>
                                   : <span title="Levende beregning (TL + 10 %). Låses ved midnatt på kursdagen." className="text-gray-300 text-xs">beregnes</span>}
-                                <button onClick={() => startRediger(r)} className="text-xs text-gray-400 hover:text-[#D6006E] hover:underline">endre</button>
+                                <button onClick={() => startRediger(r)} className="text-xs text-gray-400 hover:text-[#106C75] hover:underline">endre</button>
                                 {r.frosset && (
                                   <button onClick={() => lagreKortAntall(r.kursSkoleId, null)} title="Tilbakestill til levende beregning" className="text-xs text-gray-300 hover:text-gray-500 hover:underline">↺</button>
                                 )}
@@ -243,7 +243,7 @@ export default function AdminKortoversikt() {
                         <td className="px-4 py-3">
                           {r.kilde === 'Kurs' ? (
                             <select value={r.status} onChange={e => settKursStatus(r.kursSkoleId, e.target.value)}
-                              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-[#D6006E] focus:outline-none">
+                              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-[#106C75] focus:outline-none">
                               {KURS_STATUS.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
                           ) : (

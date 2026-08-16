@@ -45,7 +45,7 @@ function fyllPlassholdere(mal, verdier) {
 // Trengs fordi {kursinfolenke} skrives inn som ren adresse i malteksten.
 function lenkeggjor(escapet) {
   return escapet.replace(/https?:\/\/[^\s<)"]+/g, (url) =>
-    `<a href="${url}" style="color:#D6006E;">${url}</a>`)
+    `<a href="${url}" style="color:#106C75;">${url}</a>`)
 }
 
 // Ren tekst → HTML: tom linje = nytt avsnitt, enkel linjeskift = <br>.

@@ -97,7 +97,7 @@ export default function KulturkortBestill() {
           {/* Skolenavn */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('bestill.skolenavnLabel')} <span className="text-[#D6006E]">*</span>
+              {t('bestill.skolenavnLabel')} <span className="text-[#106C75]">*</span>
             </label>
             <input
               name="skolenavn"
@@ -113,7 +113,7 @@ export default function KulturkortBestill() {
           {/* Antall + prisutregning */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('bestill.antallLabel')} <span className="text-[#D6006E]">*</span>
+              {t('bestill.antallLabel')} <span className="text-[#106C75]">*</span>
             </label>
             <input
               name="antallKort"
@@ -149,7 +149,7 @@ export default function KulturkortBestill() {
           {/* Kontaktperson */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('bestill.kontaktpersonLabel')} <span className="text-[#D6006E]">*</span>
+              {t('bestill.kontaktpersonLabel')} <span className="text-[#106C75]">*</span>
             </label>
             <input
               name="kontaktperson"
@@ -165,7 +165,7 @@ export default function KulturkortBestill() {
           {/* E-post */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('bestill.epostLabel')} <span className="text-[#D6006E]">*</span>
+              {t('bestill.epostLabel')} <span className="text-[#106C75]">*</span>
             </label>
             <input
               name="epost"
@@ -181,7 +181,7 @@ export default function KulturkortBestill() {
           {/* Leveringsadresse */}
           <fieldset className="space-y-3">
             <legend className="text-sm font-semibold text-gray-700">
-              {t('bestill.adresseTitle')} <span className="text-[#D6006E]">*</span>
+              {t('bestill.adresseTitle')} <span className="text-[#106C75]">*</span>
             </legend>
             <input
               name="gate"
@@ -236,7 +236,7 @@ export default function KulturkortBestill() {
 
           {/* Prissammendrag */}
           {pris && (
-            <div className="rounded-xl bg-gradient-to-r from-[#FF7B31]/10 to-[#D6006E]/10 border border-[#FF7B31]/20 px-4 py-4 space-y-1.5 text-sm">
+            <div className="rounded-xl bg-gradient-to-r from-[#FF7B31]/10 to-[#106C75]/10 border border-[#FF7B31]/20 px-4 py-4 space-y-1.5 text-sm">
               <div className="flex justify-between text-gray-600">
                 <span>{t('bestill.prisKort', { antall: form.antallKort })}</span>
                 <span>{pris.kortpris} kr</span>
@@ -262,7 +262,7 @@ export default function KulturkortBestill() {
           <button
             type="submit"
             disabled={sender}
-            className="w-full bg-gradient-to-r from-[#FF7B31] to-[#D6006E] text-white font-bold py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60 text-base"
+            className="w-full bg-gradient-to-r from-[#FF7B31] to-[#106C75] text-white font-bold py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60 text-base"
           >
             {sender ? t('bestill.senderKnapp') : t('bestill.sendKnapp')}
           </button>

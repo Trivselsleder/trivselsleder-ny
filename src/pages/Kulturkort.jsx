@@ -90,7 +90,7 @@ export default function Kulturkort() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#FF7B31] to-[#D6006E] text-white py-16 px-4">
+      <div className="bg-gradient-to-br from-[#FF7B31] to-[#106C75] text-white py-16 px-4">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('kulturkort.title')}</h1>
           <p className="text-xl md:text-2xl opacity-90 mb-2">
@@ -99,7 +99,7 @@ export default function Kulturkort() {
           <p className="opacity-80 text-lg">{t('kulturkort.underingress')}</p>
           <Link
             to="/kulturkortet/bestill"
-            className="inline-block mt-8 bg-white text-[#D6006E] font-bold px-8 py-3 rounded-full hover:bg-gray-100 transition-colors text-lg shadow-lg"
+            className="inline-block mt-8 bg-white text-[#106C75] font-bold px-8 py-3 rounded-full hover:bg-gray-100 transition-colors text-lg shadow-lg"
           >
             {t('kulturkort.bestillKnapp')}
           </Link>
@@ -185,7 +185,7 @@ export default function Kulturkort() {
                         href={partner.nettside}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block mt-2 text-xs text-[#D6006E] hover:underline font-medium"
+                        className="inline-block mt-2 text-xs text-[#106C75] hover:underline font-medium"
                       >
                         {t('kulturkort.besokNettside')}
                       </a>

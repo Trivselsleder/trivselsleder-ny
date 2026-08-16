@@ -240,8 +240,8 @@ export default function AdminBrukere() {
               onClick={() => setFilterRolle(key)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 filterRolle === key
-                  ? 'bg-[#D6006E] text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-[#D6006E] hover:text-[#D6006E]'
+                  ? 'bg-[#106C75] text-white'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:border-[#106C75] hover:text-[#106C75]'
               }`}
             >
               {label} <span className="opacity-70">({count})</span>

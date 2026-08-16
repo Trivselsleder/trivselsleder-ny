@@ -25,7 +25,7 @@ function seksjon(tittel, rader) {
   const innhold = rader.join('')
   if (!innhold) return ''
   return `
-  <h3 style="font-size:13px;font-weight:700;color:#F47920;text-transform:uppercase;letter-spacing:.5px;margin:24px 0 4px;">${tittel}</h3>
+  <h3 style="font-size:13px;font-weight:700;color:#FF7B31;text-transform:uppercase;letter-spacing:.5px;margin:24px 0 4px;">${tittel}</h3>
   <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
     ${innhold}
   </table>`
@@ -37,7 +37,7 @@ function epostHtml(d) {
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f9fafb;font-family:'Segoe UI',sans-serif;">
 <div style="max-width:640px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);">
-  <div style="background:#F47920;padding:24px 32px;">
+  <div style="background:#FF7B31;padding:24px 32px;">
     <span style="color:#fff;font-size:20px;font-weight:700;">Trivselsleder</span>
   </div>
   <div style="padding:32px;">

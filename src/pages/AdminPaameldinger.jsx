@@ -215,7 +215,7 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
           <div className="flex items-center justify-between gap-2 pt-1">
             <button
               onClick={apneUnntak}
-              className="text-xs text-gray-500 hover:text-[#D6006E] underline"
+              className="text-xs text-gray-500 hover:text-[#106C75] underline"
             >
               Koble direkte til kurs i stedet (unntak)
             </button>
@@ -255,13 +255,13 @@ function NettverkOgKursBlokk({ skole, nettverksforslag }) {
           <div className="flex items-center justify-between gap-2 pt-1">
             <button
               onClick={() => setVisUnntak(false)}
-              className="text-xs text-gray-500 hover:text-[#D6006E] underline"
+              className="text-xs text-gray-500 hover:text-[#106C75] underline"
             >
               Tilbake til nettverksforslag
             </button>
             <button
               onClick={koblTilKurs}
-              className="bg-[#D6006E] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#b30059] transition-colors"
+              className="bg-[#106C75] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#0b4d54] transition-colors"
             >
               Koble til kurs
             </button>
@@ -575,8 +575,8 @@ export default function AdminPaameldinger() {
               onClick={() => setFilter(key)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 filter === key
-                  ? 'bg-[#D6006E] text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-[#D6006E] hover:text-[#D6006E]'
+                  ? 'bg-[#106C75] text-white'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:border-[#106C75] hover:text-[#106C75]'
               }`}
             >
               {label} <span className="opacity-70">({count})</span>

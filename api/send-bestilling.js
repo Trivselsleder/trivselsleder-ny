@@ -16,8 +16,8 @@ function internEpost({ skolenavn, antallKort, kontaktperson, epost, leveringsadr
 <html lang="no">
 <head><meta charset="UTF-8"><title>Ny Kulturkort-bestilling</title></head>
 <body style="font-family:sans-serif;color:#1a1a1a;max-width:600px;margin:0 auto;padding:24px;">
-  <div style="border-left:4px solid #F47920;padding-left:16px;margin-bottom:24px;">
-    <h1 style="margin:0;font-size:22px;color:#F47920;">Ny Kulturkort-bestilling</h1>
+  <div style="border-left:4px solid #FF7B31;padding-left:16px;margin-bottom:24px;">
+    <h1 style="margin:0;font-size:22px;color:#FF7B31;">Ny Kulturkort-bestilling</h1>
     <p style="margin:4px 0 0;color:#666;">Fra ${escapeHtml(skolenavn)}</p>
   </div>
 
@@ -36,7 +36,7 @@ function internEpost({ skolenavn, antallKort, kontaktperson, epost, leveringsadr
     </tr>
     <tr>
       <td style="padding:10px 12px;font-weight:600;">E-post</td>
-      <td style="padding:10px 12px;"><a href="mailto:${escapeHtml(epost)}" style="color:#F47920;">${escapeHtml(epost)}</a></td>
+      <td style="padding:10px 12px;"><a href="mailto:${escapeHtml(epost)}" style="color:#FF7B31;">${escapeHtml(epost)}</a></td>
     </tr>
     <tr style="background:#f9f9f9;">
       <td style="padding:10px 12px;font-weight:600;">Leveringsadresse</td>
@@ -45,7 +45,7 @@ function internEpost({ skolenavn, antallKort, kontaktperson, epost, leveringsadr
   </table>
 
   <div style="margin-top:24px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
-    <div style="background:#F47920;color:#fff;padding:10px 16px;font-weight:700;font-size:14px;">Prissammendrag</div>
+    <div style="background:#FF7B31;color:#fff;padding:10px 16px;font-weight:700;font-size:14px;">Prissammendrag</div>
     <table style="width:100%;border-collapse:collapse;font-size:15px;">
       <tr>
         <td style="padding:10px 16px;">Kortpris (${escapeHtml(antallKort)} stk × 40 kr)</td>
@@ -55,9 +55,9 @@ function internEpost({ skolenavn, antallKort, kontaktperson, epost, leveringsadr
         <td style="padding:10px 16px;">Porto</td>
         <td style="padding:10px 16px;text-align:right;">${escapeHtml(String(porto))} kr</td>
       </tr>
-      <tr style="border-top:2px solid #F47920;">
+      <tr style="border-top:2px solid #FF7B31;">
         <td style="padding:12px 16px;font-weight:700;">Totalpris (eks. mva)</td>
-        <td style="padding:12px 16px;text-align:right;font-weight:700;color:#F47920;font-size:17px;">${escapeHtml(String(total))} kr</td>
+        <td style="padding:12px 16px;text-align:right;font-weight:700;color:#FF7B31;font-size:17px;">${escapeHtml(String(total))} kr</td>
       </tr>
     </table>
   </div>
@@ -81,7 +81,7 @@ function kundeBekreftelse({ kontaktperson, skolenavn, antallKort, leveringsadres
   </div>
 
   <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:24px;">
-    <div style="background:linear-gradient(135deg,#F47920,#D6006E);color:#fff;padding:14px 20px;">
+    <div style="background:linear-gradient(135deg,#FF7B31,#106C75);color:#fff;padding:14px 20px;">
       <strong style="font-size:16px;">Ordresammendrag</strong>
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:15px;">
@@ -105,16 +105,16 @@ function kundeBekreftelse({ kontaktperson, skolenavn, antallKort, leveringsadres
         <td style="padding:10px 16px;">Porto</td>
         <td style="padding:10px 16px;">${escapeHtml(String(porto))} kr</td>
       </tr>
-      <tr style="border-top:2px solid #F47920;">
+      <tr style="border-top:2px solid #FF7B31;">
         <td style="padding:12px 16px;font-weight:700;">Totalpris (eks. mva)</td>
-        <td style="padding:12px 16px;font-weight:700;color:#F47920;font-size:17px;">${escapeHtml(String(total))} kr</td>
+        <td style="padding:12px 16px;font-weight:700;color:#FF7B31;font-size:17px;">${escapeHtml(String(total))} kr</td>
       </tr>
     </table>
   </div>
 
   <p style="margin-top:24px;font-size:14px;color:#666;">
     Spørsmål? Ta kontakt på
-    <a href="mailto:kulturkort@trivselsleder.no" style="color:#F47920;">kulturkort@trivselsleder.no</a>
+    <a href="mailto:kulturkort@trivselsleder.no" style="color:#FF7B31;">kulturkort@trivselsleder.no</a>
   </p>
 
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
