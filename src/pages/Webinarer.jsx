@@ -76,7 +76,7 @@ export default function Webinarer() {
         <h2 className="text-xl font-bold text-gray-900 mb-4">Kommende datoer</h2>
         {feil && <p className="text-sm text-red-600 mb-3">Klarte ikke å hente webinarer akkurat nå.</p>}
         {liste === null ? (
-          <p className="text-gray-400">Laster …</p>
+          <p className="text-gray-500">Laster …</p>
         ) : liste.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center">
             <p className="text-gray-600">Ingen åpne datoer akkurat nå.</p>

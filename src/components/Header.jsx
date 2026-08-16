@@ -49,7 +49,7 @@ export default function Header() {
             </Link>
             {session && skoleNavn && (
               <Link to="/min-side" title="Til Min side" className="hidden sm:flex items-center gap-3 min-w-0">
-                <span className="text-gray-300" aria-hidden>|</span>
+                <span className="text-gray-400" aria-hidden>|</span>
                 <span className="text-gray-700 font-semibold truncate hover:text-orange-ink transition-colors">{skoleNavn}</span>
               </Link>
             )}
