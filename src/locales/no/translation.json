@@ -203,5 +203,11 @@
     "feltNettside": "Nettside (URL)",
     "feltBeskrivelse": "Beskrivelse",
     "feltKategori": "Kategori"
+  },
+  "ikkeFunnet": {
+    "tittel": "Siden finnes ikke",
+    "ingress": "Vi fant ingen side på denne adressen. Den kan ha flyttet, eller lenken kan være feilskrevet.",
+    "adresse": "Adresse",
+    "tilForsiden": "Gå til forsiden"
   }
 }

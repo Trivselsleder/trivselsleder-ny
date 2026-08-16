@@ -50,6 +50,7 @@ import SkoleDriftAvTL from './pages/skole/SkoleDriftAvTL'
 import SkoleWebinarer from './pages/skole/SkoleWebinarer'
 import Webinarer from './pages/Webinarer'
 import AdminWebinarer from './pages/AdminWebinarer'
+import IkkeFunnet from './pages/IkkeFunnet'
 import './index.css'
 
 export default function App() {
@@ -67,6 +68,9 @@ export default function App() {
               <Route path="/webinarer" element={<Webinarer />} />
               <Route path="/kulturkortet" element={<Kulturkort />} />
               <Route path="/kulturkortet/bestill" element={<KulturkortBestill />} />
+              {/* Gamle/forkortede adresser -> riktig rute */}
+              <Route path="/kulturkort" element={<Navigate to="/kulturkortet" replace />} />
+              <Route path="/kulturkort/bestill" element={<Navigate to="/kulturkortet/bestill" replace />} />
               <Route path="/logg-inn" element={<LoggInn />} />
               <Route path="/sett-passord" element={<SettPassord />} />
               <Route path="/auth/feide/callback" element={<FeideCallback />} />
@@ -165,6 +169,8 @@ export default function App() {
               <Route path="/admin/kortoversikt" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortoversikt /></ProtectedRoute>} />
               <Route path="/admin/oppfolging" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminOppfolging /></ProtectedRoute>} />
               <Route path="/admin/evalueringer" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminEvaluering /></ProtectedRoute>} />
+              {/* Fang-alt: ukjent adresse gir 404-side, ikke tom side */}
+              <Route path="*" element={<IkkeFunnet />} />
             </Routes>
           </main>
           <KanskjeFooter />

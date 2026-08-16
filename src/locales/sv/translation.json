@@ -203,5 +203,11 @@
     "feltNettside": "Webbplats (URL)",
     "feltBeskrivelse": "Beskrivning",
     "feltKategori": "Kategori"
+  },
+  "ikkeFunnet": {
+    "tittel": "Sidan finns inte",
+    "ingress": "Vi hittade ingen sida på den här adressen. Den kan ha flyttats, eller så är länken felstavad.",
+    "adresse": "Adress",
+    "tilForsiden": "Gå till startsidan"
   }
 }

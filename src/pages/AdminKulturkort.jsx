@@ -412,7 +412,7 @@ function PartnerModal({ tittel, initial, onLagre, onAvbryt, erNy, lagreLabel, av
             <button
               type="submit"
               disabled={lagrer}
-              className="flex-1 bg-gradient-to-r from-[#FF7B31] to-[#106C75] text-white font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="flex-1 bg-[#FF7B31] text-white font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {lagrer ? 'Lagrer…' : lagreLabel}
             </button>

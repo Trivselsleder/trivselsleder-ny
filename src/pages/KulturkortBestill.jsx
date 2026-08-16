@@ -262,7 +262,7 @@ export default function KulturkortBestill() {
           <button
             type="submit"
             disabled={sender}
-            className="w-full bg-gradient-to-r from-[#FF7B31] to-[#106C75] text-white font-bold py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60 text-base"
+            className="w-full bg-[#FF7B31] text-white font-bold py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60 text-base"
           >
             {sender ? t('bestill.senderKnapp') : t('bestill.sendKnapp')}
           </button>

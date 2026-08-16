@@ -90,7 +90,7 @@ export default function Kulturkort() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#FF7B31] to-[#106C75] text-white py-16 px-4">
+      <div className="bg-[#FF7B31] text-white py-16 px-4">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('kulturkort.title')}</h1>
           <p className="text-xl md:text-2xl opacity-90 mb-2">
