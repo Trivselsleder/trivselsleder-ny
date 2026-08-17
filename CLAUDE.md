@@ -112,3 +112,12 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
 - Ingenting erklæres ferdig uten bevis — helst en ekte e-post eller et skjermbilde.
 - STATUS.md = hvor vi er akkurat nå. RETTELISTE.md = alle funn med kilde og bevisstatus.
   Begge holdes utenfor git-commits.
+
+## FAST REGEL: dokumenter fra chat til prosjektkunnskapen (fra 17. aug 2026)
+- Notater, planer og analyser Claude lager i en prosjektchat leveres ALLTID som
+  fil direkte i chatten (filkort), med filnavn claude_NAVN.md. Kjartan legger
+  dem til i prosjektet med ett klikk på filkortet. Det er HELE flyten.
+- ALDRI be Kjartan om cat-blokker, git-kommandoer, mapper eller manuell
+  opplasting for å få dokumenter inn i prosjektkunnskapen. ALDRI introduser
+  nye metoder. Er Claude usikker: lag filen i chatten, ferdig.
+- Terminal/git brukes KUN til kode og migrasjoner — ikke til chatnotater.
