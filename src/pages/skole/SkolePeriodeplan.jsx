@@ -13,6 +13,8 @@ import PeriodeplanRutenett from '../../components/PeriodeplanRutenett'
 import PeriodeplanOppsett from '../../components/PeriodeplanOppsett'
 import GenererAar from '../../components/GenererAar'
 import TlListeManager from '../../components/TlListeManager'
+import NaboskoleVelger from '../../components/NaboskoleVelger'
+import { hentMinSkole } from '../../lib/skole'
 
 export default function SkolePeriodeplan() {
   const { id } = useParams()
@@ -35,6 +37,9 @@ export default function SkolePeriodeplan() {
   const [melding, setMelding] = useState(null)
   const [skjermAapen, setSkjermAapen] = useState(false)
   const [qrSrc, setQrSrc] = useState('')
+  const [delNaboApen, setDelNaboApen] = useState(false)
+  const [minSkoleId, setMinSkoleId] = useState(null)
+  const [valgtNabo, setValgtNabo] = useState(null) // { id, navn, kommune, ... } | null
   const [bibliotekApen, setBibliotekApen] = useState(true)
   const meldingTimer = useRef(null)
 
@@ -51,6 +56,7 @@ export default function SkolePeriodeplan() {
 
   useEffect(() => { hentDeltakere().then(setDeltakere).catch(() => {}) }, [])
   useEffect(() => { hentLeker().then(setAlleLeker).catch(() => {}) }, [])
+  useEffect(() => { hentMinSkole().then(setMinSkoleId).catch(() => {}) }, [])
   useEffect(() => () => { if (meldingTimer.current) clearTimeout(meldingTimer.current) }, [])
 
   // Hold valgt dag gyldig mot planens dager (også etter kopier/endret oppsett).
@@ -200,6 +206,19 @@ export default function SkolePeriodeplan() {
     const url = skjermUrl(); if (!url) return
     try { await navigator.clipboard.writeText(url); visMelding('Skjerm-lenke kopiert.') } catch { visMelding(url) }
   }
+  async function delMedNabo() {
+    let t
+    try { t = await sikreDelingstoken() } catch (e) { visMelding('Kunne ikke lage lenke: ' + e.message); return }
+    const url = `${window.location.origin}/plan/${t}`
+    const navn = valgtNabo?.navn
+    try {
+      await navigator.clipboard.writeText(url)
+      visMelding(navn
+        ? `Delingslenke kopiert. Send den til ${navn}, så kan de åpne planen (skrivebeskyttet).`
+        : 'Delingslenke kopiert. Alle med lenken kan se planen (skrivebeskyttet).')
+    } catch { visMelding(url) }
+    setDelNaboApen(false)
+  }
 
   const paaPlan = useMemo(() => new Set((plan?.rader || []).map((r) => r.ressursId).filter(Boolean)), [plan])
   const bibliotek = useMemo(() => {
@@ -250,6 +269,7 @@ export default function SkolePeriodeplan() {
             ))}
           </div>
           <button onClick={delLenke} className={knapp}>🔗 Del</button>
+          <button onClick={() => setDelNaboApen(true)} className={knapp}>🤝 Del med naboskole</button>
           <button onClick={aapneSkjerm} className={knapp}>📺 Vis på skjerm</button>
           <button onClick={() => skrivUtPlan(plan)} className="text-sm bg-orange text-gray-900 font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition whitespace-nowrap">🖨 Se arket</button>
           <button onClick={kopier} className={knapp}>Kopier</button>
@@ -385,6 +405,33 @@ export default function SkolePeriodeplan() {
             ) : (
               <p className="text-sm text-gray-600 mt-3">Planen mangler en delingslenke ennå. Trykk «🔗 Del» én gang først, så blir skjerm-lenken tilgjengelig.</p>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Del med naboskole-modal */}
+      {delNaboApen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" role="dialog" aria-modal="true" aria-label="Del med naboskole"
+          tabIndex={-1} onKeyDown={(e) => { if (e.key === 'Escape') setDelNaboApen(false) }} onClick={() => setDelNaboApen(false)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">🤝 Del med naboskole</h2>
+              <button onClick={() => setDelNaboApen(false)} autoFocus aria-label="Lukk" className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
+            </div>
+            <p className="text-sm text-gray-600 mt-2">Velg en naboskole, så lager vi en delingslenke du kan sende dem. De kan åpne planen skrivebeskyttet — de får ikke endre den.</p>
+            <div className="mt-4">
+              <NaboskoleVelger
+                verdi={valgtNabo?.id}
+                ekskluderId={minSkoleId}
+                onVelg={(id, skole) => setValgtNabo(skole)}
+              />
+            </div>
+            <button
+              onClick={delMedNabo}
+              className="mt-5 block w-full text-center text-sm bg-orange text-gray-900 font-medium px-4 py-2.5 rounded-full hover:bg-[#e8641c] transition">
+              Lag og kopier delingslenke{valgtNabo?.navn ? ` til ${valgtNabo.navn}` : ''}
+            </button>
+            <p className="text-xs text-gray-400 mt-3">Lenka er den samme uansett hvem du deler med. Du kan sende den til flere naboskoler.</p>
           </div>
         </div>
       )}

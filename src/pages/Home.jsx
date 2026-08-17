@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { hentOffentligeWebinarer, datoLang, klokkeslett } from '../lib/webinar'
+import SkoleOversikt from '../components/SkoleOversikt'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -82,6 +83,9 @@ export default function Home() {
         </Link>
       </div>
     </section>
+
+    {/* Offentlig skoleoversikt — aktive medlemsskoler (ingen PII) */}
+    <SkoleOversikt />
     </>
   )
 }
