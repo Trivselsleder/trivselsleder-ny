@@ -66,8 +66,15 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Kontoen er deaktivert.' })
   }
 
-  const { epost, navn, rolle, skoleId } = req.body
+  const { epost, navn, rolle, skoleId, stilling, tl_rolle } = req.body
   if (!epost || !navn || !rolle) return res.status(400).json({ error: 'Mangler påkrevde felt.' })
+
+  // Valgfrie beskrivende felt: stilling ved skolen + rolle i TL-programmet.
+  // Ukjente/tomme verdier normaliseres til null (aldri stol på klienten).
+  const STILLINGER = ['rektor', 'inspektor', 'styrer', 'ansatt']
+  const TL_ROLLER = ['htla', 'tla']
+  const stillingVerdi = STILLINGER.includes(stilling) ? stilling : null
+  const tlRolleVerdi = TL_ROLLER.includes(tl_rolle) ? tl_rolle : null
 
   // Skoleadmin kan kun invitere til sin egen skole, og kun skolerolle
   if (callerRolle === 'skoleadmin') {
@@ -82,6 +89,19 @@ export default async function handler(req, res) {
       .eq('skole_id', skoleId)
       .maybeSingle()
     if (!tilgang) return res.status(403).json({ error: 'Du har ikke tilgang til denne skolen.' })
+  }
+
+  // Én HTLA per skole: sjekk FØR vi oppretter konto, så vi ikke lager en halv bruker
+  // hvis plassen er tatt. (Databasen håndhever det uansett via unik indeks — dette
+  // gir bare en vennlig melding i stedet for en rå 500.)
+  if (tlRolleVerdi === 'htla' && skoleId) {
+    const { data: htlaFinnes } = await supabase
+      .from('bruker_skole')
+      .select('bruker_id')
+      .eq('skole_id', skoleId)
+      .eq('tl_rolle', 'htla')
+      .maybeSingle()
+    if (htlaFinnes) return res.status(409).json({ error: 'Skolen har allerede en HTLA. Endre den eksisterende først.' })
   }
 
   // Kun kjente adresser godtas — se trygtOrigin i api/_vakt.js.
@@ -108,9 +128,18 @@ export default async function handler(req, res) {
   let skolenavn = null
   if (skoleId) {
     const skoleRolle = ['skoleadmin', 'skoleansatt'].includes(rolle) ? rolle : 'skoleansatt'
-    await supabase
+    const { error: bsFeil } = await supabase
       .from('bruker_skole')
-      .upsert({ bruker_id: userId, skole_id: skoleId, rolle: skoleRolle }, { onConflict: 'bruker_id,skole_id' })
+      .upsert(
+        { bruker_id: userId, skole_id: skoleId, rolle: skoleRolle, stilling: stillingVerdi, tl_rolle: tlRolleVerdi },
+        { onConflict: 'bruker_id,skole_id' }
+      )
+    if (bsFeil) {
+      // 23505 her = HTLA-unik-indeksen (dobbeltsjekk mot race). Konflikt på (bruker,skole)
+      // fanges av upsert og gir ikke 23505.
+      if (bsFeil.code === '23505') return res.status(409).json({ error: 'Skolen har allerede en HTLA. Endre den eksisterende først.' })
+      return res.status(500).json({ error: bsFeil.message })
+    }
 
     const { data: skole } = await supabase.from('skoler').select('navn').eq('id', skoleId).single()
     skolenavn = skole?.navn ?? null

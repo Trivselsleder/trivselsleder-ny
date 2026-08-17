@@ -50,7 +50,7 @@ export async function hentSkoleBrukere(skoleId) {
   if (!skoleId) return []
   const { data, error } = await supabase
     .from('bruker_skole')
-    .select('rolle, aktiv, profiles ( id, navn, epost, aktiv )')
+    .select('rolle, stilling, tl_rolle, aktiv, profiles ( id, navn, epost, aktiv )')
     .eq('skole_id', skoleId)
   if (error) throw error
   const sett = new Map()
@@ -64,6 +64,8 @@ export async function hentSkoleBrukere(skoleId) {
           navn: r.profiles.navn || '—',
           epost: r.profiles.epost || '',
           rolle: r.rolle,
+          stilling: r.stilling ?? null,
+          tl_rolle: r.tl_rolle ?? null,
           aktiv: r.aktiv !== false && r.profiles.aktiv !== false,
         })
       }
@@ -97,14 +99,14 @@ export async function lagreSkole(skoleId, form) {
 
 // Invitere en ny skolebruker via proven endepunkt (/api/auth/inviter-bruker).
 // Skoleadmin kan kun invitere skoleadmin/skoleansatt til egen skole (sjekkes server-side).
-export async function inviterSkolebruker({ epost, navn, rolle, skoleId }) {
+export async function inviterSkolebruker({ epost, navn, rolle, skoleId, stilling, tl_rolle }) {
   const { data: { session } } = await supabase.auth.getSession()
   const token = session?.access_token
   if (!token) throw new Error('Sesjonen er utløpt — last inn siden på nytt.')
   const res = await fetch('/api/auth/inviter-bruker', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ epost, navn, rolle, skoleId }),
+    body: JSON.stringify({ epost, navn, rolle, skoleId, stilling, tl_rolle }),
   })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data.error || 'Kunne ikke sende invitasjon.')
