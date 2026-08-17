@@ -113,6 +113,22 @@ export async function inviterSkolebruker({ epost, navn, rolle, skoleId, stilling
   return data
 }
 
+// Sett stilling + TL-rolle på et eksisterende medlem (via /api/skole/sett-medlem-rolle).
+// Skoleadmin er låst til egen skole server-side; «én HTLA per skole» håndheves.
+export async function settMedlemRolle({ skoleId, brukerId, stilling, tl_rolle }) {
+  const { data: { session } } = await supabase.auth.getSession()
+  const token = session?.access_token
+  if (!token) throw new Error('Sesjonen er utløpt — last inn siden på nytt.')
+  const res = await fetch('/api/skole/sett-medlem-rolle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ skoleId, brukerId, stilling, tl_rolle }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'Kunne ikke lagre rollen.')
+  return data
+}
+
 export function lekTittel(ressurs) {
   const inn = ressurs?.ressurs_innhold || []
   return (

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { hentMinSkole, hentSkoleBrukere, inviterSkolebruker } from '../../lib/skole'
+import { hentMinSkole, hentSkoleBrukere, inviterSkolebruker, settMedlemRolle } from '../../lib/skole'
 
 const ROLLE_LABEL = { skoleadmin: 'Administrator', skoleansatt: 'Ansatt', feide: 'Feide-bruker' }
-const STILLING_LABEL = { rektor: 'Rektor', inspektor: 'Inspektør', styrer: 'Styrer', ansatt: 'Ansatt' }
 
 export default function SkoleAnsatte() {
   const [skoleId, setSkoleId] = useState(null)
@@ -18,6 +17,7 @@ export default function SkoleAnsatte() {
   const [sender, setSender] = useState(false)
   const [inviteFeil, setInviteFeil] = useState('')
   const [invitert, setInvitert] = useState('')
+  const [medlemFeil, setMedlemFeil] = useState('')
 
   async function last(sid) {
     const liste = await hentSkoleBrukere(sid)
@@ -61,6 +61,20 @@ export default function SkoleAnsatte() {
       setInviteFeil(err.message)
     } finally {
       setSender(false)
+    }
+  }
+
+  // Endre stilling/TL-rolle på et eksisterende medlem. Optimistisk oppdatering med
+  // tilbakerulling hvis serveren avviser (f.eks. «Skolen har allerede en HTLA»).
+  async function lagreMedlem(brukerId, ny) {
+    setMedlemFeil('')
+    const forrige = brukere
+    setBrukere((liste) => liste.map((b) => (b.id === brukerId ? { ...b, ...ny } : b)))
+    try {
+      await settMedlemRolle({ skoleId, brukerId, stilling: ny.stilling, tl_rolle: ny.tl_rolle })
+    } catch (err) {
+      setBrukere(forrige)
+      setMedlemFeil(err.message)
     }
   }
 
@@ -140,15 +154,35 @@ export default function SkoleAnsatte() {
                   </div>
                   <span className="ml-auto flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
                     {!b.aktiv && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Ikke aktivert</span>}
-                    {b.tl_rolle === 'htla' && <span className="text-xs bg-orange/20 text-[#b8501a] px-2 py-0.5 rounded-full font-medium">HTLA</span>}
-                    {b.tl_rolle === 'tla' && <span className="text-xs bg-teal/15 text-petrol px-2 py-0.5 rounded-full">TLA</span>}
-                    {b.stilling && <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{STILLING_LABEL[b.stilling] ?? b.stilling}</span>}
+                    <select
+                      value={b.stilling || ''}
+                      onChange={(e) => lagreMedlem(b.id, { stilling: e.target.value || null, tl_rolle: b.tl_rolle || null })}
+                      className="text-xs border border-gray-200 rounded-full px-2 py-1 bg-white text-gray-600 focus:outline-none focus:border-orange"
+                      aria-label={`Stilling for ${b.navn}`}
+                    >
+                      <option value="">Stilling —</option>
+                      <option value="rektor">Rektor</option>
+                      <option value="inspektor">Inspektør</option>
+                      <option value="styrer">Styrer</option>
+                      <option value="ansatt">Ansatt</option>
+                    </select>
+                    <select
+                      value={b.tl_rolle || ''}
+                      onChange={(e) => lagreMedlem(b.id, { stilling: b.stilling || null, tl_rolle: e.target.value || null })}
+                      className={`text-xs border rounded-full px-2 py-1 focus:outline-none focus:border-orange ${b.tl_rolle === 'htla' ? 'bg-orange/20 text-[#b8501a] border-orange/30 font-medium' : b.tl_rolle === 'tla' ? 'bg-teal/15 text-petrol border-teal/30' : 'bg-white text-gray-600 border-gray-200'}`}
+                      aria-label={`TL-rolle for ${b.navn}`}
+                    >
+                      <option value="">TL-rolle —</option>
+                      <option value="htla">HTLA</option>
+                      <option value="tla">TLA</option>
+                    </select>
                     <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{ROLLE_LABEL[b.rolle] ?? b.rolle}</span>
                   </span>
                 </li>
               ))}
             </ul>
           )}
+          {medlemFeil && <p role="alert" className="text-sm text-red-600 mt-2">{medlemFeil}</p>}
         </>
       )}
     </div>
