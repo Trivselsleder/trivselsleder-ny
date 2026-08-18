@@ -51,6 +51,8 @@ import SkoleWebinarer from './pages/skole/SkoleWebinarer'
 import Webinarer from './pages/Webinarer'
 import AdminWebinarer from './pages/AdminWebinarer'
 import IkkeFunnet from './pages/IkkeFunnet'
+// Trivselsundersøkelsen — elevflaten (kap. 21, steg 3). Egen minimal rute uten nettstedschrome.
+import Trivselsundersokelsen from './pages/Trivselsundersokelsen'
 import './index.css'
 
 export default function App() {
@@ -169,6 +171,11 @@ export default function App() {
               <Route path="/admin/kortoversikt" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortoversikt /></ProtectedRoute>} />
               <Route path="/admin/oppfolging" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminOppfolging /></ProtectedRoute>} />
               <Route path="/admin/evalueringer" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminEvaluering /></ProtectedRoute>} />
+              {/* Trivselsundersøkelsen — elevflaten (steg 3). Offentlig, ingen innlogging.
+                  Koden tastes på siden og sendes med POST (aldri i URL). Minimal, uten chrome.
+                  Testfase: trivselsleder-ny.vercel.app/undersokelse. Ved lansering pekes
+                  domenet trivselsundersokelsen.no hit. */}
+              <Route path="/undersokelse" element={<Trivselsundersokelsen />} />
               {/* Fang-alt: ukjent adresse gir 404-side, ikke tom side */}
               <Route path="*" element={<IkkeFunnet />} />
             </Routes>
@@ -181,6 +188,6 @@ export default function App() {
 }
 
 // Oppslags-TV (/skjerm/:token) skal ikke vise nettstedsmeny/footer.
-function utenChrome(pathname) { return pathname.startsWith('/skjerm/') }
+function utenChrome(pathname) { return pathname.startsWith('/skjerm/') || pathname.startsWith('/undersokelse') }
 function KanskjeHeader() { return utenChrome(useLocation().pathname) ? null : <Header /> }
 function KanskjeFooter() { return utenChrome(useLocation().pathname) ? null : <Footer /> }

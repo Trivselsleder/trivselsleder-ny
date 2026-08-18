@@ -209,5 +209,195 @@
     "ingress": "Vi hittade ingen sida på den här adressen. Den kan ha flyttats, eller så är länken felstavad.",
     "adresse": "Adress",
     "tilForsiden": "Gå till startsidan"
+  },
+  "tu": {
+    "intro": {
+      "tittel": "Trivselundersökningen",
+      "tekst": "Här får du säga vad du tycker om hur du har det i skolan. Det är frivilligt att svara, och du kan hoppa över frågor du inte vill svara på. Ingen kan se vad just du svarar.",
+      "start": "Börja"
+    },
+    "kode": {
+      "tittel": "Skriv in din kod",
+      "hjelp": "Du har fått en kod av din lärare. Skriv in den här.",
+      "felt": "Kod",
+      "plassholder": "Till exempel ABDK7F",
+      "knapp": "Gå vidare",
+      "henter": "Kontrollerar koden …",
+      "feilTom": "Skriv in koden du fick av din lärare.",
+      "feilUgyldig": "Den här koden fungerar inte. Kontrollera att du skrivit rätt, eller fråga läraren.",
+      "feilNett": "Vi fick ingen kontakt. Försök igen om en stund."
+    },
+    "spm": {
+      "avFremdrift": "Fråga {{n}} av {{total}}",
+      "tilbake": "Föregående",
+      "neste": "Nästa",
+      "hopp": "Hoppa över den här frågan",
+      "hoppInfo": "Du kan hoppa över om du inte vill svara.",
+      "valgt": "Vald",
+      "tilInnsending": "Se över och skicka in"
+    },
+    "mobbedef": {
+      "tittel": "Vad menar vi med mobbning?",
+      "tekst": "Med mobbning menar vi att en eller flera är elaka mot en elev om och om igen, när den eleven har svårt att försvara sig. Att retas med någon på ett sårande sätt gång på gång är också mobbning."
+    },
+    "send": {
+      "tittel": "Redo att skicka in?",
+      "oppsummering": "Du har svarat på {{svart}} av {{total}} frågor.",
+      "hoppetInfo": "Det är helt okej att ha hoppat över några.",
+      "knapp": "Skicka in mina svar",
+      "sender": "Skickar …",
+      "tilbake": "Se över svaren igen",
+      "feil": "Vi kunde inte skicka in svaren. Försök igen om en stund.",
+      "feilBrukt": "Den här koden är redan använd. Varje kod kan bara användas en gång. Fråga läraren om något är fel.",
+      "feilBakgrunn": "Du måste välja årskurs och kön innan du kan skicka in."
+    },
+    "ferdig": {
+      "tittel": "Tack för dina svar!",
+      "tekst": "Dina svar är inskickade. Nu kan du stänga sidan. Din kod är förbrukad och fungerar inte längre.",
+      "ingenAdresse": "Vi vet inte vem du är, och ingen kan se vad just du svarade."
+    },
+    "sp": {
+      "1": {
+        "tekst": "Hur trivs du i skolan?",
+        "svar": {
+          "0": "Mycket bra",
+          "1": "Bra",
+          "2": "Lite",
+          "3": "Inte särskilt",
+          "4": "Inte alls"
+        }
+      },
+      "2": {
+        "tekst": "Hur trivs du tillsammans med eleverna i din grupp eller klass?",
+        "svar": {
+          "0": "Mycket bra",
+          "1": "Bra",
+          "2": "Lite",
+          "3": "Inte särskilt",
+          "4": "Inte alls"
+        }
+      },
+      "3": {
+        "tekst": "Hur trivs du på de stora rasterna?",
+        "svar": {
+          "0": "Mycket bra",
+          "1": "Bra",
+          "2": "Lite",
+          "3": "Inte särskilt",
+          "4": "Inte alls"
+        }
+      },
+      "4": {
+        "tekst": "Tycker du att det finns många roliga lekar att vara med på under de stora rasterna?",
+        "svar": {
+          "0": "Ja",
+          "1": "Inte många, men några",
+          "2": "Nej"
+        }
+      },
+      "5": {
+        "tekst": "Hur många dagar är du själv med och leker under de stora rasterna?",
+        "svar": {
+          "0": "Alla dagar i veckan",
+          "1": "Fyra dagar",
+          "2": "Tre dagar",
+          "3": "Två dagar",
+          "4": "En dag",
+          "5": "Inga dagar"
+        }
+      },
+      "6": {
+        "tekst": "Hur många goda vänner har du i skolan?",
+        "svar": {
+          "0": "Fler än tre",
+          "1": "Två eller tre",
+          "2": "En god vän",
+          "3": "Inga goda vänner"
+        }
+      },
+      "7": {
+        "tekst": "Har du någon att leka med på rasten?",
+        "svar": {
+          "0": "Ja",
+          "1": "Ibland",
+          "2": "Nej"
+        }
+      },
+      "8": {
+        "tekst": "Har du fått andra elever att inte vara med en elev, så att eleven måste gå ensam på rasterna?",
+        "svar": {
+          "0": "Inte de senaste månaderna",
+          "1": "Bara någon enstaka gång",
+          "2": "Två–tre gånger i månaden",
+          "3": "Ungefär en gång i veckan",
+          "4": "Flera gånger i veckan"
+        }
+      },
+      "9": {
+        "tekst": "Finns det några elever i klassen som aldrig får vara med de andra?",
+        "svar": {
+          "0": "Nej",
+          "1": "En elev",
+          "2": "Två elever",
+          "3": "Tre eller fler elever"
+        }
+      },
+      "10": {
+        "tekst": "Måste läraren lägga mycket tid på att få lugn i klassen?",
+        "svar": {
+          "0": "Aldrig",
+          "1": "Sällan",
+          "2": "Ibland",
+          "3": "Ofta",
+          "4": "Mycket ofta eller alltid"
+        }
+      },
+      "11": {
+        "tekst": "Har du blivit mobbad i skolan de senaste månaderna?",
+        "svar": {
+          "0": "Inte alls",
+          "1": "Bara någon enstaka gång",
+          "2": "Två–tre gånger i månaden",
+          "3": "Ungefär en gång i veckan",
+          "4": "Flera gånger i veckan"
+        }
+      },
+      "12": {
+        "tekst": "Har du själv varit med och mobbat en eller flera elever de senaste månaderna?",
+        "svar": {
+          "0": "Inte alls",
+          "1": "Någon enstaka gång",
+          "2": "Två–tre gånger i månaden",
+          "3": "Ungefär en gång i veckan",
+          "4": "Flera gånger i veckan"
+        }
+      },
+      "13": {
+        "tekst": "Brukar eleverna säga till lärarna om någon blir mobbad?",
+        "svar": {
+          "0": "Mycket ofta eller alltid",
+          "1": "Ofta",
+          "2": "Ibland",
+          "3": "Sällan",
+          "4": "Aldrig"
+        }
+      }
+    },
+    "trinn": {
+      "tittel": "Vilken årskurs går du i?",
+      "hjelp": "Välj din årskurs.",
+      "valg": "Årskurs {{n}}",
+      "feilMangler": "Du måste välja årskurs för att gå vidare."
+    },
+    "kjonn": {
+      "tittel": "Är du tjej eller kille?",
+      "hjelp": "Välj det som passar dig.",
+      "valg": {
+        "jente": "Tjej",
+        "gutt": "Kille",
+        "annet": "Annat"
+      },
+      "feilMangler": "Du måste välja för att gå vidare."
+    }
   }
 }

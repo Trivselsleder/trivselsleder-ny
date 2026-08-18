@@ -209,5 +209,195 @@
     "ingress": "Vi fant ingen side på denne adressen. Den kan ha flyttet, eller lenken kan være feilskrevet.",
     "adresse": "Adresse",
     "tilForsiden": "Gå til forsiden"
+  },
+  "tu": {
+    "intro": {
+      "tittel": "Trivselsundersøkelsen",
+      "tekst": "Her får du si din mening om hvordan du har det på skolen. Det er frivillig å svare, og du kan hoppe over spørsmål du ikke vil svare på. Ingen kan se hva akkurat du svarer.",
+      "start": "Start"
+    },
+    "kode": {
+      "tittel": "Skriv inn koden din",
+      "hjelp": "Du har fått en kode av læreren din. Skriv den inn her.",
+      "felt": "Kode",
+      "plassholder": "For eksempel ABDK7F",
+      "knapp": "Gå videre",
+      "henter": "Sjekker koden …",
+      "feilTom": "Skriv inn koden du fikk av læreren.",
+      "feilUgyldig": "Denne koden virker ikke. Sjekk at du har skrevet den riktig, eller spør læreren.",
+      "feilNett": "Vi fikk ikke kontakt. Prøv igjen om litt."
+    },
+    "spm": {
+      "avFremdrift": "Spørsmål {{n}} av {{total}}",
+      "tilbake": "Forrige",
+      "neste": "Neste",
+      "hopp": "Hopp over dette spørsmålet",
+      "hoppInfo": "Du kan hoppe over hvis du ikke vil svare.",
+      "valgt": "Valgt",
+      "tilInnsending": "Se over og send inn"
+    },
+    "mobbedef": {
+      "tittel": "Hva mener vi med mobbing?",
+      "tekst": "Med mobbing mener vi at en eller flere er slemme mot en elev om og om igjen, når den eleven har vanskelig for å forsvare seg. Å erte noen på en sårende måte gang på gang er også mobbing."
+    },
+    "send": {
+      "tittel": "Klar til å sende inn?",
+      "oppsummering": "Du har svart på {{svart}} av {{total}} spørsmål.",
+      "hoppetInfo": "Det er helt greit å ha hoppet over noen.",
+      "knapp": "Send inn svarene mine",
+      "sender": "Sender …",
+      "tilbake": "Se over svarene igjen",
+      "feil": "Vi fikk ikke sendt inn svarene. Prøv igjen om litt.",
+      "feilBrukt": "Denne koden er allerede brukt. Hver kode kan bare brukes én gang. Spør læreren hvis noe er feil.",
+      "feilBakgrunn": "Du må velge trinn og kjønn før du kan sende inn."
+    },
+    "ferdig": {
+      "tittel": "Takk for svarene dine!",
+      "tekst": "Svarene dine er sendt inn. Nå kan du lukke siden. Koden din er brukt opp og virker ikke lenger.",
+      "ingenAdresse": "Vi vet ikke hvem du er, og ingen kan se hva akkurat du svarte."
+    },
+    "sp": {
+      "1": {
+        "tekst": "Hvor godt trives du på skolen?",
+        "svar": {
+          "0": "Svært godt",
+          "1": "Godt",
+          "2": "Litt",
+          "3": "Ikke noe særlig",
+          "4": "Ikke i det hele tatt"
+        }
+      },
+      "2": {
+        "tekst": "Hvor godt trives du sammen med elevene i gruppa eller klassen din?",
+        "svar": {
+          "0": "Svært godt",
+          "1": "Godt",
+          "2": "Litt",
+          "3": "Ikke noe særlig",
+          "4": "Ikke i det hele tatt"
+        }
+      },
+      "3": {
+        "tekst": "Hvor godt trives du i storefriminuttene?",
+        "svar": {
+          "0": "Svært godt",
+          "1": "Godt",
+          "2": "Litt",
+          "3": "Ikke noe særlig",
+          "4": "Ikke i det hele tatt"
+        }
+      },
+      "4": {
+        "tekst": "Synes du det er mange morsomme leker å være med på i storefriminuttene?",
+        "svar": {
+          "0": "Ja",
+          "1": "Ikke mange, men noen",
+          "2": "Nei"
+        }
+      },
+      "5": {
+        "tekst": "Hvor mange dager er du selv med og leker i storefriminuttene?",
+        "svar": {
+          "0": "Alle dager i uken",
+          "1": "Fire dager",
+          "2": "Tre dager",
+          "3": "To dager",
+          "4": "Én dag",
+          "5": "Ingen dager"
+        }
+      },
+      "6": {
+        "tekst": "Hvor mange gode venner har du på skolen?",
+        "svar": {
+          "0": "Flere enn tre",
+          "1": "To eller tre",
+          "2": "Én god venn",
+          "3": "Ingen gode venner"
+        }
+      },
+      "7": {
+        "tekst": "Har du noen å leke med i friminuttet?",
+        "svar": {
+          "0": "Ja",
+          "1": "Av og til",
+          "2": "Nei"
+        }
+      },
+      "8": {
+        "tekst": "Har du fått andre elever til å ikke være sammen med en elev, slik at eleven må gå alene i friminuttene?",
+        "svar": {
+          "0": "Ikke de siste månedene",
+          "1": "Bare en sjelden gang",
+          "2": "To–tre ganger i måneden",
+          "3": "Omtrent en gang i uken",
+          "4": "Flere ganger i uken"
+        }
+      },
+      "9": {
+        "tekst": "Er det noen elever i klassen som aldri får være med de andre?",
+        "svar": {
+          "0": "Nei",
+          "1": "Én elev",
+          "2": "To elever",
+          "3": "Tre eller flere elever"
+        }
+      },
+      "10": {
+        "tekst": "Må læreren bruke mye tid på å få ro i klassen?",
+        "svar": {
+          "0": "Aldri",
+          "1": "Sjelden",
+          "2": "Av og til",
+          "3": "Ofte",
+          "4": "Svært ofte eller alltid"
+        }
+      },
+      "11": {
+        "tekst": "Har du blitt mobbet på skolen de siste månedene?",
+        "svar": {
+          "0": "Ikke i det hele tatt",
+          "1": "Bare en sjelden gang",
+          "2": "To–tre ganger i måneden",
+          "3": "Omtrent en gang i uken",
+          "4": "Flere ganger i uken"
+        }
+      },
+      "12": {
+        "tekst": "Har du selv vært med på å mobbe en eller flere elever de siste månedene?",
+        "svar": {
+          "0": "Ikke i det hele tatt",
+          "1": "En sjelden gang",
+          "2": "To–tre ganger i måneden",
+          "3": "Omtrent en gang i uken",
+          "4": "Flere ganger i uken"
+        }
+      },
+      "13": {
+        "tekst": "Pleier elevene å si ifra til lærerne hvis noen blir mobbet?",
+        "svar": {
+          "0": "Svært ofte eller alltid",
+          "1": "Ofte",
+          "2": "Av og til",
+          "3": "Sjelden",
+          "4": "Aldri"
+        }
+      }
+    },
+    "trinn": {
+      "tittel": "Hvilket trinn går du på?",
+      "hjelp": "Velg trinnet ditt.",
+      "valg": "{{n}}. trinn",
+      "feilMangler": "Du må velge trinn for å gå videre."
+    },
+    "kjonn": {
+      "tittel": "Er du jente eller gutt?",
+      "hjelp": "Velg det som passer for deg.",
+      "valg": {
+        "jente": "Jente",
+        "gutt": "Gutt",
+        "annet": "Annet"
+      },
+      "feilMangler": "Du må velge for å gå videre."
+    }
   }
 }
