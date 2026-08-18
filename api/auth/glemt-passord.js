@@ -1,11 +1,11 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { epostMal } from '../_epost-mal.js'
-import { trygtOrigin } from '../_vakt.js'
+import { trygFallbackOrigin } from '../_vakt.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-function epostHtml(resetLenke) {
+function epostHtml(resetLenke, nettstedUrl) {
   return epostMal({
     overskrift: 'Tilbakestill passordet ditt',
     brødtekst: `<p style="font-size:15px;color:#444;line-height:1.6;margin:0 0 24px;">
@@ -15,6 +15,7 @@ function epostHtml(resetLenke) {
     knapptekst: 'Sett nytt passord',
     knapplenke: resetLenke,
     fottekst: 'Lenken er gyldig i 24 timer. Hvis du ikke ba om dette, kan du ignorere denne e-posten — passordet ditt forblir uendret.',
+    nettstedUrl,
   })
 }
 
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
   )
 
   // Kun kjente adresser godtas — se trygtOrigin i api/_vakt.js.
-  const origin = trygtOrigin(req)
+  const origin = await trygFallbackOrigin(req, supabase)
 
   const { data, error } = await supabase.auth.admin.generateLink({
     type: 'recovery',
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
     from: 'noreply@trivselsleder.no',
     to: epost,
     subject: 'Tilbakestill passordet ditt – Trivselsleder',
-    html: epostHtml(resetLenke),
+    html: epostHtml(resetLenke, origin),
   })
 
   return res.status(200).json({ ok: true })

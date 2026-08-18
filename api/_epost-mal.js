@@ -8,7 +8,24 @@
 //   knapptekst  – valgfri: tekst på knappen
 //   knapplenke  – valgfri: URL knappen peker til (må følge med knapptekst)
 //   fottekst    – valgfri: liten grå merknad nederst i kortet (over foten)
-export function epostMal({ overskrift, brødtekst, knapptekst, knapplenke, fottekst }) {
+//   nettstedUrl – valgfri: domenet fotlenken skal peke til. Leses fra
+//                 innstillinger (nettsted_url) av kallstedet. Uten verdi (eller
+//                 med et ukjent domene) faller vi tilbake til den nye
+//                 plattformen — ALDRI gamle trivselsleder.no.
+const TILLATTE_FOT = [
+  'https://trivselsleder.no',
+  'https://www.trivselsleder.no',
+  'https://trivselsleder-ny.vercel.app',
+]
+const FOT_FALLBACK = 'https://trivselsleder-ny.vercel.app'
+
+export function epostMal({ overskrift, brødtekst, knapptekst, knapplenke, fottekst, nettstedUrl }) {
+  // Fotlenken skal aldri kunne peke på et vilkårlig domene — samme forsvar som
+  // for konto-lenkene. Ukjent/tom verdi → sikker fallback til ny plattform.
+  const reinUrl = (nettstedUrl || '').trim().replace(/\/+$/, '')
+  const fotUrl = TILLATTE_FOT.includes(reinUrl) ? reinUrl : FOT_FALLBACK
+  const fotVist = fotUrl.replace(/^https?:\/\//, '')
+
   const knapp = (knapptekst && knapplenke)
     ? `<a href="${knapplenke}"
          style="display:inline-block;background:#FF7B31;color:#fff;font-size:15px;font-weight:600;padding:13px 28px;border-radius:999px;text-decoration:none;">
@@ -35,7 +52,7 @@ export function epostMal({ overskrift, brødtekst, knapptekst, knapplenke, fotte
       ${fot}
     </div>
     <hr style="border:none;border-top:1px solid #e5e7eb;margin:0;">
-    <p style="font-size:12px;color:#aaa;text-align:center;padding:16px;">Trivselsleder · trivselsleder.no</p>
+    <p style="font-size:12px;color:#aaa;text-align:center;padding:16px;">Trivselsleder · <a href="${fotUrl}" style="color:#aaa;text-decoration:none;">${fotVist}</a></p>
   </div>
 </body>
 </html>`

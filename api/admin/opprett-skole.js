@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { trygtOrigin, krevAnsatt } from '../_vakt.js'
+import { trygFallbackOrigin, krevAnsatt } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -10,7 +10,7 @@ const ROLLE_LABEL = {
   skoleansatt: 'TL-ansvarlig (TLA)',
 }
 
-function epostHtml(navn, rolle, skolenavn, inviteLenke) {
+function epostHtml(navn, rolle, skolenavn, inviteLenke, nettstedUrl) {
   const fornavn = navn.split(' ')[0]
   const rolletekst = ROLLE_LABEL[rolle] ?? rolle
   return epostMal({
@@ -25,6 +25,7 @@ function epostHtml(navn, rolle, skolenavn, inviteLenke) {
     knapptekst: 'Aktiver konto',
     knapplenke: inviteLenke,
     fottekst: 'Lenken er gyldig i 24 timer.',
+    nettstedUrl,
   })
 }
 
@@ -64,7 +65,7 @@ async function inviterEllerKnytt(supabase, { epost, navn, rolle, skoleId, skolen
     from: 'noreply@trivselsleder.no',
     to: epost,
     subject: 'Velkommen til Trivselsleder – aktiver kontoen din',
-    html: epostHtml(navn, rolle, skolenavn, inviteLenke),
+    html: epostHtml(navn, rolle, skolenavn, inviteLenke, origin),
   })
   if (epostFeil) console.error('Resend feil:', epostFeil)
 
@@ -127,7 +128,7 @@ export default async function handler(req, res) {
   }
 
   // Kun kjente adresser godtas — se trygtOrigin i api/_vakt.js.
-  const origin = trygtOrigin(req)
+  const origin = await trygFallbackOrigin(req, supabase)
   const resultater = {}
 
   if (htlaEpost && htlaNavn) {

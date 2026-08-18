@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { trygtOrigin } from '../_vakt.js'
+import { trygFallbackOrigin } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -12,7 +12,7 @@ const ROLLE_LABEL = {
   skoleansatt: 'Skoleansatt',
 }
 
-function epostHtml(navn, rolle, skolenavn, inviteLenke) {
+function epostHtml(navn, rolle, skolenavn, inviteLenke, nettstedUrl) {
   const fornavn = navn.split(' ')[0]
   const rolletekst = ROLLE_LABEL[rolle] ?? rolle
   const skoletekst = skolenavn ? `<p style="font-size:14px;color:#444;margin:0 0 8px;">Skole: <strong>${skolenavn}</strong></p>` : ''
@@ -29,6 +29,7 @@ function epostHtml(navn, rolle, skolenavn, inviteLenke) {
     knapptekst: 'Aktiver konto',
     knapplenke: inviteLenke,
     fottekst: 'Lenken er gyldig i 24 timer.',
+    nettstedUrl,
   })
 }
 
@@ -105,7 +106,7 @@ export default async function handler(req, res) {
   }
 
   // Kun kjente adresser godtas — se trygtOrigin i api/_vakt.js.
-  const origin = trygtOrigin(req)
+  const origin = await trygFallbackOrigin(req, supabase)
 
   // Generer invitasjonslenke uten at Supabase sender e-post
   const { data, error: linkFeil } = await supabase.auth.admin.generateLink({
@@ -150,7 +151,7 @@ export default async function handler(req, res) {
     from: 'noreply@trivselsleder.no',
     to: epost,
     subject: 'Invitasjon til Trivselsleder',
-    html: epostHtml(navn, rolle, skolenavn, inviteLenke),
+    html: epostHtml(navn, rolle, skolenavn, inviteLenke, origin),
   })
   if (epostFeil) console.error('Resend feil:', epostFeil)
 

@@ -60,11 +60,48 @@ const TILLATTE_ORIGIN = [
   'https://www.trivselsleder.no',
   'https://trivselsleder-ny.vercel.app',
 ]
-const STANDARD_ORIGIN = 'https://trivselsleder.no'
 
+// SIKKER FALLBACK (testperioden). Havner vi utenfor headeren OG basen ikke gir
+// et gyldig svar, skal lenken ALDRI peke på gamle trivselsleder.no — da ville
+// konto-e-postene sendt brukeren til feil plattform. Vi faller derfor tilbake
+// til den nye plattformen. Ved go-live settes nettsted_url i basen til
+// produksjonsdomenet; denne konstanten er bare et siste sikkerhetsnett.
+const SIKKER_FALLBACK = 'https://trivselsleder-ny.vercel.app'
+
+// SYNKRON header-vakt. Beholdt uendret som forsvar mot kontokapring: den som
+// ringer kan ikke få lenken til å peke på sin egen side, for origin-headeren
+// valideres mot den hardkodede lista. Brukes fortsatt der vi bare trenger å
+// vurdere headeren.
 export function trygtOrigin(req) {
   const onsket = req.headers?.origin
-  return TILLATTE_ORIGIN.includes(onsket) ? onsket : STANDARD_ORIGIN
+  return TILLATTE_ORIGIN.includes(onsket) ? onsket : SIKKER_FALLBACK
+}
+
+// ASYNC origin med base-fallback. Rekkefølge:
+//   1) Gyldig origin-header (på tillatt-lista) → bruk den. Forsvaret består:
+//      en fremmed kan fortsatt ikke peke lenken mot sin egen side.
+//   2) Ellers: les nettsted_url fra innstillinger — men KUN hvis verdien også
+//      står på tillatt-lista. Basen kan altså ikke sette lenken til et vilkårlig
+//      domene; forsvaret gjelder base-verdien like strengt som headeren.
+//   3) Ellers (base nede, rad mangler, eller ugyldig verdi) → SIKKER_FALLBACK.
+//      ALDRI gamle trivselsleder.no.
+export async function trygFallbackOrigin(req, supabase) {
+  const fraHeader = req.headers?.origin
+  if (TILLATTE_ORIGIN.includes(fraHeader)) return fraHeader
+
+  try {
+    const { data } = await supabase
+      .from('innstillinger')
+      .select('verdi')
+      .eq('nokkel', 'nettsted_url')
+      .maybeSingle()
+    const fraBase = (data?.verdi || '').trim().replace(/\/+$/, '')
+    if (TILLATTE_ORIGIN.includes(fraBase)) return fraBase
+  } catch (e) {
+    console.error('trygFallbackOrigin: kunne ikke lese nettsted_url:', e.message)
+  }
+
+  return SIKKER_FALLBACK
 }
 
 // For endepunkter som BÅDE kjøres av Vercel-cron og av en ansatt som trykker
