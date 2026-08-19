@@ -8,6 +8,7 @@ import AdminHaller from './AdminHaller'
 import AdminKursholdere from './AdminKursholdere'
 import AdminEvaluering from './AdminEvaluering'
 import AdminOppfolging from './AdminOppfolging'
+import AdminNettverksansvar from './AdminNettverksansvar'
 import { adminFetch } from '../lib/adminFetch'
 
 function ukeNummer(isoDato) {
@@ -115,6 +116,11 @@ function KursOversikt() {
   const [nettverkFilter, setNettverkFilter] = useState('')
   const [sesongFilter, setSesongFilter] = useState('')
 
+  // B10: «Mine kurs» — nettverkene den innloggede RA-en er ansvarlig for
+  // (fra nettverk_ansvarlig). null = ikke lastet ennå (da filtrerer vi ikke).
+  const [mineNettverk, setMineNettverk] = useState(null)
+  const [visMine, setVisMine] = useState(true)
+
   function hentKurs() {
     supabase.from('kurs').select('*').order('dato', { ascending: true }).range(0, 9999)
       .then(({ data, error }) => {
@@ -161,6 +167,18 @@ function KursOversikt() {
       .then(({ data }) => setKursholdere(data ?? []))
     supabase.from('skoler').select('nettverk, ansvarlig').range(0, 9999)
       .then(({ data }) => setNettverkData(data ?? []))
+
+    // B10: hvilke nettverk er MINE? Slå opp på innlogget bruker. Har jeg ingen
+    // tilordnet, står «Mine kurs» tomt — da starter vi heller på «Alle».
+    ;(async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setMineNettverk(new Set()); setVisMine(false); return }
+      const { data } = await supabase
+        .from('nettverk_ansvarlig').select('nettverk').eq('bruker_id', user.id).range(0, 9999)
+      const sett = new Set((data ?? []).map(r => r.nettverk))
+      setMineNettverk(sett)
+      setVisMine(sett.size > 0)
+    })()
   }, [])
 
   // Debounce søketekst — samme 300 ms-mønster som hall-søket i SokbarVelger.
@@ -210,6 +228,9 @@ function KursOversikt() {
 
   // Filtrering skjer klient-side på kursene som allerede er lastet.
   const filtrerteKurs = kurs.filter(k => {
+    // B10: «Mine kurs» = kun kurs i nettverkene jeg er RA for. Så lenge settet
+    // ikke er lastet (null) filtrerer vi ikke, så lista ikke blinker tom.
+    if (visMine && mineNettverk && !mineNettverk.has(k.nettverk)) return false
     if (raFilter && k.ra !== raFilter) return false
     if (nettverkFilter && k.nettverk !== nettverkFilter) return false
     if (sesongFilter && k.sesong !== sesongFilter) return false
@@ -269,6 +290,26 @@ function KursOversikt() {
 
       {!laster && kurs.length > 0 && (
         <>
+        {/* B10: «Mine kurs / Alle kurs»-bryter. Mine = kurs i nettverkene jeg er RA for. */}
+        <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden mb-4">
+          <button
+            onClick={() => setVisMine(true)}
+            className={`px-4 py-2 text-sm font-medium ${visMine ? 'bg-orange text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          >
+            Mine kurs
+          </button>
+          <button
+            onClick={() => setVisMine(false)}
+            className={`px-4 py-2 text-sm font-medium border-l border-gray-300 ${!visMine ? 'bg-orange text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          >
+            Alle kurs
+          </button>
+        </div>
+        {visMine && mineNettverk && mineNettverk.size === 0 && (
+          <p className="mb-4 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg py-2 px-3">
+            Du har ingen nettverk tilordnet ennå. Sett deg som ansvarlig under «Nettverksansvar», eller velg «Alle kurs».
+          </p>
+        )}
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <input
             type="text"
@@ -914,6 +955,7 @@ export default function AdminKursplanlegger() {
     { id: 'kurs', navn: 'Kurs' },
     { id: 'haller', navn: 'Haller' },
     { id: 'kursholdere', navn: 'Kursholdere' },
+    { id: 'nettverksansvar', navn: 'Nettverksansvar' },
     { id: 'oppfolging', navn: 'Oppfølging' },
     { id: 'evaluering', navn: 'Evaluering' },
   ]
@@ -937,6 +979,7 @@ export default function AdminKursplanlegger() {
       {fane === 'kurs' && <KursOversikt />}
       {fane === 'haller' && <AdminHaller />}
       {fane === 'kursholdere' && <AdminKursholdere />}
+      {fane === 'nettverksansvar' && <AdminNettverksansvar />}
       {fane === 'oppfolging' && <AdminOppfolging innebygd />}
       {fane === 'evaluering' && <AdminEvaluering />}
     </div>
