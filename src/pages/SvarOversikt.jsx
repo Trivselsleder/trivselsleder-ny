@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { adminFetch } from '../lib/adminFetch'
 
 export default function SvarOversikt({ kurs, onLukk }) {
   const [rader, setRader] = useState([])
@@ -27,6 +28,16 @@ export default function SvarOversikt({ kurs, onLukk }) {
   const [apenForAnnet, setApenForAnnet] = useState(false)
   const [lagrer, setLagrer] = useState(false)
   const [skjemaFeil, setSkjemaFeil] = useState('')
+
+  // B9: sendelogg per skole (hva ble sendt, til hvem, når) + åpnet-indikasjon +
+  // «Send invitasjon på nytt». Loggen leses via ansatt-sikret RPC
+  // (hent_sendelogg_for_kurs); åpnet hentes fra mottakernes apnet_at (skolen har
+  // vært inne på svarlenken — indikasjon, ikke bevis).
+  const [loggMap, setLoggMap] = useState({})     // kurs_skole_id → [logg-rader]
+  const [apnetMap, setApnetMap] = useState({})   // kurs_skole_id → [{sendt_at, apnet_at}]
+  const [visLogg, setVisLogg] = useState(new Set()) // hvilke kort som har loggen åpen
+  const [senderPaaNytt, setSenderPaaNytt] = useState(null) // kurs_skole_id under sending
+  const [paaNyttResultat, setPaaNyttResultat] = useState({}) // kurs_skole_id → { ok, melding }
 
   async function hent() {
     setLaster(true)
@@ -77,7 +88,34 @@ export default function SvarOversikt({ kurs, onLukk }) {
     setKapasitet(kart)
   }
 
-  useEffect(() => { hent(); hentAndreKurs() }, [])
+  // B9: hent sendeloggen for kurset (ansatt-sikret RPC) og mottakernes åpnet-/
+  // sendt-stempler. Grupperes på kurs_skole_id for visning per skole.
+  async function hentLogg() {
+    // 1) Sendeloggen — via SECURITY DEFINER-funksjon (epost_logg har ikke RLS,
+    //    så adressene leses aldri direkte fra klienten).
+    const { data: logg } = await supabase.rpc('hent_sendelogg_for_kurs', { p_kurs_id: kurs.id })
+    const lKart = {}
+    for (const rad of (logg ?? [])) {
+      (lKart[rad.kurs_skole_id] ||= []).push(rad)
+    }
+    setLoggMap(lKart)
+
+    // 2) Åpnet-/sendt-indikasjon per skole — mottakernes apnet_at/sendt_at.
+    //    Ansatte har lesetilgang på kurs_skole_mottaker (RLS mottaker_ansatt_alt).
+    //    Vi går via kurs_skole-embed så vi treffer alle skolene på kurset i ett kall.
+    const { data: mott } = await supabase
+      .from('kurs_skole_mottaker')
+      .select('kurs_skole_id, sendt_at, apnet_at, kurs_skole!inner(kurs_id)')
+      .eq('kurs_skole.kurs_id', kurs.id)
+      .range(0, 9999)
+    const aKart = {}
+    for (const m of (mott ?? [])) {
+      (aKart[m.kurs_skole_id] ||= []).push({ sendt_at: m.sendt_at, apnet_at: m.apnet_at })
+    }
+    setApnetMap(aKart)
+  }
+
+  useEffect(() => { hent(); hentAndreKurs(); hentLogg() }, [])
 
   async function settHandtert(id, verdi) {
     setRader(rader.map(r => r.id === id ? { ...r, melding_handtert: verdi } : r))
@@ -151,6 +189,67 @@ export default function SvarOversikt({ kurs, onLukk }) {
     if (!iso) return ''
     const d = new Date(iso)
     return `${d.getDate()}.${d.getMonth() + 1}.`
+  }
+
+  // B9: dato + klokkeslett til sendelogg-radene.
+  function formaterDatoTid(iso) {
+    if (!iso) return ''
+    const d = new Date(iso)
+    return d.toLocaleString('nb-NO', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+  }
+
+  // B9: lesbar etikett for e-posttypen i loggen. Ukjente typer vises som de er.
+  function typeEtikett(type) {
+    const kart = {
+      kursinvitasjon: 'Invitasjon',
+      'invitasjon-paa-nytt': 'Invitasjon (på nytt)',
+      purring: 'Purring',
+      paaminnelse: 'Påminnelse',
+      trinn3: 'Purring (øvrige TL)',
+      kvittering: 'Kvittering',
+      evaluering: 'Evaluering',
+    }
+    return kart[type] || (type ? type.charAt(0).toUpperCase() + type.slice(1) : 'E-post')
+  }
+
+  // B9: siste åpnet-/sendt-tidspunkt for en skole (nyeste blant mottakerne).
+  function apnetInfo(kursSkoleId) {
+    const rader = apnetMap[kursSkoleId] || []
+    let sisteApnet = null, sisteSendt = null
+    for (const m of rader) {
+      if (m.apnet_at && (!sisteApnet || m.apnet_at > sisteApnet)) sisteApnet = m.apnet_at
+      if (m.sendt_at && (!sisteSendt || m.sendt_at > sisteSendt)) sisteSendt = m.sendt_at
+    }
+    return { sisteApnet, sisteSendt }
+  }
+
+  // B9: send invitasjonen på nytt til én skole. Samme mønster som oppfølgings-
+  // siden: bekreft, kall ansatt-sikret endepunkt (torrkjoring:false → nødbremsen
+  // stopper ekte e-post til motoren slås på ved lansering).
+  async function sendPaaNytt(r) {
+    const navn = r.skoler?.navn || 'skolen'
+    if (!window.confirm(`Sende invitasjonen på nytt til ${navn}? Skolen får en ny e-post med sin egen svarlenke.`)) return
+    setSenderPaaNytt(r.id)
+    setPaaNyttResultat(prev => ({ ...prev, [r.id]: null }))
+    try {
+      const res = await adminFetch('/api/kurs/send-paa-nytt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kurs_skole_id: r.id, torrkjoring: false }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (res.status === 409 && (d.motor_aktiv === 'nei')) {
+        setPaaNyttResultat(prev => ({ ...prev, [r.id]: { ok: false, melding: 'Nødbremsen er på (utsending av). Ingen e-post ble sendt. Slås på ved lansering.' } }))
+      } else if (!res.ok || d.sendt === false) {
+        setPaaNyttResultat(prev => ({ ...prev, [r.id]: { ok: false, melding: d.error || d.grunn || 'Kunne ikke sende. Prøv igjen.' } }))
+      } else {
+        setPaaNyttResultat(prev => ({ ...prev, [r.id]: { ok: true, melding: `Sendt til ${d.mottaker || navn}.` } }))
+      }
+    } catch (e) {
+      setPaaNyttResultat(prev => ({ ...prev, [r.id]: { ok: false, melding: 'Nettverksfeil: ' + e.message } }))
+    }
+    setSenderPaaNytt(null)
+    hentLogg() // hent fersk logg (den nye raden dukker opp)
   }
 
   // Åpne skjemaet for én skole. Forhåndsfyller fra eksisterende svar (endre),
@@ -414,6 +513,73 @@ export default function SvarOversikt({ kurs, onLukk }) {
                       </label>
                     </div>
                   )}
+
+                  {/* B9: sendelogg (hva/hvem/når) + åpnet-indikasjon + «Send på nytt» */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    {(() => {
+                      const logg = loggMap[r.id] || []
+                      const { sisteApnet, sisteSendt } = apnetInfo(r.id)
+                      const apen = visLogg.has(r.id)
+                      const res = paaNyttResultat[r.id]
+                      return (
+                        <>
+                          <div className="flex items-center justify-between gap-3">
+                            <button
+                              onClick={() => setVisLogg(prev => {
+                                const n = new Set(prev)
+                                n.has(r.id) ? n.delete(r.id) : n.add(r.id)
+                                return n
+                              })}
+                              className="text-sm text-gray-600 hover:underline"
+                            >
+                              {apen ? '▾' : '▸'} Sendelogg{logg.length ? ` (${logg.length})` : ''}
+                            </button>
+                            <button
+                              onClick={() => sendPaaNytt(r)}
+                              disabled={senderPaaNytt === r.id}
+                              className="text-sm text-orange-ink hover:underline disabled:opacity-50 whitespace-nowrap"
+                            >
+                              {senderPaaNytt === r.id ? 'Sender …' : 'Send invitasjon på nytt'}
+                            </button>
+                          </div>
+
+                          {(sisteApnet || sisteSendt) && (
+                            <p className="mt-1 text-xs text-gray-500">
+                              {sisteApnet
+                                ? <>Åpnet svarlenken {formaterDatoTid(sisteApnet)} <span className="text-gray-400">· indikasjon, ikke bevis</span></>
+                                : <>Sendt {formaterDatoTid(sisteSendt)} · svarlenken er ikke åpnet ennå</>}
+                            </p>
+                          )}
+
+                          {res && (
+                            <p className={'mt-2 text-sm rounded-lg py-1.5 px-2.5 ' + (res.ok ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800')}>
+                              {res.melding}
+                            </p>
+                          )}
+
+                          {apen && (
+                            <div className="mt-2 space-y-1">
+                              {logg.length === 0 && (
+                                <p className="text-xs text-gray-400">Ingen e-post er logget for denne skolen ennå.</p>
+                              )}
+                              {logg.map((l, i) => (
+                                <div key={i} className="text-xs text-gray-600 flex flex-wrap items-baseline gap-x-2">
+                                  <span className="font-medium text-gray-700">{typeEtikett(l.type)}</span>
+                                  <span className="text-gray-400">→</span>
+                                  <span>{l.mottaker_epost}</span>
+                                  <span className="text-gray-400">·</span>
+                                  <span>{formaterDatoTid(l.opprettet_at)}</span>
+                                  {l.status === 'feil'
+                                    ? <span className="text-red-600">· feilet{l.feilmelding ? ` (${l.feilmelding})` : ''}</span>
+                                    : <span className="text-green-700">· sendt</span>}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
+                  </div>
                 </div>
               ))}
             </div>

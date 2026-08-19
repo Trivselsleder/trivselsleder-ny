@@ -122,3 +122,13 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
   metoder. Dette er HELE flyten - ikke finn paa noe nytt.
 - claude_-filer holdes UTENFOR git (kun kode og migrasjoner committes).
 - KUN EN Cowork/Code-okt mot ~/trivselsleder-ny om gangen (ellers git-laasefeil).
+
+## ARBEIDSDELING CHAT vs COWORK (presisering 18. aug 2026)
+- Cowork = device-broen: skriver filer til ~/trivselsleder-ny, kjører kode/SQL,
+  leser STATUS.md og CLAUDE.md selv. All LAGRING og BYGGING skjer her.
+- Prosjektchat (claude.ai) = planlegging/beslutning/tekst. Har IKKE device-broen.
+  Skal ALDRI gi Kjartan cat-blokker, filflytting, filkort eller manuell
+  opplasting for å lagre notater. Er noe klart til lagring: gi ferdig tekst
+  Kjartan limer inn i Cowork.
+- Kjartan er ikke utvikler. Ved tvil om arbeidsflyt: les denne fila FØR du
+  foreslår en metode — ikke finn på noe nytt.

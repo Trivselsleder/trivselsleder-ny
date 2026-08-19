@@ -1,0 +1,71 @@
+## KURSPLANLEGGER — etter høringen (17. aug)
+Svarmail SENDT til de seks ansatte. Alt lovet ligger i
+claude_BYGGELISTE-horing-kursplanlegger.md. Hvem-sa-hva i
+claude_HORING-analyse-alle-seks.md.
+
+LØFTER Å HUSKE:
+- HubSpot-synk i TO STEG. Steg 1 (nå): énveis nettside->HubSpot. Steg 2 (lovet,
+  senere): TOVEIS — ansatte endrer i HubSpot, tilbakeføres til nettsiden.
+  Krever konfliktregler, endringshistorikk, dublett-/løkkevern. Skal inn i
+  fremdriftsplanen.
+- Regel til teamet: kontaktendringer gjøres PÅ NETTSIDEN inntil toveis er klart.
+- Kalenderkobling lovet etter lansering (behov jul 2026 / jan 2027).
+- Lokalt kurs: kun varm «vi savnet dere»-mal, aldri full bruksanvisning.
+
+NESTE TREKK (kursplanlegger):
+1. Verifiser FØR bygging: (a) samme skole på to kurs, (b) hvilke kontaktfelt
+   (rektor/hovedkontakt/TLA) som faktisk synker nettside->HubSpot.
+2. Start byggelista: «Les STATUS.md, vi fortsetter med kursplanleggeren» -> A1.
+3. Toveis HubSpot-synk (steg 2) inn i neste fremdriftsplan.
+
+# STATUS — trivselsleder-ny
+Oppdatert: 17. august 2026, kveld
+
+## HVOR VI ER
+Høringen av kursplanleggeren er ferdig analysert. Alle SEKS svarte:
+Marielle, Eivind, Kari, Tommy, Ylva, Julie (+ Malin konsultert).
+Alle beslutninger dokumentert i:
+- claude_HORING-analyse-alle-seks.md  (hvem sa hva + beslutninger)
+- claude_BYGGELISTE-horing-kursplanlegger.md  (A1-A6, B1-B15, C, D)
+Begge ligger i ~/trivselsleder-ny/ og synkes til prosjektkunnskapen.
+
+## GJORT I DAG (17. aug)
+- Høringsanalyse ferdig, byggeliste laget, svarmail-utkast klart (i chatten,
+  IKKE sendt ennå)
+- CLAUDE.md: v2-farger + dokumentflyt-regel (cat-blokk -> claude_NAVN.md i
+  rot -> auto-synk til prosjekt) — committet og pushet
+- Repo ryddet: _to_delete/ og supabase/.temp ute, alt pushet (commit 7044a82)
+- TU byggetrinn 2 (migr 045 skjerming) levert tidligere i dag
+- Lærdom: KUN ÉN Cowork/Code-økt mot repoet om gangen (git-låsefeil ellers)
+
+## NESTE TREKK (i rekkefølge)
+1. Bekreft at de to høringsfilene vises i prosjektkunnskapen (søk «HORING»
+   i Context-vinduet på claude.ai)
+2. Verifiser i systemet: samme skole kan ligge på TO ulike kurs (lovet i
+   svarmailen — 5 min sjekk før sending)
+3. Send svarmailen til teamet (utkast i «høring»-chatten — les tonen først)
+4. Start byggelisten: ny chat i prosjektet -> «Les
+   claude_BYGGELISTE-horing-kursplanlegger.md i prosjektkunnskapen.
+   Vi tar punkt A1.»
+
+## VENTER PÅ
+- Mulig runde to fra Kari + Marielle etter helgen — forklaringstekstene
+  låses ikke før den er inne
+
+## FAST FLYT
+- Chatnotater: Claude gir cat-blokk -> Kjartan limer i terminal ->
+  claude_NAVN.md i roten -> synkes til prosjektet. Aldri manuell opplasting.
+- Kode/migrasjoner: Claude Code -> stopp -> Kjartan kjører SQL i Supabase ->
+  git add/commit/push fra terminal -> test https://trivselsleder-ny.vercel.app
+- STATUS.md og claude_-filer holdes utenfor git
+
+## PERIODEPLAN — TIL ANSATTHØRING (som kursplanleggeren)
+Når periodeplanen sendes på ansatthøring, ta med dette spørsmålet:
+- Rutenett + lekbibliotek får ikke plass samtidig på skjermen; alle fem
+  dager vises først når biblioteket skjules. Arbeidsflyten fungerer
+  (plukk leker → skjul bibliotek → fordel ansvar/dager i full bredde),
+  men er den intuitiv for ansatte som ikke kjenner verktøyet?
+  Vurder: skal biblioteket være skjult som standard når planen alt har
+  leker, og/eller gjøre «Skjul»-knappen tydeligere?
+- La en ansatt (f.eks. Ylva) lage en plan uten hint og se om hun finner
+  rytmen selv — testen på om det er intuitivt eller bare intuitivt for Kjartan.
