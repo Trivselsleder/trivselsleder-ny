@@ -52,6 +52,8 @@ export default function SvarSkjema() {
         setArsakIkkeKomme(rad.arsak_ikke_komme ?? '');
         setArsakIkkeVertskap(rad.arsak_ikke_vertskap ?? '');
         setKommentar(rad.kommentar ?? '');
+        setApenForAnnet(rad.apen_for_annet_kurs ?? false);
+        setOnskeTekst(rad.onske_tekst ?? '');
       }
       setLaster(false);
     }
@@ -197,6 +199,14 @@ export default function SvarSkjema() {
             </p>
           )}
         </div>
+
+        {kobling.svart && (
+          <div className="mb-8 rounded-xl border border-green-200 bg-green-50 p-4">
+            <p className="text-sm text-green-800">
+              Dere har allerede svart{kobling.kommer === true ? ' (ja)' : kobling.kommer === false ? ' (nei)' : ''}. Du kan justere svaret her og sende på nytt — det siste svaret gjelder.
+            </p>
+          </div>
+        )}
 
         <fieldset className="mb-8">
           <legend className="text-lg font-semibold text-gray-900 mb-3">
@@ -379,7 +389,7 @@ export default function SvarSkjema() {
           disabled={sender}
           className="w-full py-4 px-6 rounded-xl bg-orange-500 text-gray-900 text-lg font-semibold hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {sender ? 'Sender …' : 'Send svar'}
+          {sender ? 'Sender …' : (kobling?.svart ? 'Oppdater svaret' : 'Send svar')}
         </button>
       </div>
     </main>
