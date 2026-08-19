@@ -186,7 +186,7 @@ export default async function handler(req, res) {
   // ---- Alle svar-rader (skoler) på kurset ----
   const { data: koblinger, error: koblingFeil } = await supabase
     .from('kurs_skole')
-    .select('id, forste_utsending_at, skole_id, er_vertskap, skoler(navn)')
+    .select('id, forste_utsending_at, skole_id, er_vertskap, flyttet_fra_kurs, skoler(navn)')
     .eq('kurs_id', kurs_id)
     .range(0, 9999)
 
@@ -259,9 +259,14 @@ export default async function handler(req, res) {
     }
     const emne = fyllPlassholdere(emneMal, verdier)
     const tekstUtenTomme = fjernTommePlassholderLinjer(tekstMal, verdier)
+    // B4b: er skolen flyttet hit fra et annet kurs, settes en tydelig merknad
+    // øverst i invitasjonen — automatisk, uten at RA må endre malen.
+    const flyttetFraHtml = kobling.flyttet_fra_kurs
+      ? `<p style="font-size:15px;color:#B5560F;line-height:1.6;margin:0 0 16px;font-weight:600;">Merk: dere er flyttet hit fra ${escapeHtml(kobling.flyttet_fra_kurs)}. Denne invitasjonen gjelder det nye kurset — sjekk dato, hall og oppmøtetid under.</p>\n`
+      : ''
     const html = epostMal({
       overskrift: `Invitasjon til kurs: ${escapeHtml(verdier.kursnavn)}`,
-      brødtekst: tekstTilHtml(fyllPlassholdere(tekstUtenTomme, verdier)),
+      brødtekst: flyttetFraHtml + tekstTilHtml(fyllPlassholdere(tekstUtenTomme, verdier)),
       knapptekst: 'Åpne svarskjemaet',
       knapplenke: lenke,
       fottekst: 'Lenken er personlig for din skole. Svar på selve e-posten blir ikke lest eller registrert — bruk skjemaet.',

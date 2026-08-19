@@ -86,6 +86,12 @@ export default function SvarOversikt({ kurs, onLukk }) {
       alert(error.message || 'Kunne ikke flytte skolen. Prøv igjen.')
       return
     }
+    // B4b: merk raden med hvilket kurs den ble flyttet FRA, så neste invitasjon
+    // (til det nye kurset) automatisk kan si «dere er flyttet hit fra …». Direkte
+    // oppdatering er tillatt for ansatte; feiler den, er det ikke kritisk (flyttingen
+    // er allerede gjort), så vi stopper ikke flyten på den.
+    const fraTekst = `${kurs.navn || 'kurset'}${kurs.dato ? ' (' + formaterDato(kurs.dato) + ')' : ''}`
+    await supabase.from('kurs_skole').update({ flyttet_fra_kurs: fraTekst }).eq('id', id)
     // Slå opp navnene FØR hent() fjerner raden fra denne lista (den hører nå til
     // det nye kurset), så banneret kan navngi både skolen og målkurset.
     const skoleNavn = rader.find(r => r.id === id)?.skoler?.navn || 'Skolen'
