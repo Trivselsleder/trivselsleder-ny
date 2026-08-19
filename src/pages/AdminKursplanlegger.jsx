@@ -9,6 +9,7 @@ import AdminKursholdere from './AdminKursholdere'
 import AdminEvaluering from './AdminEvaluering'
 import AdminOppfolging from './AdminOppfolging'
 import AdminNettverksansvar from './AdminNettverksansvar'
+import AdminSkoleoversikt from './AdminSkoleoversikt'
 import { adminFetch } from '../lib/adminFetch'
 
 function ukeNummer(isoDato) {
@@ -1004,6 +1005,7 @@ export default function AdminKursplanlegger() {
   const [fane, setFane] = useState('kurs')
   const faner = [
     { id: 'kurs', navn: 'Kurs' },
+    { id: 'skoler', navn: 'Alle skoler' },
     { id: 'haller', navn: 'Haller' },
     { id: 'kursholdere', navn: 'Kursholdere' },
     { id: 'nettverksansvar', navn: 'Nettverksansvar' },
@@ -1028,6 +1030,7 @@ export default function AdminKursplanlegger() {
         ))}
       </div>
       {fane === 'kurs' && <KursOversikt />}
+      {fane === 'skoler' && <AdminSkoleoversikt />}
       {fane === 'haller' && <AdminHaller />}
       {fane === 'kursholdere' && <AdminKursholdere />}
       {fane === 'nettverksansvar' && <AdminNettverksansvar />}
