@@ -32,7 +32,7 @@ const TOMT_KURS = {
   start_tid: '09:00', slutt_tid: '13:00',
   oppmote_vertskap: '', oppmote_ovrige: '',
   uke: '', dag: '', antall_tl: '', antall_skoler: '', maks_antall: '', merknad: '',
-  kursinfo_tillegg: '',
+  kursinfo_tillegg: '', auto_purring: false,
 }
 
 // Maks antall treff som rendres i dropdownen — å tegne hundrevis av rader er
@@ -877,6 +877,22 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
               onChange={e => onEndre({ ...verdi, kursinfo_tillegg: e.target.value })}
               placeholder="F.eks. «Dette kurset har felles opplæring for alle skolene, ikke eget vertskap.»"
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+          </div>
+          <div className="sm:col-span-3">
+            <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!verdi.auto_purring}
+                onChange={e => onEndre({ ...verdi, auto_purring: e.target.checked })}
+                className="mt-0.5"
+              />
+              <span>
+                Automatisk purring til skoler som ikke svarer
+                <span className="block text-xs text-gray-400">
+                  Systemet sender purringen på nytt av seg selv (hvert par dager) til skolen svarer, eller til kursdatoen passerer. Du setter regelen én gang — enkeltskoler kan skjermes i Oppfølging. Respekterer hovedbryteren for utsending.
+                </span>
+              </span>
+            </label>
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">

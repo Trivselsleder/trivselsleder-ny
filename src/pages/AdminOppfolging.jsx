@@ -297,7 +297,7 @@ export default function AdminOppfolging({ innebygd = false }) {
         <>
           <Seksjon
             tittel="Purring — ikke svart"
-            forklaring={`Skoler som ikke har svart innen ${terskler.purring_dager} dager. Går til hovedkontakten (Hovedkontakt TL) som en vennlig påminnelse.`}
+            forklaring={`Skoler som ikke har svart innen ${terskler.purring_dager} dager. Hver skole får sin egen e-post med sin dato, hall og oppmøtetid — du velger hvem som skjermes ved å hake av.`}
             farge={ORANSJE}
             knappeverb="Send purring"
             rader={radPurring}
