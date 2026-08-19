@@ -113,9 +113,13 @@ export default function SvarOversikt({ kurs, onLukk }) {
     // 2) Åpnet-/sendt-indikasjon per skole — mottakernes apnet_at/sendt_at.
     //    Ansatte har lesetilgang på kurs_skole_mottaker (RLS mottaker_ansatt_alt).
     //    Vi går via kurs_skole-embed så vi treffer alle skolene på kurset i ett kall.
+    //    MERK: embed-hint er PÅKREVD — det finnes TO relasjoner mellom
+    //    kurs_skole_mottaker og kurs_skole (kurs_skole_id-FK-en OG
+    //    kurs_skole.svart_av_mottaker_id), så uten hint feiler PostgREST med
+    //    «tvetydig relasjon» (PGRST201) og indikasjonen ville aldri lastes.
     const { data: mott } = await supabase
       .from('kurs_skole_mottaker')
-      .select('kurs_skole_id, sendt_at, apnet_at, kurs_skole!inner(kurs_id)')
+      .select('kurs_skole_id, sendt_at, apnet_at, kurs_skole!kurs_skole_mottaker_kurs_skole_id_fkey!inner(kurs_id)')
       .eq('kurs_skole.kurs_id', kurs.id)
       .range(0, 9999)
     const aKart = {}
@@ -384,6 +388,12 @@ export default function SvarOversikt({ kurs, onLukk }) {
         : (redigerRad.arsak_ikke_vertskap ?? null),
       p_kommentar: kommentar.trim() === '' ? null : kommentar.trim(),
       p_apen_for_annet_kurs: kommer === false ? apenForAnnet : false,
+      // ØNSKE: dette skjemaet har ikke noe ønske-felt, men RPC-en NULLER
+      // onske_tekst når parameteren utelates (default null) og skolen står som
+      // «nei, men åpen». Send derfor GJELDENDE verdi videre, så en RA-justering
+      // aldri sletter skolens eget ønske. (Sier skolen ja / ikke åpen, nuller
+      // RPC-en feltet selv — det er riktig.)
+      p_onske_tekst: (kommer === false && apenForAnnet) ? (redigerRad.onske_tekst ?? null) : null,
       p_pa_vegne_av: true,
     })
     setLagrer(false)
