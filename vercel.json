@@ -21,6 +21,10 @@
     {
       "path": "/api/kurs/cron-auto-purring?torrkjoring=false",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/kurs/cron-eval-purring?torrkjoring=false",
+      "schedule": "30 6 * * *"
     }
   ]
 }
