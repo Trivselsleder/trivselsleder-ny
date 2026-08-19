@@ -5,6 +5,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
   const [rader, setRader] = useState([])
   const [laster, setLaster] = useState(true)
   const [andreKurs, setAndreKurs] = useState([])
+  const [kapasitet, setKapasitet] = useState({}) // B5: {kurs_id: {total, ja, tl}}
   const [flytterRad, setFlytterRad] = useState(null)
   // Påminnelse etter flytting: skolen sitter igjen med invitasjon om gammel hall
   // og dato, så den MÅ inviteres på nytt. Banneret har med vilje ikke kryss — det
@@ -50,11 +51,30 @@ export default function SvarOversikt({ kurs, onLukk }) {
   async function hentAndreKurs() {
     const { data } = await supabase
       .from('kurs')
-      .select('id, navn, dato, nettverk')
+      .select('id, navn, dato, nettverk, maks_antall')
       .neq('id', kurs.id)
       .order('dato', { ascending: true })
       .range(0, 9999)
-    setAndreKurs(data ?? [])
+    const liste = data ?? []
+    setAndreKurs(liste)
+
+    // B5: levende kapasitet per målkurs (årets påmeldinger). Vises som info i
+    // flyttedialogen — den SPERRER ALDRI, RA bestemmer.
+    const ider = liste.map(k => k.id)
+    if (ider.length === 0) { setKapasitet({}); return }
+    const { data: ks } = await supabase
+      .from('kurs_skole')
+      .select('kurs_id, kommer, antall_tl')
+      .in('kurs_id', ider)
+      .range(0, 9999)
+    const kart = {}
+    for (const rad of (ks ?? [])) {
+      const m = kart[rad.kurs_id] || { total: 0, ja: 0, tl: 0 }
+      m.total += 1
+      if (rad.kommer === true) { m.ja += 1; m.tl += (rad.antall_tl || 0) }
+      kart[rad.kurs_id] = m
+    }
+    setKapasitet(kart)
   }
 
   useEffect(() => { hent(); hentAndreKurs() }, [])
@@ -325,7 +345,20 @@ export default function SvarOversikt({ kurs, onLukk }) {
                               onClick={() => flyttSkole(r.id, k.id)}
                               className="block w-full text-left text-sm border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50"
                             >
-                              {k.navn || 'Kurs'} — {formaterDato(k.dato)} {k.nettverk ? '(' + k.nettverk + ')' : ''}
+                              <span className="block font-medium text-gray-800">
+                                {k.navn || 'Kurs'} — {formaterDato(k.dato)} {k.nettverk ? '(' + k.nettverk + ')' : ''}
+                              </span>
+                              {(() => {
+                                const kap = kapasitet[k.id]
+                                if (!kap || kap.total === 0) {
+                                  return <span className="block text-xs text-gray-400 mt-0.5">Ingen påmeldte skoler ennå{k.maks_antall ? ` (maks ${k.maks_antall})` : ''}</span>
+                                }
+                                return (
+                                  <span className="block text-xs text-gray-500 mt-0.5">
+                                    {kap.ja} av {kap.total} har svart ja · ca. {kap.tl} trivselsledere{k.maks_antall ? ` (maks ${k.maks_antall})` : ''}
+                                  </span>
+                                )
+                              })()}
                             </button>
                           ))}
                           <button onClick={() => setFlytterRad(null)} className="text-sm text-gray-500 hover:underline">
