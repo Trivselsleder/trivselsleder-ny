@@ -52,6 +52,7 @@ export default function AdminSkoleoversikt() {
   const [sok, setSok] = useState('')
   const [nettverkFilter, setNettverkFilter] = useState('')
   const [fylkeFilter, setFylkeFilter] = useState('')
+  const [kommuneFilter, setKommuneFilter] = useState('')
   const [raFilter, setRaFilter] = useState('')
   const [svarFilter, setSvarFilter] = useState('')
   const [trappFilter, setTrappFilter] = useState('')
@@ -78,11 +79,13 @@ export default function AdminSkoleoversikt() {
 
   const nettverkFor = r => r.kurs?.nettverk || null
   const fylkeFor = r => r.skoler?.fylke || null
+  const kommuneFor = r => r.skoler?.kommunenavn || null
   const raFor = r => raNettverkMap[nettverkFor(r)] || null
 
   // Filtervalg fra de innlastede radene.
   const nettverkValg = [...new Set(rader.map(nettverkFor).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
   const fylkeValg = [...new Set(rader.map(fylkeFor).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
+  const kommuneValg = [...new Set(rader.map(kommuneFor).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
   const raValg = [...new Set(rader.map(raFor).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
   const SVAR_VALG = ['Ikke svart', 'Kommer', 'Kommer ikke']
   const TRAPP_VALG = ['Ikke sendt', 'Invitert', 'Purret', 'Trinn 3', 'Svart']
@@ -91,6 +94,7 @@ export default function AdminSkoleoversikt() {
   const filtrerte = rader.filter(r => {
     if (nettverkFilter && nettverkFor(r) !== nettverkFilter) return false
     if (fylkeFilter && fylkeFor(r) !== fylkeFilter) return false
+    if (kommuneFilter && kommuneFor(r) !== kommuneFilter) return false
     if (raFilter && raFor(r) !== raFilter) return false
     if (svarFilter && svarStatus(r) !== svarFilter) return false
     if (trappFilter && trappStatus(r) !== trappFilter) return false
@@ -169,6 +173,11 @@ export default function AdminSkoleoversikt() {
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
               <option value="">Alle fylker</option>
               {fylkeValg.map(f => <option key={f} value={f}>{f}</option>)}
+            </select>
+            <select value={kommuneFilter} onChange={e => setKommuneFilter(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">Alle kommuner</option>
+              {kommuneValg.map(k => <option key={k} value={k}>{k}</option>)}
             </select>
             <select value={raFilter} onChange={e => setRaFilter(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm">

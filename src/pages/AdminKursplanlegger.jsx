@@ -10,6 +10,8 @@ import AdminEvaluering from './AdminEvaluering'
 import AdminOppfolging from './AdminOppfolging'
 import AdminNettverksansvar from './AdminNettverksansvar'
 import AdminSkoleoversikt from './AdminSkoleoversikt'
+import AdminKursholderPlan from './AdminKursholderPlan'
+import AdminKalender from './AdminKalender'
 import { adminFetch } from '../lib/adminFetch'
 
 function ukeNummer(isoDato) {
@@ -118,6 +120,7 @@ function KursOversikt() {
   const [sesongFilter, setSesongFilter] = useState('')
   const [kursholderFilter, setKursholderFilter] = useState('')
   const [fylkeFilter, setFylkeFilter] = useState('')
+  const [kommuneFilter, setKommuneFilter] = useState('')
 
   // B10: «Mine kurs» — nettverkene den innloggede RA-en er ansvarlig for
   // (fra nettverk_ansvarlig). null = ikke lastet ennå (da filtrerer vi ikke).
@@ -171,7 +174,7 @@ function KursOversikt() {
       .then(({ data }) => setHaller(data ?? []))
     supabase.from('kursholdere').select('id, navn, aktiv').order('navn').range(0, 9999)
       .then(({ data }) => setKursholdere(data ?? []))
-    supabase.from('skoler').select('nettverk, ansvarlig, fylke').range(0, 9999)
+    supabase.from('skoler').select('nettverk, ansvarlig, fylke, kommunenavn').range(0, 9999)
       .then(({ data }) => setNettverkData(data ?? []))
 
     // B10: nettverk → ansvarlig RA-navn (fra koblingstabellen, join mot profiles).
@@ -247,14 +250,29 @@ function KursOversikt() {
     }
     return kart
   })()
+  // C3: kommune per nettverk — samme «det vanligste»-mønster som fylke.
+  const kommuneForNettverk = (() => {
+    const tally = {}
+    for (const s of nettverkData) {
+      if (!s.nettverk || !s.kommunenavn) continue
+      ;(tally[s.nettverk] ||= {})[s.kommunenavn] = (tally[s.nettverk][s.kommunenavn] || 0) + 1
+    }
+    const kart = {}
+    for (const nv of Object.keys(tally)) {
+      kart[nv] = Object.entries(tally[nv]).sort((a, b) => b[1] - a[1])[0][0]
+    }
+    return kart
+  })()
   const raForKurs = k => raNettverkMap[k.nettverk] || null
   const fylkeForKurs = k => fylkeForNettverk[k.nettverk] || null
+  const kommuneForKurs = k => kommuneForNettverk[k.nettverk] || null
 
   // Unike verdier til nedtrekkene, hentet fra de innlastede kursene.
   const raValg = [...new Set(kurs.map(raForKurs).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
   const nettverkValg = [...new Set(kurs.map(k => k.nettverk).filter(Boolean))].sort()
   const sesongValg = [...new Set(kurs.map(k => k.sesong).filter(Boolean))].sort()
   const fylkeValg = [...new Set(kurs.map(fylkeForKurs).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
+  const kommuneValg = [...new Set(kurs.map(kommuneForKurs).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
   // Kursholdere som faktisk er i bruk på et kurs (id-er), til kursholder-filteret.
   const brukteHolderIder = new Set(kurs.map(k => k.kursholder_id).filter(Boolean))
 
@@ -268,6 +286,7 @@ function KursOversikt() {
     if (sesongFilter && k.sesong !== sesongFilter) return false
     if (kursholderFilter && k.kursholder_id !== kursholderFilter) return false
     if (fylkeFilter && fylkeForKurs(k) !== fylkeFilter) return false
+    if (kommuneFilter && kommuneForKurs(k) !== kommuneFilter) return false
     if (sokTreff) {
       const navn = (k.navn || '').toLowerCase()
       const hall = hallNavn(k.hall_id).toLowerCase()
@@ -369,6 +388,11 @@ function KursOversikt() {
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option value="">Alle fylker</option>
             {fylkeValg.map(f => <option key={f} value={f}>{f}</option>)}
+          </select>
+          <select value={kommuneFilter} onChange={e => setKommuneFilter(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">Alle kommuner</option>
+            {kommuneValg.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
           <select value={nettverkFilter} onChange={e => setNettverkFilter(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
@@ -1008,6 +1032,8 @@ export default function AdminKursplanlegger() {
     { id: 'skoler', navn: 'Alle skoler' },
     { id: 'haller', navn: 'Haller' },
     { id: 'kursholdere', navn: 'Kursholdere' },
+    { id: 'kursholderplan', navn: 'Kursholder-plan' },
+    { id: 'kalender', navn: 'Kalender' },
     { id: 'nettverksansvar', navn: 'Nettverksansvar' },
     { id: 'oppfolging', navn: 'Oppfølging' },
     { id: 'evaluering', navn: 'Evaluering' },
@@ -1033,6 +1059,8 @@ export default function AdminKursplanlegger() {
       {fane === 'skoler' && <AdminSkoleoversikt />}
       {fane === 'haller' && <AdminHaller />}
       {fane === 'kursholdere' && <AdminKursholdere />}
+      {fane === 'kursholderplan' && <AdminKursholderPlan />}
+      {fane === 'kalender' && <AdminKalender />}
       {fane === 'nettverksansvar' && <AdminNettverksansvar />}
       {fane === 'oppfolging' && <AdminOppfolging innebygd />}
       {fane === 'evaluering' && <AdminEvaluering />}
