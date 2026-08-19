@@ -205,7 +205,7 @@ export default function AdminEvaluering() {
 
   function lastNedCsv() {
     if (rader.length === 0) { alert('Ingen evalueringer å eksportere ennå.'); return }
-    const kolonner = ['Skole', 'Kurs', 'Gjennomføring', 'Info i forkant', 'Aktiviteter', 'Gullkorn', 'Kjøpsinteresse', 'Valgt pakke', 'Pakkepris (kr)']
+    const kolonner = ['Skole', 'Kurs', 'Gjennomføring', 'Info i forkant', 'Aktiviteter', 'Gullkorn', 'Forbedring', 'Kjøpsinteresse', 'Valgt pakke', 'Pakkepris (kr)']
     const celle = (v) => {
       if (v == null) return ''
       const t = String(v).replace(/"/g, '""')
@@ -218,6 +218,7 @@ export default function AdminEvaluering() {
       celle(r.vurd_info),
       celle(r.vurd_aktiviteter),
       celle(r.gullkorn),
+      celle(r.forbedring),
       celle(KJOP_ETIKETT[r.kjopsinteresse] ?? r.kjopsinteresse),
       celle(r.valgt_pakke_navn),
       celle(r.valgt_pakke_pris),
@@ -242,6 +243,7 @@ export default function AdminEvaluering() {
   }
 
   const gullkorn = rader.filter(r => r.gullkorn && r.gullkorn.trim() !== '')
+  const forbedringer = rader.filter(r => r.forbedring && r.forbedring.trim() !== '')
   const vilHa = rader.filter(r => r.kjopsinteresse === 'pakke' || r.kjopsinteresse === 'samtale')
 
   return (
@@ -529,6 +531,20 @@ export default function AdminEvaluering() {
                 {gullkorn.map(r => (
                   <div key={r.evaluering_id} className="bg-white border border-gray-200 rounded-xl p-4">
                     <p className="text-gray-800 italic">«{r.gullkorn}»</p>
+                    <p className="text-xs text-gray-500 mt-2">{r.skole_navn || '—'} · {r.kurs_navn}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {forbedringer.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Forbedring / andre innspill ({forbedringer.length})</h3>
+              <div className="space-y-3">
+                {forbedringer.map(r => (
+                  <div key={r.evaluering_id} className="bg-white border border-gray-200 rounded-xl p-4">
+                    <p className="text-gray-800 italic">«{r.forbedring}»</p>
                     <p className="text-xs text-gray-500 mt-2">{r.skole_navn || '—'} · {r.kurs_navn}</p>
                   </div>
                 ))}

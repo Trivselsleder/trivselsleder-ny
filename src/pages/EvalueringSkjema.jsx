@@ -67,6 +67,7 @@ export default function EvalueringSkjema() {
   const [infoForkant, setInfoForkant] = useState(null);
   const [aktiviteter, setAktiviteter] = useState(null);
   const [gullkorn, setGullkorn] = useState('');
+  const [forbedring, setForbedring] = useState('');
 
   // Valg: enten en pakke-id, eller 'samtale', eller 'nei'
   const [valg, setValg] = useState(null);
@@ -110,6 +111,7 @@ export default function EvalueringSkjema() {
         setInfoForkant(rad.vurd_info);
         setAktiviteter(rad.vurd_aktiviteter);
         setGullkorn(rad.gullkorn ?? '');
+        setForbedring(rad.forbedring ?? '');
         if (rad.valgt_pakke_id) setValg(rad.valgt_pakke_id);
         else if (rad.kjopsinteresse) setValg(rad.kjopsinteresse);
       }
@@ -142,6 +144,7 @@ export default function EvalueringSkjema() {
       p_vurd_info: infoForkant,
       p_vurd_aktiviteter: aktiviteter,
       p_gullkorn: gullkorn.trim() === '' ? null : gullkorn.trim(),
+      p_forbedring: forbedring.trim() === '' ? null : forbedring.trim(),
       p_kjopsinteresse: kjopsinteresse,
       p_valgt_pakke_id: pakkeId,
     });
@@ -218,17 +221,31 @@ export default function EvalueringSkjema() {
 
         <div className="mb-8">
           <label htmlFor="gullkorn" className="block text-lg font-semibold text-gray-900 mb-2">
-            Gullkorn{' '}
+            Gullkorn fra dagen{' '}
             <span className="font-normal text-gray-500">(valgfritt)</span>
           </label>
           <p className="text-sm text-gray-500 mb-2">
-            Var det noe en trivselsleder sa eller gjorde som satte seg? Eller andre innspill?
+            Var det noe en trivselsleder sa eller gjorde som satte seg?
           </p>
           <textarea
             id="gullkorn"
             rows="3"
             value={gullkorn}
             onChange={(e) => setGullkorn(e.target.value)}
+            className="w-full py-3 px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none"
+          />
+        </div>
+
+        <div className="mb-8">
+          <label htmlFor="forbedring" className="block text-lg font-semibold text-gray-900 mb-2">
+            Noe som kunne vært bedre, eller annet dere vil si?{' '}
+            <span className="font-normal text-gray-500">(valgfritt)</span>
+          </label>
+          <textarea
+            id="forbedring"
+            rows="3"
+            value={forbedring}
+            onChange={(e) => setForbedring(e.target.value)}
             className="w-full py-3 px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none"
           />
         </div>

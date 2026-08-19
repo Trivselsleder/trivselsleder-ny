@@ -64,9 +64,15 @@ export default function SvarSkjema() {
       setFeil('Velg om dere kommer eller ikke.');
       return;
     }
-    if (kommer === true && antallTl !== '' && Number(antallTl) < 0) {
-      setFeil('Antallet kan ikke være negativt.');
-      return;
+    if (kommer === true) {
+      if (antallTl === '' || Number.isNaN(Number(antallTl))) {
+        setFeil('Fyll inn omtrent hvor mange trivselsledere dere blir (et cirka-tall er nok).');
+        return;
+      }
+      if (Number(antallTl) < 0) {
+        setFeil('Antallet kan ikke være negativt.');
+        return;
+      }
     }
     if (kommer === false && arsakIkkeKomme.trim() === '') {
       setFeil('Skriv kort hvorfor dere ikke kommer.');
@@ -217,13 +223,15 @@ export default function SvarSkjema() {
           <div className="mb-8">
             <label htmlFor="antallTl" className="block text-lg font-semibold text-gray-900 mb-2">
               Ca. hvor mange trivselsledere kommer?{' '}
-              <span className="font-normal text-gray-500">(valgfritt)</span>
+              <span className="font-normal text-gray-500">(et cirka-tall er nok)</span>
             </label>
             <input
               id="antallTl"
               type="number"
               min="0"
               inputMode="numeric"
+              required
+              aria-required="true"
               value={antallTl}
               onChange={(e) => setAntallTl(e.target.value)}
               className="w-32 py-3 px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
