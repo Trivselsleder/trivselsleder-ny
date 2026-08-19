@@ -45,11 +45,15 @@ export default function SvarOversikt({ kurs, onLukk }) {
   const [lagrerNotat, setLagrerNotat] = useState(null)  // skole_id som lagres nå
   const [vertskapHist, setVertskapHist] = useState({})  // skole_id → 'laster' | [ {navn, dato, bekreftet} ]
 
+  // B15: omsorgsmail «vi savnet dere» til nei-skoler (manuell, per skole).
+  const [senderSavnet, setSenderSavnet] = useState(null)   // kurs_skole_id under sending
+  const [savnetResultat, setSavnetResultat] = useState({}) // kurs_skole_id → { ok, melding }
+
   async function hent() {
     setLaster(true)
     const { data } = await supabase
       .from('kurs_skole')
-      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, onske_tekst, auto_purring_skjermet, svart, melding_handtert, lenke_token, svar_registrert_av, svar_registrert_at, skoler(navn, kommunenavn, notat)')
+      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, onske_tekst, auto_purring_skjermet, svart, melding_handtert, lenke_token, svar_registrert_av, svar_registrert_at, savnet_sendt_at, skoler(navn, kommunenavn, notat)')
       .eq('kurs_id', kurs.id)
       .order('svart', { ascending: false })
       .range(0, 9999)
@@ -302,6 +306,35 @@ export default function SvarOversikt({ kurs, onLukk }) {
     setVisNotat(neste)
   }
 
+  // B15: send omsorgsmailen «vi savnet dere» til én nei-skole. Bekreft, kall
+  // ansatt-sikret endepunkt (torrkjoring:false → nødbremsen stopper ekte e-post
+  // til motoren slås på ved lansering).
+  async function sendSavnet(r) {
+    const navn = r.skoler?.navn || 'skolen'
+    if (!window.confirm(`Sende «vi savnet dere» til ${navn}? En varm hilsen går til skolens hovedkontakt.`)) return
+    setSenderSavnet(r.id)
+    setSavnetResultat(prev => ({ ...prev, [r.id]: null }))
+    try {
+      const res = await adminFetch('/api/kurs/send-savnet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kurs_skole_id: r.id, torrkjoring: false }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (res.status === 409 && d.motor_aktiv === 'nei') {
+        setSavnetResultat(prev => ({ ...prev, [r.id]: { ok: false, melding: 'Nødbremsen er på (utsending av). Ingen e-post ble sendt. Slås på ved lansering.' } }))
+      } else if (!res.ok || d.sendt === false) {
+        setSavnetResultat(prev => ({ ...prev, [r.id]: { ok: false, melding: d.error || d.grunn || 'Kunne ikke sende. Prøv igjen.' } }))
+      } else {
+        setSavnetResultat(prev => ({ ...prev, [r.id]: { ok: true, melding: `Sendt til ${d.mottaker || navn}.` } }))
+        hent() // oppdater savnet_sendt_at-stempelet i visningen
+      }
+    } catch (e) {
+      setSavnetResultat(prev => ({ ...prev, [r.id]: { ok: false, melding: 'Nettverksfeil: ' + e.message } }))
+    }
+    setSenderSavnet(null)
+  }
+
   // Åpne skjemaet for én skole. Forhåndsfyller fra eksisterende svar (endre),
   // eller blankt (registrere for første gang) — samme betingede logikk som
   // SvarSkjema.jsx som skolen selv fyller ut.
@@ -521,6 +554,29 @@ export default function SvarOversikt({ kurs, onLukk }) {
                         >
                           Flytt til annet kurs
                         </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* B15: omsorgsmail «vi savnet dere» — kun for nei-skoler, manuelt av RA */}
+                  {r.svart && r.kommer === false && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <button
+                          onClick={() => sendSavnet(r)}
+                          disabled={senderSavnet === r.id}
+                          className="text-sm text-orange-ink hover:underline disabled:opacity-50"
+                        >
+                          {senderSavnet === r.id ? 'Sender …' : 'Send «vi savnet dere»'}
+                        </button>
+                        {r.savnet_sendt_at && (
+                          <span className="text-xs text-gray-400">sist sendt {kortDato(r.savnet_sendt_at)}</span>
+                        )}
+                      </div>
+                      {savnetResultat[r.id] && (
+                        <p className={'mt-2 text-sm rounded-lg py-1.5 px-2.5 ' + (savnetResultat[r.id].ok ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800')}>
+                          {savnetResultat[r.id].melding}
+                        </p>
                       )}
                     </div>
                   )}
