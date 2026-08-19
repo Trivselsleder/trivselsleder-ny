@@ -115,11 +115,16 @@ function KursOversikt() {
   const [raFilter, setRaFilter] = useState('')
   const [nettverkFilter, setNettverkFilter] = useState('')
   const [sesongFilter, setSesongFilter] = useState('')
+  const [kursholderFilter, setKursholderFilter] = useState('')
+  const [fylkeFilter, setFylkeFilter] = useState('')
 
   // B10: «Mine kurs» — nettverkene den innloggede RA-en er ansvarlig for
   // (fra nettverk_ansvarlig). null = ikke lastet ennå (da filtrerer vi ikke).
   const [mineNettverk, setMineNettverk] = useState(null)
   const [visMine, setVisMine] = useState(true)
+  // B10: nettverk → RA-navn (fra nettverk_ansvarlig). Autoritativ RA nå — erstatter
+  // det gamle fritekst-ra-feltet i visning, filter og eksport.
+  const [raNettverkMap, setRaNettverkMap] = useState({})
 
   function hentKurs() {
     supabase.from('kurs').select('*').order('dato', { ascending: true }).range(0, 9999)
@@ -165,8 +170,14 @@ function KursOversikt() {
       .then(({ data }) => setHaller(data ?? []))
     supabase.from('kursholdere').select('id, navn, aktiv').order('navn').range(0, 9999)
       .then(({ data }) => setKursholdere(data ?? []))
-    supabase.from('skoler').select('nettverk, ansvarlig').range(0, 9999)
+    supabase.from('skoler').select('nettverk, ansvarlig, fylke').range(0, 9999)
       .then(({ data }) => setNettverkData(data ?? []))
+
+    // B10: nettverk → ansvarlig RA-navn (fra koblingstabellen, join mot profiles).
+    supabase.from('nettverk_ansvarlig').select('nettverk, profiles(navn)').range(0, 9999)
+      .then(({ data }) => setRaNettverkMap(
+        Object.fromEntries((data ?? []).map(r => [r.nettverk, r.profiles?.navn || null]))
+      ))
 
     // B10: hvilke nettverk er MINE? Slå opp på innlogget bruker. Har jeg ingen
     // tilordnet, står «Mine kurs» tomt — da starter vi heller på «Alle».
@@ -221,19 +232,41 @@ function KursOversikt() {
   const hallNavn = id => haller.find(h => h.id === id)?.navn || '—'
   const holderNavn = id => kursholdere.find(k => k.id === id)?.navn || '—'
 
+  // B10: fylke per nettverk (skolene bærer fylket). Et nettverk kan i praksis ha
+  // skoler i flere fylker — vi tar det vanligste, så filteret blir forutsigbart.
+  const fylkeForNettverk = (() => {
+    const tally = {} // nettverk → { fylke → antall }
+    for (const s of nettverkData) {
+      if (!s.nettverk || !s.fylke) continue
+      ;(tally[s.nettverk] ||= {})[s.fylke] = (tally[s.nettverk][s.fylke] || 0) + 1
+    }
+    const kart = {}
+    for (const nv of Object.keys(tally)) {
+      kart[nv] = Object.entries(tally[nv]).sort((a, b) => b[1] - a[1])[0][0]
+    }
+    return kart
+  })()
+  const raForKurs = k => raNettverkMap[k.nettverk] || null
+  const fylkeForKurs = k => fylkeForNettverk[k.nettverk] || null
+
   // Unike verdier til nedtrekkene, hentet fra de innlastede kursene.
-  const raValg = [...new Set(kurs.map(k => k.ra).filter(Boolean))].sort()
+  const raValg = [...new Set(kurs.map(raForKurs).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
   const nettverkValg = [...new Set(kurs.map(k => k.nettverk).filter(Boolean))].sort()
   const sesongValg = [...new Set(kurs.map(k => k.sesong).filter(Boolean))].sort()
+  const fylkeValg = [...new Set(kurs.map(fylkeForKurs).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
+  // Kursholdere som faktisk er i bruk på et kurs (id-er), til kursholder-filteret.
+  const brukteHolderIder = new Set(kurs.map(k => k.kursholder_id).filter(Boolean))
 
   // Filtrering skjer klient-side på kursene som allerede er lastet.
   const filtrerteKurs = kurs.filter(k => {
     // B10: «Mine kurs» = kun kurs i nettverkene jeg er RA for. Så lenge settet
     // ikke er lastet (null) filtrerer vi ikke, så lista ikke blinker tom.
     if (visMine && mineNettverk && !mineNettverk.has(k.nettverk)) return false
-    if (raFilter && k.ra !== raFilter) return false
+    if (raFilter && raForKurs(k) !== raFilter) return false
     if (nettverkFilter && k.nettverk !== nettverkFilter) return false
     if (sesongFilter && k.sesong !== sesongFilter) return false
+    if (kursholderFilter && k.kursholder_id !== kursholderFilter) return false
+    if (fylkeFilter && fylkeForKurs(k) !== fylkeFilter) return false
     if (sokTreff) {
       const navn = (k.navn || '').toLowerCase()
       const hall = hallNavn(k.hall_id).toLowerCase()
@@ -245,7 +278,7 @@ function KursOversikt() {
   // Laster ned de FILTRERTE radene som CSV. Samme mønster som eksporten i
   // AdminSkoler.jsx / AdminEvaluering.jsx (BOM + semikolon for norsk Excel).
   function eksporterKursCSV(liste) {
-    const kolonner = ['Kurs', 'Dato', 'Uke', 'Hall', 'Antall skoler', 'Kursholder', 'RA', 'Nettverk', 'Sesong']
+    const kolonner = ['Kurs', 'Dato', 'Uke', 'Hall', 'Antall skoler', 'Kursholder', 'RA', 'Nettverk', 'Fylke', 'Sesong']
     const rader = liste.map(k => [
       k.navn ?? '',
       formaterDato(k.dato),
@@ -253,8 +286,9 @@ function KursOversikt() {
       hallNavn(k.hall_id),
       antallPerKurs[k.id] || 0,
       holderNavn(k.kursholder_id),
-      k.ra ?? '',
+      raForKurs(k) ?? '',
       k.nettverk ?? '',
+      fylkeForKurs(k) ?? '',
       k.sesong ?? '',
     ])
     const csv = [kolonner, ...rader]
@@ -323,6 +357,18 @@ function KursOversikt() {
             <option value="">Alle RA</option>
             {raValg.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
+          <select value={kursholderFilter} onChange={e => setKursholderFilter(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">Alle kursholdere</option>
+            {kursholdere.filter(h => brukteHolderIder.has(h.id))
+              .sort((a, b) => (a.navn || '').localeCompare(b.navn || '', 'nb'))
+              .map(h => <option key={h.id} value={h.id}>{h.navn}</option>)}
+          </select>
+          <select value={fylkeFilter} onChange={e => setFylkeFilter(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">Alle fylker</option>
+            {fylkeValg.map(f => <option key={f} value={f}>{f}</option>)}
+          </select>
           <select value={nettverkFilter} onChange={e => setNettverkFilter(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option value="">Alle nettverk</option>
@@ -382,7 +428,7 @@ function KursOversikt() {
                   <td className="px-4 py-3">{hallNavn(k.hall_id)}</td>
                   <td className="px-4 py-3">{antallPerKurs[k.id] || 0}</td>
                   <td className="px-4 py-3">{holderNavn(k.kursholder_id)}</td>
-                  <td className="px-4 py-3">{k.ra || '—'}</td>
+                  <td className="px-4 py-3">{raForKurs(k) || '—'}</td>
                   <td className="px-4 py-3">{k.sesong || '—'}</td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <button onClick={() => setSkoleKurs(k)} className="text-orange-ink hover:underline mr-3">Skoler</button>
@@ -407,6 +453,7 @@ function KursOversikt() {
           haller={haller}
           kursholdere={kursholdere}
           nettverkData={nettverkData}
+          raNettverkMap={raNettverkMap}
           onEndre={felt => (nyForm ? setNyForm(felt) : setRedigerer(felt))}
           onLagre={nyForm ? lagreNytt : lagreRediger}
           onAvbryt={() => { setNyForm(null); setRedigerer(null) }}
@@ -743,7 +790,7 @@ function SkoleKobling({ kurs, onLukk }) {
   )
 }
 
-function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, onLagre, onAvbryt }) {
+function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, raNettverkMap = {}, onEndre, onLagre, onAvbryt }) {
   const aktiveHoldere = kursholdere.filter(k => k.aktiv)
   // Vis også en allerede valgt (men deaktivert) kursholder, så koblingen ikke
   // forsvinner stille når kurset åpnes/lagres på nytt.
@@ -766,8 +813,9 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
   })()
 
   function velgNettverk(valgtNettverk) {
-    const match = nettverkData.find(d => d.nettverk === valgtNettverk && d.ansvarlig)
-    const oppdatert = { ...verdi, nettverk: valgtNettverk, ra: match?.ansvarlig || verdi.ra }
+    // B10: RA settes ikke lenger som fritekst her — den følger nettverket via
+    // «Nettverksansvar». Vi setter kun nettverk (+ foreslått navn).
+    const oppdatert = { ...verdi, nettverk: valgtNettverk }
     if (!verdi.navn || verdi.navn === `Lek ${verdi.nettverk}`) {
       oppdatert.navn = `Lek ${valgtNettverk}`
     }
@@ -798,10 +846,13 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
               onVelg={velgNettverk} placeholder="Skriv for å søke …" />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">RA (auto)</label>
-            <input value={verdi.ra || ''}
-              onChange={e => onEndre({ ...verdi, ra: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50" />
+            <label className="block text-sm text-gray-600 mb-1">RA</label>
+            <div className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-700">
+              {verdi.nettverk
+                ? (raNettverkMap[verdi.nettverk] || 'Ingen RA satt for nettverket')
+                : 'Velg nettverk først'}
+            </div>
+            <p className="mt-1 text-xs text-gray-400">Følger nettverket — settes under «Nettverksansvar».</p>
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Starttid</label>
