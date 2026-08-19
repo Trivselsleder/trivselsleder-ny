@@ -39,11 +39,17 @@ export default function SvarOversikt({ kurs, onLukk }) {
   const [senderPaaNytt, setSenderPaaNytt] = useState(null) // kurs_skole_id under sending
   const [paaNyttResultat, setPaaNyttResultat] = useState({}) // kurs_skole_id → { ok, melding }
 
+  // B14: skolenotat (skoler.notat) + vertskapshistorikk (ren logg fra kurs_skole).
+  const [visNotat, setVisNotat] = useState(new Set())   // kurs_skole_id med panelet åpent
+  const [notatUtkast, setNotatUtkast] = useState({})    // skole_id → tekst under redigering
+  const [lagrerNotat, setLagrerNotat] = useState(null)  // skole_id som lagres nå
+  const [vertskapHist, setVertskapHist] = useState({})  // skole_id → 'laster' | [ {navn, dato, bekreftet} ]
+
   async function hent() {
     setLaster(true)
     const { data } = await supabase
       .from('kurs_skole')
-      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, onske_tekst, auto_purring_skjermet, svart, melding_handtert, lenke_token, svar_registrert_av, svar_registrert_at, skoler(navn, kommunenavn)')
+      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, onske_tekst, auto_purring_skjermet, svart, melding_handtert, lenke_token, svar_registrert_av, svar_registrert_at, skoler(navn, kommunenavn, notat)')
       .eq('kurs_id', kurs.id)
       .order('svart', { ascending: false })
       .range(0, 9999)
@@ -250,6 +256,50 @@ export default function SvarOversikt({ kurs, onLukk }) {
     }
     setSenderPaaNytt(null)
     hentLogg() // hent fersk logg (den nye raden dukker opp)
+  }
+
+  // B14: lagre skolenotat (skoler.notat). Ansatte har update-rett på skoler.
+  async function lagreNotat(skoleId) {
+    setLagrerNotat(skoleId)
+    const tekst = (notatUtkast[skoleId] ?? '').trim()
+    const { error } = await supabase.from('skoler').update({ notat: tekst || null }).eq('id', skoleId)
+    if (error) {
+      alert('Kunne ikke lagre notatet: ' + error.message)
+    } else {
+      // Oppdater radene i minnet så teksten står (og «•»-merket stemmer) etter lagring.
+      setRader(rader.map(r => r.skole_id === skoleId
+        ? { ...r, skoler: { ...r.skoler, notat: tekst || null } } : r))
+    }
+    setLagrerNotat(null)
+  }
+
+  // B14: vertskapshistorikk for skolen — REN logg over alle kurs der skolen var
+  // vertskap. INGEN «står for tur»-forslag.
+  async function hentVertskapHistorikk(skoleId) {
+    setVertskapHist(prev => ({ ...prev, [skoleId]: 'laster' }))
+    const { data } = await supabase
+      .from('kurs_skole')
+      .select('vertskap_bekreftet, kurs!kurs_skole_kurs_id_fkey(navn, dato)')
+      .eq('skole_id', skoleId).eq('er_vertskap', true).range(0, 9999)
+    const liste = (data ?? [])
+      .map(r => ({ navn: r.kurs?.navn || 'Kurs', dato: r.kurs?.dato || null, bekreftet: r.vertskap_bekreftet }))
+      .sort((a, b) => (b.dato || '').localeCompare(a.dato || ''))
+    setVertskapHist(prev => ({ ...prev, [skoleId]: liste }))
+  }
+
+  // B14: åpne/lukke notat-panelet; init utkast + hent historikk første gang.
+  function veksleNotat(r) {
+    const neste = new Set(visNotat)
+    if (neste.has(r.id)) {
+      neste.delete(r.id)
+    } else {
+      neste.add(r.id)
+      if (!(r.skole_id in notatUtkast)) {
+        setNotatUtkast(u => ({ ...u, [r.skole_id]: r.skoler?.notat ?? '' }))
+      }
+      if (!(r.skole_id in vertskapHist)) hentVertskapHistorikk(r.skole_id)
+    }
+    setVisNotat(neste)
   }
 
   // Åpne skjemaet for én skole. Forhåndsfyller fra eksisterende svar (endre),
@@ -579,6 +629,55 @@ export default function SvarOversikt({ kurs, onLukk }) {
                         </>
                       )
                     })()}
+                  </div>
+
+                  {/* B14: skolenotat + vertskapshistorikk (ren logg, ingen «står for tur») */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <button onClick={() => veksleNotat(r)} className="text-sm text-gray-600 hover:underline">
+                      {visNotat.has(r.id) ? '▾' : '▸'} Notat og vertskapshistorikk{r.skoler?.notat ? ' •' : ''}
+                    </button>
+                    {visNotat.has(r.id) && (
+                      <div className="mt-2 space-y-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Notat om skolen</label>
+                          <textarea
+                            rows="2"
+                            value={notatUtkast[r.skole_id] ?? ''}
+                            onChange={e => setNotatUtkast(u => ({ ...u, [r.skole_id]: e.target.value }))}
+                            placeholder="F.eks. «kan ikke være vertskap, lang reisevei»"
+                            className="w-full text-sm py-2 px-3 rounded-lg border-2 border-gray-200 focus:border-orange-500 focus:outline-none"
+                          />
+                          <div className="mt-1 flex items-center gap-3 flex-wrap">
+                            <button
+                              onClick={() => lagreNotat(r.skole_id)}
+                              disabled={lagrerNotat === r.skole_id || (notatUtkast[r.skole_id] ?? '') === (r.skoler?.notat ?? '')}
+                              className="text-sm bg-orange text-gray-900 px-3 py-1.5 rounded-lg hover:opacity-90 disabled:opacity-40"
+                            >
+                              {lagrerNotat === r.skole_id ? 'Lagrer …' : 'Lagre notat'}
+                            </button>
+                            <span className="text-xs text-gray-400">Notatet gjelder skolen og vises på alle kursene dens.</span>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-600 mb-1">Vertskapshistorikk</p>
+                          {vertskapHist[r.skole_id] === 'laster' && (
+                            <p className="text-xs text-gray-400">Laster …</p>
+                          )}
+                          {Array.isArray(vertskapHist[r.skole_id]) && vertskapHist[r.skole_id].length === 0 && (
+                            <p className="text-xs text-gray-400">Skolen har ikke vært vertskap før.</p>
+                          )}
+                          {Array.isArray(vertskapHist[r.skole_id]) && vertskapHist[r.skole_id].length > 0 && (
+                            <ul className="space-y-0.5">
+                              {vertskapHist[r.skole_id].map((h, i) => (
+                                <li key={i} className="text-xs text-gray-600">
+                                  {h.navn}{h.dato ? ` · ${formaterDato(h.dato)}` : ''} — {h.bekreftet === true ? 'bekreftet' : h.bekreftet === false ? 'kunne ikke' : 'utpekt'}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
