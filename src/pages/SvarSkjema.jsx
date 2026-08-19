@@ -110,6 +110,15 @@ export default function SvarSkjema() {
     // med kvitteringen øverst der (?takk=1). Sier de NEI, har siden ingenting
     // å gi dem, og de får den vanlige kvitteringen her.
     if (kommer === true) {
+      // B6: send kvittering (fakta + varig kursinfolenke). Bonus — feiler den,
+      // går vi videre uansett; svaret er allerede lagret.
+      try {
+        await fetch('/api/kurs/send-kvittering', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+      } catch { /* stille — kvitteringen er ikke kritisk */ }
       navigate(`/kursinfo/${token}?takk=1`, { replace: true });
       return;
     }
