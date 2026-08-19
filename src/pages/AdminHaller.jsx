@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
 const TOM_HALL = {
-  navn: '', kommune: '', fylke: '', nettverk: '',
+  navn: '', adresse: '', kommune: '', fylke: '', nettverk: '',
   vanlig_vertskap: '', alternative_haller: '',
   kontaktperson: '', epost: '', telefon: '', merknad: '',
 }
@@ -75,12 +75,15 @@ export default function AdminHaller() {
     hentHaller()
   }
 
-  const filtrert = haller.filter(h =>
-    !søk ||
-    (h.navn || '').toLowerCase().includes(søk.toLowerCase()) ||
-    (h.kommune || '').toLowerCase().includes(søk.toLowerCase()) ||
-    (h.nettverk || '').toLowerCase().includes(søk.toLowerCase())
-  )
+  const filtrert = haller.filter(h => {
+    if (!søk) return true
+    const s = søk.toLowerCase()
+    // B13: søk på navn, sted (kommune) OG adresse — pluss nettverk som før.
+    return (h.navn || '').toLowerCase().includes(s)
+      || (h.kommune || '').toLowerCase().includes(s)
+      || (h.adresse || '').toLowerCase().includes(s)
+      || (h.nettverk || '').toLowerCase().includes(s)
+  })
 
   function veksleValgt(id) {
     setValgte(v => v.includes(id) ? v.filter(x => x !== id) : [...v, id])
@@ -107,7 +110,7 @@ export default function AdminHaller() {
       <input
         value={søk}
         onChange={e => setSøk(e.target.value)}
-        placeholder="Søk på navn, kommune eller nettverk …"
+        placeholder="Søk på navn, kommune, adresse eller nettverk …"
         className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4"
       />
 
@@ -202,6 +205,16 @@ export default function AdminHaller() {
                     {erÅpen && (
                       <tr className="bg-gray-50 border-t border-gray-100">
                         <td colSpan={6} className="px-4 py-4">
+                          {/* B13: adresse/sted vises her (og er søkbart). */}
+                          {(h.adresse || h.kommune || h.fylke) && (
+                            <div className="mb-4">
+                              <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Adresse</p>
+                              <p className="text-gray-600 text-sm">
+                                {[h.adresse, h.kommune, h.fylke].filter(Boolean).join(', ')}
+                              </p>
+                            </div>
+                          )}
+
                           {!harKontakt && (
                             <p className="text-gray-400 text-sm mb-4">Ingen kontaktinfo registrert.</p>
                           )}
@@ -313,7 +326,7 @@ function FragmentRad({ children }) {
 
 function HallSkjema({ verdi, erNy, onEndre, onLagre, onAvbryt }) {
   const felter = [
-    ['navn', 'Navn *'], ['kommune', 'Kommune'], ['fylke', 'Fylke'],
+    ['navn', 'Navn *'], ['adresse', 'Adresse'], ['kommune', 'Kommune'], ['fylke', 'Fylke'],
     ['nettverk', 'Nettverk'], ['vanlig_vertskap', 'Vanlig vertskap'],
     ['kontaktperson', 'Kontaktperson'], ['epost', 'E-post'], ['telefon', 'Telefon'],
     ['alternative_haller', 'Alternative haller'], ['merknad', 'Merknad'],
