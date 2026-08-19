@@ -203,7 +203,9 @@ export default function SvarSkjema() {
         {kobling.svart && (
           <div className="mb-8 rounded-xl border border-green-200 bg-green-50 p-4">
             <p className="text-sm text-green-800">
-              Dere har allerede svart{kobling.kommer === true ? ' (ja)' : kobling.kommer === false ? ' (nei)' : ''}. Du kan justere svaret her og sende på nytt — det siste svaret gjelder.
+              {kobling.svart_av_navn
+                ? `${kobling.svart_av_navn} har allerede svart på vegne av ${kobling.skole_navn || 'skolen'}`
+                : 'Dere har allerede svart'}{kobling.kommer === true ? ' (ja)' : kobling.kommer === false ? ' (nei)' : ''}. Du kan justere svaret her og sende på nytt — det siste svaret gjelder.
             </p>
           </div>
         )}
