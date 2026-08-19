@@ -31,7 +31,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
     setLaster(true)
     const { data } = await supabase
       .from('kurs_skole')
-      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, svart, melding_handtert, lenke_token, svar_registrert_av, svar_registrert_at, skoler(navn, kommunenavn)')
+      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, auto_purring_skjermet, svart, melding_handtert, lenke_token, svar_registrert_av, svar_registrert_at, skoler(navn, kommunenavn)')
       .eq('kurs_id', kurs.id)
       .order('svart', { ascending: false })
       .range(0, 9999)
@@ -64,6 +64,18 @@ export default function SvarOversikt({ kurs, onLukk }) {
     const { error } = await supabase.rpc('sett_melding_handtert', { p_id: id, p_handtert: verdi })
     if (error) {
       setRader(rader.map(r => r.id === id ? { ...r, melding_handtert: !verdi } : r))
+      alert('Kunne ikke lagre. Prøv igjen.')
+    }
+  }
+
+  // B2: ta én enkelt skole ut av den automatiske purringen for kurset. Direkte
+  // oppdatering av kurs_skole er tillatt for ansatte (RLS «Superadmin og ansatt
+  // administrerer kurs_skole»). Optimistisk, med tilbakerulling ved feil.
+  async function settSkjermet(id, verdi) {
+    setRader(rader.map(r => r.id === id ? { ...r, auto_purring_skjermet: verdi } : r))
+    const { error } = await supabase.from('kurs_skole').update({ auto_purring_skjermet: verdi }).eq('id', id)
+    if (error) {
+      setRader(rader.map(r => r.id === id ? { ...r, auto_purring_skjermet: !verdi } : r))
       alert('Kunne ikke lagre. Prøv igjen.')
     }
   }
@@ -339,6 +351,25 @@ export default function SvarOversikt({ kurs, onLukk }) {
                       >
                         {r.melding_handtert ? 'Angre' : 'Marker som håndtert'}
                       </button>
+                    </div>
+                  )}
+
+                  {kurs.auto_purring && !r.svart && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <label className="flex items-start gap-2 text-sm text-gray-600 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!!r.auto_purring_skjermet}
+                          onChange={() => settSkjermet(r.id, !r.auto_purring_skjermet)}
+                          className="mt-0.5"
+                        />
+                        <span>
+                          Skjerm fra automatisk purring
+                          <span className="block text-xs text-gray-400">
+                            Denne skolen får ikke den automatiske purringen, selv om den er på for kurset.
+                          </span>
+                        </span>
+                      </label>
                     </div>
                   )}
                 </div>
