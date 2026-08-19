@@ -31,7 +31,7 @@ export default function SvarOversikt({ kurs, onLukk }) {
     setLaster(true)
     const { data } = await supabase
       .from('kurs_skole')
-      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, auto_purring_skjermet, svart, melding_handtert, lenke_token, svar_registrert_av, svar_registrert_at, skoler(navn, kommunenavn)')
+      .select('id, skole_id, kommer, antall_tl, er_vertskap, vertskap_bekreftet, arsak_ikke_komme, arsak_ikke_vertskap, kommentar, apen_for_annet_kurs, onske_tekst, auto_purring_skjermet, svart, melding_handtert, lenke_token, svar_registrert_av, svar_registrert_at, skoler(navn, kommunenavn)')
       .eq('kurs_id', kurs.id)
       .order('svart', { ascending: false })
       .range(0, 9999)
@@ -298,6 +298,9 @@ export default function SvarOversikt({ kurs, onLukk }) {
                       {r.arsak_ikke_komme && <p className="text-gray-600">Årsak: «{r.arsak_ikke_komme}»</p>}
                       {r.apen_for_annet_kurs && (
                         <p className="text-orange-700 font-medium">Åpen for et annet kurs i nærheten</p>
+                      )}
+                      {r.onske_tekst && (
+                        <p className="text-gray-600">Ønske: «{r.onske_tekst}»</p>
                       )}
                     </div>
                   )}

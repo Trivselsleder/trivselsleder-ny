@@ -22,6 +22,7 @@ export default function SvarSkjema() {
   const [arsakIkkeVertskap, setArsakIkkeVertskap] = useState('');
   const [kommentar, setKommentar] = useState('');
   const [apenForAnnet, setApenForAnnet] = useState(false);
+  const [onskeTekst, setOnskeTekst] = useState('');
 
   useEffect(() => {
     let aktiv = true;
@@ -97,6 +98,7 @@ export default function SvarSkjema() {
           : null,
       p_kommentar: kommentar.trim() === '' ? null : kommentar.trim(),
       p_apen_for_annet_kurs: kommer === false ? apenForAnnet : false,
+      p_onske_tekst: (kommer === false && apenForAnnet && onskeTekst.trim() !== '') ? onskeTekst.trim() : null,
     });
     setSender(false);
     if (error) {
@@ -318,6 +320,25 @@ export default function SvarSkjema() {
                 </span>
               </span>
             </label>
+          </div>
+        )}
+
+        {kommer === false && apenForAnnet && (
+          <div className="mb-8">
+            <label htmlFor="onskeTekst" className="block text-lg font-semibold text-gray-900 mb-2">
+              Har dere et ønske vi bør vite om?{' '}
+              <span className="font-normal text-gray-500">(valgfritt)</span>
+            </label>
+            <p className="text-sm text-gray-500 mb-2">
+              F.eks. «kan vi komme onsdag i stedet? da har vi skolefoto». Vi kan ikke love noe, men vi tar det med når vi ser etter et annet kurs til dere.
+            </p>
+            <textarea
+              id="onskeTekst"
+              rows="3"
+              value={onskeTekst}
+              onChange={(e) => setOnskeTekst(e.target.value)}
+              className="w-full py-3 px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none"
+            />
           </div>
         )}
 
