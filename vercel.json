@@ -17,6 +17,10 @@
     {
       "path": "/api/webinar/paaminnelser?torrkjoring=false",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/kurs/cron-auto-purring?torrkjoring=false",
+      "schedule": "0 6 * * *"
     }
   ]
 }
