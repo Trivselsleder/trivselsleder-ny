@@ -140,7 +140,7 @@ function KursOversikt() {
 
   // Vertskapsskolene per kurs — så RA ser hvem som har rollen rett i lista.
   // Flere skoler kan være vertskap på samme kurs. vertskap_bekreftet === false er
-  // et eksplisitt NEI (kurset kan stå uten hall); null = ikke svart ennå.
+  // et eksplisitt NEI (pek ut nytt vertskap); null = ikke svart ennå.
   function hentVertskap() {
     supabase.from('kurs_skole').select('kurs_id, vertskap_bekreftet, skoler(navn)').eq('er_vertskap', true).range(0, 99999)
       .then(({ data }) => {
@@ -333,7 +333,7 @@ function KursOversikt() {
                     )}
                     {vertskapPerKurs[k.id]?.some(v => v.nei) && (
                       <div className="mt-1 text-xs font-semibold text-red-700">
-                        ⚠ Vertskap sa NEI — kurset kan stå uten hall
+                        ⚠ Vertskap sa NEI — pek ut nytt vertskap
                       </div>
                     )}
                   </td>
@@ -779,7 +779,7 @@ function KursSkjema({ verdi, erNy, haller, kursholdere, nettverkData, onEndre, o
             <input type="time" value={verdi.oppmote_vertskap || ''}
               onChange={e => onEndre({ ...verdi, oppmote_vertskap: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-            <p className="text-xs text-gray-400 mt-1">Når vertskapet møter for å rigge. Valgfritt.</p>
+            <p className="text-xs text-gray-400 mt-1">Når vertskapet møter (tidligere enn øvrige, for å lære lekene). Valgfritt.</p>
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">Oppmøte øvrige skoler</label>

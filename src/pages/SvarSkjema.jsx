@@ -174,7 +174,7 @@ export default function SvarSkjema() {
               <span className="text-gray-500">Oppmøte:</span> <strong>{kobling.kurs_oppmotetid.slice(0, 5)}</strong>
               {kobling.er_vertskap && (
                 <span className="block text-xs text-gray-500 mt-0.5">
-                  Dere er vertskap og møter tidligere enn kursstart for å rigge til.
+                  Dere er vertskap og møter litt tidligere for å lære lekene av kursholderen og hjelpe til med å lede de andre deltakerne.
                 </span>
               )}
             </p>

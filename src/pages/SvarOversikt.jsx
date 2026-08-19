@@ -244,11 +244,11 @@ export default function SvarOversikt({ kurs, onLukk }) {
                     </div>
                   </div>
 
-                  {/* Vertskap som eksplisitt svarte NEI → kurset kan stå uten hall.
+                  {/* Vertskap som eksplisitt svarte NEI → pek ut nytt vertskap.
                       Kun vertskap_bekreftet === false roper; null (ikke svart) gjør det ikke. */}
                   {r.er_vertskap && r.vertskap_bekreftet === false && (
                     <div className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3">
-                      <p className="text-sm font-semibold text-red-800">⚠ Vertskap sa NEI — kurset kan stå uten hall</p>
+                      <p className="text-sm font-semibold text-red-800">⚠ Vertskap sa NEI — pek ut nytt vertskap</p>
                       {r.arsak_ikke_vertskap && (
                         <p className="text-sm text-red-700 mt-0.5">Årsak: «{r.arsak_ikke_vertskap}»</p>
                       )}
