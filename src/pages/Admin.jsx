@@ -31,6 +31,13 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
+    tittel: 'Utsendinger (nyhetsbrev)',
+    beskrivelse: 'Masseutsendinger via Resend Broadcasts: webinar-oppfølging, mottakerbase og avmeldinger.',
+    ikon: '📨',
+    til: '/admin/nyhetsbrev',
+    roller: ['superadmin', 'ansatt'],
+  },
+  {
     tittel: 'Skoler',
     beskrivelse: 'Administrer skoleregisteret og skoleinfo.',
     ikon: '🏫',

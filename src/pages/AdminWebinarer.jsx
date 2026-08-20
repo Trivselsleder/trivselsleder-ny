@@ -152,6 +152,11 @@ export default function AdminWebinarer() {
                     ? <button onClick={() => bytt(w.id, false)} className="text-xs border border-gray-300 rounded-full px-3 py-1.5 hover:border-gray-400">Avpubliser</button>
                     : <button onClick={() => bytt(w.id, true)} className="text-xs bg-petrol text-white rounded-full px-3 py-1.5 hover:bg-petrol/90">Publiser</button>}
                   {w.status === 'publisert' && <button onClick={() => apneInviter(w)} className="text-xs bg-orange/10 text-orange-ink rounded-full px-3 py-1.5 hover:bg-orange/20 font-medium">Inviter</button>}
+                  {new Date(w.starter_at) < new Date() && (
+                    <Link to={`/admin/nyhetsbrev?webinar=${w.id}`} className="text-xs bg-petrol/10 text-petrol rounded-full px-3 py-1.5 hover:bg-petrol/20 font-medium" title="Send takk/«gikk du glipp?»-oppfølging med opptak">
+                      Oppfølging
+                    </Link>
+                  )}
                   <button onClick={() => setSkjema({ ...w, starter_at: tilLokal(w.starter_at), maks_antall: w.maks_antall || '', beskrivelse: w.beskrivelse || '', mote_lenke: w.mote_lenke || '' })} className="text-xs border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange-ink">Rediger</button>
                   <button onClick={() => fjern(w.id)} className="text-xs text-gray-400 hover:text-red-600 px-1" aria-label="Slett">🗑</button>
                 </div>
