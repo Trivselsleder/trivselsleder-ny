@@ -68,6 +68,8 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
 - Flerspråklig fra start: all tekst i i18n-filer, ingen hardkodet tekst.
 - Systemet foreslår, mennesket bestemmer: automatikk endrer aldri forretningskritiske
   data (som HubSpot-status) av seg selv — flagger for manuell godkjenning.
+- Byggeren skriver ALDRI kontrollrunde-avsnittet selv — det skrives kun av den
+  uavhengige kontrolløren (regel 4-innskjerping, 21. aug 2026).
 
 ## Lærdommer (snublesteiner vi har løst)
 - Supabase RLS: nye tabeller trenger BÅDE policyer OG `ENABLE ROW LEVEL SECURITY`.
