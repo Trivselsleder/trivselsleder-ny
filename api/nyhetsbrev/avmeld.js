@@ -19,6 +19,11 @@ import { avmeldKontakt } from './_resend.js'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+// FABLE-KONTROLL 20. aug: e-postadressen kommer fra basen og vises i HTML.
+// Basens epost-check tillater tegn som < og > (bare @ og mellomrom er forbudt),
+// så adressen HTML-escapes før visning — ellers var dette et XSS-hull.
+const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
 function side({ tittel, tekst, knapp }) {
   return `<!DOCTYPE html>
 <html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${tittel} – Trivselsleder</title></head>
@@ -74,7 +79,7 @@ export default async function handler(req, res) {
   if (mottaker.avmeldt_at) {
     return res.status(200).send(side({
       tittel: 'Du er allerede avmeldt',
-      tekst: `${mottaker.epost} står ikke lenger på lista vår, og du får ingen flere nyhetsbrev fra oss. Ombestemmer du deg, er det bare å svare på en tidligere e-post.`,
+      tekst: `${esc(mottaker.epost)} står ikke lenger på lista vår, og du får ingen flere nyhetsbrev fra oss. Ombestemmer du deg, er det bare å svare på en tidligere e-post.`,
     }))
   }
 
@@ -82,7 +87,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(200).send(side({
       tittel: 'Melde deg av?',
-      tekst: `Trykk på knappen for å stoppe alle framtidige nyhetsbrev og utsendinger til <b>${mottaker.epost}</b>.`,
+      tekst: `Trykk på knappen for å stoppe alle framtidige nyhetsbrev og utsendinger til <b>${esc(mottaker.epost)}</b>.`,
       knapp: `<form method="POST" action="/api/nyhetsbrev/avmeld" style="margin:0;">
         <input type="hidden" name="t" value="${token}">
         <button type="submit" style="background:#FF7B31;color:#fff;font-size:15px;font-weight:600;padding:12px 26px;border-radius:999px;border:none;cursor:pointer;">Meld meg av</button>
@@ -108,6 +113,6 @@ export default async function handler(req, res) {
 
   return res.status(200).send(side({
     tittel: 'Du er nå avmeldt',
-    tekst: `Det er registrert: ${mottaker.epost} får ingen flere nyhetsbrev eller masseutsendinger fra oss. Takk for tiden du var med — og døra står alltid åpen om du vil tilbake.`,
+    tekst: `Det er registrert: ${esc(mottaker.epost)} får ingen flere nyhetsbrev eller masseutsendinger fra oss. Takk for tiden du var med — og døra står alltid åpen om du vil tilbake.`,
   }))
 }

@@ -30,6 +30,10 @@ import { sikreAvmeldingEgenskap, opprettSegment, upsertKontakt, opprettBroadcast
 
 const gyldigEpost = (e) => typeof e === 'string' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.trim())
 
+// FABLE-KONTROLL 20. aug: % og _ er jokertegn i ilike — escapes så oppslaget på
+// test-adressen aldri kan treffe en ANNEN mottakers rad (og dermed feil segment).
+const likeTrygg = (s) => s.replace(/[\\%_]/g, '\\$&')
+
 // HTLA-mottaker: samme kjede som src/lib/mottaker.js (hktl → htla → rektor).
 function finnHovedmottaker(s) {
   const v = (f) => (s?.[f] || '').trim()
@@ -116,10 +120,18 @@ export default async function handler(req, res) {
   }
 
   // Avmeldte skal ALDRI med — sjekk mot samtykkebasen.
-  const { data: avmeldteRader, error: aFeil } = await supabase
-    .from('nyhetsbrev_mottakere').select('epost').not('avmeldt_at', 'is', null)
-  if (aFeil) return res.status(500).json({ error: 'Kunne ikke lese avmeldingslista — avbryter (sender heller ikke én for mye).' })
-  const avmeldte = new Set((avmeldteRader || []).map((r) => r.epost.toLowerCase()))
+  // FABLE-KONTROLL 20. aug: buntet .in() i stedet for å lese HELE tabellen —
+  // PostgREST returnerer maks 1000 rader som standard, så en fulltabell-lesing
+  // ville stilnet over 1000 rader (Bruk C-skala) og telt avmeldte feil.
+  const avmeldte = new Set()
+  const kandidatEposter = kandidater.map((k) => k.epost)
+  for (let i = 0; i < kandidatEposter.length; i += 100) {
+    const { data: del, error: aFeil } = await supabase
+      .from('nyhetsbrev_mottakere').select('epost')
+      .in('epost', kandidatEposter.slice(i, i + 100)).not('avmeldt_at', 'is', null)
+    if (aFeil) return res.status(500).json({ error: 'Kunne ikke lese avmeldingslista — avbryter (sender heller ikke én for mye).' })
+    for (const r of del || []) avmeldte.add(r.epost.toLowerCase())
+  }
   const mottakere = kandidater.filter((k) => !avmeldte.has(k.epost))
   const ekskludertAvmeldt = kandidater.length - mottakere.length
 
@@ -158,7 +170,7 @@ export default async function handler(req, res) {
 
     const naaT = new Date().toISOString()
     let { data: testRad } = await supabase.from('nyhetsbrev_mottakere')
-      .select('id, epost, navn, avmelding_token, avmeldt_at').ilike('epost', testEpost).maybeSingle()
+      .select('id, epost, navn, avmelding_token, avmeldt_at').ilike('epost', likeTrygg(testEpost)).maybeSingle()
     if (!testRad) {
       const { data: ny, error: nyFeil } = await supabase.from('nyhetsbrev_mottakere')
         .insert({ epost: testEpost, navn: 'Testmottaker', rolle: 'ekstern', nyhetsbrev_samtykke: true, samtykke_modell: 'soft_opt_in', samtykke_kilde: 'intern_test', samtykke_tidspunkt: naaT })
@@ -213,10 +225,19 @@ export default async function handler(req, res) {
 
   // 1) Samtykkebasen: upsert mottakerne (soft opt-in logges på NYE rader;
   //    eksisterende rader beholder sitt opprinnelige grunnlag).
-  const { data: eksRader, error: eksFeil } = await supabase
-    .from('nyhetsbrev_mottakere').select('id, epost, avmelding_token, avmeldt_at')
-  if (eksFeil) return res.status(500).json({ error: 'Kunne ikke lese mottakerbasen: ' + eksFeil.message })
-  const eksisterende = new Map((eksRader || []).map((r) => [r.epost.toLowerCase(), r]))
+  // FABLE-KONTROLL 20. aug: buntet .in() av samme grunn som avmeldingslista over
+  // (fulltabell-lesing stopper stille på 1000 rader → insert-krasj ved Bruk C-skala).
+  const eksisterende = new Map()
+  {
+    const mottakerEposter = mottakere.map((m) => m.epost)
+    for (let i = 0; i < mottakerEposter.length; i += 100) {
+      const { data: del, error: eksFeil } = await supabase
+        .from('nyhetsbrev_mottakere').select('id, epost, avmelding_token, avmeldt_at')
+        .in('epost', mottakerEposter.slice(i, i + 100))
+      if (eksFeil) return res.status(500).json({ error: 'Kunne ikke lese mottakerbasen: ' + eksFeil.message })
+      for (const r of del || []) eksisterende.set(r.epost.toLowerCase(), r)
+    }
+  }
 
   const naa = new Date().toISOString()
   const nyeRader = mottakere.filter((m) => !eksisterende.has(m.epost)).map((m) => ({

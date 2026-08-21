@@ -15,6 +15,11 @@
 import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 
+// FABLE-KONTROLL 20. aug: % og _ er jokertegn i ilike. En e-post med _ (vanlig!)
+// ville også truffet NABOADRESSER (ola_nordmann@ matcher olaXnordmann@) og satt
+// avmeldt_at på feil folk. Escapes før mønsteret brukes.
+const likeTrygg = (s) => s.replace(/[\\%_]/g, '\\$&')
+
 export const config = { api: { bodyParser: false } }   // rå kropp trengs til signatursjekk
 
 function lesRaaKropp(req) {
@@ -84,7 +89,7 @@ export default async function handler(req, res) {
   const { error } = await supabase
     .from('nyhetsbrev_mottakere')
     .update({ avmeldt_at: new Date().toISOString(), endret_at: new Date().toISOString() })
-    .ilike('epost', epost)
+    .ilike('epost', likeTrygg(epost))
     .is('avmeldt_at', null)
   if (error) {
     console.error('webhook: kunne ikke sette avmeldt_at:', error.message)
