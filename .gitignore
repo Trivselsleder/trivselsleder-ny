@@ -36,3 +36,14 @@ test-epost/
 _to_delete/
 
 supabase/.temp/
+
+# Arbeidsfiler og planer — holdes utenfor git (kun Mac + prosjektkunnskap)
+claude_*
+STATUS.md
+STATUS.md.bak
+main
+FREMDRIFTSPLAN-v*.md
+FREMDRIFTSPLAN-v*.docx
+FREMDRIFTSPLAN-v*.pdf
+Kursplanleggeren-forklaring-v*.pdf
+kursplanlegger-forklaring-v*.html
