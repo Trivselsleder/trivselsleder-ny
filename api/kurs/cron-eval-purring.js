@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { krevCronEllerAnsatt } from '../_vakt.js'
+import { krevCronEllerAnsatt, erCronKall } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 
 // B3 (høring 17. aug): ÉN automatisk purring på UBESVART evaluering.
@@ -52,6 +52,20 @@ function datoMinusDager(datoStr, n) {
   return d.toISOString().slice(0, 10)
 }
 
+// MÅL (norsk tid): eval-purringen skal gå kl 07:30 norsk tid HELE året.
+// Vercel-cron kan bare UTC (uten sommertid), så vercel.json fyrer :30 hver
+// time i vinduet 05–08 UTC ("30 5-8 * * *") — minuttet (30) kommer fra
+// skjemaet, og tidsvakten i handleren slipper bare gjennom den fyringen der
+// TIMEN i Norge faktisk er 07. Intl med timeZone 'Europe/Oslo' håndterer
+// sommer-/vintertid automatisk (samme teknikk som i send-evaluering.js).
+const MAAL_TIME_OSLO = 7
+function osloTimeNaa() {
+  const deler = new Intl.DateTimeFormat('nb-NO', {
+    timeZone: 'Europe/Oslo', hour: '2-digit', hour12: false,
+  }).formatToParts(new Date())
+  return Number(deler.find((d) => d.type === 'hour')?.value) % 24
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -63,6 +77,22 @@ export default async function handler(req, res) {
 
   const nekt = await krevCronEllerAnsatt(req, supabase)
   if (nekt) return res.status(nekt.status).json({ error: nekt.error })
+
+  // ---- TIDSVAKT (kun cron-kall) ----
+  // Cron-skjemaet fyrer flere ganger i UTC-vinduet (05:30–08:30); bare fyringen
+  // der klokka i Norge er 07 (dvs. 07:30 med minuttet fra skjemaet) slipper
+  // gjennom. En innlogget ansatt tidsstyres IKKE — manuell kjøring/
+  // forhåndsvisning skal virke når som helst.
+  if (erCronKall(req)) {
+    const osloTime = osloTimeNaa()
+    if (osloTime !== MAAL_TIME_OSLO) {
+      return res.status(200).json({
+        ok: true,
+        hoppet_over: true,
+        grunn: `hoppet over – ikke riktig tidspunkt (norsk time ${String(osloTime).padStart(2, '0')}, mål ${String(MAAL_TIME_OSLO).padStart(2, '0')}:30)`,
+      })
+    }
+  }
 
   const torrkjoring = !(req.body?.torrkjoring === false || req.query?.torrkjoring === 'false')
   const naa = () => new Date().toISOString()

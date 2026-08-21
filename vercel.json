@@ -20,15 +20,15 @@
     },
     {
       "path": "/api/kurs/cron-auto-purring?torrkjoring=false",
-      "schedule": "0 6 * * *"
+      "schedule": "0 5-8 * * *"
     },
     {
       "path": "/api/kurs/cron-eval-purring?torrkjoring=false",
-      "schedule": "30 6 * * *"
+      "schedule": "30 5-8 * * *"
     },
     {
       "path": "/api/kurs/cron-ra-varsel?torrkjoring=false",
-      "schedule": "0 7 * * *"
+      "schedule": "0 5-8 * * *"
     }
   ]
 }

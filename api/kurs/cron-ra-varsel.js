@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { krevCronEllerAnsatt } from '../_vakt.js'
+import { krevCronEllerAnsatt, erCronKall } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 
 // B12 (høring 17. aug): RA-VARSEL — daglig oppsummering til rådgiveren (RA).
@@ -36,6 +36,20 @@ function escapeHtml(s) {
 }
 const gyldigEpost = (e) => typeof e === 'string' && e.trim() !== ''
 
+// MÅL (norsk tid): RA-varselet skal gå kl 07:00 norsk tid HELE året.
+// Vercel-cron kan bare UTC (uten sommertid), så vercel.json fyrer hver hele
+// time i vinduet 05–08 UTC ("0 5-8 * * *"), og tidsvakten i handleren slipper
+// bare gjennom den fyringen der klokka i Norge faktisk er 07. Intl med
+// timeZone 'Europe/Oslo' håndterer sommer-/vintertid automatisk (samme
+// teknikk som tidsporten i send-evaluering.js).
+const MAAL_TIME_OSLO = 7
+function osloTimeNaa() {
+  const deler = new Intl.DateTimeFormat('nb-NO', {
+    timeZone: 'Europe/Oslo', hour: '2-digit', hour12: false,
+  }).formatToParts(new Date())
+  return Number(deler.find((d) => d.type === 'hour')?.value) % 24
+}
+
 // Bygg en <li>-liste av flaggede saker.
 function listeHtml(poster) {
   return poster.map(p => {
@@ -59,6 +73,21 @@ export default async function handler(req, res) {
 
   const nekt = await krevCronEllerAnsatt(req, supabase)
   if (nekt) return res.status(nekt.status).json({ error: nekt.error })
+
+  // ---- TIDSVAKT (kun cron-kall) ----
+  // Cron-skjemaet fyrer flere ganger i UTC-vinduet (05–08); bare fyringen der
+  // klokka i Norge er 07 slipper gjennom. En innlogget ansatt tidsstyres IKKE —
+  // manuell kjøring/forhåndsvisning skal virke når som helst.
+  if (erCronKall(req)) {
+    const osloTime = osloTimeNaa()
+    if (osloTime !== MAAL_TIME_OSLO) {
+      return res.status(200).json({
+        ok: true,
+        hoppet_over: true,
+        grunn: `hoppet over – ikke riktig tidspunkt (norsk time ${String(osloTime).padStart(2, '0')}, mål ${String(MAAL_TIME_OSLO).padStart(2, '0')}:00)`,
+      })
+    }
+  }
 
   const torrkjoring = !(req.body?.torrkjoring === false || req.query?.torrkjoring === 'false')
 

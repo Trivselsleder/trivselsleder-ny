@@ -116,3 +116,14 @@ export async function krevCronEllerAnsatt(req, supabase) {
   }
   return krevAnsatt(req, supabase)
 }
+
+// SKILLER cron fra ansatt — samme sjekk som første grein i krevCronEllerAnsatt,
+// samlet her så den ikke kan gå i utakt. Brukes av TIDSVAKTENE i cron-jobbene:
+// Vercel-cron kan bare UTC (uten sommertid), så cron-skjemaene fyrer flere
+// ganger i et UTC-vindu og KODEN avgjør norsk klokkeslett. Bare kall fra
+// Vercel-cron (Bearer CRON_SECRET) skal tidsstyres — en innlogget ansatt som
+// kjører manuelt (forhåndsvisning/testkjøring) skal slippe til når som helst.
+export function erCronKall(req) {
+  const hemmelighet = process.env.CRON_SECRET
+  return Boolean(hemmelighet && req.headers.authorization === `Bearer ${hemmelighet}`)
+}
