@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { sjekkTuTilgang } from '../lib/tu'
 
 // Ny informasjonsarkitektur (IA-skolens-side-forslag): tydelige innganger
 // + samlemeny «Skolen min». Aktiv læring er egen fane (eget innhold: Fag + Trinn).
@@ -13,6 +15,10 @@ const faner = [
   { label: 'Maler & materiell', to: '/min-side/dokumenter' },
   { label: 'Slik lykkes du med TL', to: '/min-side/drift-av-tl' },
 ]
+
+// Trivselsundersøkelsen (steg 4): egen fane, synlig KUN for HTLA/skoleadmin/
+// superadmin (sjekkTuTilgang). Andre roller skal ikke se at modulen finnes.
+const tuFane = { label: 'Trivselsundersøkelsen', to: '/min-side/trivselsundersokelsen' }
 
 const skolenMin = [
   { label: 'Administratorer', to: '/min-side/administratorer' },
@@ -27,12 +33,23 @@ const lenkeCls = ({ isActive }) =>
   }`
 
 export default function SkoleLayout() {
+  const { bruker } = useAuth()
+  const [visTu, setVisTu] = useState(false)
   const [apen, setApen] = useState(false)
   const [pos, setPos] = useState({ top: 0, right: 0 })
   const knappRef = useRef(null)
   const menyRef = useRef(null)
   const { pathname } = useLocation()
   const skolenMinAktiv = skolenMin.some((s) => pathname.startsWith(s.to))
+  const alleFaner = visTu ? [...faner, tuFane] : faner
+
+  useEffect(() => {
+    let aktiv = true
+    // bruker er null mens profilen laster / etter utlogging → fanen skjules.
+    const sjekk = bruker ? sjekkTuTilgang(bruker) : Promise.resolve(false)
+    sjekk.then((ok) => { if (aktiv) setVisTu(ok) })
+    return () => { aktiv = false }
+  }, [bruker])
 
   function plasser() {
     const r = knappRef.current?.getBoundingClientRect()
@@ -65,7 +82,7 @@ export default function SkoleLayout() {
       <div className="border-b border-gray-200 bg-white sticky top-16 z-40">
         <nav className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 overflow-x-auto">
           <div className="flex gap-1 min-w-max items-center">
-            {faner.map((f) => (
+            {alleFaner.map((f) => (
               <NavLink key={f.to} to={f.to} end={f.end} className={lenkeCls}>{f.label}</NavLink>
             ))}
 

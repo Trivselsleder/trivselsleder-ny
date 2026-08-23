@@ -398,6 +398,113 @@
         "annet": "Annet"
       },
       "feilMangler": "Du må velge for å gå videre."
+    },
+    "laerer": {
+      "fane": "Trivselsundersøkelsen",
+      "laster": "Laster …",
+      "ingenTilgang": "Denne siden er for skolens HTLA og administratorer. Ta kontakt med skolens administrator hvis du mener du skal ha tilgang.",
+      "info": {
+        "ingress": {
+          "medlem": "En kort undersøkelse som viser hvordan elevene har det — enkel å gjennomføre, trygg for elevene.",
+          "potensiell": "Et gratis og uforpliktende tilbud: få et tydelig bilde av trivselen på skolen deres i dag."
+        },
+        "hvaTittel": "Hva den måler",
+        "hvaTekst": "Hvordan elevene har det på skolen: trivsel, vennskap, aktivitet i friminuttene og mobbing. 13 korte spørsmål for 5.–10. trinn.",
+        "tidTittel": "Cirka ti minutter",
+        "tidTekst": "Elevene svarer på nettbrett eller PC i en skoletime. Ingen innlogging, ingen forberedelse for elevene.",
+        "utdelingTittel": "Engangskoder",
+        "utdelingTekst": "Dere skriver ut et ark med én kode per elev og deler ut i klassen. Hver kode virker bare én gang.",
+        "personvernTittel": "Trygt for elevene",
+        "personvernTekst": "Elevene oppgir aldri navn, og ingen kan se hva en enkelt elev har svart. Tall for små grupper skjules automatisk.",
+        "kortKlarTittel": "Klar til å starte?",
+        "kortKlarTekst": "Opprett en runde, legg inn gruppene deres (f.eks. 6A og 6B) og velg når undersøkelsen skal være åpen.",
+        "opprettKnapp": "Opprett runde",
+        "foreldreinfoKnapp": "Last ned foreldreinfo",
+        "foreldreinfoHjelp": "Skriv til foresatte — sendes ut før elevene svarer. Åpnes for utskrift eller «Lagre som PDF».",
+        "popupBlokkert": "Nettleseren blokkerte vinduet. Tillat sprettoppvinduer for denne siden og prøv igjen.",
+        "lesMer": "Les mer om Trivselsundersøkelsen",
+        "kunAdminTittel": "Startes av skolens administrator",
+        "kunAdminTekst": "Trivselsundersøkelsen startes av skolens administrator. Be administratoren ved skolen din om å opprette runden — her kan du følge med på rundene og laste ned foreldreinfo."
+      },
+      "b1": {
+        "medlem": {
+          "omTittel": "Om Trivselsundersøkelsen",
+          "om1": "Trivselsundersøkelsen er en kort, nettbasert undersøkelse som måler hvordan elevene har det på skolen — med vekt på trivsel, vennskap, aktivitet i friminuttene og mobbing. Den tar cirka ti minutter for elevene å svare på, og er enkel å administrere for skolen.",
+          "om2": "Undersøkelsen måler effekten av Trivselsprogrammet på deres skole, og gir samtidig skolen et godt grunnlag for å styrke arbeidet med elevenes psykososiale miljø. Den er ment som et supplement til Utdanningsdirektoratets Elevundersøkelse — kortere, mer spisset mot det Trivselsprogrammet påvirker, og noe skolen selv styrer når skal gjennomføres."
+        },
+        "potensiell": {
+          "omTittel": "Et gratis og uforpliktende tilbud til skolen deres",
+          "om1": "Vurderer dere Trivselsprogrammet? Da vil vi gjerne gi dere en enkel start: en kort, nettbasert undersøkelse som måler hvordan elevene har det på skolen — med vekt på trivsel, vennskap, aktivitet i friminuttene og mobbing. Den er gratis, helt uforpliktende, og tar cirka ti minutter for elevene å svare på.",
+          "om2": "Tanken er enkel: gjennomfør undersøkelsen nå, så får dere et tydelig bilde av situasjonen på deres egen skole i dag — et nullpunkt. Ønsker dere senere å bli med i Trivselsprogrammet, kan dere ta den samme undersøkelsen på nytt etter for eksempel tre eller seks måneder — og se utviklingen på deres egne tall."
+        },
+        "gjennomforingTittel": "Slik fungerer gjennomføringen",
+        "gjennomforing": "Når dere er klare, oppretter dere en runde her på siden og velger hvilke trinn og grupper som skal delta (5.–10. trinn). Systemet lager da et ark med engangskoder — én kode per elev — som dere skriver ut. Læreren deler ut kodene i klassen. Eleven taster koden på trivselsundersokelsen.no og svarer så på undersøkelsen. Hver kode virker bare én gang. Etter at runden er avsluttet, får skolen en rapport med resultatene — og over tid kan dere følge utviklingen fra runde til runde.",
+        "personvernTittel": "Personvern",
+        "personvern": "Elevene svarer uten å logge inn, og uten å oppgi navn eller noe som kan identifisere dem. Vi kan ikke se hva en enkelt elev har svart — resultatene vises alltid som samlede tall for et trinn eller en gruppe, aldri på en måte som gjør det mulig å gjenkjenne den enkelte. Er en gruppe så liten at svar kunne vært gjenkjennelig, skjules tallene automatisk. Vi følger samme grunnmodell som Utdanningsdirektoratets Elevundersøkelse: individuelle engangskoder som skolen deler ut, og der koblingen mellom kode og svar brytes."
+      },
+      "runder": {
+        "tittel": "Skolens runder",
+        "feil": "Kunne ikke hente rundene. Last inn siden på nytt.",
+        "ingen": "Ingen runder ennå. Trykk «Opprett runde» for å komme i gang.",
+        "gruppeEtikett": "{{gruppe}} ({{trinn}}. trinn)",
+        "heleTrinnet": "{{trinn}}. trinn (hele trinnet)",
+        "elever": "{{antall}} elever",
+        "vindu": "Åpen {{start}} – {{slutt}}"
+      },
+      "status": {
+        "utkast": "Utkast",
+        "apen": "Åpen",
+        "lukket": "Lukket"
+      },
+      "opprett": {
+        "tilbake": "Tilbake til Trivselsundersøkelsen",
+        "tittel": "Opprett runde",
+        "ingress": "Velg når undersøkelsen skal være åpen, og legg inn gruppene som skal delta. Hver gruppe får sitt eget kodeark.",
+        "vinduTittel": "Når skal undersøkelsen være åpen?",
+        "vinduHjelp": "Elevene kan svare i hele perioden. Runden lukkes etter sluttdatoen.",
+        "startdato": "Startdato",
+        "sluttdato": "Sluttdato",
+        "skoleaarInfo": "Skoleår {{skoleaar}} · {{semester}} (settes automatisk ut fra startdatoen)",
+        "semester": {
+          "host": "høst",
+          "var": "vår"
+        },
+        "grupperTittel": "Grupper som skal delta",
+        "grupperHjelp": "Gi hver gruppe et navn (f.eks. «6A»), velg trinn og skriv inn antall elever. Antallet styrer hvor mange koder som lages, og brukes til å følge med på deltakelsen.",
+        "gruppeNavn": "Gruppenavn",
+        "gruppeNavnPlassholder": "f.eks. 6A",
+        "trinn": "Trinn",
+        "trinnValg": "{{n}}. trinn",
+        "elevtall": "Antall elever",
+        "leggTilGruppe": "Legg til gruppe",
+        "fjernGruppe": "Fjern",
+        "tlTittel": "Trivselsledere",
+        "tlSporsmal": "Spør elevene om de er trivselsledere dette semesteret",
+        "tlHjelp": "Elever som svarer ja, får noen ekstra spørsmål om trivselslederrollen. Svarene er like godt beskyttet som resten av undersøkelsen.",
+        "lagrer": "Oppretter …",
+        "opprettKnapp": "Opprett runde",
+        "avbryt": "Avbryt",
+        "utkastInfo": "Runden opprettes som utkast. Kodearkene lager du i neste steg, og undersøkelsen åpnes først når kodene er klare.",
+        "feilDatoMangler": "Velg både startdato og sluttdato.",
+        "feilDatoRekkefolge": "Sluttdatoen må være etter startdatoen.",
+        "feilIngenGrupper": "Legg inn minst én gruppe.",
+        "feilGruppeNavn": "Alle grupper må ha et navn (f.eks. «6A»).",
+        "feilElevtall": "Antall elever må være et tall mellom 1 og 200.",
+        "feilDuplikat": "To grupper har samme navn på samme trinn. Gi dem ulike navn.",
+        "feilDuplikatDb": "En av gruppene finnes allerede i en runde dette skoleåret/semesteret. Sjekk listen på forrige side.",
+        "feilTilgang": "Du har ikke rettigheter til å opprette runder for denne skolen. Be skolens administrator om hjelp.",
+        "feilGenerisk": "Noe gikk galt ved opprettelsen. Prøv igjen om litt."
+      },
+      "foreldreinfo": {
+        "skolePlassholder": "[skole]",
+        "tittel": "Til foresatte — om Trivselsundersøkelsen ved {{skole}}",
+        "avsnitt1": "{{skole}} deltar i Trivselsprogrammet og gjennomfører en kort, anonym trivselsundersøkelse blant elevene. Undersøkelsen tar omtrent 10 minutter og handler om hvordan elevene har det på skolen — trivsel, venner, aktivitet i friminuttene og mobbing.",
+        "anonymTittel": "Undersøkelsen er anonym",
+        "anonymTekst": "Elevene logger ikke inn med navn, og svarene kan ikke spores tilbake til den enkelte eleven. Skolen bruker de samlede resultatene til å styrke arbeidet med elevenes trivsel og mot mobbing. Resultater vises aldri på en måte som kan avsløre hva en enkelt elev har svart.",
+        "frivilligTittel": "Det er frivillig",
+        "frivilligTekst": "Eleven kan la være å svare, og kan hoppe over spørsmål som oppleves ubehagelige.",
+        "kontakt": "Har dere spørsmål, ta kontakt med skolens kontaktperson for Trivselsprogrammet."
+      }
     }
   }
 }

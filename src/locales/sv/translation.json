@@ -398,6 +398,113 @@
         "annet": "Annat"
       },
       "feilMangler": "Du måste välja för att gå vidare."
+    },
+    "laerer": {
+      "fane": "Trivselundersökningen",
+      "laster": "Laddar …",
+      "ingenTilgang": "Den här sidan är för skolans HTLA och administratörer. Kontakta skolans administratör om du anser att du ska ha tillgång.",
+      "info": {
+        "ingress": {
+          "medlem": "En kort undersökning som visar hur eleverna har det — enkel att genomföra, trygg för eleverna.",
+          "potensiell": "Ett gratis erbjudande utan förpliktelser: få en tydlig bild av trivseln på er skola i dag."
+        },
+        "hvaTittel": "Vad den mäter",
+        "hvaTekst": "Hur eleverna har det i skolan: trivsel, vänskap, aktivitet på rasterna och mobbning. 13 korta frågor för årskurs 5–10.",
+        "tidTittel": "Cirka tio minuter",
+        "tidTekst": "Eleverna svarar på surfplatta eller dator under en lektion. Ingen inloggning, ingen förberedelse för eleverna.",
+        "utdelingTittel": "Engångskoder",
+        "utdelingTekst": "Ni skriver ut ett ark med en kod per elev och delar ut i klassen. Varje kod fungerar bara en gång.",
+        "personvernTittel": "Tryggt för eleverna",
+        "personvernTekst": "Eleverna uppger aldrig sitt namn, och ingen kan se vad en enskild elev har svarat. Siffror för små grupper döljs automatiskt.",
+        "kortKlarTittel": "Redo att börja?",
+        "kortKlarTekst": "Skapa en omgång, lägg in era grupper (t.ex. 6A och 6B) och välj när undersökningen ska vara öppen.",
+        "opprettKnapp": "Skapa omgång",
+        "foreldreinfoKnapp": "Ladda ner föräldrainfo",
+        "foreldreinfoHjelp": "Brev till vårdnadshavare — skickas ut innan eleverna svarar. Öppnas för utskrift eller «Spara som PDF».",
+        "popupBlokkert": "Webbläsaren blockerade fönstret. Tillåt popupfönster för den här sidan och försök igen.",
+        "lesMer": "Läs mer om Trivselundersökningen",
+        "kunAdminTittel": "Startas av skolans administratör",
+        "kunAdminTekst": "Trivselundersökningen startas av skolans administratör. Be administratören på din skola att skapa omgången — här kan du följa omgångarna och ladda ner föräldrainfo."
+      },
+      "b1": {
+        "medlem": {
+          "omTittel": "Om Trivselundersökningen",
+          "om1": "Trivselundersökningen är en kort, webbaserad undersökning som mäter hur eleverna har det i skolan — med fokus på trivsel, vänskap, aktivitet på rasterna och mobbning. Den tar cirka tio minuter för eleverna att svara på, och är enkel att administrera för skolan.",
+          "om2": "Undersökningen mäter effekten av Trivselsprogrammet på er skola, och ger samtidigt skolan ett bra underlag för att stärka arbetet med elevernas psykosociala miljö. Den är tänkt som ett komplement till nationella elevenkäter — kortare, mer inriktad på det Trivselsprogrammet påverkar, och något skolan själv styr när den ska genomföras."
+        },
+        "potensiell": {
+          "omTittel": "Ett gratis erbjudande utan förpliktelser till er skola",
+          "om1": "Överväger ni Trivselsprogrammet? Då vill vi gärna ge er en enkel start: en kort, webbaserad undersökning som mäter hur eleverna har det i skolan — med fokus på trivsel, vänskap, aktivitet på rasterna och mobbning. Den är gratis, helt utan förpliktelser, och tar cirka tio minuter för eleverna att svara på.",
+          "om2": "Tanken är enkel: genomför undersökningen nu, så får ni en tydlig bild av situationen på er egen skola i dag — en nollpunkt. Vill ni senare gå med i Trivselsprogrammet kan ni göra samma undersökning igen efter till exempel tre eller sex månader — och se utvecklingen i era egna siffror."
+        },
+        "gjennomforingTittel": "Så fungerar genomförandet",
+        "gjennomforing": "När ni är redo skapar ni en omgång här på sidan och väljer vilka årskurser och grupper som ska delta (årskurs 5–10). Systemet skapar då ett ark med engångskoder — en kod per elev — som ni skriver ut. Läraren delar ut koderna i klassen. Eleven skriver in koden på trivselsundersokelsen.no och svarar sedan på undersökningen. Varje kod fungerar bara en gång. När omgången är avslutad får skolan en rapport med resultaten — och över tid kan ni följa utvecklingen från omgång till omgång.",
+        "personvernTittel": "Integritet",
+        "personvern": "Eleverna svarar utan att logga in, och utan att uppge namn eller något som kan identifiera dem. Vi kan inte se vad en enskild elev har svarat — resultaten visas alltid som samlade siffror för en årskurs eller en grupp, aldrig på ett sätt som gör det möjligt att känna igen den enskilda eleven. Är en grupp så liten att svar skulle kunna kännas igen, döljs siffrorna automatiskt. Vi följer samma grundmodell som nationella elevenkäter: individuella engångskoder som skolan delar ut, och där kopplingen mellan kod och svar bryts."
+      },
+      "runder": {
+        "tittel": "Skolans omgångar",
+        "feil": "Kunde inte hämta omgångarna. Ladda om sidan.",
+        "ingen": "Inga omgångar ännu. Tryck på «Skapa omgång» för att komma igång.",
+        "gruppeEtikett": "{{gruppe}} (årskurs {{trinn}})",
+        "heleTrinnet": "Årskurs {{trinn}} (hela årskursen)",
+        "elever": "{{antall}} elever",
+        "vindu": "Öppen {{start}} – {{slutt}}"
+      },
+      "status": {
+        "utkast": "Utkast",
+        "apen": "Öppen",
+        "lukket": "Stängd"
+      },
+      "opprett": {
+        "tilbake": "Tillbaka till Trivselundersökningen",
+        "tittel": "Skapa omgång",
+        "ingress": "Välj när undersökningen ska vara öppen, och lägg in grupperna som ska delta. Varje grupp får sitt eget kodark.",
+        "vinduTittel": "När ska undersökningen vara öppen?",
+        "vinduHjelp": "Eleverna kan svara under hela perioden. Omgången stängs efter slutdatumet.",
+        "startdato": "Startdatum",
+        "sluttdato": "Slutdatum",
+        "skoleaarInfo": "Läsår {{skoleaar}} · {{semester}} (sätts automatiskt utifrån startdatumet)",
+        "semester": {
+          "host": "höst",
+          "var": "vår"
+        },
+        "grupperTittel": "Grupper som ska delta",
+        "grupperHjelp": "Ge varje grupp ett namn (t.ex. «6A»), välj årskurs och skriv in antal elever. Antalet styr hur många koder som skapas, och används för att följa deltagandet.",
+        "gruppeNavn": "Gruppnamn",
+        "gruppeNavnPlassholder": "t.ex. 6A",
+        "trinn": "Årskurs",
+        "trinnValg": "Årskurs {{n}}",
+        "elevtall": "Antal elever",
+        "leggTilGruppe": "Lägg till grupp",
+        "fjernGruppe": "Ta bort",
+        "tlTittel": "Trivselledare",
+        "tlSporsmal": "Fråga eleverna om de är trivselledare den här terminen",
+        "tlHjelp": "Elever som svarar ja får några extra frågor om trivselledarrollen. Svaren är lika väl skyddade som resten av undersökningen.",
+        "lagrer": "Skapar …",
+        "opprettKnapp": "Skapa omgång",
+        "avbryt": "Avbryt",
+        "utkastInfo": "Omgången skapas som utkast. Kodarken gör du i nästa steg, och undersökningen öppnas först när koderna är klara.",
+        "feilDatoMangler": "Välj både startdatum och slutdatum.",
+        "feilDatoRekkefolge": "Slutdatumet måste vara efter startdatumet.",
+        "feilIngenGrupper": "Lägg in minst en grupp.",
+        "feilGruppeNavn": "Alla grupper måste ha ett namn (t.ex. «6A»).",
+        "feilElevtall": "Antal elever måste vara ett tal mellan 1 och 200.",
+        "feilDuplikat": "Två grupper har samma namn i samma årskurs. Ge dem olika namn.",
+        "feilDuplikatDb": "En av grupperna finns redan i en omgång detta läsår/termin. Kontrollera listan på föregående sida.",
+        "feilTilgang": "Du har inte behörighet att skapa omgångar för den här skolan. Be skolans administratör om hjälp.",
+        "feilGenerisk": "Något gick fel när omgången skulle skapas. Försök igen om en stund."
+      },
+      "foreldreinfo": {
+        "skolePlassholder": "[skola]",
+        "tittel": "Till vårdnadshavare — om Trivselundersökningen vid {{skole}}",
+        "avsnitt1": "{{skole}} deltar i Trivselsprogrammet och genomför en kort, anonym trivselundersökning bland eleverna. Undersökningen tar ungefär 10 minuter och handlar om hur eleverna har det i skolan — trivsel, vänner, aktivitet på rasterna och mobbning.",
+        "anonymTittel": "Undersökningen är anonym",
+        "anonymTekst": "Eleverna loggar inte in med namn, och svaren kan inte spåras tillbaka till den enskilda eleven. Skolan använder de samlade resultaten för att stärka arbetet med elevernas trivsel och mot mobbning. Resultat visas aldrig på ett sätt som kan avslöja vad en enskild elev har svarat.",
+        "frivilligTittel": "Det är frivilligt",
+        "frivilligTekst": "Eleven kan låta bli att svara, och kan hoppa över frågor som känns obehagliga.",
+        "kontakt": "Har ni frågor, kontakta skolans kontaktperson för Trivselsprogrammet."
+      }
     }
   }
 }
