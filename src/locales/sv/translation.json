@@ -204,6 +204,15 @@
     "feltBeskrivelse": "Beskrivning",
     "feltKategori": "Kategori"
   },
+  "adminBrukere": {
+    "fjernSkoleTittel": "Ta bort skola",
+    "fjernSkoleAria": "Ta bort {{skole}} från {{bruker}}",
+    "bekreftFjern": "Ta bort {{skole}} från {{bruker}}?",
+    "bekreftFjernSiste": "{{skole}} är den enda skolan för {{bruker}}. Tar du bort den står användaren utan skolkoppling. Ta bort ändå?",
+    "fjerner": "Tar bort…",
+    "fjernFeil": "Kunde inte ta bort skolkopplingen.",
+    "fjernetVarSiste": "Borttagen. Användaren har nu ingen skolkoppling."
+  },
   "ikkeFunnet": {
     "tittel": "Sidan finns inte",
     "ingress": "Vi hittade ingen sida på den här adressen. Den kan ha flyttats, eller så är länken felstavad.",

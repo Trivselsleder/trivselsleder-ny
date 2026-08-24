@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { fjernMedlem } from '../lib/skole'
 
 const ROLLE_VALG = ['superadmin', 'ansatt', 'skoleadmin', 'skoleansatt', 'feide']
 
@@ -156,12 +158,17 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
 }
 
 export default function AdminBrukere() {
+  const { t } = useTranslation()
   const [brukere, setBrukere] = useState([])
   const [skoler, setSkoler] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState('')
   const [filterRolle, setFilterRolle] = useState('')
   const [visInviter, setVisInviter] = useState(false)
+  // Bruker+skole som fjernes akkurat nå (for å deaktivere knappen), og en egen
+  // linje for fjern-feil så den ikke blandes med hente-feil.
+  const [fjerner, setFjerner] = useState(null) // `${brukerId}:${skoleId}` eller null
+  const [fjernFeil, setFjernFeil] = useState('')
 
   async function hentBrukere() {
     const { data, error } = await supabase
@@ -194,6 +201,36 @@ export default function AdminBrukere() {
     setBrukere(prev => prev.map(b => b.id === id ? { ...b, aktiv: !gjeldende } : b))
     const { error } = await supabase.from('profiles').update({ aktiv: !gjeldende }).eq('id', id)
     if (error) { setBrukere(forrige); console.error('Aktiv-toggle feilet:', error.message) }
+  }
+
+  // Fjern ÉN skolekobling for én bruker. Irreversibel → krev bekreftelse først.
+  // Ved siste kobling vises en tydeligere advarsel. Etter vellykket fjerning
+  // oppdateres visningen lokalt (den ene skolen forsvinner) uten full reload.
+  async function fjernSkole(bruker, skole) {
+    setFjernFeil('')
+    const antallKoblinger = bruker.bruker_skole?.filter(bs => bs.skoler?.id).length ?? 0
+    const erSiste = antallKoblinger <= 1
+    const spm = erSiste
+      ? t('adminBrukere.bekreftFjernSiste', { skole: skole.navn, bruker: bruker.navn ?? bruker.epost })
+      : t('adminBrukere.bekreftFjern', { skole: skole.navn, bruker: bruker.navn ?? bruker.epost })
+    if (!window.confirm(spm)) return
+
+    const merke = `${bruker.id}:${skole.id}`
+    setFjerner(merke)
+    try {
+      const res = await fjernMedlem({ skoleId: skole.id, brukerId: bruker.id })
+      // Lokal oppdatering: fjern kun den ene skole-raden fra denne brukeren.
+      setBrukere(prev => prev.map(b =>
+        b.id === bruker.id
+          ? { ...b, bruker_skole: (b.bruker_skole ?? []).filter(bs => bs.skoler?.id !== skole.id) }
+          : b
+      ))
+      if (res?.varErSiste) setFjernFeil(t('adminBrukere.fjernetVarSiste'))
+    } catch (err) {
+      setFjernFeil(err.message || t('adminBrukere.fjernFeil'))
+    } finally {
+      setFjerner(null)
+    }
   }
 
   const filtrerte = useMemo(() =>
@@ -275,10 +312,9 @@ export default function AdminBrukere() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {filtrerte.map(b => {
-                    const skolenavn = b.bruker_skole
-                      ?.map(bs => bs.skoler?.navn)
-                      .filter(Boolean)
-                      .join(', ') || '–'
+                    const bskoler = (b.bruker_skole ?? [])
+                      .map(bs => bs.skoler)
+                      .filter(s => s?.id)
                     return (
                       <tr key={b.id} className="hover:bg-gray-50/70 transition-colors">
                         <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
@@ -298,8 +334,41 @@ export default function AdminBrukere() {
                             ))}
                           </select>
                         </td>
-                        <td className="px-4 py-3 text-gray-500 text-xs max-w-48 truncate">
-                          {skolenavn}
+                        <td className="px-4 py-3 text-gray-500 text-xs max-w-64">
+                          {bskoler.length === 0 ? (
+                            <span className="text-gray-400">–</span>
+                          ) : (
+                            <span className="flex flex-wrap gap-1">
+                              {bskoler.map(s => {
+                                const merke = `${b.id}:${s.id}`
+                                const fjernerDenne = fjerner === merke
+                                return (
+                                  <span
+                                    key={s.id}
+                                    className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 rounded-full pl-2.5 pr-1 py-0.5"
+                                  >
+                                    {s.navn}
+                                    <button
+                                      type="button"
+                                      onClick={() => fjernSkole(b, s)}
+                                      disabled={fjernerDenne}
+                                      title={t('adminBrukere.fjernSkoleTittel')}
+                                      aria-label={t('adminBrukere.fjernSkoleAria', { skole: s.navn, bruker: b.navn ?? b.epost })}
+                                      className="w-4 h-4 flex items-center justify-center rounded-full text-gray-400 hover:bg-red-100 hover:text-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                      {fjernerDenne ? (
+                                        <span className="w-2.5 h-2.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                                      ) : (
+                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                      )}
+                                    </button>
+                                  </span>
+                                )
+                              })}
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">
                           {formaterDato(b.created_at)}
@@ -323,6 +392,10 @@ export default function AdminBrukere() {
               </table>
             </div>
           </div>
+        )}
+
+        {fjernFeil && (
+          <p role="status" className="text-sm text-red-500 text-center mt-4">{fjernFeil}</p>
         )}
 
         {!laster && !feil && filtrerte.length > 0 && (

@@ -204,6 +204,15 @@
     "feltBeskrivelse": "Beskrivelse",
     "feltKategori": "Kategori"
   },
+  "adminBrukere": {
+    "fjernSkoleTittel": "Fjern skole",
+    "fjernSkoleAria": "Fjern {{skole}} fra {{bruker}}",
+    "bekreftFjern": "Fjerne {{skole}} fra {{bruker}}?",
+    "bekreftFjernSiste": "{{skole}} er den eneste skolen til {{bruker}}. Fjerner du den, står brukeren uten skoletilknytning. Fjerne likevel?",
+    "fjerner": "Fjerner…",
+    "fjernFeil": "Kunne ikke fjerne skolekoblingen.",
+    "fjernetVarSiste": "Fjernet. Brukeren har nå ingen skoletilknytning."
+  },
   "ikkeFunnet": {
     "tittel": "Siden finnes ikke",
     "ingress": "Vi fant ingen side på denne adressen. Den kan ha flyttet, eller lenken kan være feilskrevet.",

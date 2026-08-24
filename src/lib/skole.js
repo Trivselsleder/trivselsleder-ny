@@ -129,6 +129,23 @@ export async function settMedlemRolle({ skoleId, brukerId, stilling, tl_rolle })
   return data
 }
 
+// Fjern ÉN skolekobling for et medlem (via /api/skole/fjern-medlem).
+// Avgrenset eksakt på (bruker_id, skole_id). Skoleadmin er låst til egen skole
+// server-side; endepunktet flagger (blokkerer ikke) om det var siste kobling.
+export async function fjernMedlem({ skoleId, brukerId }) {
+  const { data: { session } } = await supabase.auth.getSession()
+  const token = session?.access_token
+  if (!token) throw new Error('Sesjonen er utløpt — last inn siden på nytt.')
+  const res = await fetch('/api/skole/fjern-medlem', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ skoleId, brukerId }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'Kunne ikke fjerne skolekoblingen.')
+  return data
+}
+
 export function lekTittel(ressurs) {
   const inn = ressurs?.ressurs_innhold || []
   return (
