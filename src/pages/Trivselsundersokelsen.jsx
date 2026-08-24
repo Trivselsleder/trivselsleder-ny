@@ -40,6 +40,16 @@ const STEG = {
   SPM: 'spm', SEND: 'send', FERDIG: 'ferdig',
 }
 
+// --- QR-lenke (steg 4.3): koden kan komme via URL-FRAGMENTET (#kode=...) ---
+// Fragmentet sendes aldri til serveren (ingen infrastruktur-logger). Leses ÉN
+// gang ved oppstart; adresselinja renses i en effekt rett etterpå. Koden lever
+// videre kun i minnet og sendes som POST — samme fasit som en tastet kode.
+function lesKodeFraFragment() {
+  const m = /[#&]kode=([^&]+)/.exec(window.location.hash || '')
+  if (!m) return ''
+  try { return decodeURIComponent(m[1]) } catch { return m[1] }
+}
+
 const TRINN_VALG = [5, 6, 7, 8, 9, 10]          // 5.–10., som Elevundersøkelsen
 const KJONN_VALG = ['jente', 'gutt', 'annet']   // samme kategorier som Elevundersøkelsen
 
@@ -62,7 +72,8 @@ export default function Trivselsundersokelsen() {
   const { t } = useTranslation()
 
   const [steg, setSteg] = useState(STEG.INTRO)
-  const [kode, setKode] = useState('')
+  const [kodeFraLenke] = useState(lesKodeFraFragment)   // '' når eleven kom uten QR
+  const [kode, setKode] = useState(kodeFraLenke)
   const [sporsmal, setSporsmal] = useState([])   // [{nummer, kategori, antallAlternativer}]
   const [svar, setSvar] = useState({})           // { [nummer]: valgtIndex }
   const [trinn, setTrinn] = useState(null)       // bakgrunnsvariabel (obligatorisk)
@@ -75,6 +86,14 @@ export default function Trivselsundersokelsen() {
   const tittelRef = useRef(null)
   const kodeFeltRef = useRef(null)
 
+  // Rens adresselinja for kode-fragmentet UMIDDELBART (replaceState — koden
+  // havner dermed heller ikke i nettleserhistorikken). Ekstern system-
+  // oppdatering, derfor i en effekt; selve koden ble lest i useState over.
+  useEffect(() => {
+    if (!kodeFraLenke) return
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+  }, [kodeFraLenke])
+
   // Flytt fokus til skjermtittelen når vi bytter steg/spørsmål.
   useEffect(() => {
     if (tittelRef.current) tittelRef.current.focus()
@@ -85,11 +104,12 @@ export default function Trivselsundersokelsen() {
   const antallSvart = Object.keys(svar).length
 
   // --- Steg 2: hent runde via kode -----------------------------------------
-  const hentRunde = useCallback(async (e) => {
-    if (e) e.preventDefault()
+  // Felles kjerne for tastet kode OG kode fra QR-lenken. Returnerer true ved
+  // suksess (kalleren fra intro-skjermen trenger å vite om den skal falle
+  // tilbake til kode-skjermen med feilmelding).
+  const hentRundeMedKode = useCallback(async (ren) => {
     setFeil('')
-    const ren = kode.trim()
-    if (!ren) { setFeil('tu.kode.feilTom'); if (kodeFeltRef.current) kodeFeltRef.current.focus(); return }
+    if (!ren) { setFeil('tu.kode.feilTom'); if (kodeFeltRef.current) kodeFeltRef.current.focus(); return false }
     setLaster(true)
     try {
       const res = await fetch('/api/tu/hent-runde', {
@@ -100,7 +120,7 @@ export default function Trivselsundersokelsen() {
       if (!res.ok) {
         setFeil('tu.kode.feilUgyldig')
         if (kodeFeltRef.current) kodeFeltRef.current.focus()
-        return
+        return false
       }
       const data = await res.json()
       setSporsmal(Array.isArray(data.sporsmal) ? data.sporsmal : [])
@@ -109,12 +129,31 @@ export default function Trivselsundersokelsen() {
       setKjonn(null)
       setNaa(0)
       setSteg(STEG.TRINN)          // bakgrunnsvariabler FØR spørsmålene
+      return true
     } catch {
       setFeil('tu.kode.feilNett')
+      return false
     } finally {
       setLaster(false)
     }
-  }, [kode])
+  }, [])
+
+  const hentRunde = useCallback(async (e) => {
+    if (e) e.preventDefault()
+    await hentRundeMedKode(kode.trim())
+  }, [kode, hentRundeMedKode])
+
+  // Fra intro-skjermen: med kode fra QR-lenken «veksler vi til POST» direkte
+  // (byggeplan 4.3) — eleven slipper å taste. Feiler koden, lander eleven på
+  // kode-skjermen med koden utfylt og en vanlig feilmelding.
+  const startFraIntro = useCallback(async () => {
+    if (kodeFraLenke && kode.trim()) {
+      const ok = await hentRundeMedKode(kode.trim())
+      if (!ok) setSteg(STEG.KODE)
+      return
+    }
+    setSteg(STEG.KODE)
+  }, [kodeFraLenke, kode, hentRundeMedKode])
 
   // --- Steg 3: velg svar ----------------------------------------------------
   function velg(nummer, index) {
@@ -193,10 +232,11 @@ export default function Trivselsundersokelsen() {
             <p className="mt-4 text-lg leading-relaxed text-gray-700">{t('tu.intro.tekst')}</p>
             <button
               type="button"
-              onClick={() => setSteg(STEG.KODE)}
-              className="mt-8 w-full sm:w-auto min-h-[56px] px-8 py-4 rounded-2xl bg-petrol text-white text-lg font-bold hover:bg-[#0b4d54] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-petrol/40 transition-colors"
+              onClick={startFraIntro}
+              disabled={laster}
+              className="mt-8 w-full sm:w-auto min-h-[56px] px-8 py-4 rounded-2xl bg-petrol text-white text-lg font-bold hover:bg-[#0b4d54] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-petrol/40 disabled:opacity-60 transition-colors"
             >
-              {t('tu.intro.start')}
+              {laster ? t('tu.kode.henter') : t('tu.intro.start')}
             </button>
           </section>
         )}

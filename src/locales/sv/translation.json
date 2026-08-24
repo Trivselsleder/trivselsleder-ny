@@ -399,6 +399,16 @@
       },
       "feilMangler": "Du måste välja för att gå vidare."
     },
+    "ark": {
+      "tittel": "Trivselundersökningen — engångskoder",
+      "gruppe": "Grupp {{gruppe}} (årskurs {{trinn}})",
+      "heleTrinnet": "Årskurs {{trinn}}",
+      "adresse": "Svara på: {{url}}",
+      "instruks": "Skanna QR-koden, eller gå till {{url}} och skriv in koden.",
+      "frist": "Svara senast {{dato}}",
+      "klipp": "Klipp längs de streckade linjerna — en lapp till varje elev. Inga namn ska skrivas på lapparna.",
+      "bunn": "Utskrivet från trivselsleder.no · {{skole}}"
+    },
     "laerer": {
       "fane": "Trivselundersökningen",
       "laster": "Laddar …",
@@ -449,12 +459,39 @@
         "gruppeEtikett": "{{gruppe}} (årskurs {{trinn}})",
         "heleTrinnet": "Årskurs {{trinn}} (hela årskursen)",
         "elever": "{{antall}} elever",
-        "vindu": "Öppen {{start}} – {{slutt}}"
+        "vindu": "Öppen {{start}} – {{slutt}}",
+        "koderKnapp": "Skapa koder och skriv ut ark"
       },
       "status": {
         "utkast": "Utkast",
         "apen": "Öppen",
         "lukket": "Stängd"
+      },
+      "koder": {
+        "tilbake": "Tillbaka till Trivselundersökningen",
+        "tittel": "Koder och utskrift",
+        "ingress": "Här skapar du engångskoderna och skriver ut kodarket — ett ark per grupp, en kod per elev plus två extra.",
+        "advarsel": "Viktigt: Koderna visas bara en gång. Ha en skrivare redo innan du trycker på knappen — arket kan inte hämtas fram igen senare.",
+        "valgTittel": "Grupper som får koder nu",
+        "antall": "{{antall}} koder ({{elevtall}} elever + 2 extra)",
+        "manglerElevtall": "Elevantal saknas — gruppen kan inte få koder.",
+        "ingenUtkast": "Inga omgångar väntar på koder. Skapa en omgång först, eller se listan över skolans omgångar.",
+        "genererKnapp": "Skapa koder och skriv ut ark",
+        "genererer": "Skapar koder …",
+        "ferdigTittel": "Koderna är klara",
+        "ferdigTekst": "Koder har skapats för {{antall}} grupper, och omgångarna är öppnade. Utskriftsfönstret med kodarken bör ha öppnats.",
+        "ferdigHusk": "Stäng inte den här sidan innan arket är utskrivet — koderna kan inte hämtas fram igen.",
+        "skrivUtIgjen": "Skriv ut arket igen",
+        "popupBlokkert": "Webbläsaren blockerade utskriftsfönstret. Tillåt popup-fönster för den här sidan och tryck på «Skriv ut arket igen».",
+        "feilLasting": "Kunde inte hämta omgångarna. Ladda om sidan.",
+        "feilIngenValgt": "Välj minst en grupp.",
+        "feilGenerisk": "Något gick fel. Försök igen — inga koder skapades.",
+        "feilNett": "Fick inte kontakt med servern. Kontrollera nätverksanslutningen och försök igen.",
+        "feilNokkel": "Servern saknar kodnyckeln (TU_KODE_HMAC_KEY är inte satt). Kontakta Trivselsleder — inga koder skapades.",
+        "feilAllerede": "Den här gruppen har redan fått koder. Av säkerhetsskäl kan arket inte skapas på nytt.",
+        "feilKollisjon": "Koderna kolliderade upprepade gånger — det ska i praktiken inte hända. Försök igen, och kontakta Trivselsleder om det upprepas.",
+        "feilElevtall": "Gruppen saknar elevantal och kan inte få koder.",
+        "feilDelvis": "Dessa grupper fick inga koder: {{grupper}}. Försök igen för dem — grupperna som lyckades finns redan på arket."
       },
       "opprett": {
         "tilbake": "Tillbaka till Trivselundersökningen",

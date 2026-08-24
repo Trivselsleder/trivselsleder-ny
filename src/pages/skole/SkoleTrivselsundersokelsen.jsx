@@ -153,7 +153,19 @@ export default function SkoleTrivselsundersokelsen() {
 
       {/* Skolens runder — metadata per gruppe. ALDRI svar-innhold her. */}
       <div className="mt-8">
-        <h2 className="text-lg font-bold text-gray-900">{t('tu.laerer.runder.tittel')}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-bold text-gray-900">{t('tu.laerer.runder.tittel')}</h2>
+          {/* Steg 4.3: runder i utkast venter på koder + ark. Kun kanOpprette —
+              samme grense som endepunktet og RLS-en. */}
+          {kontekst.kanOpprette && runder.some((r) => r.status === 'utkast') && (
+            <Link
+              to="/min-side/trivselsundersokelsen/koder"
+              className="rounded-xl bg-petrol text-white font-bold px-5 py-2.5 hover:bg-[#0b4d54] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-petrol/40 transition-colors"
+            >
+              {t('tu.laerer.runder.koderKnapp')}
+            </Link>
+          )}
+        </div>
         {runderFeil && <p className="mt-2 text-tlred">{t('tu.laerer.runder.feil')}</p>}
         {!runderFeil && runder.length === 0 && (
           <p className="mt-2 text-gray-500">{t('tu.laerer.runder.ingen')}</p>

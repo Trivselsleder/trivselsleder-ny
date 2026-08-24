@@ -52,6 +52,7 @@ import SkoleWebinarer from './pages/skole/SkoleWebinarer'
 // (HTLA/skoleadmin/superadmin) i tillegg til at fanen er skjult for andre.
 import SkoleTrivselsundersokelsen from './pages/skole/SkoleTrivselsundersokelsen'
 import SkoleTuOpprett from './pages/skole/SkoleTuOpprett'
+import SkoleTuKoder from './pages/skole/SkoleTuKoder'
 import Webinarer from './pages/Webinarer'
 import AdminWebinarer from './pages/AdminWebinarer'
 import AdminNyhetsbrev from './pages/AdminNyhetsbrev'
@@ -113,6 +114,7 @@ export default function App() {
                 <Route path="webinarer" element={<SkoleWebinarer />} />
                 <Route path="trivselsundersokelsen" element={<SkoleTrivselsundersokelsen />} />
                 <Route path="trivselsundersokelsen/opprett" element={<SkoleTuOpprett />} />
+                <Route path="trivselsundersokelsen/koder" element={<SkoleTuKoder />} />
               </Route>
               <Route
                 path="/admin"

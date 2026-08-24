@@ -101,7 +101,9 @@ export default function SkoleTuOpprett() {
         grupper: rene,
         tlSporsmal,
       })
-      navigate('/min-side/trivselsundersokelsen')
+      // Rett til koder + ark (steg 4.3) — neste naturlige handling etter
+      // oppretting er å generere kodene og skrive ut arket.
+      navigate('/min-side/trivselsundersokelsen/koder')
     } catch (e2) {
       if (e2?.kode === 'DUPLIKAT_GRUPPE') setFeil('tu.laerer.opprett.feilDuplikatDb')
       else if (e2?.kode === 'INGEN_SKRIVETILGANG') setFeil('tu.laerer.opprett.feilTilgang')
