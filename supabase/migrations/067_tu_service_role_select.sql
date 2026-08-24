@@ -1,0 +1,75 @@
+-- ============================================================================
+-- TRIVSELSUNDERSØKELSEN — MIGRASJON 067: service_role SELECT på TU-lesetabeller
+-- Trivselsleder-ny · 24. aug 2026 · Retting etter live-funn (TU steg 4.3)
+--
+-- BAKGRUNN (rotårsak bekreftet fra PRODUKSJONSLOGGEN 24. aug):
+--   Elevflaten (/undersokelse) avviste ALLE koder med «Denne koden virker
+--   ikke» — også aldri-genererte koder. Vercel-loggen for /api/tu/hent-runde
+--   viste den eksakte feilen:
+--       «TU hent-runde DB-feil (kode): permission denied for table tu_koder»
+--   Feilen kom ETTER at HMAC-en var beregnet — i selve databasespørringen,
+--   ikke i nøkkel-/crypto-steget. Det er altså ikke en kodefeil, ikke Edge/
+--   runtime, ikke TU_KODE_HMAC_KEY: det er en manglende tabell-rettighet.
+--
+--   ÅRSAK: hent-runde.js leser tu_koder → tu_runder → tu_sporsmal DIREKTE via
+--   PostgREST med service-nøkkelen (tjenerKlient() = service_role). service_role
+--   manglet SELECT på disse tabellene, så PostgREST avviste spørringen på
+--   RELASJONSNIVÅ (skjer før RLS overhodet vurderes).
+--
+--   HVORFOR GENERERING (opprett-koder.js) LIKEVEL VIRKET: den rører tu_koder
+--   KUN gjennom SECURITY DEFINER-RPC-en tu_generer_kodesett (kjører som eier
+--   postgres → tabell-grants forbigås), og leser tu_runder som den innloggede
+--   LÆREREN (authenticated, som HAR SELECT der). Ingen direkte service_role-
+--   tabell-lesning i den veien — derfor ingen feil. Det er nettopp DENNE
+--   forskjellen (DEFINER-RPC vs. direkte PostgREST-select) som gjorde at
+--   generering gikk 200 mens validering gikk 500.
+--
+-- HVA MIGRASJONEN GJØR: gir service_role SELECT på NØYAKTIG de tre tabellene
+--   hent-runde (den eneste DEFINER-frie leseveien i TU) leser direkte. Ikke mer.
+--
+-- ----------------------------------------------------------------------------
+-- RETTIGHETER FØR (produksjon, verifisert 24. aug via has_table_privilege):
+--   service_role SELECT:   tu_koder=NEI  tu_runder=NEI  tu_sporsmal=NEI  tu_svar=NEI
+--   authenticated SELECT:  tu_koder=NEI  tu_runder=JA   tu_sporsmal=JA   tu_svar=NEI
+--   RLS på (relrowsecurity):tu_koder=JA  tu_runder=JA   tu_sporsmal=JA   tu_svar=JA
+--
+-- RETTIGHETER ETTER denne migrasjonen:
+--   service_role SELECT:   tu_koder=JA   tu_runder=JA   tu_sporsmal=JA   tu_svar=NEI (uendret)
+--   authenticated SELECT:  UENDRET
+--   RLS på:                UENDRET (fortsatt JA på alle fire) — GRANT rører ikke RLS.
+-- ----------------------------------------------------------------------------
+--
+-- PERSONVERN / SIKKERHET (disse tre er personvern-relevante — derfor presist):
+--   * tu_svar (selve svar-innholdet) får BEVISST INGEN grant. Ingen kodevei
+--     leser tu_svar direkte — verifisert i hele api/: den røres kun via
+--     SECURITY DEFINER-RPC-en tu_lever_svar (migr 046). Svar-innhold forblir
+--     dermed utilgjengelig for direkte service_role-oppslag.
+--   * service_role brukes KUN server-side, bak endepunktene — aldri i nettleser.
+--   * service_role har uansett BYPASSRLS. Denne granten endrer derfor IKKE hva
+--     anon eller authenticated (nettleser/elev/lærer) kan se — RLS-policyene som
+--     styrer dem står urørt. Vi åpner utelukkende server-lesing for de tre
+--     tabellene «betjeningsluka» (hent-runde) faktisk trenger.
+--
+-- IDEMPOTENT: GRANT kan kjøres på nytt uten feil (rettigheten settes bare på
+--   nytt til samme verdi). Ingen DROP, ingen datamanipulasjon, ingen RLS-endring.
+-- KJØRES i Supabase SQL-editor av Kjartan ETTER uavhengig fable-kontroll.
+-- ============================================================================
+
+-- tu_koder: hent-runde slår opp koden (kode_hmac) for å finne runden. Dette er
+-- den FØRSTE spørringen i betjeningsluka — det var her «permission denied» slo
+-- til. Kun HMAC-er lagres her, aldri rå-koder.
+grant select on public.tu_koder to service_role;
+
+-- tu_runder: hent-runde henter rundens status/trinn/skoleår/versjon/land for å
+-- bygge elevens skjema. (Leses som service_role her — til forskjell fra
+-- opprett-koder, som leser samme tabell som den innloggede læreren.)
+grant select on public.tu_runder to service_role;
+
+-- tu_sporsmal: hent-runde henter spørsmålssettet for rundens versjon/land.
+-- Inneholder i18n-NØKLER (ikke tekst) og skala — ingen personopplysninger.
+grant select on public.tu_sporsmal to service_role;
+
+-- MERK: tu_svar får BEVISST ingen grant (se personvern-avsnittet over).
+-- ============================================================================
+-- SLUTT MIGRASJON 067.
+-- ============================================================================
