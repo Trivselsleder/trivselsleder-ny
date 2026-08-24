@@ -225,7 +225,9 @@
       "henter": "Kontrollerar koden …",
       "feilTom": "Skriv in koden du fick av din lärare.",
       "feilUgyldig": "Den här koden fungerar inte. Kontrollera att du skrivit rätt, eller fråga läraren.",
-      "feilNett": "Vi fick ingen kontakt. Försök igen om en stund."
+      "feilNett": "Vi fick ingen kontakt. Försök igen om en stund.",
+      "feilTeknisk": "Tekniskt fel – försök igen om en stund, eller säg till läraren.",
+      "feilTekniskRef": "Ref: {{ref}}"
     },
     "spm": {
       "avFremdrift": "Fråga {{n}} av {{total}}",

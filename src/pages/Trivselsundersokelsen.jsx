@@ -81,6 +81,7 @@ export default function Trivselsundersokelsen() {
   const [naa, setNaa] = useState(0)              // indeks i sporsmal
   const [laster, setLaster] = useState(false)
   const [feil, setFeil] = useState('')           // i18n-nøkkel eller ''
+  const [tekniskRef, setTekniskRef] = useState('') // TU-<status>-<feilkode> ved teknisk feil; '' ellers
 
   // Fokusmål ved skjermbytte (skjermleser + tastatur skal lande riktig sted).
   const tittelRef = useRef(null)
@@ -109,6 +110,7 @@ export default function Trivselsundersokelsen() {
   // tilbake til kode-skjermen med feilmelding).
   const hentRundeMedKode = useCallback(async (ren) => {
     setFeil('')
+    setTekniskRef('')
     if (!ren) { setFeil('tu.kode.feilTom'); if (kodeFeltRef.current) kodeFeltRef.current.focus(); return false }
     setLaster(true)
     try {
@@ -118,10 +120,32 @@ export default function Trivselsundersokelsen() {
         body: JSON.stringify({ kode: ren }),
       })
       if (!res.ok) {
-        setFeil('tu.kode.feilUgyldig')
+        // Skill ELEVFEIL fra TEKNISK FEIL. Serveren sender en semantisk feilkode
+        // i body ({ feil: '...' }); vi leser den for å avgjøre hvilken melding
+        // eleven skal se — rå server-/Postgres-tekst når ALDRI hit (server
+        // masker alt bak faste koder). Ekte elevfeil: TOM_KODE (400) og
+        // UGYLDIG_KODE (404) → «sjekk koden». Alt annet (500 SERVERFEIL, samt
+        // INGEN_SPORSMAL som er 404 men egentlig en konfigfeil, og uventede
+        // statuser) er teknisk → eleven kan ikke rette det selv.
+        let feilkode = ''
+        try { feilkode = (await res.json())?.feil || '' } catch { feilkode = '' }
+        const elevfeil = feilkode === 'UGYLDIG_KODE' || feilkode === 'TOM_KODE'
+        if (elevfeil) {
+          setTekniskRef('')
+          setFeil('tu.kode.feilUgyldig')
+        } else {
+          // Teknisk feil: annen, vennlig melding som IKKE ber eleven sjekke koden,
+          // + en diskret referanse (TU-<status>-<feilkode>) læreren/vi kan bruke.
+          // Konsoll-loggen er skjult for eleven og speiler serverens eget mønster.
+          const ref = 'TU-' + res.status + (feilkode ? '-' + feilkode : '')
+          console.error('TU hent-runde teknisk feil:', res.status, feilkode || '(ukjent)')
+          setTekniskRef(ref)
+          setFeil('tu.kode.feilTeknisk')
+        }
         if (kodeFeltRef.current) kodeFeltRef.current.focus()
         return false
       }
+      setTekniskRef('')
       const data = await res.json()
       setSporsmal(Array.isArray(data.sporsmal) ? data.sporsmal : [])
       setSvar({})
@@ -131,6 +155,7 @@ export default function Trivselsundersokelsen() {
       setSteg(STEG.TRINN)          // bakgrunnsvariabler FØR spørsmålene
       return true
     } catch {
+      setTekniskRef('')
       setFeil('tu.kode.feilNett')
       return false
     } finally {
@@ -267,13 +292,21 @@ export default function Trivselsundersokelsen() {
                 value={kode}
                 onChange={(e) => setKode(e.target.value)}
                 placeholder={t('tu.kode.plassholder')}
-                aria-describedby={feil ? 'tu-kode-feil' : undefined}
+                aria-describedby={[feil && 'tu-kode-feil', tekniskRef && 'tu-kode-ref'].filter(Boolean).join(' ') || undefined}
                 aria-invalid={feil ? 'true' : undefined}
                 className="w-full min-h-[56px] px-4 py-3 text-2xl tracking-widest uppercase text-center rounded-2xl border-2 border-gray-300 focus-visible:outline-none focus-visible:border-petrol focus-visible:ring-4 focus-visible:ring-petrol/30"
               />
               {feil && (
                 <p id="tu-kode-feil" className="mt-3 text-base font-semibold text-tlred">
                   {t(feil)}
+                </p>
+              )}
+              {/* Diskret teknisk referanse — vises kun ved teknisk feil. Kort og
+                  ufarlig for eleven; læreren/vi kan lese den opp ved feilsøking.
+                  Aldri rå server-/Postgres-tekst — kun TU-<status>-<feilkode>. */}
+              {tekniskRef && (
+                <p id="tu-kode-ref" className="mt-1 text-sm text-gray-500">
+                  {t('tu.kode.feilTekniskRef', { ref: tekniskRef })}
                 </p>
               )}
               <button
