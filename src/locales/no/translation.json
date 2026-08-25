@@ -471,7 +471,8 @@
         "heleTrinnet": "{{trinn}}. trinn (hele trinnet)",
         "elever": "{{antall}} elever",
         "vindu": "Åpen {{start}} – {{slutt}}",
-        "koderKnapp": "Lag koder og skriv ut ark"
+        "koderKnapp": "Lag koder og skriv ut ark",
+        "utdelt": "{{brukt}} av {{total}} utdelte"
       },
       "status": {
         "utkast": "Utkast",
@@ -552,6 +553,14 @@
         "frivilligTittel": "Det er frivillig",
         "frivilligTekst": "Eleven kan la være å svare, og kan hoppe over spørsmål som oppleves ubehagelige.",
         "kontakt": "Har dere spørsmål, ta kontakt med skolens kontaktperson for Trivselsprogrammet."
+      },
+      "lukk": {
+        "knapp": "Lukk runden tidlig",
+        "bekreftTekst": "Vil du lukke runden nå? Elevene får ikke svart etterpå, og resultatene låses. Dette kan ikke angres.",
+        "bekreftJa": "Ja, lukk runden",
+        "avbryt": "Avbryt",
+        "lukker": "Lukker …",
+        "feil": "Kunne ikke lukke runden. Prøv igjen, eller kontakt skolens administrator."
       }
     }
   }

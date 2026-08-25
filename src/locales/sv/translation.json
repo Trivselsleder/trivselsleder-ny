@@ -471,7 +471,8 @@
         "heleTrinnet": "Årskurs {{trinn}} (hela årskursen)",
         "elever": "{{antall}} elever",
         "vindu": "Öppen {{start}} – {{slutt}}",
-        "koderKnapp": "Skapa koder och skriv ut ark"
+        "koderKnapp": "Skapa koder och skriv ut ark",
+        "utdelt": "{{brukt}} av {{total}} utdelade"
       },
       "status": {
         "utkast": "Utkast",
@@ -552,6 +553,14 @@
         "frivilligTittel": "Det är frivilligt",
         "frivilligTekst": "Eleven kan låta bli att svara, och kan hoppa över frågor som känns obehagliga.",
         "kontakt": "Har ni frågor, kontakta skolans kontaktperson för Trivselsprogrammet."
+      },
+      "lukk": {
+        "knapp": "Stäng omgången tidigt",
+        "bekreftTekst": "Vill du stänga omgången nu? Eleverna kan inte svara efteråt, och resultaten låses. Detta kan inte ångras.",
+        "bekreftJa": "Ja, stäng omgången",
+        "avbryt": "Avbryt",
+        "lukker": "Stänger …",
+        "feil": "Kunde inte stänga omgången. Försök igen, eller kontakta skolans administratör."
       }
     }
   }

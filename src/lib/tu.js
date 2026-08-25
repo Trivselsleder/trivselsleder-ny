@@ -120,3 +120,32 @@ export async function opprettTuRunder({ skoleId, startdato, sluttdato, grupper, 
   }
   return rader.length
 }
+
+// --- 4.4 Live-status: «X av Y utdelte» per gruppe ---------------------------
+// Ren aggregert telling via RPC tu_folg_med (migr 041, utvidet for HTLA i 068):
+// utdelt = antall koder på runden, brukt = antall brukte. ALDRI svar-innhold.
+// Autorisasjon skjer i DB-en (skoleadmin/superadmin eller aktiv HTLA på skolen);
+// en bruker uten tilgang får «Ingen tilgang» og vi returnerer null (skjuler linja).
+export async function hentTuFolgMed(rundeId) {
+  const { data, error } = await supabase.rpc('tu_folg_med', { p_runde: rundeId })
+  if (error) return null                      // ingen tilgang / feil → vis ingen telling
+  const rad = Array.isArray(data) ? data[0] : data
+  if (!rad) return null
+  return { utdelt: rad.utdelt ?? 0, brukt: rad.brukt ?? 0 }
+}
+
+// --- 4.5 Manuell tidlig-lukk ------------------------------------------------
+// Lukker en åpen runde før frist. DB-en (tu_lukk_runde, migr 045/068) arkiverer
+// skjermet resultat, sletter kodene og re-stempler svarene (kollapser xmin →
+// anonymitet-ved-konstruksjon). Autorisasjon i DB: skoleadmin/superadmin eller
+// aktiv HTLA på egen skole. Returnerer void; kaster ved feil/uten tilgang.
+export async function lukkTuRunde(rundeId) {
+  const { error } = await supabase.rpc('tu_lukk_runde', { p_runde: rundeId })
+  if (error) {
+    // 42501 / «Ingen tilgang» → egen feiltype så UI kan vise vennlig melding.
+    if (error.code === '42501' || /ingen tilgang/i.test(error.message || '')) {
+      const e = new Error('INGEN_LUKKETILGANG'); e.kode = 'INGEN_LUKKETILGANG'; throw e
+    }
+    throw error
+  }
+}

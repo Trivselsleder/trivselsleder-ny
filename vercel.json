@@ -29,6 +29,10 @@
     {
       "path": "/api/kurs/cron-ra-varsel?torrkjoring=false",
       "schedule": "0 5-8 * * *"
+    },
+    {
+      "path": "/api/tu/cron-auto-lukk?torrkjoring=false",
+      "schedule": "0 4-7 * * *"
     }
   ]
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
-import { hentTuKontekst, hentTuRunder } from '../../lib/tu'
+import { hentTuKontekst, hentTuRunder, hentTuFolgMed, lukkTuRunde } from '../../lib/tu'
 import { lastNedForeldreinfo } from '../../lib/tuForeldreinfo'
 
 // ============================================================================
@@ -39,6 +39,24 @@ export default function SkoleTrivselsundersokelsen() {
   const [runderFeil, setRunderFeil] = useState(false)
   const [lesMer, setLesMer] = useState(false)
   const [popupBlokkert, setPopupBlokkert] = useState(false)
+  // 4.4: live-telling «X av Y utdelte» per åpne runde ({ [rundeId]: {utdelt,brukt} }).
+  const [tellinger, setTellinger] = useState({})
+  // 4.5: manuell tidlig-lukk — hvilken runde bekreftes/lukkes, og evt. feil.
+  const [bekreftLukk, setBekreftLukk] = useState(null)   // rundeId under bekreftelse
+  const [lukkerId, setLukkerId] = useState(null)         // rundeId som lukkes nå
+  const [lukkeFeil, setLukkeFeil] = useState(false)
+
+  // Henter runder + live-telling for åpne runder. Kalles ved lasting og etter lukk.
+  async function lastRunder(skoleId) {
+    const liste = await hentTuRunder(skoleId)
+    setRunder(liste)
+    // 4.4: kun ÅPNE runder har koder å telle (lukkede har fått kodene slettet).
+    const apne = liste.filter((r) => r.status === 'apen')
+    const par = await Promise.all(
+      apne.map(async (r) => [r.id, await hentTuFolgMed(r.id)])
+    )
+    setTellinger(Object.fromEntries(par.filter(([, v]) => v)))
+  }
 
   useEffect(() => {
     let aktiv = true
@@ -47,12 +65,27 @@ export default function SkoleTrivselsundersokelsen() {
       if (!aktiv) return
       setKontekst(k)
       if (k.tilgang && k.skoleId) {
-        try { setRunder(await hentTuRunder(k.skoleId)) }
-        catch { setRunderFeil(true) }
+        try { await lastRunder(k.skoleId) }
+        catch { if (aktiv) setRunderFeil(true) }
       }
     })
     return () => { aktiv = false }
   }, [bruker])
+
+  // 4.5: bekreft → lukk runde → oppdater lista (kodene slettes, status blir lukket).
+  async function utforLukk(rundeId) {
+    setLukkerId(rundeId)
+    setLukkeFeil(false)
+    try {
+      await lukkTuRunde(rundeId)
+      setBekreftLukk(null)
+      if (kontekst?.skoleId) await lastRunder(kontekst.skoleId)
+    } catch {
+      setLukkeFeil(true)
+    } finally {
+      setLukkerId(null)
+    }
+  }
 
   if (kontekst === null) {
     return (
@@ -195,6 +228,60 @@ export default function SkoleTrivselsundersokelsen() {
                       slutt: r.frist ? datoTekst(r.frist) : '—',
                     })}
                   </p>
+                )}
+
+                {/* 4.4 Live-status: «X av Y utdelte» — kun åpne runder, ren
+                    aggregert telling (aldri svar-innhold). Vises for alle med
+                    tilgang (HTLA/skoleadmin/superadmin); DB-en autoriserer. */}
+                {r.status === 'apen' && tellinger[r.id] && (
+                  <p className="text-sm font-semibold text-petrol mt-2">
+                    {t('tu.laerer.runder.utdelt', {
+                      brukt: tellinger[r.id].brukt,
+                      total: r.elevtall ?? tellinger[r.id].utdelt,
+                    })}
+                  </p>
+                )}
+
+                {/* 4.5 Manuell tidlig-lukk — kun åpne runder. DB (tu_lukk_runde)
+                    autoriserer HTLA/skoleadmin/superadmin; skoleansatt uten
+                    htla-rolle får «Ingen tilgang» og ser feilmeldingen. */}
+                {r.status === 'apen' && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    {bekreftLukk === r.id ? (
+                      <div>
+                        <p className="text-sm text-gray-700 leading-relaxed">{t('tu.laerer.lukk.bekreftTekst')}</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => utforLukk(r.id)}
+                            disabled={lukkerId === r.id}
+                            className="rounded-lg bg-tlred text-white font-semibold px-4 py-2 text-sm hover:bg-[#a8321f] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tlred/30 transition-colors"
+                          >
+                            {lukkerId === r.id ? t('tu.laerer.lukk.lukker') : t('tu.laerer.lukk.bekreftJa')}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setBekreftLukk(null); setLukkeFeil(false) }}
+                            disabled={lukkerId === r.id}
+                            className="rounded-lg border-2 border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gray-300 transition-colors"
+                          >
+                            {t('tu.laerer.lukk.avbryt')}
+                          </button>
+                        </div>
+                        {lukkeFeil && (
+                          <p className="mt-2 text-sm font-semibold text-tlred" role="alert">{t('tu.laerer.lukk.feil')}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => { setBekreftLukk(r.id); setLukkeFeil(false) }}
+                        className="text-sm font-semibold text-orange-ink hover:text-[#8A4109] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/40 rounded transition-colors"
+                      >
+                        {t('tu.laerer.lukk.knapp')}
+                      </button>
+                    )}
+                  </div>
                 )}
               </li>
             ))}
