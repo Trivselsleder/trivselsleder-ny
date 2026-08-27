@@ -19,6 +19,9 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
   spør Kjartan. Er det en beslutning Kjartan skal ta, spør FØR du gjør noe. Si alltid
   tydelig HVORFOR noe havner hos ham (krever pålogging, hemmelighet, eller en beslutning).
 
+- Kjartan vil ALDRI ha valgbokser eller knapper med svaralternativer — alltid direkte
+  diskusjon i klartekst.
+
 ## Teknisk stack
 - Frontend: React + Vite + Tailwind CSS
 - Hosting: Vercel (auto-deploy ved push til main)
@@ -70,6 +73,8 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
   data (som HubSpot-status) av seg selv — flagger for manuell godkjenning.
 - Byggeren skriver ALDRI kontrollrunde-avsnittet selv — det skrives kun av den
   uavhengige kontrolløren (regel 4-innskjerping, 21. aug 2026).
+- Mac-mappa ~/trivselsleder-ny/ er eneste sannhet for CLAUDE.md og STATUS.md; ingen
+  sidekopier skal lages i claude.ai-prosjektet — koblingen speiler mappa automatisk.
 
 ## Lærdommer (snublesteiner vi har løst)
 - Supabase RLS: nye tabeller trenger BÅDE policyer OG `ENABLE ROW LEVEL SECURITY`.
@@ -106,6 +111,16 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
 4. Vent 1-2 min på Vercel, test med Cmd+Shift+R
 
 ## Arbeidsform (fra 4. august 2026)
+
+### HVORDAN FILER HAVNER I CLAUDE-PROSJEKTET (avklart 24. aug 2026 — ikke bruk tid på dette igjen)
+Mappa ~/trivselsleder-ny/ er KOBLET som kunnskapskilde til Claude-prosjektet i desktop-appen. Det betyr:
+- Cowork skriver STATUS.md og claude_-filer til denne mappa via device-broen.
+- Appen SPEILER mappa automatisk inn i prosjektkunnskapen på claude.ai — ingen synk-jobb, intet verktøy, ingen cron, ingen GitHub-vei. Selve mappe-koblingen ER mekanismen.
+- Kjartan laster ALDRI opp filer manuelt, drar aldri filer inn i nettleseren, klikker aldri filkort.
+- Claude/Cowork skal derfor BARE skrive fila til Mac-mappa — så havner den i prosjektet av seg selv. ALDRI be Kjartan laste opp noe manuelt. ALDRI påstå at Claude eller Cowork «ikke kan» legge filer i prosjektet — de gjør det indirekte ved å skrive til den koblede mappa.
+- Vil man stoppe speilingen: fjern mappe-koblingen i Claude-appen (ikke aktuelt).
+- claude_-filer, STATUS.md og FREMDRIFTSPLAN-v* er i .gitignore (havner aldri på GitHub) — koblingen er den eneste veien inn i prosjektet.
+
 - Chat (Cowork) tar beslutninger, rekkefølge, SQL og formulerer oppdrag til Claude Code.
   Claude Code programmerer, stopper før push. Kjartan kjører SQL i Supabase selv og gir
   klarsignal til push. Nødbremsen (motor_aktiv i innstillinger) styrer all ekte utsending.

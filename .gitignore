@@ -47,3 +47,11 @@ FREMDRIFTSPLAN-v*.docx
 FREMDRIFTSPLAN-v*.pdf
 Kursplanleggeren-forklaring-v*.pdf
 kursplanlegger-forklaring-v*.html
+
+# Kontroll-/sweep-arbeidsfiler (Fable/Claude Code — kun Mac, ikke git)
+_kontroll-*/
+_kontroll-*.patch
+*.tgz
+LES-*.md
+STATUS-mellomlagring-*.md
+KONTROLL-*.md
