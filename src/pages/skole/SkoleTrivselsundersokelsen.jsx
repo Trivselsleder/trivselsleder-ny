@@ -291,7 +291,7 @@ export default function SkoleTrivselsundersokelsen() {
                 {r.status === 'lukket' && kontekst.kanOpprette && (
                   <div className="mt-3 pt-3 border-t border-gray-100">
                     <Link
-                      to={`/skole/trivselsundersokelsen/rapport/${r.id}`}
+                      to={`/min-side/trivselsundersokelsen/rapport/${r.id}`}
                       className="inline-flex items-center gap-1.5 text-sm font-semibold text-orange-ink hover:text-orange-ink-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/40 rounded transition-colors"
                     >
                       📄 {t('tu.laerer.rapport.seRapport')}
