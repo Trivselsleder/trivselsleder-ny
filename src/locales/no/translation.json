@@ -561,6 +561,64 @@
         "avbryt": "Avbryt",
         "lukker": "Lukker …",
         "feil": "Kunne ikke lukke runden. Prøv igjen, eller kontakt skolens administrator."
+      },
+      "rapport": {
+        "seRapport": "Se resultatrapport"
+      }
+    },
+    "rapport": {
+      "sidetittel": "Resultatrapport",
+      "sideintro": "Her ser du skolens egne tall for denne runden. Du kan skrive den ut eller lagre den som PDF.",
+      "laster": "Henter rapporten …",
+      "ingenTilgang": "Du har ikke tilgang til denne rapporten, eller runden finnes ikke på din skole.",
+      "ikkeLukket": "Rapporten blir tilgjengelig når runden er lukket. Lukk runden først, så vises tallene her.",
+      "feil": "Noe gikk galt da rapporten skulle hentes. Prøv igjen om litt.",
+      "skrivUt": "Skriv ut / Lagre som PDF",
+      "skrivUtHint": "Åpner et eget vindu der du velger «Lagre som PDF» eller skriver ut.",
+      "popupBlokkert": "Nettleseren blokkerte utskriftsvinduet. Tillat pop-up-vinduer for denne siden og prøv igjen.",
+      "forhaandsvisningTittel": "Forhåndsvisning av resultatrapporten",
+      "tilbake": "Tilbake til Trivselsundersøkelsen",
+      "prosent": "{{verdi}} %",
+      "antallSvar": "{{antall}} svar",
+      "terskelmelding": "Vi viser ikke tall når en gruppe er så liten at enkeltsvar kan gjenkjennes.",
+      "homogenMelding": "Nesten alle svarte det samme her. Vi viser derfor ikke en eksakt fordeling for dette spørsmålet.",
+      "lavereBedre": "For dette temaet er en lav prosent det vi ønsker.",
+      "doktittel": "Trivselsundersøkelsen – {{skole}}",
+      "bunntekst": "Laget med Trivselsleder",
+      "forside": {
+        "tittel": "Trivselsundersøkelsen",
+        "gruppe": "{{gruppe}} · {{trinn}}. trinn",
+        "heleTrinnet": "{{trinn}}. trinn",
+        "dato": "Gjennomført {{dato}}"
+      },
+      "hoved": {
+        "tittel": "Slik svarte elevene",
+        "intro": "For hvert spørsmål ser du hvordan svarene fordelte seg på alternativene."
+      },
+      "kjonn": {
+        "tittel": "Fordelt på jente, gutt og annet",
+        "intro": "De samme spørsmålene, delt på gruppe. Er en gruppe for liten, viser vi ikke tall for den."
+      },
+      "gruppe": {
+        "jente": "Jente",
+        "gutt": "Gutt",
+        "annet": "Annet",
+        "total": "Alle",
+        "ukjent": "Gruppe"
+      },
+      "utvikling": {
+        "deltittel": "Utvikling over tid",
+        "tittel": "Utvikling over tid",
+        "tom": "Denne fylles ut når skolen har kjørt undersøkelsen mer enn én gang.",
+        "intro": ""
+      },
+      "semester": {
+        "host": "høst",
+        "var": "vår"
+      },
+      "metode": {
+        "tittel": "Om tallene",
+        "tekst": "Dette er et temperaturmål på hvordan barna har det — ikke en forskningsstudie. Det er frivillig å svare, så ikke alle er nødvendigvis med, og tallene er derfor en pekepinn, ikke en fasit. Når en gruppe er så liten at svar kan gjenkjennes, viser vi ikke tall for den. Tallene er skolens egne og skal ikke deles ut av sammenheng. Ikke forsøk å finne ut hvem som svarte hva. Undersøkelsen er et supplement til skolens øvrige arbeid og til Elevundersøkelsen."
       }
     }
   }

@@ -53,6 +53,7 @@ import SkoleWebinarer from './pages/skole/SkoleWebinarer'
 import SkoleTrivselsundersokelsen from './pages/skole/SkoleTrivselsundersokelsen'
 import SkoleTuOpprett from './pages/skole/SkoleTuOpprett'
 import SkoleTuKoder from './pages/skole/SkoleTuKoder'
+import SkoleTuRapport from './pages/skole/SkoleTuRapport'
 import Webinarer from './pages/Webinarer'
 import AdminWebinarer from './pages/AdminWebinarer'
 import AdminNyhetsbrev from './pages/AdminNyhetsbrev'
@@ -115,6 +116,7 @@ export default function App() {
                 <Route path="trivselsundersokelsen" element={<SkoleTrivselsundersokelsen />} />
                 <Route path="trivselsundersokelsen/opprett" element={<SkoleTuOpprett />} />
                 <Route path="trivselsundersokelsen/koder" element={<SkoleTuKoder />} />
+                <Route path="trivselsundersokelsen/rapport/:rundeId" element={<SkoleTuRapport />} />
               </Route>
               <Route
                 path="/admin"

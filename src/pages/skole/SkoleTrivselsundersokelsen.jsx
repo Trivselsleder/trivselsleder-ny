@@ -283,6 +283,21 @@ export default function SkoleTrivselsundersokelsen() {
                     )}
                   </div>
                 )}
+
+                {/* Steg 5: lukket runde → lenke til resultatrapporten (PDF).
+                    Kun skoleadmin/superadmin (kanOpprette) — Kjartans beslutning 28. aug:
+                    rapporten er for rektor/skoleadmin, HTLA skal ikke se den. Basen avviser
+                    HTLA uansett (RPC «Ingen tilgang»); frontend speiler den, svekker den ikke. */}
+                {r.status === 'lukket' && kontekst.kanOpprette && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <Link
+                      to={`/skole/trivselsundersokelsen/rapport/${r.id}`}
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-orange-ink hover:text-orange-ink-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/40 rounded transition-colors"
+                    >
+                      📄 {t('tu.laerer.rapport.seRapport')}
+                    </Link>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

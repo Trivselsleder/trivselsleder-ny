@@ -149,3 +149,101 @@ export async function lukkTuRunde(rundeId) {
     throw error
   }
 }
+
+// ============================================================================
+// STEG 5 — SKOLENS RESULTATRAPPORT (utgang 1). Datahjelpere.
+//
+// Rapporten LESER tall KUN fra de tre skjermede funksjonene i basen:
+//   tu_skole_resultat(p_runde)         -> hovedbildet (alle svaralternativer)
+//   tu_skole_resultat_kjonn(p_runde)   -> kjønnsdelt (jente/gutt/annet)
+//   tu_skole_utvikling(p_skole,p_trinn)-> utvikling over tid (fra arkiv)
+// Den regner ALDRI egne tall fra rådata, omgår ALDRI skjermingen, og slår
+// ALDRI sammen svaralternativer til ett tall.
+//
+// ⛔ ABSOLUTT FORBUD (oppdrag §1): kolonnen `skjult_aarsak` fra
+// tu_skole_resultat_kjonn er REN INTERN og skal ALDRI nå rapporten. Vi kaster
+// den HER, ved datagrensen — den plukkes bevisst bort i mapKjonn() under og
+// legges ALDRI på noe objekt som sendes videre til UI/PDF. Rapporten leser
+// KUN `skjult` (boolean) for å velge mellom fordeling og terskelmelding.
+// ============================================================================
+
+// Spørsmålskategorier som skal ha husrød søyle (fast farge, ingen eskalering).
+export const HUSROD_KATEGORIER = ['mobbing', 'alenegang']
+
+// «Lavere er bedre»-kategorier: der en lav prosent er det gode utfallet.
+// Brukes KUN til en diskret, rolig retningstekst — aldri en vurdering av tallet.
+export const LAVERE_BEDRE_KATEGORIER = ['mobbing', 'alenegang']
+
+// Henter spørsmåls-metadata (nummer, kategori, antall svaralternativer) rett fra
+// tu_sporsmal. Brukes til å rendre ALLE svaralternativer (som QuestBack), også
+// de som er skjermet bort eller har null svar. authenticated har SELECT-grant.
+export async function hentTuSporsmalMeta(land = 'NO', versjon = 1) {
+  const { data, error } = await supabase
+    .from('tu_sporsmal')
+    .select('nummer, kategori, svarskala')
+    .eq('land', land)
+    .eq('versjon', versjon)
+    .order('nummer', { ascending: true })
+  if (error) throw error
+  return (data || []).map((s) => ({
+    nummer: s.nummer,
+    kategori: s.kategori,
+    // svarskala er en ordnet liste av i18n-nøkler (["tu.sp.1.svar.0", ...]).
+    antallAlternativer: Array.isArray(s.svarskala) ? s.svarskala.length : 0,
+  }))
+}
+
+// Hovedbildet: én rad per spørsmål. { sporsmal, kategori, antall, fordeling, homogen, skjult }
+export async function hentTuSkoleResultat(rundeId) {
+  const { data, error } = await supabase.rpc('tu_skole_resultat', { p_runde: rundeId })
+  if (error) throw error
+  return (data || []).map((r) => ({
+    sporsmal: r.sporsmal,
+    kategori: r.kategori,
+    antall: r.antall,
+    fordeling: r.fordeling,       // {"0":12,"2":8} eller null (skjult/homogen)
+    homogen: !!r.homogen,
+    skjult: !!r.skjult,
+  }))
+}
+
+// Kjønnsdelt: én rad per (spørsmål, gruppe). skjult_aarsak KASTES her (§1) —
+// den kopieres bevisst IKKE inn i objektet vi returnerer. Bare `skjult` beholdes.
+function mapKjonn(rad) {
+  return {
+    sporsmal: rad.sporsmal,
+    gruppe: rad.gruppe,           // 'total' | 'jente' | 'gutt' | 'annet'
+    antall: rad.antall,
+    fordeling: rad.fordeling,     // {"0":..} eller null
+    homogen: !!rad.homogen,
+    skjult: !!rad.skjult,
+    // MERK: rad.skjult_aarsak leses IKKE. Årsaken forlater aldri denne funksjonen.
+  }
+}
+
+export async function hentTuSkoleResultatKjonn(rundeId) {
+  const { data, error } = await supabase.rpc('tu_skole_resultat_kjonn', { p_runde: rundeId })
+  if (error) throw error
+  return (data || []).map(mapKjonn)
+}
+
+// Utvikling over tid (fra arkiv). Tom liste = første runde (ingen tidligere).
+export async function hentTuSkoleUtvikling(skoleId, trinn) {
+  const { data, error } = await supabase.rpc('tu_skole_utvikling', {
+    p_skole: skoleId, p_trinn: trinn,
+  })
+  if (error) throw error
+  return data || []
+}
+
+// Samler alt rapporten trenger for én runde, i ett kall.
+// rundeMeta = { id, skole_id, trinn, gruppe_navn, skoleaar, semester, startdato, frist }
+export async function hentRapportData(rundeMeta, land = 'NO', versjon = 1) {
+  const [meta, hoved, kjonn, utvikling] = await Promise.all([
+    hentTuSporsmalMeta(land, versjon),
+    hentTuSkoleResultat(rundeMeta.id),
+    hentTuSkoleResultatKjonn(rundeMeta.id),
+    hentTuSkoleUtvikling(rundeMeta.skole_id, rundeMeta.trinn),
+  ])
+  return { runde: rundeMeta, sporsmalMeta: meta, hoved, kjonn, utvikling }
+}

@@ -561,6 +561,64 @@
         "avbryt": "Avbryt",
         "lukker": "Stänger …",
         "feil": "Kunde inte stänga omgången. Försök igen, eller kontakta skolans administratör."
+      },
+      "rapport": {
+        "seRapport": "Visa resultatrapport"
+      }
+    },
+    "rapport": {
+      "sidetittel": "Resultatrapport",
+      "sideintro": "Här ser du skolans egna siffror för den här omgången. Du kan skriva ut den eller spara den som PDF.",
+      "laster": "Hämtar rapporten …",
+      "ingenTilgang": "Du har inte behörighet till den här rapporten, eller så finns omgången inte på din skola.",
+      "ikkeLukket": "Rapporten blir tillgänglig när omgången är stängd. Stäng omgången först, så visas siffrorna här.",
+      "feil": "Något gick fel när rapporten skulle hämtas. Försök igen om en stund.",
+      "skrivUt": "Skriv ut / Spara som PDF",
+      "skrivUtHint": "Öppnar ett eget fönster där du väljer «Spara som PDF» eller skriver ut.",
+      "popupBlokkert": "Webbläsaren blockerade utskriftsfönstret. Tillåt popup-fönster för den här sidan och försök igen.",
+      "forhaandsvisningTittel": "Förhandsvisning av resultatrapporten",
+      "tilbake": "Tillbaka till Trivselundersökningen",
+      "prosent": "{{verdi}} %",
+      "antallSvar": "{{antall}} svar",
+      "terskelmelding": "Vi visar inte siffror när en grupp är så liten att enskilda svar kan kännas igen.",
+      "homogenMelding": "Nästan alla svarade likadant här. Vi visar därför ingen exakt fördelning för den här frågan.",
+      "lavereBedre": "För det här temat är en låg procent det vi önskar.",
+      "doktittel": "Trivselundersökningen – {{skole}}",
+      "bunntekst": "Skapad med Trivselledare",
+      "forside": {
+        "tittel": "Trivselundersökningen",
+        "gruppe": "{{gruppe}} · årskurs {{trinn}}",
+        "heleTrinnet": "Årskurs {{trinn}}",
+        "dato": "Genomförd {{dato}}"
+      },
+      "hoved": {
+        "tittel": "Så här svarade eleverna",
+        "intro": "För varje fråga ser du hur svaren fördelade sig på alternativen."
+      },
+      "kjonn": {
+        "tittel": "Fördelat på flicka, pojke och annat",
+        "intro": "Samma frågor, uppdelade på grupp. Är en grupp för liten visar vi inte siffror för den."
+      },
+      "gruppe": {
+        "jente": "Flicka",
+        "gutt": "Pojke",
+        "annet": "Annat",
+        "total": "Alla",
+        "ukjent": "Grupp"
+      },
+      "utvikling": {
+        "deltittel": "Utveckling över tid",
+        "tittel": "Utveckling över tid",
+        "tom": "Den här fylls i när skolan har genomfört undersökningen mer än en gång.",
+        "intro": ""
+      },
+      "semester": {
+        "host": "höst",
+        "var": "vår"
+      },
+      "metode": {
+        "tittel": "Om siffrorna",
+        "tekst": "Detta är ett temperaturmått på hur barnen har det — inte en forskningsstudie. Det är frivilligt att svara, så alla är inte nödvändigtvis med, och siffrorna är därför en fingervisning, inte ett facit. När en grupp är så liten att svar kan kännas igen visar vi inte siffror för den. Siffrorna är skolans egna och ska inte spridas ur sitt sammanhang. Försök inte ta reda på vem som svarade vad. Undersökningen är ett komplement till skolans övriga arbete."
       }
     }
   }
