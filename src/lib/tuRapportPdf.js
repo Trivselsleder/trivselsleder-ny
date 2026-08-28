@@ -14,13 +14,19 @@ function esc(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-// Husrød og «lavere er bedre» — speiler tu.js, men holdt lokalt så PDF-bygg er selvstendig.
-const HUSROD = ['mobbing', 'alenegang']
+// «Lavere er bedre»-temaer (mobbing/alenegang): kun en rolig retningstekst.
+// LEDERBESLUTNING (Kjartan, 28. aug 2026): husrød søylefarge er FJERNET — alle søyler
+// er petrol, også på mobbe-/alenegangsspørsmål. Rødt på gode svar («ikke i det hele
+// tatt») ble misvisende og unødig dramatisk. Erstatter det låste designvalget fra
+// 27. aug. Retningsteksten gjør nå jobben fargen gjorde. Speiler tu.js.
+const LAVERE_BEDRE = ['mobbing', 'alenegang']
 
 // Desimaler — ÉN plass å endre (retting etter Fable-kontroll 28. aug, funn 1):
 //   Hovedbildet: én desimal (QuestBack-formen «22,2 %»), totalen n=43 er kjent uansett.
 //   Kjønnsdelt: HELTALL. Med én desimal kan gruppestørrelsen regnes ut bakover
 //   fra prosenten (27,8 % = 5 av 18) — og dermed størrelsen på en skjermet gruppe.
+const PETROL = '#106C75'
+const STREK = '#e5e7eb'
 const DESIMALER_HOVED = 1
 const DESIMALER_KJONN = 0
 
@@ -40,17 +46,24 @@ function datoTekst(iso, sprak) {
 
 // ---------------------------------------------------------------------------
 // Én søylerad for ett svaralternativ. `andel` = antall/total (0..1).
-// `husrod` styrer fast farge (temaet, ikke alvorsgraden — ingen eskalering).
+// Søylen tegnes som inline SVG (ikke CSS-bakgrunn): nettlesere dropper
+// bakgrunnsfarger ved utskrift/«Lagre som PDF» med standardinnstillinger, og
+// søylene forsvant (funnet 28. aug). SVG-fyll skrives alltid ut. I tillegg
+// print-color-adjust:exact i CSS som belte og bukseseler.
 // ---------------------------------------------------------------------------
-function svarSoyle({ tekst, andel, husrod, oversett, desimaler = DESIMALER_HOVED }) {
+function soyleSvg(bredde /* 0..100 */) {
+  return `<svg class="soyle-svg" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <rect x="0" y="0" width="100" height="16" rx="6" fill="${STREK}"/>
+      ${bredde > 0 ? `<rect x="0" y="0" width="${bredde.toFixed(2)}" height="16" rx="6" fill="${PETROL}"/>` : ''}
+    </svg>`
+}
+
+function svarSoyle({ tekst, andel, oversett, desimaler = DESIMALER_HOVED }) {
   const bredde = Math.max(0, Math.min(100, andel * 100))
-  const farge = husrod ? 'var(--tlred)' : 'var(--petrol)'
   const pct = fmtProsent(andel, oversett, desimaler)
   return `<div class="soyle-rad">
     <div class="soyle-tekst">${esc(tekst)}</div>
-    <div class="soyle-spor" role="img" aria-label="${esc(tekst)}: ${esc(pct)}">
-      <div class="soyle-fyll" style="width:${bredde.toFixed(2)}%;background:${farge}"></div>
-    </div>
+    <div class="soyle-spor" role="img" aria-label="${esc(tekst)}: ${esc(pct)}">${soyleSvg(bredde)}</div>
     <div class="soyle-pct">${esc(pct)}</div>
   </div>`
 }
@@ -74,8 +87,7 @@ function homogenMelding(oversett) {
 // ---------------------------------------------------------------------------
 function hovedSporsmal({ meta, rad, oversett }) {
   const nr = meta.nummer
-  const husrod = HUSROD.includes(meta.kategori)
-  const laagBra = HUSROD.includes(meta.kategori) // samme sett: lav % er bra
+  const laagBra = LAVERE_BEDRE.includes(meta.kategori)
   const tittel = `<h3 class="sp-tittel">${esc(oversett(`tu.sp.${nr}.tekst`))}</h3>`
 
   let kropp
@@ -96,12 +108,12 @@ function hovedSporsmal({ meta, rad, oversett }) {
         // Vi viser alternativet med en diskret «for få / ingen»-strek, aldri et tall.
         rader.push(`<div class="soyle-rad">
           <div class="soyle-tekst">${esc(svartekst)}</div>
-          <div class="soyle-spor"><div class="soyle-fyll soyle-tom" style="width:0%"></div></div>
+          <div class="soyle-spor">${soyleSvg(0)}</div>
           <div class="soyle-pct soyle-strek">–</div>
         </div>`)
       } else {
         const andel = total > 0 ? antallCelle / total : 0
-        rader.push(svarSoyle({ tekst: svartekst, andel, husrod, oversett }))
+        rader.push(svarSoyle({ tekst: svartekst, andel, oversett }))
       }
     }
     const retning = laagBra
@@ -111,7 +123,7 @@ function hovedSporsmal({ meta, rad, oversett }) {
       <p class="antall-note">${esc(oversett('tu.rapport.antallSvar', { antall: total }))}</p>`
   }
 
-  return `<section class="sp-blokk${husrod ? ' sp-husrod' : ''}">
+  return `<section class="sp-blokk">
     ${tittel}
     ${kropp}
   </section>`
@@ -125,7 +137,6 @@ function hovedSporsmal({ meta, rad, oversett }) {
 const KJONN_REKKE = ['jente', 'gutt', 'annet']
 
 function kjonnGruppe({ nr, meta, rad, oversett }) {
-  const husrod = HUSROD.includes(meta.kategori)
   const grEtikett = oversett(`tu.rapport.gruppe.${rad ? rad.gruppe : 'ukjent'}`)
   let kropp
   if (!rad || rad.skjult) {
@@ -141,12 +152,12 @@ function kjonnGruppe({ nr, meta, rad, oversett }) {
       if (!harCelle) {
         rader.push(`<div class="soyle-rad">
           <div class="soyle-tekst">${esc(svartekst)}</div>
-          <div class="soyle-spor"><div class="soyle-fyll soyle-tom" style="width:0%"></div></div>
+          <div class="soyle-spor">${soyleSvg(0)}</div>
           <div class="soyle-pct soyle-strek">–</div>
         </div>`)
       } else {
         const andel = total > 0 ? rad.fordeling[String(i)] / total : 0
-        rader.push(svarSoyle({ tekst: svartekst, andel, husrod, oversett, desimaler: DESIMALER_KJONN }))
+        rader.push(svarSoyle({ tekst: svartekst, andel, oversett, desimaler: DESIMALER_KJONN }))
       }
     }
     // Retting funn 1 (Fable 28. aug): INGEN «N svar» per gruppe her. Hovedbildets
@@ -162,16 +173,22 @@ function kjonnGruppe({ nr, meta, rad, oversett }) {
 
 function kjonnSporsmal({ meta, kjonnRader, oversett }) {
   const nr = meta.nummer
-  const husrod = HUSROD.includes(meta.kategori)
   const tittel = `<h3 class="sp-tittel">${esc(oversett(`tu.sp.${nr}.tekst`))}</h3>`
   const kort = KJONN_REKKE.map((g) => {
     const rad = kjonnRader.find((r) => r.gruppe === g) || null
     // Finnes ikke gruppen i data i det hele tatt (ingen svar), vis som terskel.
     return kjonnGruppe({ nr, meta, rad, oversett })
   }).join('')
-  return `<section class="sp-blokk${husrod ? ' sp-husrod' : ''}">
+  // Retningstekst også her (Fable rekontroll 2, M1): etter at husrød ble fjernet
+  // hadde mobbe-/alenegangsspørsmålene ingen markering på kjønnsdelt side.
+  // Samme tekst og samme regel (kategori) som i hovedbildet.
+  const retning = LAVERE_BEDRE.includes(meta.kategori)
+    ? `<p class="retning">${esc(oversett('tu.rapport.lavereBedre'))}</p>`
+    : ''
+  return `<section class="sp-blokk">
     ${tittel}
     <div class="kjonn-rad">${kort}</div>
+    ${retning}
   </section>`
 }
 
@@ -230,16 +247,24 @@ export function byggRapportHtml(data, { skoleNavn, oversett, sprak = 'no', print
 <title>${esc(oversett('tu.rapport.doktittel', { skole: skoleNavn }))}</title>
 <style>
   :root{
-    --orange:#FF7B31; --orange-ink:#B5560F; --petrol:#106C75; --tlred:#CF442F;
+    --orange:#FF7B31; --orange-ink:#B5560F; --petrol:#106C75;
     --blekk:#1f2937; --grunn:#6b7280; --strek:#e5e7eb; --lys:#faf7f5;
   }
   @page { size: A4 portrait; margin: 16mm; }
   *{box-sizing:border-box}
-  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--blekk);margin:0;line-height:1.5}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--blekk);margin:0;line-height:1.5;
+       -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Marg: på papir gir @page 16 mm på alle fire sider av HVER side. På skjerm (forhånds-
+     visningen i iframen) gjelder ikke @page, så body får egen luft. (Retting 28. aug.) */
+  @media screen {
+    body{padding:20mm 20mm 24mm 20mm; max-width:210mm; margin:0 auto; background:#fff}
+    @media (max-width:640px){ body{padding:24px 24px 32px 24px} }   /* smal skjerm: fast luft begge sider */
+  }
+  @media print  { body{padding:0} }
 
   /* Forside */
   .forside{min-height:calc(100vh - 40mm);display:flex;flex-direction:column;justify-content:center;page-break-after:always}
-  .forside img{height:56px;width:auto;margin-bottom:28px}
+  .forside img{height:56px;width:auto;max-width:100%;align-self:flex-start;object-fit:contain;margin-bottom:28px}
   .forside h1{font-size:30px;margin:0 0 6px;color:var(--blekk)}
   .forside .under{font-size:17px;color:var(--grunn);margin:2px 0}
   .forside .dato{font-size:15px;color:var(--orange-ink);font-weight:600;margin-top:10px}
@@ -250,16 +275,14 @@ export function byggRapportHtml(data, { skoleNavn, oversett, sprak = 'no', print
 
   /* Spørsmålsblokk */
   .sp-blokk{border:1px solid var(--strek);border-radius:12px;padding:14px 16px;margin:0 0 12px;page-break-inside:avoid}
-  .sp-husrod{border-left:4px solid var(--tlred)}
   .sp-tittel{font-size:15px;margin:0 0 10px}
 
   /* Søyler */
   .soyler{display:flex;flex-direction:column;gap:7px}
   .soyle-rad{display:grid;grid-template-columns:minmax(120px,40%) 1fr 58px;align-items:center;gap:10px}
   .soyle-tekst{font-size:12px;color:var(--blekk)}
-  .soyle-spor{background:var(--strek);border-radius:6px;height:16px;overflow:hidden}
-  .soyle-fyll{height:100%;border-radius:6px}
-  .soyle-tom{background:transparent}
+  .soyle-spor{height:16px;line-height:0}
+  .soyle-svg{width:100%;height:16px;display:block}
   .soyle-pct{font-size:12px;font-weight:600;text-align:right;color:var(--blekk)}
   .soyle-strek{color:var(--grunn);font-weight:400}
   .antall-note{font-size:11px;color:var(--grunn);margin:8px 0 0}

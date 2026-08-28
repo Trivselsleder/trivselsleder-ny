@@ -16,8 +16,10 @@ import { byggRapportHtml, skrivUtRapport } from '../../lib/tuRapportPdf'
 // Data hentes KUN fra de tre skjermede RPC-ene (tu.js). skjult_aarsak er
 // allerede kastet i datalaget (§1) — den finnes ikke i noe objekt her.
 //
-// Tilgang: skoleadmin/superadmin + HTLA for EGEN skole. RLS i basen håndhever
-// dette (rapport-RPC-ene kaster «Ingen tilgang» ellers); frontend speiler den.
+// Tilgang: KUN skoleadmin/superadmin for EGEN skole (Kjartans beslutning 28. aug:
+// rapporten er for rektor/skoleadmin — HTLA ser den ikke, og lenken vises ikke for
+// HTLA). RLS i basen håndhever dette (rapport-RPC-ene kaster «Ingen tilgang» for
+// alle andre, HTLA inkludert); frontend speiler den, svekker den ikke.
 // WCAG: oransje TEKST = text-orange-ink; statuser som tekst; iframe har tittel.
 // ============================================================================
 

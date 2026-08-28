@@ -167,9 +167,8 @@ export async function lukkTuRunde(rundeId) {
 // KUN `skjult` (boolean) for å velge mellom fordeling og terskelmelding.
 // ============================================================================
 
-// Spørsmålskategorier som skal ha husrød søyle (fast farge, ingen eskalering).
-export const HUSROD_KATEGORIER = ['mobbing', 'alenegang']
-
+// (Husrød søylefarge på mobbing/alenegang ble FJERNET 28. aug — lederbeslutning
+// Kjartan: alle søyler er petrol. Se tuRapportPdf.js. Kun retningsteksten under gjenstår.)
 // «Lavere er bedre»-kategorier: der en lav prosent er det gode utfallet.
 // Brukes KUN til en diskret, rolig retningstekst — aldri en vurdering av tallet.
 export const LAVERE_BEDRE_KATEGORIER = ['mobbing', 'alenegang']
