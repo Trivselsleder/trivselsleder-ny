@@ -17,6 +17,13 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
+    tittel: 'Spørreundersøkelse til skolene',
+    beskrivelse: 'Opprett undersøkelsesrunder, generer mottakere til skolene og se spørsmålene.',
+    ikon: '📝',
+    til: '/admin/skoleundersokelse',
+    roller: ['superadmin', 'ansatt'],
+  },
+  {
     tittel: 'Påmeldinger',
     beskrivelse: 'Se og godkjenn nye skoler som vil melde seg på.',
     ikon: '📋',

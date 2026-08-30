@@ -57,6 +57,7 @@ import SkoleTuRapport from './pages/skole/SkoleTuRapport'
 import Webinarer from './pages/Webinarer'
 import AdminWebinarer from './pages/AdminWebinarer'
 import AdminNyhetsbrev from './pages/AdminNyhetsbrev'
+import AdminSkoleundersokelse from './pages/AdminSkoleundersokelse'
 import IkkeFunnet from './pages/IkkeFunnet'
 // Trivselsundersøkelsen — elevflaten (kap. 21, steg 3). Egen minimal rute uten nettstedschrome.
 import Trivselsundersokelsen from './pages/Trivselsundersokelsen'
@@ -147,6 +148,14 @@ export default function App() {
                 element={
                   <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
                     <AdminKursplanlegger />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/skoleundersokelse"
+                element={
+                  <ProtectedRoute kreverRolle={['superadmin', 'ansatt']}>
+                    <AdminSkoleundersokelse />
                   </ProtectedRoute>
                 }
               />
