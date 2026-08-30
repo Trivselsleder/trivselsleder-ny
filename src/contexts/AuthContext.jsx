@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
             bruker_id:     session.user.id,
             hendelse_type: 'innlogging',
             side:          window.location.pathname,
-          })
+          }).then(() => {}, () => {})
         }
       }, 0)
     })
