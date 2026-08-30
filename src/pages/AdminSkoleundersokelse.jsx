@@ -35,6 +35,55 @@ function formaterDato(iso) {
   } catch { return '' }
 }
 
+// Målgruppe-filterakser (speiler Skoler-adminens filter: Status/Fylke/Kommune/Type/Nettverk).
+// «kommune»-aksen matcher skoler.kommunenavn (jf. migr 080). Alle akser er flervalg.
+const AKSER = [
+  { key: 'status',   tittel: 'Status',   kol: 'status' },
+  { key: 'fylke',    tittel: 'Fylke',    kol: 'fylke' },
+  { key: 'kommune',  tittel: 'Kommune',  kol: 'kommunenavn' },
+  { key: 'type',     tittel: 'Type',     kol: 'type' },
+  { key: 'nettverk', tittel: 'Nettverk', kol: 'nettverk' },
+]
+const TOMT_FILTER = { status: [], fylke: [], kommune: [], type: [], nettverk: [] }
+
+// Kort sammendrag av et jsonb-filter for visning. Tomt = «Alle skoler».
+function filterSammendrag(mg) {
+  if (!mg || typeof mg !== 'object') return 'Alle skoler'
+  const deler = AKSER
+    .filter(a => Array.isArray(mg[a.key]) && mg[a.key].length > 0)
+    .map(a => `${a.tittel}: ${mg[a.key].join(', ')}`)
+  return deler.length ? deler.join(' · ') : 'Alle skoler'
+}
+
+// Én flervalgs-akse: klikkbare chips (speiler chip-mønsteret i AdminSkoler.jsx).
+function FilterAkse({ tittel, alternativer, valgt, onToggle }) {
+  if (!alternativer || alternativer.length === 0) return null
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-500 mb-1">
+        {tittel}{valgt.length > 0 ? ` (${valgt.length})` : ''}
+      </label>
+      <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-white">
+        {alternativer.map(v => {
+          const på = valgt.includes(v)
+          return (
+            <button
+              key={v}
+              type="button"
+              onClick={() => onToggle(v)}
+              className={på
+                ? 'px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-300'
+                : 'px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200 hover:border-gray-300'}
+            >
+              {v}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // Bytt rekkefolge på to naboer (speiler flyttHjul i lib/hjul.js). rader må være
 // sortert på rekkefolge. Skriver begge radene, kaller onFerdig() etterpå.
 async function byttRekkefolge(tabell, rader, id, retning, onFerdig) {
@@ -366,7 +415,7 @@ export default function AdminSkoleundersokelse() {
   const [runder, setRunder] = useState([])
   const [mottakerAntall, setMottakerAntall] = useState({})
   const [svarAntall, setSvarAntall] = useState({})
-  const [skoletyper, setSkoletyper] = useState([])
+  const [skoleFelter, setSkoleFelter] = useState({ status: [], fylke: [], kommune: [], type: [], nettverk: [] })
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
 
@@ -383,7 +432,7 @@ export default function AdminSkoleundersokelse() {
 
   // Opprett runde
   const [nyNavn, setNyNavn] = useState('')
-  const [nyMaalgruppe, setNyMaalgruppe] = useState('')
+  const [filter, setFilter] = useState(TOMT_FILTER)
   const [nyUndersokelse, setNyUndersokelse] = useState('')
   const [oppretter, setOppretter] = useState(false)
   const [opprettFeil, setOpprettFeil] = useState(null)
@@ -406,7 +455,7 @@ export default function AdminSkoleundersokelse() {
       supabase.from('skoleus_undersokelse').select('id, navn, beskrivelse, er_mal, opprettet_at'),
       supabase.from('skoleus_sporsmal').select('undersokelse_id'),
       supabase.from('skoleus_runder').select('id, navn, status, maalgruppe, undersokelse_id, opprettet_at, lukket_at').order('opprettet_at', { ascending: false }),
-      supabase.from('skoler').select('type'),
+      supabase.from('skoler').select('status, fylke, kommunenavn, type, nettverk'),
       supabase.from('skoleus_mottaker').select('runde_id'),
       supabase.from('skoleus_svar').select('runde_id'),
     ])
@@ -425,8 +474,17 @@ export default function AdminSkoleundersokelse() {
 
     setRunder(runderRes.data ?? [])
 
-    const typer = [...new Set((skolerRes.data ?? []).map(s => s.type).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb'))
-    setSkoletyper(typer)
+    // Distinkte verdier per akse hentes LIVE fra skoler (ansatt har lesetilgang) — aldri hardkodet.
+    const skolerRader = skolerRes.data ?? []
+    const distinkt = (kol) => [...new Set(skolerRader.map(s => s[kol]).filter(v => v && String(v).trim() !== ''))]
+      .sort((a, b) => String(a).localeCompare(String(b), 'nb'))
+    setSkoleFelter({
+      status: distinkt('status'),
+      fylke: distinkt('fylke'),
+      kommune: distinkt('kommunenavn'),
+      type: distinkt('type'),
+      nettverk: distinkt('nettverk'),
+    })
 
     const mCount = {}
     for (const m of (mottRes.data ?? [])) mCount[m.runde_id] = (mCount[m.runde_id] || 0) + 1
@@ -436,11 +494,12 @@ export default function AdminSkoleundersokelse() {
     setSvarAntall(sCount)
 
     // Default undersøkelse i «Opprett runde» + «Ny fra mal»-kilde = standardmalen.
-    const standard = und.find(u => u.er_mal) || und[0]
-    if (standard) {
-      setNyUndersokelse(prev => prev || standard.id)
-      setMalKilde(prev => prev || standard.id)
-    }
+    // «Ny fra mal»-kilde: standardmalen. «Opprett runde»: default første IKKE-mal-undersøkelse
+    // (en mal skal aldri kunne kjøres direkte som runde).
+    const mal = und.find(u => u.er_mal) || und[0]
+    if (mal) setMalKilde(prev => prev || mal.id)
+    const forsteIkkeMal = und.find(u => !u.er_mal)
+    if (forsteIkkeMal) setNyUndersokelse(prev => prev || forsteIkkeMal.id)
     setLaster(false)
   }
 
@@ -483,6 +542,21 @@ export default function AdminSkoleundersokelse() {
     setValgtEditor(null)
   }
 
+  function toggleFilter(key, v) {
+    setFilter(prev => {
+      const cur = prev[key] || []
+      const ny = cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v]
+      return { ...prev, [key]: ny }
+    })
+  }
+  // Bygg jsonb-filteret: ta bare med akser som faktisk har verdier ({} = alle skoler).
+  function byggFilterObjekt() {
+    const mg = {}
+    for (const a of AKSER) if (filter[a.key]?.length) mg[a.key] = filter[a.key]
+    return mg
+  }
+  const antallValgt = AKSER.reduce((n, a) => n + (filter[a.key]?.length || 0), 0)
+
   async function opprettRunde(e) {
     e?.preventDefault()
     setOpprettFeil(null)
@@ -492,12 +566,12 @@ export default function AdminSkoleundersokelse() {
     const { error } = await supabase.from('skoleus_runder').insert({
       navn: nyNavn.trim(),
       status: 'utkast',
-      maalgruppe: nyMaalgruppe === '' ? null : nyMaalgruppe,
+      maalgruppe: byggFilterObjekt(),
       undersokelse_id: nyUndersokelse,
     })
     setOppretter(false)
     if (error) { setOpprettFeil(error.message); return }
-    setNyNavn(''); setNyMaalgruppe('')
+    setNyNavn(''); setFilter(TOMT_FILTER)
     hentAlt()
   }
 
@@ -550,6 +624,7 @@ export default function AdminSkoleundersokelse() {
   }
 
   const valgtUnd = undersokelser.find(u => u.id === valgtEditor) || null
+  const ikkeMalUndersokelser = undersokelser.filter(u => !u.er_mal)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
@@ -647,34 +722,55 @@ export default function AdminSkoleundersokelse() {
       {/* ── Opprett runde ─────────────────────────────────────────────── */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Opprett ny runde</h3>
-        <form onSubmit={opprettRunde} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
-          <div>
-            <label htmlFor="rundeNavn" className="block text-sm font-medium text-gray-700 mb-1">Navn</label>
-            <input id="rundeNavn" type="text" value={nyNavn} onChange={e => setNyNavn(e.target.value)} placeholder="f.eks. Skoleundersøkelse høst 2026" className={inputKlasse} />
+        {ikkeMalUndersokelser.length === 0 ? (
+          <div className="border border-dashed border-gray-300 rounded-xl p-6 text-center text-gray-500 text-sm">
+            Lag en undersøkelse fra malen først (se «Undersøkelser» → «Ny fra mal»), så kan du kjøre den som en runde.
           </div>
-          <div>
-            <label htmlFor="rundeUndersokelse" className="block text-sm font-medium text-gray-700 mb-1">Undersøkelse</label>
-            <select id="rundeUndersokelse" value={nyUndersokelse} onChange={e => setNyUndersokelse(e.target.value)} className={inputKlasse + ' bg-white'}>
-              <option value="">Velg undersøkelse …</option>
-              {undersokelser.map(u => <option key={u.id} value={u.id}>{u.navn}{u.er_mal ? ' (mal)' : ''}</option>)}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="rundeMaalgruppe" className="block text-sm font-medium text-gray-700 mb-1">Målgruppe</label>
-            <select id="rundeMaalgruppe" value={nyMaalgruppe} onChange={e => setNyMaalgruppe(e.target.value)} className={inputKlasse + ' bg-white'}>
-              <option value="">Alle skoler</option>
-              {skoletyper.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <button type="submit" disabled={oppretter || !nyUndersokelse} className={primærKnapp}>
-            {oppretter ? 'Oppretter …' : 'Opprett runde'}
-          </button>
-        </form>
-        {opprettFeil && <p className="mt-3 text-sm text-pink-700">{opprettFeil}</p>}
-        <p className="mt-3 text-xs text-gray-500">
-          En runde kjører én undersøkelse. Målgruppe styrer hvilke skoler som får runden ved
-          generering av mottakere («Alle skoler» = ingen skoletype-begrensning).
-        </p>
+        ) : (
+          <>
+            <form onSubmit={opprettRunde} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="rundeNavn" className="block text-sm font-medium text-gray-700 mb-1">Navn</label>
+                  <input id="rundeNavn" type="text" value={nyNavn} onChange={e => setNyNavn(e.target.value)} placeholder="f.eks. Skoleundersøkelse høst 2026" className={inputKlasse} />
+                </div>
+                <div>
+                  <label htmlFor="rundeUndersokelse" className="block text-sm font-medium text-gray-700 mb-1">Undersøkelse</label>
+                  <select id="rundeUndersokelse" value={nyUndersokelse} onChange={e => setNyUndersokelse(e.target.value)} className={inputKlasse + ' bg-white'}>
+                    <option value="">Velg undersøkelse …</option>
+                    {ikkeMalUndersokelser.map(u => <option key={u.id} value={u.id}>{u.navn}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">Målgruppe (filter)</span>
+                  <span className="text-xs text-gray-500">{filterSammendrag(byggFilterObjekt())}</span>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {AKSER.map(a => (
+                    <FilterAkse key={a.key} tittel={a.tittel} alternativer={skoleFelter[a.key]} valgt={filter[a.key]} onToggle={(v) => toggleFilter(a.key, v)} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button type="submit" disabled={oppretter || !nyUndersokelse} className={primærKnapp}>
+                  {oppretter ? 'Oppretter …' : 'Opprett runde'}
+                </button>
+                {antallValgt > 0 && (
+                  <button type="button" onClick={() => setFilter(TOMT_FILTER)} className="text-sm text-gray-500 hover:text-gray-800">Nullstill filter</button>
+                )}
+              </div>
+            </form>
+            {opprettFeil && <p className="mt-3 text-sm text-pink-700">{opprettFeil}</p>}
+            <p className="mt-3 text-xs text-gray-500">
+              En runde kjører én undersøkelse. Målgruppe-filteret AND-es: velger du flere akser, må en skole
+              matche alle. Tomt filter = alle skoler. Maler kan ikke kjøres direkte — kopier først («Ny fra mal»).
+            </p>
+          </>
+        )}
       </div>
 
       {/* ── Runder ────────────────────────────────────────────────────── */}
@@ -703,7 +799,7 @@ export default function AdminSkoleundersokelse() {
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {undNavn ? `${undNavn} · ` : ''}Målgruppe: {r.maalgruppe ? r.maalgruppe : 'Alle skoler'} · Opprettet {formaterDato(r.opprettet_at)} · {antMott} mottaker{antMott === 1 ? '' : 'e'}
+                        {undNavn ? `${undNavn} · ` : ''}{filterSammendrag(r.maalgruppe)} · Opprettet {formaterDato(r.opprettet_at)} · {antMott} mottaker{antMott === 1 ? '' : 'e'}
                         {antSvar > 0 ? ` · ${antSvar} svar` : ''}
                       </p>
                     </div>
@@ -729,7 +825,7 @@ export default function AdminSkoleundersokelse() {
                           {genererer ? 'Genererer …' : antMott > 0 ? 'Regenerer mottakere' : 'Generer mottakere'}
                         </button>
                         {genResultat && !genResultat.feil && (
-                          <span className="text-sm text-gray-700">{genResultat.opprettet} opprettet · {genResultat.hoppet_over} hoppet over (uten e-post)</span>
+                          <span className="text-sm text-gray-700">{filterSammendrag(r.maalgruppe)} · {genResultat.opprettet} opprettet · {genResultat.hoppet_over} hoppet over (uten e-post)</span>
                         )}
                         {genResultat?.feil && <span className="text-sm text-pink-700">{genResultat.feil}</span>}
                       </div>
