@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Admin-flate for «Spørreundersøkelse til skolene».
@@ -46,6 +46,14 @@ const AKSER = [
 ]
 const TOMT_FILTER = { status: [], fylke: [], kommune: [], type: [], nettverk: [] }
 
+// Hvem runden sendes til (skoleus_runder.mottaker_rolle, migr 081).
+const MOTTAKER_ROLLE_VALG = ['hovedkontakt', 'rektor', 'tl_ansvarlig']
+const MOTTAKER_ROLLE_ETIKETT = {
+  hovedkontakt: 'Hovedkontakt',
+  rektor: 'Rektor',
+  tl_ansvarlig: 'TL-ansvarlig',
+}
+
 // Kort sammendrag av et jsonb-filter for visning. Tomt = «Alle skoler».
 function filterSammendrag(mg) {
   if (!mg || typeof mg !== 'object') return 'Alle skoler'
@@ -55,30 +63,57 @@ function filterSammendrag(mg) {
   return deler.length ? deler.join(' · ') : 'Alle skoler'
 }
 
-// Én flervalgs-akse: klikkbare chips (speiler chip-mønsteret i AdminSkoler.jsx).
+// Én flervalgs-akse som RULLGARDIN med avkryssing (speiler TypeMultiselect i
+// AdminSkoler.jsx): klikk åpner, huk av flere, klikk utenfor lukker; triggeren
+// viser «Alle» / «N valgt». Passer akser med mange verdier (Kommune/Fylke).
 function FilterAkse({ tittel, alternativer, valgt, onToggle }) {
+  const [aapen, setAapen] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    function handleKlikk(e) { if (ref.current && !ref.current.contains(e.target)) setAapen(false) }
+    document.addEventListener('mousedown', handleKlikk)
+    return () => document.removeEventListener('mousedown', handleKlikk)
+  }, [])
   if (!alternativer || alternativer.length === 0) return null
+  const label = valgt.length === 0 ? 'Alle'
+    : valgt.length === alternativer.length ? 'Alle valgt'
+    : `${valgt.length} valgt`
   return (
-    <div>
-      <label className="block text-xs font-medium text-gray-500 mb-1">
-        {tittel}{valgt.length > 0 ? ` (${valgt.length})` : ''}
-      </label>
-      <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-white">
-        {alternativer.map(v => {
-          const på = valgt.includes(v)
-          return (
-            <button
-              key={v}
-              type="button"
-              onClick={() => onToggle(v)}
-              className={på
-                ? 'px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-300'
-                : 'px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200 hover:border-gray-300'}
-            >
-              {v}
-            </button>
-          )
-        })}
+    <div className="flex flex-col gap-1" ref={ref}>
+      <label className="text-xs font-medium text-gray-500">{tittel}</label>
+      <div className="relative">
+        <button
+          type="button"
+          onMouseDown={() => setAapen(v => !v)}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 bg-white hover:border-[#FF7B31] flex items-center justify-between gap-2 focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30"
+        >
+          <span>{label}</span>
+          <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={aapen ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'} />
+          </svg>
+        </button>
+        {aapen && (
+          <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+            {alternativer.map(v => (
+              <li key={v}>
+                <button
+                  type="button"
+                  onMouseDown={() => onToggle(v)}
+                  className="w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 hover:bg-gray-50"
+                >
+                  <span className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${valgt.includes(v) ? 'bg-[#FF7B31] border-[#FF7B31]' : 'border-gray-300'}`}>
+                    {valgt.includes(v) && (
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </span>
+                  {v}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   )
@@ -433,6 +468,7 @@ export default function AdminSkoleundersokelse() {
   // Opprett runde
   const [nyNavn, setNyNavn] = useState('')
   const [filter, setFilter] = useState(TOMT_FILTER)
+  const [nyRolle, setNyRolle] = useState('hovedkontakt')
   const [nyUndersokelse, setNyUndersokelse] = useState('')
   const [oppretter, setOppretter] = useState(false)
   const [opprettFeil, setOpprettFeil] = useState(null)
@@ -454,7 +490,7 @@ export default function AdminSkoleundersokelse() {
     const [undRes, spRes, runderRes, skolerRes, mottRes, svarRes] = await Promise.all([
       supabase.from('skoleus_undersokelse').select('id, navn, beskrivelse, er_mal, opprettet_at'),
       supabase.from('skoleus_sporsmal').select('undersokelse_id'),
-      supabase.from('skoleus_runder').select('id, navn, status, maalgruppe, undersokelse_id, opprettet_at, lukket_at').order('opprettet_at', { ascending: false }),
+      supabase.from('skoleus_runder').select('id, navn, status, maalgruppe, mottaker_rolle, undersokelse_id, opprettet_at, lukket_at').order('opprettet_at', { ascending: false }),
       supabase.from('skoler').select('status, fylke, kommunenavn, type, nettverk'),
       supabase.from('skoleus_mottaker').select('runde_id'),
       supabase.from('skoleus_svar').select('runde_id'),
@@ -567,11 +603,12 @@ export default function AdminSkoleundersokelse() {
       navn: nyNavn.trim(),
       status: 'utkast',
       maalgruppe: byggFilterObjekt(),
+      mottaker_rolle: nyRolle,
       undersokelse_id: nyUndersokelse,
     })
     setOppretter(false)
     if (error) { setOpprettFeil(error.message); return }
-    setNyNavn(''); setFilter(TOMT_FILTER)
+    setNyNavn(''); setFilter(TOMT_FILTER); setNyRolle('hovedkontakt')
     hentAlt()
   }
 
@@ -729,7 +766,7 @@ export default function AdminSkoleundersokelse() {
         ) : (
           <>
             <form onSubmit={opprettRunde} className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
                   <label htmlFor="rundeNavn" className="block text-sm font-medium text-gray-700 mb-1">Navn</label>
                   <input id="rundeNavn" type="text" value={nyNavn} onChange={e => setNyNavn(e.target.value)} placeholder="f.eks. Skoleundersøkelse høst 2026" className={inputKlasse} />
@@ -741,12 +778,18 @@ export default function AdminSkoleundersokelse() {
                     {ikkeMalUndersokelser.map(u => <option key={u.id} value={u.id}>{u.navn}</option>)}
                   </select>
                 </div>
+                <div>
+                  <label htmlFor="rundeRolle" className="block text-sm font-medium text-gray-700 mb-1">Send til</label>
+                  <select id="rundeRolle" value={nyRolle} onChange={e => setNyRolle(e.target.value)} className={inputKlasse + ' bg-white'}>
+                    {MOTTAKER_ROLLE_VALG.map(r => <option key={r} value={r}>{MOTTAKER_ROLLE_ETIKETT[r]}</option>)}
+                  </select>
+                </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-2 gap-3">
                   <span className="text-sm font-medium text-gray-700">Målgruppe (filter)</span>
-                  <span className="text-xs text-gray-500">{filterSammendrag(byggFilterObjekt())}</span>
+                  <span className="text-xs text-gray-500">Treffer: {filterSammendrag(byggFilterObjekt())}</span>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {AKSER.map(a => (
@@ -766,8 +809,10 @@ export default function AdminSkoleundersokelse() {
             </form>
             {opprettFeil && <p className="mt-3 text-sm text-pink-700">{opprettFeil}</p>}
             <p className="mt-3 text-xs text-gray-500">
-              En runde kjører én undersøkelse. Målgruppe-filteret AND-es: velger du flere akser, må en skole
-              matche alle. Tomt filter = alle skoler. Maler kan ikke kjøres direkte — kopier først («Ny fra mal»).
+              En runde kjører én undersøkelse. «Send til» styrer hvilken kontakt hver skole får runden på
+              (rektor/TL-ansvarlig treffer rektor_epost/htla_epost direkte; skoler uten den adressen hoppes over).
+              Målgruppe-filteret AND-es: velger du flere akser, må en skole matche alle. Tomt filter = alle skoler.
+              Maler kan ikke kjøres direkte — kopier først («Ny fra mal»).
             </p>
           </>
         )}
@@ -799,7 +844,7 @@ export default function AdminSkoleundersokelse() {
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {undNavn ? `${undNavn} · ` : ''}{filterSammendrag(r.maalgruppe)} · Opprettet {formaterDato(r.opprettet_at)} · {antMott} mottaker{antMott === 1 ? '' : 'e'}
+                        {undNavn ? `${undNavn} · ` : ''}Send til {MOTTAKER_ROLLE_ETIKETT[r.mottaker_rolle] || r.mottaker_rolle || 'Hovedkontakt'} · {filterSammendrag(r.maalgruppe)} · Opprettet {formaterDato(r.opprettet_at)} · {antMott} mottaker{antMott === 1 ? '' : 'e'}
                         {antSvar > 0 ? ` · ${antSvar} svar` : ''}
                       </p>
                     </div>
