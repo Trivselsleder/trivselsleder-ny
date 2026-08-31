@@ -29,6 +29,7 @@ import AdminTekster from './pages/AdminTekster'
 import SvarSkjema from './pages/SvarSkjema'
 import KursInfo from './pages/KursInfo'
 import EvalueringSkjema from './pages/EvalueringSkjema'
+import SkoleundersokelseSkjema from './pages/SkoleundersokelseSkjema'
 // Fase 3 — skolens skall (steg 1) + bibliotek (steg 3)
 import SkoleLayout from './components/SkoleLayout'
 import SkoleAdministratorer from './pages/skole/SkoleAdministratorer'
@@ -204,6 +205,9 @@ export default function App() {
                   Testfase: trivselsleder-ny.vercel.app/undersokelse. Ved lansering pekes
                   domenet trivselsundersokelsen.no hit. */}
               <Route path="/undersokelse" element={<Trivselsundersokelsen />} />
+              {/* Skoleundersøkelsen (identifisert per skole) — offentlig svarskjema.
+                  Personlig token-lenke fra e-post; ingen innlogging. Uten nettstedschrome. */}
+              <Route path="/skoleundersokelse/:token" element={<SkoleundersokelseSkjema />} />
               {/* Fang-alt: ukjent adresse gir 404-side, ikke tom side */}
               <Route path="*" element={<IkkeFunnet />} />
             </Routes>
@@ -216,6 +220,6 @@ export default function App() {
 }
 
 // Oppslags-TV (/skjerm/:token) skal ikke vise nettstedsmeny/footer.
-function utenChrome(pathname) { return pathname.startsWith('/skjerm/') || pathname.startsWith('/undersokelse') }
+function utenChrome(pathname) { return pathname.startsWith('/skjerm/') || pathname.startsWith('/undersokelse') || pathname.startsWith('/skoleundersokelse/') }
 function KanskjeHeader() { return utenChrome(useLocation().pathname) ? null : <Header /> }
 function KanskjeFooter() { return utenChrome(useLocation().pathname) ? null : <Footer /> }

@@ -55,3 +55,6 @@ _kontroll-*.patch
 LES-*.md
 STATUS-mellomlagring-*.md
 KONTROLL-*.md
+
+# Cowork-verifiseringsbygg (31aug) — kan slettes; ble opprettet fordi dist/ ikke lot seg tømme via bridge
+dist_verify

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import { adminFetch } from '../lib/adminFetch'
 
 // Admin-flate for «Spørreundersøkelse til skolene».
 // Del B: opprett runde, generer mottakere, se svar-status.
@@ -481,6 +482,12 @@ export default function AdminSkoleundersokelse() {
   const [genResultat, setGenResultat] = useState(null)
   const [bekreftSlett, setBekreftSlett] = useState(null)
   const [sletter, setSletter] = useState(false)
+  // Utsending (DEL C) + status-styring
+  const [statusJobber, setStatusJobber] = useState(null)   // runde-id som får statusendring
+  const [sender, setSender] = useState(null)               // runde-id som sender/tørrkjører
+  const [sendResultat, setSendResultat] = useState(null)   // { runde_id, ...svar }
+  const [forhandsvis, setForhandsvis] = useState(null)     // { runde_id, emne, html } eller null
+  const [testEpost, setTestEpost] = useState('')
 
   useEffect(() => { hentAlt(false) }, [])
 
@@ -633,6 +640,75 @@ export default function AdminSkoleundersokelse() {
       .eq('runde_id', id).order('opprettet_at', { ascending: true })
     setMottakere(m ?? [])
     setMottakerAntall(prev => ({ ...prev, [id]: (m ?? []).length }))
+  }
+
+  // Sett runde-status (utkast → aktiv → lukket). Direkte via supabase (RLS: ansatt/superadmin).
+  async function settStatus(id, nyStatus) {
+    setStatusJobber(id); setFeil(null)
+    const patch = { status: nyStatus }
+    if (nyStatus === 'lukket') patch.lukket_at = new Date().toISOString()
+    const { error } = await supabase.from('skoleus_runder').update(patch).eq('id', id)
+    setStatusJobber(null)
+    if (error) { setFeil(error.message); return }
+    hentAlt()
+  }
+
+  // Tørrkjør eller ekte utsending av en runde (DEL C — api/skoleus/send-runde.js).
+  async function sendRunde(id, torrkjoring) {
+    setSender(id); setSendResultat(null); setFeil(null)
+    try {
+      const res = await adminFetch('/api/skoleus/send-runde', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ runde_id: id, torrkjoring }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setFeil(data?.error || 'Utsending feilet.'); setSender(null); return }
+      setSendResultat({ runde_id: id, ...data })
+    } catch (e) {
+      setFeil('Kunne ikke nå utsendingstjenesten: ' + (e?.message || 'ukjent feil'))
+    }
+    setSender(null)
+    hentAlt()
+  }
+
+  // Send én test-e-post til én adresse (ekte sending til testadressen, ingen skriving).
+  async function sendTest(id) {
+    const adr = testEpost.trim()
+    if (!adr) { setFeil('Skriv inn en testadresse først.'); return }
+    setSender(id); setSendResultat(null); setFeil(null)
+    try {
+      const res = await adminFetch('/api/skoleus/send-runde', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ runde_id: id, torrkjoring: false, test_epost: adr }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setFeil(data?.error || 'Testsending feilet.'); setSender(null); return }
+      setSendResultat({ runde_id: id, test: true, ...data })
+    } catch (e) {
+      setFeil('Kunne ikke nå utsendingstjenesten: ' + (e?.message || 'ukjent feil'))
+    }
+    setSender(null)
+  }
+
+  // Forhåndsvis e-posten slik mottakerne får den (tørrkjøring gir emne + lenke pr. mottaker).
+  async function forhandsvisEpost(id) {
+    setSender(id); setForhandsvis(null); setFeil(null)
+    try {
+      const res = await adminFetch('/api/skoleus/send-runde', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ runde_id: id, torrkjoring: true }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setFeil(data?.error || 'Kunne ikke bygge forhåndsvisning.'); setSender(null); return }
+      const forste = (data.forhandsvisning || [])[0] || null
+      setForhandsvis({ runde_id: id, antall: data.ville_sendt_antall ?? 0, forste })
+    } catch (e) {
+      setFeil('Kunne ikke nå utsendingstjenesten: ' + (e?.message || 'ukjent feil'))
+    }
+    setSender(null)
   }
 
   async function slettRunde(id) {
@@ -849,6 +925,16 @@ export default function AdminSkoleundersokelse() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
+                      {r.status === 'utkast' && (
+                        <button type="button" onClick={() => settStatus(r.id, 'aktiv')} disabled={statusJobber === r.id} className={primærKnapp}>
+                          {statusJobber === r.id ? '…' : 'Aktiver'}
+                        </button>
+                      )}
+                      {r.status === 'aktiv' && (
+                        <button type="button" onClick={() => settStatus(r.id, 'lukket')} disabled={statusJobber === r.id} className={sekundærKnapp}>
+                          {statusJobber === r.id ? '…' : 'Lukk runde'}
+                        </button>
+                      )}
                       <button type="button" onClick={() => apneRunde(r.id)} className={sekundærKnapp}>{erApen ? 'Lukk' : 'Åpne'}</button>
                       {kanSlettes && (
                         bekreftSlett === r.id ? (
@@ -898,6 +984,65 @@ export default function AdminSkoleundersokelse() {
                           </table>
                         </div>
                       )}
+
+                      {/* ── Utsending (DEL C) ─────────────────────────────── */}
+                      <div className="mt-5 pt-5 border-t border-gray-200">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-2">Utsending</h4>
+                        {r.status !== 'aktiv' ? (
+                          <p className="text-sm text-gray-500">Aktiver runden før du sender. (Tørrkjøring og forhåndsvisning krever heller ikke aktiv, men ekte utsending gjør.)</p>
+                        ) : null}
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          <button type="button" onClick={() => forhandsvisEpost(r.id)} disabled={sender === r.id} className={sekundærKnapp}>
+                            Se e-posten slik mottakerne får den
+                          </button>
+                          <button type="button" onClick={() => sendRunde(r.id, true)} disabled={sender === r.id} className={sekundærKnapp}>
+                            {sender === r.id ? 'Jobber …' : 'Tørrkjør (vis hvem som ville fått)'}
+                          </button>
+                          {r.status === 'aktiv' && (
+                            <button type="button" onClick={() => sendRunde(r.id, false)} disabled={sender === r.id} className={primærKnapp}>
+                              {sender === r.id ? 'Sender …' : 'Send runde'}
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 mt-3">
+                          <input
+                            type="email"
+                            value={testEpost}
+                            onChange={(e) => setTestEpost(e.target.value)}
+                            placeholder="test@adresse.no"
+                            className={inputKlasse + ' max-w-xs'}
+                          />
+                          <button type="button" onClick={() => sendTest(r.id)} disabled={sender === r.id} className={sekundærKnapp}>
+                            Send test til én adresse
+                          </button>
+                        </div>
+
+                        {forhandsvis && forhandsvis.runde_id === r.id && (
+                          <div className="mt-3 rounded-lg border border-gray-200 bg-white p-3 text-sm">
+                            <p className="text-gray-700 mb-1"><span className="font-medium">{forhandsvis.antall}</span> mottaker(e) ville fått e-post.</p>
+                            {forhandsvis.forste ? (
+                              <div className="text-gray-600">
+                                <p><span className="font-medium">Emne:</span> {forhandsvis.forste.emne}</p>
+                                <p><span className="font-medium">Til (eksempel):</span> {forhandsvis.forste.mottaker_epost}</p>
+                                <p className="break-all"><span className="font-medium">Lenke:</span> {forhandsvis.forste.lenke}</p>
+                              </div>
+                            ) : <p className="text-gray-500">Ingen mottakere å vise ennå — generer mottakere først.</p>}
+                          </div>
+                        )}
+
+                        {sendResultat && sendResultat.runde_id === r.id && (
+                          <div className="mt-3 rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-700">
+                            {sendResultat.test ? (
+                              <p>{sendResultat.ok ? `Test sendt til ${sendResultat.test_epost}.` : `Test feilet: ${sendResultat.feil || ''}`}</p>
+                            ) : sendResultat.torrkjoring ? (
+                              <p>Tørrkjøring: {sendResultat.ville_sendt_antall ?? 0} ville fått e-post · {(sendResultat.hoppet_over || []).length} hoppet over.</p>
+                            ) : (
+                              <p>Sendt: {sendResultat.sendt_antall ?? 0} · hoppet over: {(sendResultat.hoppet_over || []).length} · feilet: {(sendResultat.feilet || []).length}.</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
