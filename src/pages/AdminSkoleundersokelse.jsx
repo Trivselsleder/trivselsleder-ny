@@ -488,6 +488,10 @@ export default function AdminSkoleundersokelse() {
   const [sendResultat, setSendResultat] = useState(null)   // { runde_id, ...svar }
   const [forhandsvis, setForhandsvis] = useState(null)     // { runde_id, emne, html } eller null
   const [testEpost, setTestEpost] = useState('')
+  // Purring (DEL: manuell påminnelse) — egne tilstander så de ikke blander seg med utsending.
+  const [purrer, setPurrer] = useState(null)               // runde-id som purrer/tørrkjører purring
+  const [purreResultat, setPurreResultat] = useState(null) // { runde_id, ...svar }
+  const [forhandsvisPurre, setForhandsvisPurre] = useState(null) // { runde_id, antall, forste }
 
   useEffect(() => { hentAlt(false) }, [])
 
@@ -623,7 +627,7 @@ export default function AdminSkoleundersokelse() {
     if (apenRunde === id) { setApenRunde(null); return }
     setApenRunde(id); setGenResultat(null); setMottakere([]); setHenterMott(true)
     const { data } = await supabase.from('skoleus_mottaker')
-      .select('id, navn, epost, rolle, opprettet_at, skoler(navn)')
+      .select('id, navn, epost, rolle, opprettet_at, sendt_at, svart_at, purring_sendt_at, skoler(navn)')
       .eq('runde_id', id).order('opprettet_at', { ascending: true })
     setMottakere(data ?? []); setHenterMott(false)
   }
@@ -636,7 +640,7 @@ export default function AdminSkoleundersokelse() {
     const rad = Array.isArray(data) ? data[0] : data
     setGenResultat({ opprettet: rad?.opprettet ?? 0, hoppet_over: rad?.hoppet_over ?? 0 })
     const { data: m } = await supabase.from('skoleus_mottaker')
-      .select('id, navn, epost, rolle, opprettet_at, skoler(navn)')
+      .select('id, navn, epost, rolle, opprettet_at, sendt_at, svart_at, purring_sendt_at, skoler(navn)')
       .eq('runde_id', id).order('opprettet_at', { ascending: true })
     setMottakere(m ?? [])
     setMottakerAntall(prev => ({ ...prev, [id]: (m ?? []).length }))
@@ -709,6 +713,45 @@ export default function AdminSkoleundersokelse() {
       setFeil('Kunne ikke nå utsendingstjenesten: ' + (e?.message || 'ukjent feil'))
     }
     setSender(null)
+  }
+
+  // Tørrkjør eller ekte purring av en runde (api/skoleus/send-purring.js).
+  // Speiler sendRunde eksakt, men mot purre-ruten (kun de som ikke har svart).
+  async function sendPurring(id, torrkjoring) {
+    setPurrer(id); setPurreResultat(null); setFeil(null)
+    try {
+      const res = await adminFetch('/api/skoleus/send-purring', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ runde_id: id, torrkjoring }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setFeil(data?.error || 'Purring feilet.'); setPurrer(null); return }
+      setPurreResultat({ runde_id: id, ...data })
+    } catch (e) {
+      setFeil('Kunne ikke nå purre-tjenesten: ' + (e?.message || 'ukjent feil'))
+    }
+    setPurrer(null)
+    hentAlt()
+  }
+
+  // Forhåndsvis purre-eposten slik de som ikke har svart får den (tørrkjøring).
+  async function forhandsvisPurring(id) {
+    setPurrer(id); setForhandsvisPurre(null); setFeil(null)
+    try {
+      const res = await adminFetch('/api/skoleus/send-purring', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ runde_id: id, torrkjoring: true }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setFeil(data?.error || 'Kunne ikke bygge forhåndsvisning.'); setPurrer(null); return }
+      const forste = (data.forhandsvisning || [])[0] || null
+      setForhandsvisPurre({ runde_id: id, antall: data.ville_sendt_antall ?? 0, forste })
+    } catch (e) {
+      setFeil('Kunne ikke nå purre-tjenesten: ' + (e?.message || 'ukjent feil'))
+    }
+    setPurrer(null)
   }
 
   async function slettRunde(id) {
@@ -1039,6 +1082,60 @@ export default function AdminSkoleundersokelse() {
                               <p>Tørrkjøring: {sendResultat.ville_sendt_antall ?? 0} ville fått e-post · {(sendResultat.hoppet_over || []).length} hoppet over.</p>
                             ) : (
                               <p>Sendt: {sendResultat.sendt_antall ?? 0} · hoppet over: {(sendResultat.hoppet_over || []).length} · feilet: {(sendResultat.feilet || []).length}.</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* ── Purring (manuell påminnelse til de som ikke har svart) ── */}
+                      <div className="mt-5 pt-5 border-t border-gray-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="text-sm font-semibold text-gray-900">Purring</h4>
+                          {(() => {
+                            const ikkeSvart = mottakere.filter(m => m.sendt_at && !m.svart_at).length
+                            const kanPurres = mottakere.filter(m => m.sendt_at && !m.svart_at && !m.purring_sendt_at).length
+                            return ikkeSvart > 0 ? (
+                              <span className="text-xs text-gray-500">{ikkeSvart} ikke svart{kanPurres !== ikkeSvart ? ` · ${kanPurres} kan purres (resten alt purret)` : ''}</span>
+                            ) : null
+                          })()}
+                        </div>
+                        <p className="text-xs text-gray-500 mb-2">
+                          Sender en påminnelse KUN til mottakere som fikk lenken, ikke har svart, og ikke er purret før.
+                          Samme lenke som utsendingen. Ingen purres to ganger.
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button type="button" onClick={() => forhandsvisPurring(r.id)} disabled={purrer === r.id} className={sekundærKnapp}>
+                            Se purre-eposten
+                          </button>
+                          <button type="button" onClick={() => sendPurring(r.id, true)} disabled={purrer === r.id} className={sekundærKnapp}>
+                            {purrer === r.id ? 'Jobber …' : 'Tørrkjør purring – vis hvem som ville fått'}
+                          </button>
+                          {r.status === 'aktiv' && (
+                            <button type="button" onClick={() => sendPurring(r.id, false)} disabled={purrer === r.id} className={primærKnapp}>
+                              {purrer === r.id ? 'Sender …' : 'Send purring'}
+                            </button>
+                          )}
+                        </div>
+
+                        {forhandsvisPurre && forhandsvisPurre.runde_id === r.id && (
+                          <div className="mt-3 rounded-lg border border-gray-200 bg-white p-3 text-sm">
+                            <p className="text-gray-700 mb-1"><span className="font-medium">{forhandsvisPurre.antall}</span> mottaker(e) ville fått purring.</p>
+                            {forhandsvisPurre.forste ? (
+                              <div className="text-gray-600">
+                                <p><span className="font-medium">Emne:</span> {forhandsvisPurre.forste.emne}</p>
+                                <p><span className="font-medium">Til (eksempel):</span> {forhandsvisPurre.forste.mottaker_epost}</p>
+                                <p className="break-all"><span className="font-medium">Lenke:</span> {forhandsvisPurre.forste.lenke}</p>
+                              </div>
+                            ) : <p className="text-gray-500">Ingen å purre nå — alle har enten svart eller er alt purret.</p>}
+                          </div>
+                        )}
+
+                        {purreResultat && purreResultat.runde_id === r.id && (
+                          <div className="mt-3 rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-700">
+                            {purreResultat.torrkjoring ? (
+                              <p>Tørrkjøring: {purreResultat.ville_sendt_antall ?? 0} ville fått purring · {(purreResultat.hoppet_over || []).length} hoppet over.</p>
+                            ) : (
+                              <p>Purret: {purreResultat.sendt_antall ?? 0} · hoppet over: {(purreResultat.hoppet_over || []).length} · feilet: {(purreResultat.feilet || []).length}.</p>
                             )}
                           </div>
                         )}
