@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { adminFetch } from '../lib/adminFetch'
+import SkoleusResultatEffekt from '../components/SkoleusResultatEffekt'
 
 // Admin-flate for «Spørreundersøkelse til skolene».
 // Del B: opprett runde, generer mottakere, se svar-status.
@@ -994,6 +995,11 @@ export default function AdminSkoleundersokelse() {
 
                   {erApen && (
                     <div className="border-t border-gray-100 p-4 bg-gray-50/60">
+                      {antSvar > 0 && (
+                        <div className="mb-4">
+                          <SkoleusResultatEffekt rundeId={r.id} />
+                        </div>
+                      )}
                       <div className="flex flex-wrap items-center gap-3 mb-3">
                         <button type="button" onClick={() => genererMottakere(r.id)} disabled={genererer} className={primærKnapp}>
                           {genererer ? 'Genererer …' : antMott > 0 ? 'Regenerer mottakere' : 'Generer mottakere'}
