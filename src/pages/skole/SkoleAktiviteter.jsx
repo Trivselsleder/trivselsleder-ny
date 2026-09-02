@@ -52,8 +52,17 @@ export default function SkoleAktiviteter() {
 
   useEffect(() => {
     if (!sok.trim()) return
-    const t = setTimeout(() => loggBruk('sok', { sokTekst: sok.trim() }), 900)
+    // Logg søket etter en liten pause. treff_antall = hvor mange leker søket ga
+    // NÅ (0 = null-treff — grunnlaget for «hva mangler innholdet vårt»). treff
+    // regnes ut nedenfor og fanges her på loggetidspunktet. Effekten fyrer på
+    // søketeksten, akkurat som før — vi endrer bare HVA som logges, ikke NÅR.
+    const t = setTimeout(
+      () => loggBruk('sok', { sokTekst: sok.trim(), treffAntall: treff.length }),
+      900,
+    )
     return () => clearTimeout(t)
+    // treff bevisst utenfor deps: vi vil logge per søketekst, ikke per filterklikk.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sok])
 
   const valg = useMemo(() => {

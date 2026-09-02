@@ -172,15 +172,24 @@ export async function lagreInnhold(ressursId, sprak, felter) {
   if (error) throw error
 }
 
-export async function loggBruk(hendelse, { ressursId = null, sokTekst = null } = {}) {
+export async function loggBruk(hendelse, { ressursId = null, sokTekst = null, treffAntall = null } = {}) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+    // treff_antall settes KUN for søk, og aldri negativt. Basen håndhever begge
+    // reglene (migr 088: CHECK treff_antall >= 0, og treff_antall IS NULL eller
+    // hendelse='sok') — her speiler vi dem så en insert aldri avvises:
+    //   0    = null-treff (viktig signal: hva mangler innholdet vårt),
+    //   NULL = ikke et søk (alle andre hendelser).
+    const treff = hendelse === 'sok' && Number.isFinite(treffAntall)
+      ? Math.max(0, Math.trunc(treffAntall))
+      : null
     await supabase.from('bruk_hendelse').insert({
       bruker_id: user.id,
       ressurs_id: ressursId,
       hendelse,
       sok_tekst: sokTekst,
+      treff_antall: treff,
     })
   } catch {
     /* logging skal aldri velte siden */
