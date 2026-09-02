@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { sjekkTuTilgang } from '../lib/tu'
 
@@ -40,6 +40,7 @@ export default function SkoleLayout() {
   const knappRef = useRef(null)
   const menyRef = useRef(null)
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const skolenMinAktiv = skolenMin.some((s) => pathname.startsWith(s.to))
   const alleFaner = visTu ? [...faner, tuFane] : faner
 
@@ -83,7 +84,23 @@ export default function SkoleLayout() {
         <nav className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 overflow-x-auto">
           <div className="flex gap-1 min-w-max items-center">
             {alleFaner.map((f) => (
-              <NavLink key={f.to} to={f.to} end={f.end} className={lenkeCls}>{f.label}</NavLink>
+              <NavLink
+                key={f.to}
+                to={f.to}
+                end={f.end}
+                className={lenkeCls}
+                onClick={f.to === '/min-side' ? (e) => {
+                  // «Min side»-fanen skal ALLTID føre tilbake til forsiden med de tolv
+                  // boksene og rydde bort ev. situasjonssøk (?q=) som henger igjen —
+                  // uansett hvor man står. Vi tvinger en ren navigasjon til /min-side
+                  // (tom search => aktivQ blir null => boksene vises) og ruller til
+                  // toppen, så boksene faktisk kommer til syne (ellers kan de rendres
+                  // nedenfor skjermkanten når man har rullet ned i et søkeresultat).
+                  e.preventDefault()
+                  navigate('/min-side')
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                } : undefined}
+              >{f.label}</NavLink>
             ))}
 
             {/* Skolen min ▾ – samler skolens egen administrasjon */}
