@@ -179,7 +179,7 @@ export default function SkolePeriodeplan() {
     const url = `${window.location.origin}/plan/${t}`
     try {
       await navigator.clipboard.writeText(url)
-      visMelding('Delingslenke kopiert. Alle med lenken kan se planen (skrivebeskyttet). Elevnavn kan skjules.')
+      visMelding('Delingslenke kopiert. Alle med lenken kan se planen (skrivebeskyttet).')
     } catch { visMelding(url) }
   }
   async function kopier() {
@@ -400,7 +400,7 @@ export default function SkolePeriodeplan() {
                   className="mt-3 block text-center text-sm bg-orange text-gray-900 font-medium px-4 py-2.5 rounded-full hover:bg-[#e8641c] transition">
                   Åpne skjermvisning ↗
                 </a>
-                <p className="text-xs text-gray-400 mt-3">Elevnavn vises på skjermen. På selve skjermsiden kan du bytte til «Skjul elevnavn» hvis dere ønsker det.</p>
+                <p className="text-xs text-gray-400 mt-3">Elevnavn vises på skjermen — det er meningen, så elevene ser hvem som har ansvar hvor. Vil dere ikke vise navn, la være å skrive dem inn i planen.</p>
               </>
             ) : (
               <p className="text-sm text-gray-600 mt-3">Planen mangler en delingslenke ennå. Trykk «🔗 Del» én gang først, så blir skjerm-lenken tilgjengelig.</p>

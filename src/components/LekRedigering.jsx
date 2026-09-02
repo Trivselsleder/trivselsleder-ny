@@ -47,6 +47,9 @@ export default function LekRedigering({ lek, onLagret, onAvbryt }) {
         sted: meta.sted,
         antall_min: meta.antall_min === '' ? null : Number(meta.antall_min),
         antall_maks: meta.antall_maks === '' ? null : Number(meta.antall_maks),
+        // «Kan ledes av elever» er fjernet fra visningen (Kjartans beslutning 2. sep 2026):
+        // hele TL-programmet er elevledet, så feltet skiller ingenting. Verdien sendes
+        // fortsatt uendret her slik at databasekolonnen bevares intakt ved redigering.
         kan_ledes_av_elever: meta.kan_ledes_av_elever,
       })
       await lagreInnhold(lek.id, sprak, innhold)
@@ -85,10 +88,6 @@ export default function LekRedigering({ lek, onLagret, onAvbryt }) {
         </label>
         <label className="text-xs text-gray-500">Antall maks
           <input type="number" value={meta.antall_maks} onChange={(e) => m('antall_maks', e.target.value)} className={`${felt} mt-0.5`} />
-        </label>
-        <label className="text-xs text-gray-500 flex items-end gap-2 pb-2">
-          <input type="checkbox" checked={meta.kan_ledes_av_elever} onChange={(e) => m('kan_ledes_av_elever', e.target.checked)} />
-          Kan ledes av elever
         </label>
       </div>
 

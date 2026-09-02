@@ -183,7 +183,6 @@ export default function SkoleLek() {
 
       <div className="flex flex-wrap gap-1 mt-3">
         {lek.egnet.map((e) => <span key={e} className="text-xs bg-orange/10 text-orange-ink px-2 py-0.5 rounded-full">{e}</span>)}
-        {lek.kanLedesAvElever && <span className="text-xs bg-petrol/10 text-petrol px-2 py-0.5 rounded-full">Kan ledes av elever</span>}
         {lek.sesong.map((s) => <span key={s} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{s}</span>)}
       </div>
 

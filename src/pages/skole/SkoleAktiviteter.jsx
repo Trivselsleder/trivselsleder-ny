@@ -13,7 +13,7 @@ const SIDE = 50
 // fordi de sendes som filterverdi til søke-RPC-en. Svensk innhold oversettes i
 // dataimporten, ikke her. Trinn/sesong kommer fra leker.js (samme kilde som før).
 const EGNET = [
-  'Friminutt', 'Kroppsøving', 'SFO/AKS', 'Aktiv læring', 'Aktive pauser', 'FYSAK',
+  'Friminutt', 'Kroppsøving', 'SFO/AKS', 'Aktiv læring', 'Move it', 'FYSAK',
   'Bli kjent / klassemiljø', 'Aktivitetsdager', 'Sosial kompetanse', 'TL-Mester',
   'Leker for 100+ elever', 'Barnehage',
 ]

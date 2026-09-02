@@ -674,6 +674,7 @@
       "treffTeller": "{{antall}} leker som passer — sortert etter treff",
       "forslagTeller": "Her er noen forslag i stedet — prøv å justere søket for bedre treff",
       "ingenMatchet": "Ingen leker matchet ennå — prøv en annen beskrivelse."
-    }
+    },
+    "tilbake": "Tilbake til Min side"
   }
 }

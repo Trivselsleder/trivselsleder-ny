@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { hentLeker, sokLeker, trinnKort, TRINN_NO } from '../lib/leker'
 import { hentMineFavoritter } from '../lib/favoritter'
@@ -33,6 +33,10 @@ const CSS = `
 .tlh-parse .note{margin-top:10px;font-size:13px;color:var(--grey)}
 .tlh-backlink{display:inline-block;margin-top:16px}
 .tlh-backlink a,.tlh-backlink button{color:var(--o);font-weight:700;text-decoration:none;font-size:14px;font-family:inherit;background:none;border:0;padding:0;cursor:pointer}
+.tlh-backrow{margin-top:18px}
+.tlh-back{display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--petrol);color:var(--petrol);font-weight:700;font-size:15px;font-family:inherit;padding:11px 20px;border-radius:11px;cursor:pointer;transition:.12s}
+.tlh-back:hover{background:var(--petrol);color:#fff}
+.tlh-back:focus-visible{outline:3px solid var(--o);outline-offset:2px}
 .tlh-brow{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:22px}
 .tlh-panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
 .tlh-panel h2{font-size:16px;margin-bottom:4px;color:var(--dark)}
@@ -73,7 +77,7 @@ function parseQ(t) {
   const f = {}
   if (/sfo|aks/.test(t)) { f.egnet = 'SFO/AKS'; f._key = 'sfo' }
   else if (/kroppsøv|gymtime/.test(t)) { f.egnet = 'Kroppsøving'; f._key = 'kroppsøv' }
-  else if (/aktive? pause/.test(t)) { f.egnet = 'Aktive pauser'; f._key = 'aktive pause' }
+  else if (/aktive? pause/.test(t)) { f.egnet = 'Move it'; f._key = 'aktive pause' }
   else if (/aktivitetsdag/.test(t)) { f.egnet = 'Aktivitetsdager'; f._key = 'aktivitetsdag' }
   else if (/friminutt/.test(t)) { f.egnet = 'Friminutt'; f._key = 'friminutt' }
   else if (/aktiv læring|matte|matematikk|\bnorsk\b|\bfag\b/.test(t)) { f.egnet = 'Aktiv læring'; f._key = 'aktiv læring' }
@@ -141,11 +145,12 @@ function filtreFraParse(f) {
 }
 
 export default function SkoleHjem({ fornavn = null }) {
-  const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
   const { t } = useTranslation()
   const [alle, setAlle] = useState([])
-  const [q, setQ] = useState('')
-  const [aktivQ, setAktivQ] = useState(null)   // satt tekst = viser resultater
+  const qParam = (params.get('q') || '').trim()
+  const aktivQ = qParam || null                 // ?q= i adressen = viser resultater (delbar, F5-trygg, back-knappen virker)
+  const [q, setQ] = useState(qParam)            // inputfeltets tekst mens man skriver
   const [resultater, setResultater] = useState({ items: [], direkte: false, laster: false })
   const [teller, setTeller] = useState({ planer: null, hjul: null, fav: null })
   const [nesteWebinar, setNesteWebinar] = useState(undefined) // undefined=laster, null=ingen
@@ -162,6 +167,9 @@ export default function SkoleHjem({ fornavn = null }) {
       })
     })
   }, [])
+
+  // Hold inputfeltet i takt med adressen (back/forward, «Min side»-fanen, chip-klikk).
+  useEffect(() => { setQ(qParam) }, [qParam])
 
   const parsed = useMemo(() => (aktivQ ? parseQ(aktivQ) : null), [aktivQ])
 
@@ -192,12 +200,15 @@ export default function SkoleHjem({ fornavn = null }) {
   }, [aktivQ, parsed, alle])
 
   function run(tekst) {
-    const t = (tekst ?? q).trim()
-    if (!t) return
-    setQ(t); setAktivQ(t)
+    const tekstQ = (tekst ?? q).trim()
+    if (!tekstQ) return
+    // Skriv søket til adressen: ny historikk-oppføring → nettleserens back virker,
+    // F5 beholder resultatet, og lenka kan deles. Samme mønster som Finn en lek.
+    setParams({ q: tekstQ })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  function reset() { setAktivQ(null); setQ('') }
+  // Tilbake til forsiden av Min side (fjerner ?q). Samme effekt som å klikke «Min side»-fanen.
+  function reset() { setParams({}) }
 
   const manedslek = alle.find((l) => /haien kommer/i.test(l.n)) || null
   const pills = parsed
@@ -237,7 +248,13 @@ export default function SkoleHjem({ fornavn = null }) {
             </div>
           </div>
         )}
-        {aktivQ && <div className="tlh-backlink"><button type="button" onClick={reset}>← Tilbake til Min side</button></div>}
+        {aktivQ && (
+          <div className="tlh-backrow">
+            <button type="button" className="tlh-back" onClick={reset}>
+              <span aria-hidden="true">←</span> {t('minSide.tilbake')}
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Resultater (inline) */}
@@ -285,7 +302,7 @@ export default function SkoleHjem({ fornavn = null }) {
               <button type="button" onClick={() => run('Kroppsøving oppvarming for hel klasse')}><span className="ic">🤸</span> Kroppsøving</button>
               <button type="button" onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}><span className="ic">🧩</span> SFO/AKS</button>
               <Link to="/min-side/aktiv-laering"><span className="ic">📚</span> Aktiv læring</Link>
-              <button type="button" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}><span className="ic">⏸️</span> Aktive pauser</button>
+              <button type="button" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}><span className="ic">⏸️</span> Move it</button>
               <button type="button" onClick={() => run('FYSAK uteskole lavterskel')}><span className="ic">🌲</span> FYSAK</button>
               <button type="button" onClick={() => run('Bli kjent og godt klassemiljø første skoledag')}><span className="ic">🤝</span> Bli kjent / klassemiljø</button>
               <button type="button" onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}><span className="ic">🎪</span> Aktivitetsdager</button>

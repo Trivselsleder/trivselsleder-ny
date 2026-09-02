@@ -674,6 +674,7 @@
       "treffTeller": "{{antall}} lekar som passar — sorterade efter träff",
       "forslagTeller": "Här är några förslag i stället — prova att justera sökningen för bättre träff",
       "ingenMatchet": "Inga lekar matchade ännu — prova en annan beskrivning."
-    }
+    },
+    "tilbake": "Tillbaka till Min sida"
   }
 }

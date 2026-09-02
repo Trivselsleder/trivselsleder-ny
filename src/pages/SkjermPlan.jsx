@@ -1,24 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { hentDeltPlan, nivaaLabel } from '../lib/periodeplan'
 import { lekEmoji, lekFarge } from '../lib/lekIkon'
 
 const DAG_IDX = ['SØNDAG', 'MANDAG', 'TIRSDAG', 'ONSDAG', 'TORSDAG', 'FREDAG', 'LØRDAG']
 
 // Offentlig, skrivebeskyttet SKJERMVISNING for oppslags-TV / storskjerm på skolen.
-// Elevnavn vises som standard (poenget er at elevene ser hvem som har ansvar hvor);
-// «Skjul elevnavn» bytter dem til «elev»/«TL-vakt». Auto-oppdaterer lydløst.
+// Auto-oppdaterer lydløst.
+//
+// ELEVNAVN SKAL ALLTID VÆRE SYNLIGE (Kjartans beslutning 2. sep 2026).
+// «Skjul elevnavn»-knappen er fjernet med vilje — både for elev og TL-vakt.
+// Begrunnelse: at andre elever ser hvem som har ansvar for hvilken lek er en
+// FUNKSJON, ikke et personvernproblem — et barn som er utrygt kan gå til
+// aktiviteten der det står en trivselsleder det stoler på. Skoler som ikke vil
+// vise navn, skriver rett og slett ikke navn inn i planen.
 export default function SkjermPlan() {
   const { token } = useParams()
-  const [params] = useSearchParams()
   const [plan, setPlan] = useState(null)
   const [feil, setFeil] = useState(null)
   const [frakoblet, setFrakoblet] = useState(false)
   const [laster, setLaster] = useState(true)
-  const [skjul, setSkjul] = useState(() => {
-    if (params.get('skjul') === '1') return true
-    try { return localStorage.getItem(`tl-skjerm-skjul-${token}`) === '1' } catch { return false }
-  })
   const [naa, setNaa] = useState(() => new Date())
   const [erFull, setErFull] = useState(false)
   const [sistOppdatert, setSistOppdatert] = useState(null)
@@ -57,13 +58,6 @@ export default function SkjermPlan() {
     return () => document.removeEventListener('fullscreenchange', onFull)
   }, [])
 
-  function byttSkjul() {
-    setSkjul((v) => {
-      const ny = !v
-      try { localStorage.setItem(`tl-skjerm-skjul-${token}`, ny ? '1' : '0') } catch { /* ignorer */ }
-      return ny
-    })
-  }
   function fullskjerm() {
     if (document.fullscreenElement) document.exitFullscreen?.()
     else (rot.current || document.documentElement).requestFullscreen?.().catch(() => {})
@@ -100,9 +94,6 @@ export default function SkjermPlan() {
           <div className="text-xs lg:text-base text-gray-500 capitalize">{dato}</div>
         </div>
         <div className="flex flex-col gap-1.5 ml-2 shrink-0 print:hidden">
-          <button onClick={byttSkjul} className="text-xs lg:text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange-ink bg-white">
-            {skjul ? 'Vis elevnavn' : 'Skjul elevnavn'}
-          </button>
           <button onClick={fullskjerm} className="text-xs lg:text-sm border border-gray-300 rounded-full px-3 py-1.5 hover:border-orange hover:text-orange-ink bg-white">
             {erFull ? 'Avslutt fullskjerm' : 'Fullskjerm'}
           </button>
@@ -137,7 +128,7 @@ export default function SkjermPlan() {
                   const a = plan.ansvarlige?.[d]
                   return (
                     <td key={d} className={`p-2 lg:p-3 text-center align-middle ${idag ? 'bg-orange/10' : ''}`}>
-                      <span className="inline-block text-lg lg:text-2xl font-semibold text-gray-800">{a ? (skjul ? 'TL-vakt' : a) : '—'}</span>
+                      <span className="inline-block text-lg lg:text-2xl font-semibold text-gray-800">{a ? a : '—'}</span>
                     </td>
                   )
                 })}
@@ -166,7 +157,7 @@ export default function SkjermPlan() {
                             <div className="flex flex-wrap gap-1.5 lg:gap-2 justify-center">
                               {chips.map((c, k) => (
                                 <span key={k} className="text-base lg:text-2xl font-semibold bg-orange/10 text-[#B5560F] px-3 py-1 rounded-full whitespace-nowrap">
-                                  {skjul ? 'elev' : c}
+                                  {c}
                                 </span>
                               ))}
                             </div>
