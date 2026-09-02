@@ -18,6 +18,22 @@ const VELG = `
   vurderinger ( stjerner )
 `
 
+// Slank liste-select: som VELG, men UTEN de sju lange tekstfeltene (forberedelse,
+// inndeling, utgangsposisjon, kronologi, regler, variasjoner, instruktoernotat) —
+// de utgjorde ~37 % av svaret og vises aldri i listen (kun på lekesiden via hentLek).
+// Beholder redaksjonell_rating + vurderinger (periodeplanens auto-forslag bruker rating)
+// og medier(type,bunny_video_id) (kort trenger å vite OM det finnes video).
+const VELG_LISTE = `
+  id, sted, antall_min, antall_maks, redaksjonell_rating, ressurstype, status,
+  ressurs_innhold ( sprak, tittel, formaal ),
+  ressurs_egnet ( egnet_kategori ( navn ) ),
+  ressurs_trinn ( trinn ( kode, navn ) ),
+  ressurs_utstyr ( utstyr ( navn ) ),
+  ressurs_sesong ( sesong ( navn ) ),
+  medier ( type, bunny_video_id ),
+  vurderinger ( stjerner )
+`
+
 function tekst(rad) {
   const inn = rad.ressurs_innhold || []
   return inn.find((i) => i.sprak === 'nb') || inn.find((i) => i.sprak === 'nn') || inn[0] || {}
@@ -76,14 +92,69 @@ export function trinnKort(trinnListe) {
   return deler.length ? deler.join(', ') : '—'
 }
 
+// Liste-henting (periodeplan-plukker, Min side-forslag): slank select uten de sju
+// lange tekstfeltene. «Finn en lek» bruker IKKE denne lenger — den søker server-side
+// via sokLeker() nedenfor.
 export async function hentLeker() {
   const { data, error } = await supabase
     .from('ressurser')
-    .select(VELG)
+    .select(VELG_LISTE)
     .eq('status', 'publisert')
     .neq('ressurstype', 'aktiv_laering') // aktiv læring er egen side (Fag + Trinn)
   if (error) throw error
   return (data || []).map(formLek)
+}
+
+// Server-side søk for «Finn en lek» (etappe 4): all fritekst + filtrering +
+// sideinndeling gjøres i basen (RPC sok_leker, migr 089). Returnerer kun feltene
+// listen bruker + totalt antall treff. «Last mer» øker offset med limit.
+export async function sokLeker(filtre = {}) {
+  const {
+    sok = '', egnet = '', trinn = '', sted = '', utstyr = '',
+    utenUtstyr = false, sesong = '', kunVideo = false, kunFav = false,
+    offset = 0, limit = 50,
+  } = filtre
+  const { data, error } = await supabase.rpc('sok_leker', {
+    p_sok: sok.trim() || null,
+    p_egnet: egnet || null,
+    p_trinn: trinn || null,
+    p_sted: sted || null,
+    p_utstyr: utstyr || null,
+    p_uten_utstyr: !!utenUtstyr,
+    p_sesong: sesong || null,
+    p_kun_video: !!kunVideo,
+    p_kun_fav: !!kunFav,
+    p_limit: limit,
+    p_offset: offset,
+  })
+  if (error) throw error
+  const rader = data || []
+  const totalt = rader.length ? Number(rader[0].totalt_antall) : 0
+  return { leker: rader.map(formLekListe), totalt }
+}
+
+// Formar én RPC-rad til samme form som LekeKort venter (delmengde av formLek).
+function formLekListe(r) {
+  return {
+    id: r.id,
+    tittel: r.tittel,
+    tekst: { formaal: r.formaal },
+    sted: r.sted,
+    antallMin: r.antall_min,
+    antallMaks: r.antall_maks,
+    egnet: r.egnet || [],
+    trinn: r.trinn || [],
+    utenUtstyr: r.uten_utstyr,
+    harVideo: r.har_video,
+  }
+}
+
+// Utstyr-facetten (den eneste datadrevne filterlista) hentes separat og lett —
+// taksonomitabellen er liten og lesbar for alle innloggede.
+export async function hentUtstyrListe() {
+  const { data, error } = await supabase.from('utstyr').select('navn').order('navn')
+  if (error) throw error
+  return (data || []).map((u) => u.navn).filter(Boolean)
 }
 
 export async function hentLek(id) {
