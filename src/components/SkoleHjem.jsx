@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { hentLeker, trinnKort } from '../lib/leker'
+import { useTranslation } from 'react-i18next'
+import { hentLeker, sokLeker, trinnKort, TRINN_NO } from '../lib/leker'
 import { hentMineFavoritter } from '../lib/favoritter'
 import { hentPlaner } from '../lib/periodeplan'
 import { hentHjul } from '../lib/hjul'
@@ -105,21 +106,50 @@ function visLek(l) {
     _sted: l.sted, _utenUtstyr: l.utenUtstyr,
   }
 }
-function score(l, f) {
-  let s = 0
-  if (f._key && l.egnet.some((e) => e.toLowerCase().includes(f._key))) s += 3
-  if (f.sted && (l._sted === f.sted.toLowerCase() || l._sted === 'begge')) s += 2
-  if (f.utstyr === 'Uten utstyr' && l._utenUtstyr) s += 2
-  return s
+// Formar en rad fra søke-RPC-en (sok_leker, migr 089) til samme visningsform som
+// visLek. RPC-en leverer ikke utstyrsnavn i listevisningen (kun uten_utstyr), så
+// utstyr vises som «Ingen» / «–» her — de fulle navnene ligger på lekesiden.
+function visLekRPC(l) {
+  const sted = l.sted === 'begge' ? 'Inne/ute' : (l.sted ? l.sted[0].toUpperCase() + l.sted.slice(1) : '–')
+  const egnet = l.egnet || []
+  return {
+    id: l.id,
+    n: l.tittel,
+    sted,
+    trinn: trinnKort(l.trinn).replace(/ trinn/g, ''),
+    antall: (l.antallMin != null && l.antallMaks != null) ? `${l.antallMin}–${l.antallMaks}` : '–',
+    utstyr: l.utenUtstyr ? 'Ingen' : '–',
+    egnet,
+    m: l.utenUtstyr ? 'Uten utstyr' : (egnet[0] || ''),
+  }
+}
+
+// Gjør tolkede felt (parseQ) om til RPC-filtre. Når tolkningen gir minst ett filter
+// er dette et situasjonssøk («SFO ute 4. trinn») → filtrér på det. Gir tolkningen
+// ingenting, er det et fritekst-/tittelsøk → da sender vi teksten til RPC-en som
+// gjør skrivefeil-toleransen (trgm) i basen (jf. «balfangeren» → «Ballfangeren»).
+function filtreFraParse(f) {
+  const ut = {}
+  if (f.egnet) ut.egnet = f.egnet
+  if (f.sted) ut.sted = f.sted.toLowerCase()
+  if (f.utstyr === 'Uten utstyr') ut.utenUtstyr = true
+  if (f.trinn) {
+    const par = TRINN_NO.find(([, navn]) => navn === f.trinn)
+    if (par) ut.trinn = par[0]
+  }
+  return ut
 }
 
 export default function SkoleHjem({ fornavn = null }) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [alle, setAlle] = useState([])
   const [q, setQ] = useState('')
   const [aktivQ, setAktivQ] = useState(null)   // satt tekst = viser resultater
+  const [resultater, setResultater] = useState({ items: [], direkte: false, laster: false })
   const [teller, setTeller] = useState({ planer: null, hjul: null, fav: null })
   const [nesteWebinar, setNesteWebinar] = useState(undefined) // undefined=laster, null=ingen
+  const sokRef = useRef(0) // race-vakt: kun ferskeste søkesvar teller
 
   useEffect(() => {
     hentKommendeWebinarer().then((liste) => setNesteWebinar(liste[0] || null)).catch(() => setNesteWebinar(null))
@@ -134,15 +164,31 @@ export default function SkoleHjem({ fornavn = null }) {
   }, [])
 
   const parsed = useMemo(() => (aktivQ ? parseQ(aktivQ) : null), [aktivQ])
-  const resultater = useMemo(() => {
-    if (!aktivQ) return { items: [], direkte: false }
-    const f = parsed
-    const qq = aktivQ.toLowerCase()
-    const ranked = alle
-      .map((l) => ({ l, s: score(l, f) + (l.n.toLowerCase().includes(qq) ? 1 : 0) }))
-      .sort((a, b) => b.s - a.s)
-    const treff = ranked.filter((x) => x.s > 0)
-    return { items: (treff.length ? treff : ranked).slice(0, 6).map((x) => x.l), direkte: treff.length > 0 }
+
+  // Søk via basen (sok_leker, migr 089): den rangerer og skrivefeil-tolererer i
+  // Postgres. «Direkte treff» = RPC-en returnerte minst én rad — dvs. noe klarte
+  // relevansterskelen (eksakt/delstreng/fulltekst/trgm ≥ 0,30). Da slipper vi den
+  // gamle browser-utregningen som krevde eksakt delstreng i tittelen og derfor
+  // dumpet skrivefeil-treff («balfangeren» → «Ballfangeren») i forslagsbøtta.
+  // Ingen treff → behold forslagstilstanden og vis nærmeste alternativer.
+  useEffect(() => {
+    if (!aktivQ) { setResultater({ items: [], direkte: false, laster: false }); return }
+    const id = ++sokRef.current
+    setResultater((r) => ({ ...r, laster: true }))
+    const filtre = filtreFraParse(parsed || {})
+    const harFiltre = Object.keys(filtre).length > 0
+    const args = harFiltre ? { ...filtre, limit: 6 } : { sok: aktivQ, limit: 6 }
+    sokLeker(args)
+      .then(({ leker }) => {
+        if (id !== sokRef.current) return
+        const items = (leker || []).map(visLekRPC)
+        if (items.length) setResultater({ items, direkte: true, laster: false })
+        else setResultater({ items: alle.slice(0, 6), direkte: false, laster: false })
+      })
+      .catch(() => {
+        if (id !== sokRef.current) return
+        setResultater({ items: alle.slice(0, 6), direkte: false, laster: false })
+      })
   }, [aktivQ, parsed, alle])
 
   function run(tekst) {
@@ -189,7 +235,6 @@ export default function SkoleHjem({ fornavn = null }) {
                 <span key={i} className="tlh-fchip">{v}</span>
               )) : <span className="said">Fritekstsøk i hele biblioteket</span>}
             </div>
-            <div className="note">Vi tolker søket til egnet&nbsp;for, sted og utstyr nå. Trinn og antall vises som forståelse og teller mer etter hvert.</div>
           </div>
         )}
         {aktivQ && <div className="tlh-backlink"><button type="button" onClick={reset}>← Tilbake til Min side</button></div>}
@@ -198,12 +243,18 @@ export default function SkoleHjem({ fornavn = null }) {
       {/* Resultater (inline) */}
       {aktivQ && (
         <section className="tlh-results" style={{ marginTop: 26 }}>
-          <h2>{resultater.direkte ? 'Leker som passer' : 'Fant ingen direkte treff'}</h2>
-          <div className="cnt">
-            {resultater.direkte
-              ? `${resultater.items.length} leker som passer — sortert etter treff`
-              : 'Her er noen forslag i stedet — prøv å justere søket for bedre treff'}
-          </div>
+          <h2>
+            {resultater.laster && resultater.items.length === 0
+              ? t('minSide.sok.laster')
+              : resultater.direkte ? t('minSide.sok.treffTittel') : t('minSide.sok.ingenTittel')}
+          </h2>
+          {!(resultater.laster && resultater.items.length === 0) && (
+            <div className="cnt">
+              {resultater.direkte
+                ? t('minSide.sok.treffTeller', { antall: resultater.items.length })
+                : t('minSide.sok.forslagTeller')}
+            </div>
+          )}
           <div className="tlh-grid">
             {resultater.items.map((l) => (
               <Link key={l.id} to={`/min-side/aktiviteter/${l.id}`} className="tlh-lek">
@@ -218,7 +269,7 @@ export default function SkoleHjem({ fornavn = null }) {
                 </div>
               </Link>
             ))}
-            {resultater.items.length === 0 && <p className="cnt">Ingen leker matchet ennå — prøv en annen beskrivelse.</p>}
+            {resultater.items.length === 0 && !resultater.laster && <p className="cnt">{t('minSide.sok.ingenMatchet')}</p>}
           </div>
         </section>
       )}

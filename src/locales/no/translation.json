@@ -665,5 +665,15 @@
     "foreslaHjelp": "Mangler leken du lette etter? Hjelp oss å fylle biblioteket.",
     "foreslaLek": "Foreslå denne leken",
     "foreslaKommer": "Foreslå en lek — kommer snart"
+  },
+  "minSide": {
+    "sok": {
+      "laster": "Søker …",
+      "treffTittel": "Leker som passer",
+      "ingenTittel": "Fant ingen direkte treff",
+      "treffTeller": "{{antall}} leker som passer — sortert etter treff",
+      "forslagTeller": "Her er noen forslag i stedet — prøv å justere søket for bedre treff",
+      "ingenMatchet": "Ingen leker matchet ennå — prøv en annen beskrivelse."
+    }
   }
 }
