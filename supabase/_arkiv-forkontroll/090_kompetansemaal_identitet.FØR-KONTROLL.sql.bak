@@ -1,0 +1,209 @@
+-- 090_kompetansemaal_identitet.sql
+-- ============================================================================
+-- ETAPPE 5, MIGRASJON 1 av 6 (FASE 3): KOMPETANSEMÅL — VERSJONERT IDENTITET
+-- ============================================================================
+--
+-- HVA denne migrasjonen gjør (kun to ting — additivt, ingen kolonner fjernes):
+--   1) Utvider tabellen `kompetansemaal` med versjonert identitet fra Udir
+--      (uri), læreplanversjon, utgått-flagg, missing_since, og tre nullable
+--      målform-felt (bokmål/nynorsk/default) med CHECK om at et Udir-mål må ha
+--      tekst i minst én målform. Eksisterende kolonne `tekst` (NOT NULL) er
+--      urørt og beholdes som bokmåls-coalesce ved import.
+--   2) Lager koblingstabellen `kompetansemaal_trinn` (ett mål kan gjelde flere
+--      årstrinn), med RLS som speiler taksonomi-mønsteret på `kompetansemaal`.
+--
+-- HVA denne migrasjonen IKKE gjør (bevisst utelatt — hører til senere runder):
+--   - Tilstandene på `ressurs_kompetansemaal` (maskin/menneske/usikker) og
+--     forslagstabellen `ressurs_kompetansemaal_forslag` (spesifikasjonens punkt
+--     2) er FLYTTET TIL 092, fordi de refererer `import_kjoring` som først
+--     lages i 091. En 090 med den koblingen kunne ikke kjørt alene i én omgang.
+--     (Kjartans beslutning 2. sep: 090 = kun identitet + trinn.)
+--   - Fag-mapping (fag_id for Udir-målene) → 097. `fag_id` står nullable/tomt
+--     for de 1 410 Udir-målene inntil da. Ikke blokkerende for 090.
+--   - samme_som / gjenbruk_av / kilde_tid: se BYGGENOTAT (claude_090-LEVERT-2sep.md)
+--     — disse står i spesifikasjonens punkt 1 men IKKE i oppdragets kolonneliste;
+--     flagget for Fable, ikke tatt med her.
+--
+-- HVORFOR dette haster mest: kompetansemålkoder er IKKE stabile. Læreplaner
+-- versjoneres, og en revisjon gir målene NYE id-er selv når teksten er ordrett
+-- lik. Den versjonerte URI-en fra Udir er den eneste identiteten som overlever
+-- en revisjon — og det er den, ikke den nakne koden, som gjør at 261 opplegg
+-- kan kobles til mål uten fuzzy-matching i etterkant.
+--
+-- HVILKE TALL DENNE BYGGER PÅ (talt, ikke gjettet):
+--   - 1 410 LK20-mål hentet med full versjonert URI (data/udir/lk20-kompetansemaal.json)
+--   - 176 av 1 410 mål (12,5 %) gjelder MER ENN ETT årstrinn → derfor kobling,
+--     ikke enkeltkolonne (1 234 med ett trinn, 78 med tre, 9 med seks, 89 med fjorten)
+--   - Målform: 1 398 mål har bokmål (12 mangler, har KUN default), 569 har nynorsk
+--     (841 mangler) → alle tre målform-felt MÅ tåle tomt
+--   - Eksisterende `kompetansemaal`: ~302 rader (våre Drupal-merkelapper), alle
+--     med `tekst`, ingen med `uri` ennå
+--   RAPPORTER: claude_ETAPPE5-SPESIFIKASJON-v3-2sep.md (punkt 1),
+--   claude_TELLINGER-FOR-090-2sep.md (H5/C, H6), claude_TALLFASIT-2sep.md (F7, F8, M5),
+--   claude_KOMPETANSEMAAL-FORSLAG-2sep.md, UDIR-RAPPORT.
+--
+-- VERIFISERT I LIVE-BASEN 2. sep (talt, ikke gjettet):
+--   kompetansemaal: id integer, kode text, tekst text NOT NULL, fag_id integer,
+--     trinn_id smallint, ukoblet boolean NOT NULL, erstattet_av integer
+--   73 tabeller i public, alle med RLS. Siste kjørte migrasjon: 089. Neste: 090.
+--
+-- EGENSKAPER: Additiv · Idempotent (kan kjøres to ganger uten skade) · ÉN
+--   transaksjon (hele fila limes inn i Supabase SQL-editor i én omgang).
+--
+-- RLS-mønster som speiles (lest i 030_fase3_rls.sql + 032_fase3_rls_fikser.sql):
+--   - kompetansemaal (taksonomi): p_les select using(true);
+--       p_skriv for all using(fase3_super()) with check(fase3_super())
+--   → kompetansemaal_trinn er ren taksonomi og speiler dette nøyaktig.
+--   Hjelpefunksjonene fase3_super()/fase3_intern() finnes fra 030.
+--
+-- SQL-EN SKAL IKKE KJØRES ENNÅ. Fable kontrollerer først (husregel 4).
+-- ============================================================================
+
+begin;
+
+-- ----------------------------------------------------------------------------
+-- 1) UTVID kompetansemaal (additivt, alt idempotent med IF NOT EXISTS)
+-- ----------------------------------------------------------------------------
+
+-- Versjonert identitet fra Udir — den ekte nøkkelen (ikke koden).
+alter table kompetansemaal add column if not exists uri text;
+
+-- Læreplanversjon ('LK20' / 'LK06'). NB: oppdragets navn = laereplan_versjon.
+alter table kompetansemaal add column if not exists laereplan_versjon text;
+
+-- Mål som ikke lenger finnes i gjeldende LK20. EGEN kolonne — IKKE gjenbruk av
+-- `ukoblet` (som betyr "fritekst, ikke ekte term", migr 031).
+alter table kompetansemaal add column if not exists utgatt boolean not null default false;
+
+-- Dato da en lagret URI forsvant fra Udirs API ved en SENERE synk. Fylles ikke
+-- nå; legges inn nå så en forsvunnet kode gir utslag i stedet for å bli stille borte.
+alter table kompetansemaal add column if not exists missing_since date;
+
+-- Målform-felt — alle tre NULLABLE (841 mål mangler nynorsk, 12 mangler bokmål).
+alter table kompetansemaal add column if not exists tekst_nb text;
+alter table kompetansemaal add column if not exists tekst_nn text;
+alter table kompetansemaal add column if not exists tekst_default text;
+
+-- Unikt indeks på uri (partielt: mange NULL tillatt for de ~302 eksisterende
+-- merkelappene uten uri; unikhet håndheves kun blant de 1 410 Udir-uriene).
+create unique index if not exists uq_kompetansemaal_uri
+  on kompetansemaal (uri)
+  where uri is not null;
+
+-- CHECK: et VERSJONERT Udir-mål (uri satt) må ha tekst i minst én målform.
+-- Betinget på `uri is null` slik at de ~302 eksisterende radene (som kun har
+-- `tekst`, ingen målform-felt) er unntatt — da validerer CHECK-en rent mot
+-- dagens data, og å sette f.eks. utgatt=true på en gammel merkelapp bryter den
+-- ikke. Whitespace teller som tomt (btrim). Idempotent via pg_constraint-sjekk.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'km_maalform_minst_ett'
+      and conrelid = 'public.kompetansemaal'::regclass
+  ) then
+    alter table kompetansemaal
+      add constraint km_maalform_minst_ett
+      check (
+        uri is null
+        or btrim(coalesce(tekst_nb, '')) <> ''
+        or btrim(coalesce(tekst_nn, '')) <> ''
+        or btrim(coalesce(tekst_default, '')) <> ''
+      );
+  end if;
+end $$;
+
+-- ----------------------------------------------------------------------------
+-- 2) KOBLINGSTABELL kompetansemaal_trinn (ett mål → flere årstrinn; 176 mål)
+-- ----------------------------------------------------------------------------
+-- Dagens `kompetansemaal.trinn_id` beholdes urørt, men fylles IKKE av importen
+-- (den kan bare holde ett trinn). Koblingstabellen er sannheten for "lukket
+-- sett (fag+trinn)". Cascade fra kompetansemaal; trinn er stabil taksonomi
+-- (ingen cascade der — sletting av et trinn skal ikke stille fjerne mål-koblinger).
+create table if not exists kompetansemaal_trinn (
+  kompetansemaal_id integer not null references kompetansemaal(id) on delete cascade,
+  trinn_id          smallint not null references trinn(id),
+  primary key (kompetansemaal_id, trinn_id)
+);
+
+-- Oppslag "hvilke mål på dette trinnet" (speiler idx_rt_trinn-mønsteret i 025).
+create index if not exists idx_kmt_trinn on kompetansemaal_trinn (trinn_id);
+
+-- ----------------------------------------------------------------------------
+-- 3) RETTIGHETER + RLS på det nye (speiler taksonomi-mønsteret fra 030/032)
+-- ----------------------------------------------------------------------------
+-- kompetansemaal selv har allerede GRANT (030) og RLS (032) — de nye kolonnene
+-- dekkes av tabell-grantet og de eksisterende policyene p_les/p_skriv.
+-- Kun kompetansemaal_trinn trenger nye rettigheter og policyer.
+
+grant select, insert, update, delete on kompetansemaal_trinn to authenticated, service_role;
+
+alter table kompetansemaal_trinn enable row level security;
+
+-- Alle innloggede leser (taksonomi); kun superadmin skriver — nøyaktig som
+-- policyene på `kompetansemaal` i 030.
+drop policy if exists p_les on kompetansemaal_trinn;
+create policy p_les on kompetansemaal_trinn
+  for select to authenticated
+  using (true);
+
+drop policy if exists p_skriv on kompetansemaal_trinn;
+create policy p_skriv on kompetansemaal_trinn
+  for all to authenticated
+  using (fase3_super())
+  with check (fase3_super());
+
+commit;
+
+-- ============================================================================
+-- KONTROLLSPØRRINGER (ren SQL, kun lesing — kjør ETTER at fila over er kjørt).
+-- Kopier hele blokken inn i Supabase SQL-editor og se at hver linje stemmer.
+-- ============================================================================
+
+-- 1) De nye kolonnene på kompetansemaal finnes (forvent: uri, laereplan_versjon,
+--    utgatt, missing_since, tekst_nb, tekst_nn, tekst_default i lista).
+select column_name, data_type, is_nullable, column_default
+from information_schema.columns
+where table_schema = 'public' and table_name = 'kompetansemaal'
+order by ordinal_position;
+
+-- 2) Unikt indeks på uri finnes (forvent: én rad, partielt WHERE uri IS NOT NULL).
+select indexname, indexdef
+from pg_indexes
+where schemaname = 'public' and tablename = 'kompetansemaal'
+  and indexname = 'uq_kompetansemaal_uri';
+
+-- 3) CHECK-en finnes (forvent: én rad, km_maalform_minst_ett).
+select conname, pg_get_constraintdef(oid) as definisjon
+from pg_constraint
+where conrelid = 'public.kompetansemaal'::regclass and contype = 'c'
+order by conname;
+
+-- 4) Eksisterende data er intakt — INGEN datatap (forvent: med_tekst = antall_maal,
+--    med_uri = 0 så lenge ingen import har kjørt).
+select count(*) as antall_maal,
+       count(*) filter (where tekst is not null) as med_tekst,
+       count(*) filter (where uri is not null)   as med_uri,
+       count(*) filter (where utgatt)            as merket_utgatt
+from kompetansemaal;
+
+-- 5) kompetansemaal_trinn finnes med riktig struktur (forvent: kompetansemaal_id
+--    integer, trinn_id smallint).
+select column_name, data_type, is_nullable
+from information_schema.columns
+where table_schema = 'public' and table_name = 'kompetansemaal_trinn'
+order by ordinal_position;
+
+-- 6) RLS er PÅ og begge policyene finnes på kompetansemaal_trinn
+--    (forvent: relrowsecurity = true; p_les (SELECT) og p_skriv (ALL)).
+select relname, relrowsecurity
+from pg_class
+where oid = 'public.kompetansemaal_trinn'::regclass;
+
+select policyname, cmd, qual, with_check
+from pg_policies
+where schemaname = 'public' and tablename = 'kompetansemaal_trinn'
+order by policyname;
+
+-- 7) Koblingstabellen er tom før import (forvent: 0).
+select count(*) as antall_koblinger from kompetansemaal_trinn;

@@ -1,0 +1,191 @@
+-- 089_sok_leker_rpc.sql
+-- Etappe 4 (Fase 3): flytt «Finn en lek»-søket fra nettleseren til basen.
+--
+-- Én RPC som tar fritekst + alle filtre + sideinndeling og gjør hele jobben i
+-- Postgres. Returnerer KUN feltene listevisningen faktisk bruker, pluss totalt
+-- antall treff (for «Last mer» og treff-teller). De sju lange tekstfeltene
+-- (forberedelse, inndeling, utgangsposisjon, kronologi, regler, variasjoner,
+-- instruktoernotat) leveres ALDRI herfra — de hentes kun på lekesiden (hentLek).
+--
+-- Rangering: eksakt tittel-treff -> fulltekst (sokevektor, HELE beskrivelsen,
+-- migr 024) -> delstreng i tittel -> trgm-likhet (skrivefeiltoleranse; «balfangeren»
+-- treffer «Ballfangeren»). GIN-indeksene fra 024 finnes allerede
+-- (idx_ressurs_innhold_fts, idx_ressurs_innhold_tittel_trgm, idx_ressurser_status).
+--
+-- SIKKERHET (husets oppskrift for utleverende DEFINER-RPC):
+--   * SECURITY DEFINER + SET search_path = '' (alt skjemakvalifisert).
+--   * REVOKE fra public + anon; GRANT kun til authenticated (+ service_role).
+--   * Leverer KUN status='publisert' — RLS-nivået (kun publisert for innloggede)
+--     omgås ikke. Ingen upubliserte ressurser lekker, heller ikke til intern.
+--   * kun_fav og publisert-filter gjør at en bruker aldri ser andres/ikke-publisert.
+--   * auth.uid() virker inne i DEFINER (leses fra request.jwt.claims), jf. husets
+--     lærdom — brukes til «kun favoritter».
+--
+-- NB TIL KONTROLLØR (det ENE miljøavhengige punktet): pg_trgm-funksjonen
+--   `similarity()` er her kalt som `extensions.similarity(...)`, i tråd med at
+--   huset legger utvidelser i `extensions`-skjemaet (jf. `extensions.digest` i
+--   migr 041). Migr 024 opprettet pg_trgm uten eksplisitt skjema, men trgm-indeksen
+--   der ble bygget OK, så operatorklassen ligger i søkestien til editoren.
+--   Verifiser skjemaet før kjøring med:
+--     select n.nspname from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_trgm';
+--   Er svaret 'public' (ikke 'extensions'), bytt `extensions.similarity` ->
+--   `public.similarity` de to stedene nedenfor. Ingenting annet endres.
+--
+-- IDEMPOTENT. Kjøres i Supabase SQL-editor som ÉN transaksjon. IKKE kjørt her.
+
+drop function if exists public.sok_leker(text, text, text, text, text, boolean, text, boolean, boolean, integer, integer);
+
+create function public.sok_leker(
+  p_sok         text    default null,   -- fritekst; null/tom = ingen tekstfiltrering
+  p_egnet       text    default null,   -- egnet_kategori.navn
+  p_trinn       text    default null,   -- trinn.kode
+  p_sted        text    default null,   -- 'inne' | 'ute' (matcher også 'begge')
+  p_utstyr      text    default null,   -- utstyr.navn
+  p_uten_utstyr boolean default false,  -- kun leker uten utstyr
+  p_sesong      text    default null,   -- sesong.navn
+  p_kun_video   boolean default false,  -- kun leker med video
+  p_kun_fav     boolean default false,  -- kun innlogget brukers favoritter
+  p_limit       integer default 50,     -- «Last mer» henter 50 om gangen
+  p_offset      integer default 0
+)
+returns table (
+  id             uuid,
+  tittel         text,
+  formaal        text,
+  sted           text,
+  antall_min     integer,
+  antall_maks    integer,
+  egnet          text[],
+  trinn          jsonb,
+  uten_utstyr    boolean,
+  har_video      boolean,
+  totalt_antall  bigint
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with param as (
+    select
+      nullif(btrim(coalesce(p_sok, '')), '')          as raw,
+      lower(nullif(btrim(coalesce(p_sok, '')), ''))   as norm
+  ),
+  spq as (
+    -- Fulltekst-spørring bygd på norsk konfig (nettstedet er norsk-først; svensk
+    -- innhold importeres senere og dekkes da av delstreng/trgm i mellomtiden).
+    select case when (select raw from param) is not null
+                then websearch_to_tsquery('norwegian', (select raw from param))
+                else null end as q
+  ),
+  kandidater as (
+    select r.id, r.sted, r.antall_min, r.antall_maks
+    from public.ressurser r
+    where r.status = 'publisert'
+      and r.ressurstype <> 'aktiv_laering'   -- aktiv læring er egen side
+      -- Fritekst: treff i tittel (eksakt/delstreng), i HELE beskrivelsen (sokevektor),
+      -- eller trgm-likhet på tittel (skrivefeil). Kun anvendt når det finnes søketekst.
+      and (
+        (select norm from param) is null
+        or exists (
+          select 1 from public.ressurs_innhold i
+          where i.ressurs_id = r.id
+            and (
+              lower(i.tittel) = (select norm from param)
+              or i.tittel ilike '%' || (select norm from param) || '%'
+              or ((select q from spq) is not null and i.sokevektor @@ (select q from spq))
+              or extensions.similarity(lower(coalesce(i.tittel, '')), (select norm from param)) >= 0.30
+            )
+        )
+      )
+      and (p_egnet is null or exists (
+            select 1 from public.ressurs_egnet re
+            join public.egnet_kategori ek on ek.id = re.egnet_id
+            where re.ressurs_id = r.id and ek.navn = p_egnet))
+      and (p_trinn is null or exists (
+            select 1 from public.ressurs_trinn rt
+            join public.trinn t on t.id = rt.trinn_id
+            where rt.ressurs_id = r.id and t.kode = p_trinn))
+      and (p_sted is null or r.sted = p_sted or r.sted = 'begge')
+      and (p_utstyr is null or exists (
+            select 1 from public.ressurs_utstyr ru
+            join public.utstyr u on u.id = ru.utstyr_id
+            where ru.ressurs_id = r.id and u.navn = p_utstyr))
+      and (not p_uten_utstyr or not exists (
+            select 1 from public.ressurs_utstyr ru where ru.ressurs_id = r.id))
+      and (p_sesong is null or exists (
+            select 1 from public.ressurs_sesong rs
+            join public.sesong s on s.id = rs.sesong_id
+            where rs.ressurs_id = r.id and s.navn = p_sesong))
+      and (not p_kun_video or exists (
+            select 1 from public.medier m
+            where m.ressurs_id = r.id and m.type = 'video' and m.bunny_video_id is not null))
+      and (not p_kun_fav or exists (
+            select 1 from public.favoritter f
+            where f.ressurs_id = r.id and f.bruker_id = auth.uid()))
+  ),
+  beriket as (
+    select
+      k.id, k.sted, k.antall_min, k.antall_maks,
+      disp.tittel, disp.formaal,
+      coalesce(rang.rang, 0::real) as rang,
+      coalesce(rang.sim, 0::real)  as sim
+    from kandidater k
+    -- Visningsrad: samme språkvalg som frontend (nb -> nn -> annet).
+    left join lateral (
+      select i.tittel, i.formaal
+      from public.ressurs_innhold i
+      where i.ressurs_id = k.id
+      order by case i.sprak when 'nb' then 0 when 'nn' then 1 else 2 end, i.id
+      limit 1
+    ) disp on true
+    -- Rangering: høyest = eksakt tittel; så delstreng + fulltekst; så trgm-likhet.
+    left join lateral (
+      select
+        max(
+          (case when lower(i.tittel) = (select norm from param) then 3 else 0 end)::real
+          + (case when i.tittel ilike '%' || (select norm from param) || '%' then 1 else 0 end)::real
+          + (case when (select q from spq) is not null and i.sokevektor @@ (select q from spq)
+                  then ts_rank(i.sokevektor, (select q from spq)) else 0 end)::real
+        ) as rang,
+        max(extensions.similarity(lower(coalesce(i.tittel, '')), (select norm from param))) as sim
+      from public.ressurs_innhold i
+      where i.ressurs_id = k.id and (select norm from param) is not null
+    ) rang on true
+  )
+  select
+    b.id,
+    b.tittel,
+    b.formaal,
+    b.sted,
+    b.antall_min,
+    b.antall_maks,
+    coalesce((
+      select array_agg(ek.navn order by ek.rekkefolge)
+      from public.ressurs_egnet re
+      join public.egnet_kategori ek on ek.id = re.egnet_id
+      where re.ressurs_id = b.id
+    ), array[]::text[]) as egnet,
+    coalesce((
+      select jsonb_agg(jsonb_build_object('kode', t.kode, 'navn', t.navn) order by t.rekkefolge)
+      from public.ressurs_trinn rt
+      join public.trinn t on t.id = rt.trinn_id
+      where rt.ressurs_id = b.id
+    ), '[]'::jsonb) as trinn,
+    not exists (select 1 from public.ressurs_utstyr ru where ru.ressurs_id = b.id) as uten_utstyr,
+    exists (
+      select 1 from public.medier m
+      where m.ressurs_id = b.id and m.type = 'video' and m.bunny_video_id is not null
+    ) as har_video,
+    count(*) over() as totalt_antall
+  from beriket b
+  order by b.rang desc, b.sim desc, b.tittel asc nulls last
+  limit greatest(1, least(coalesce(p_limit, 50), 100))
+  offset greatest(0, coalesce(p_offset, 0));
+$$;
+
+-- Rettigheter: aldri anon/public; kun innloggede (+ service_role for jobber).
+revoke all on function public.sok_leker(text, text, text, text, text, boolean, text, boolean, boolean, integer, integer) from public;
+revoke all on function public.sok_leker(text, text, text, text, text, boolean, text, boolean, boolean, integer, integer) from anon;
+grant execute on function public.sok_leker(text, text, text, text, text, boolean, text, boolean, boolean, integer, integer) to authenticated;
+grant execute on function public.sok_leker(text, text, text, text, text, boolean, text, boolean, boolean, integer, integer) to service_role;

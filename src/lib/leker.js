@@ -164,12 +164,21 @@ export async function hentLek(id) {
 }
 
 export async function hentDokumenter(ressursId) {
+  // 091B: koblingen lek↔dokument bor nå i ressurs_dokument (ressurs_id,
+  // dokument_id, rekkefolge). Vi går via koblingstabellen og henter det
+  // publiserte dokumentet. !inner + status-filter speiler den gamle
+  // server-side «status=publisert»-silinga; rekkefolge gir stabil sortering.
   const { data } = await supabase
-    .from('dokumenter')
-    .select('id, tittel, type')
+    .from('ressurs_dokument')
+    .select('rekkefolge, dokumenter!inner ( id, tittel, type, status )')
     .eq('ressurs_id', ressursId)
-    .eq('status', 'publisert')
-  return data || []
+    .eq('dokumenter.status', 'publisert')
+    .order('rekkefolge', { ascending: true, nullsFirst: false })
+  return (data || []).map((r) => ({
+    id: r.dokumenter.id,
+    tittel: r.dokumenter.tittel,
+    type: r.dokumenter.type,
+  }))
 }
 
 // Aktiv læring = egen innholdstype (ressurstype='aktiv_laering'), med Fag + Trinn.
