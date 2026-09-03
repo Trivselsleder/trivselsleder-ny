@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { hentLek, hentDokumenter, loggBruk, trinnKort } from '../../lib/leker'
+import { hentLek, hentDokumenter, loggBrukHendelse, trinnKort } from '../../lib/leker'
 import { erFavoritt, settFavoritt } from '../../lib/favoritter'
 import { hentPlaner, leggTilRad } from '../../lib/periodeplan'
 import { hentHjul, leggLekTilHjul } from '../../lib/hjul'
@@ -42,7 +42,7 @@ export default function SkoleLek() {
       .then((l) => {
         if (!aktiv) return
         setLek(l)
-        loggBruk('visning', { ressursId: id })
+        loggBrukHendelse('visning', { ressursId: id })
       })
       .catch((e) => aktiv && setFeil(e.message))
     hentDokumenter(id).then((d) => aktiv && setDok(d))

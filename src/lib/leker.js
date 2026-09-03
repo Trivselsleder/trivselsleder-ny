@@ -252,7 +252,7 @@ export async function lagreInnhold(ressursId, sprak, felter) {
   if (error) throw error
 }
 
-export async function loggBruk(hendelse, { ressursId = null, sokTekst = null, treffAntall = null } = {}) {
+export async function loggBrukHendelse(hendelse, { ressursId = null, sokTekst = null, treffAntall = null } = {}) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return

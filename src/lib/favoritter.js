@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { loggBruk } from './leker'
+import { loggBrukHendelse } from './leker'
 
 export async function hentMineFavoritter() {
   const { data: { user } } = await supabase.auth.getUser()
@@ -27,7 +27,7 @@ export async function settFavoritt(ressursId, paa) {
   if (paa) {
     const { error } = await supabase.from('favoritter').insert({ bruker_id: user.id, ressurs_id: ressursId })
     if (error && error.code !== '23505') throw error
-    loggBruk('favoritt', { ressursId })
+    loggBrukHendelse('favoritt', { ressursId })
   } else {
     const { error } = await supabase
       .from('favoritter')

@@ -27,7 +27,7 @@ export default function SkoleTuRapport() {
   const { rundeId } = useParams()
   const { t, i18n } = useTranslation()
   const { bruker } = useAuth()
-  const loggBruk = useBrukslogg()
+  const loggBrukslogg = useBrukslogg()
 
   const [tilstand, setTilstand] = useState('laster') // laster | klar | ingenTilgang | feil | ikkeLukket
   const [skoleNavn, setSkoleNavn] = useState('')
@@ -65,7 +65,7 @@ export default function SkoleTuRapport() {
         // §7 Hendelseslogg: rapport generert (best-effort, blokkerer aldri).
         if (!loggetRef.current) {
           loggetRef.current = true
-          loggBruk('tu_rapport_generert', { ressursId: rundeId })
+          loggBrukslogg('tu_rapport_generert', { ressursId: rundeId })
         }
       } catch (e) {
         if (avbrutt) return
@@ -76,7 +76,7 @@ export default function SkoleTuRapport() {
     }
     last()
     return () => { avbrutt = true }
-  }, [rundeId, bruker, loggBruk])
+  }, [rundeId, bruker, loggBrukslogg])
 
   function skrivUt() {
     if (!data) return

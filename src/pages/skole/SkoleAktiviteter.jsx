@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { sokLeker, hentUtstyrListe, loggBruk, TRINN_NO, SESONGER } from '../../lib/leker'
+import { sokLeker, hentUtstyrListe, loggBrukHendelse, TRINN_NO, SESONGER } from '../../lib/leker'
 import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
 
@@ -110,7 +110,7 @@ export default function SkoleAktiviteter() {
           // treff_antall logges (0 = null-treff — grunnlag for «hva mangler»).
           if (q && q !== sistLoggetRef.current) {
             sistLoggetRef.current = q
-            loggBruk('sok', { sokTekst: q, treffAntall: sum })
+            loggBrukHendelse('sok', { sokTekst: q, treffAntall: sum })
           } else if (!q) {
             sistLoggetRef.current = ''
           }
