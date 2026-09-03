@@ -82,3 +82,7 @@ dist_verify
 # Import-motorens miljofil (databasepassord) - skal ALDRI i git
 .env.import
 .env.import.*
+
+# Import-motorens miljofil (databasepassord) - skal ALDRI i git
+.env.import
+.env.import.*
