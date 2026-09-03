@@ -77,7 +77,7 @@ function parseQ(t) {
   const f = {}
   if (/sfo|aks/.test(t)) { f.egnet = 'SFO/AKS'; f._key = 'sfo' }
   else if (/kroppsøv|gymtime/.test(t)) { f.egnet = 'Kroppsøving'; f._key = 'kroppsøv' }
-  else if (/aktive? pause/.test(t)) { f.egnet = 'Move it'; f._key = 'aktive pause' }
+  else if (/aktive? pause/.test(t)) { f.egnet = 'Move It'; f._key = 'aktive pause' }
   else if (/aktivitetsdag/.test(t)) { f.egnet = 'Aktivitetsdager'; f._key = 'aktivitetsdag' }
   else if (/friminutt/.test(t)) { f.egnet = 'Friminutt'; f._key = 'friminutt' }
   else if (/aktiv læring|matte|matematikk|\bnorsk\b|\bfag\b/.test(t)) { f.egnet = 'Aktiv læring'; f._key = 'aktiv læring' }
@@ -302,7 +302,7 @@ export default function SkoleHjem({ fornavn = null }) {
               <button type="button" onClick={() => run('Kroppsøving oppvarming for hel klasse')}><span className="ic">🤸</span> Kroppsøving</button>
               <button type="button" onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}><span className="ic">🧩</span> SFO/AKS</button>
               <Link to="/min-side/aktiv-laering"><span className="ic">📚</span> Aktiv læring</Link>
-              <button type="button" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}><span className="ic">⏸️</span> Move it</button>
+              <button type="button" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}><span className="ic">⏸️</span> Move It</button>
               <button type="button" onClick={() => run('FYSAK uteskole lavterskel')}><span className="ic">🌲</span> FYSAK</button>
               <button type="button" onClick={() => run('Bli kjent og godt klassemiljø første skoledag')}><span className="ic">🤝</span> Bli kjent / klassemiljø</button>
               <button type="button" onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}><span className="ic">🎪</span> Aktivitetsdager</button>
