@@ -1,0 +1,607 @@
+# LK20 kompetansemål for grunnskolen — hentet fra Udir GREP
+
+**Kilde:** Udirs åpne GREP-API, https://data.udir.no/kl06/v201906
+**Lisens:** NLOD (fri gjenbruk, kilde: Utdanningsdirektoratet).
+**Hentet:** 2026-09-02T06:24:21.373Z
+**Nettverkskall:** 0 · cache-treff: 2078
+
+## Filtreringskriterium (punkt 2)
+- **Plan-nivå:** en læreplan tas med hvis `opplaeringsnivaa` inkluderer `opplaeringsnivaa_grunnskole`.
+  Dette utelater rene videregående-planer og planer for `opplaeringsnivaa_fov` (forberedende opplæring for voksne / voksenopplæring).
+- **Målsett-nivå:** et kompetansemålsett tas med hvis `etter-aarstrinn` er ett av `aarstrinn1`–`aarstrinn10`.
+  Dette utelater `vg1`/`vg2`/`vg3`/`vg2_vg3_saerloep`/`aarstrinn_vg4`/`opplaering_bedrift`/`paabygning_generell_studiekompetanse`/`aarstrinn_fov`.
+  Fellesfag som spenner både grunnskole og vg (f.eks. naturfag) beholdes, men bare målsettene på 1.–10. trinn tas med.
+- Samiske planer, arbeidslivsfag og utdanningsvalg beholdes så lenge de har grunnskole-nivå/-trinn.
+
+## Læreplaner
+- Læreplaner i LK20-lista totalt: **512** (publiserte: 440, utgåtte: 72).
+- Grunnskole terminal-planer hentet: **57**.
+- Planer hoppet over: **383** (se under).
+
+### Versjonskjede (erstattes-av → terminal)
+- MAT09-01 → terminal **MAT09-02** (status_publisert)
+
+### Utgåtte LK20-planer med grunnskole-terminal (base-kode-paret)
+- ENG01-04 (utgått) → terminal **ENG01-06**
+- ENG01-05 (utgått) → terminal **ENG01-06**
+- ENG02-04 (utgått) → terminal **ENG02-06**
+- ENG02-05 (utgått) → terminal **ENG02-06**
+- FSP01-02 (utgått) → terminal **FSP01-04**
+- FSP01-03 (utgått) → terminal **FSP01-04**
+- KEF01-01 (utgått) → terminal **KEF01-02**
+- KHV01-02 (utgått) → terminal **KHV01-03**
+- KHV02-02 (utgått) → terminal **KHV02-03**
+- KRO01-05 (utgått) → terminal **KRO01-06**
+- MAT01-05 (utgått) → terminal **MAT01-06**
+- MHE01-02 (utgått) → terminal **MHE01-03**
+- MHE02-02 (utgått) → terminal **MHE02-03**
+- MUS01-02 (utgått) → terminal **MUS01-03**
+- MUS02-02 (utgått) → terminal **MUS02-03**
+- MUS03-02 (utgått) → terminal **MUS03-03**
+- NAT01-04 (utgått) → terminal **NAT01-05**
+- NAT02-04 (utgått) → terminal **NAT02-05**
+- NOR01-06 (utgått) → terminal **NOR01-08**
+- NOR01-07 (utgått) → terminal **NOR01-08**
+- NOR03-04 (utgått) → terminal **NOR03-06**
+- NOR03-05 (utgått) → terminal **NOR03-06**
+- NOR04-05 (utgått) → terminal **NOR04-06**
+- NOR05-05 (utgått) → terminal **NOR05-07**
+- NOR05-06 (utgått) → terminal **NOR05-07**
+- NOR07-02 (utgått) → terminal **NOR07-03**
+- NOR08-02 (utgått) → terminal **NOR08-03**
+- RLE01-03 (utgått) → terminal **RLE01-04**
+- RLE02-03 (utgått) → terminal **RLE02-04**
+- SAF01-04 (utgått) → terminal **SAF01-05**
+- SAF02-04 (utgått) → terminal **SAF02-05**
+- SAS02-01 (utgått) → terminal **SAS02-02**
+- SAS03-01 (utgått) → terminal **SAS03-02**
+- SFS01-05 (utgått) → terminal **SFS01-06**
+
+### Planer hoppet over (med årsak)
+- AKT02-04 («Læreplan i vg2 aktivitør»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AKT03-03 («Læreplan i vg3 aktivitørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AKV02-03 («Læreplan i Vg2 akvakultur»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AKV03-02 («Læreplan i vg3 akvakulturfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ALU03-02 («Læreplan i vg3 aluminiumskonstruksjonsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AMB02-03 («Læreplan i vg2 ambulansefag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AMB03-02 («Læreplan i vg3 ambulansefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AMF03-02 («Læreplan i Vg3 anleggsmaskinførerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AMK02-03 («Læreplan i vg2 arbeidsmaskiner»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AMM03-04 («Læreplan i vg3 anleggsmaskinmekanikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ANG02-01 («Læreplan i vg2 anleggsgartner»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ANG03-02 («Læreplan i vg3 anleggsgartnerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ANL02-03 («Læreplan i vg2 anleggsteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- APO03-03 («Læreplan i vg3 apotekteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ARL03-01 («Læreplan i vg3 anleggsrøyrleggjarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ASF03-02 («Læreplan i vg3 asfaltfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ASK02-01 («Læreplan i antikkens kultur»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ASK03-02 («Læreplan i latin»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AUT02-03 («Læreplan i vg2 automatisering»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AUT03-05 («Læreplan i vg3 automatiseringsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AVI03-03 («Læreplan i vg3 avionikerfag – opplæring i skole»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- AVI04-02 («Læreplan i avionikerfaget – opplæring i bedrift»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BAK02-01 («Læreplan i vg2 bakar og konditor»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BAK03-02 («Læreplan i vg3 bakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BAN03-02 («Læreplan i vg3 banemontørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BAT01-03 («Læreplan i vg1 bygg- og anleggsteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BBF02-03 («Læreplan i vg2 båtbygger»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BDK03-01 («Læreplan i vg3 bilfaget, demontering av køyretøy»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BDR03-02 («Læreplan i byggdrifterfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BET03-02 («Læreplan i vg3 betongfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BET05-01 («Læreplan i betongfaget – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BFB03-01 («Læreplan i brannforebyggerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BIO01-02 («Læreplan i biologi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BIP03-01 («Læreplan i vg3 bilpleiefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BKF03-02 («Læreplan i vg3 bøkkarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BKO03-02 («Læreplan i vg3 brønnfaget, komplettering»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BKV03-02 («Læreplan i vg3 brønnfaget, kveilerøroperasjoner»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BLA03-02 («Læreplan i vg3 billakkererfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BLD02-03 («Læreplan i vg2 blomsterdekoratør»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BLD03-03 («Læreplan i vg3 blomsterdekoratørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BLD05-01 («Læreplan i vg3 blomsterdekoratørfaget - modulstrukturert opplæring for vaksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BLK02-03 («Læreplan i vg2 bilskade, lakk og karosseri»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BLY03-02 («Læreplan i blyglasshåndverkerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BMF02-03 («Læreplan i vg2 børsemakar»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BMF03-03 («Læreplan i vg3 børsemakarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BMK03-03 («Læreplan i vg3 bilfaget, lette kjøretøy»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BMO02-01 («Læreplan i vg2 betong og mur»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BNT03-02 («Læreplan i vg3 buntmakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BOR03-03 («Læreplan i vg3 boreoperatørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BRE03-02 («Læreplan i vg3 brønnfaget, elektriske kabeloperasjoner»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BRH03-02 («Læreplan i vg3 brønnfaget, havbunnsinstallasjoner»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BRM03-02 («Læreplan i vg3 brønnfaget, mekaniske kabeloperasjoner»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BRO03-02 («Læreplan i vg3 brønn- og borefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BRS03-02 («Læreplan i vg3 brønnfaget, sementering»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BRT02-04 («Læreplan i vg2 brønnteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BSK03-02 («Læreplan i vg3 bilskadefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BSM03-01 («Læreplan i vg3 bilsalmakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BTK03-02 («Læreplan i vg3 bilfaget, tunge kjøretøy»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BUA02-03 («Læreplan i vg2 barne- og ungdomsarbeiderfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BUA03-02 («Læreplan i vg3 barne- og ungdomsarbeiderfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BUN03-02 («Læreplan i vg3 bunadtilverkarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BUN05-01 («Læreplan i vg3 bunadtilverkarfaget - modulstrukturert opplæring for vaksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- BYM03-01 («Læreplan i byggmontasjefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- CNC03-02 («Læreplan i vg3 CNC-maskineringsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DAN01-02 («Læreplan i grunntrening i dans»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DAN02-02 («Læreplan i scenisk dans»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DAN03-02 («Læreplan i dans i perspektiv»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DAN04-02 («Læreplan i scenisk dans fordypning»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DAT03-03 («Læreplan i vg3 dataelektronikarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DDU02-03 («Oahppoplána - Jo2 duodji»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DEL02-03 («Læreplan i Vg2 datateknologi og elektronikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DGH02-03 («Læreplan i vg2 gull- og sølvsmedhåndverk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DKO03-03 («Læreplan i vg3 dimensjonskontrollfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DRA01-02 («Læreplan i teater og bevegelse»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DRA02-02 («Læreplan i teaterproduksjon»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DRA03-02 («Læreplan i teater i perspektiv»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DRA04-02 («Læreplan i drama og samfunn»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DRA05-02 («Læreplan i teaterproduksjon fordypning»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DRF02-01 («Læreplan i vg2 drone »): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DRO02-01 («Læreplan i vg3 droneoperatørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DTH01-01 («Læreplan i vg1 håndverk, design og produktutvikling»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DTR02-03 («Læreplan i vg2 trearbeid»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- DYR03-01 («Læreplan i Vg3 dyrefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- EKD03-01 («Læreplan i vg3 eksponeringsdesign»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- EKF03-01 («Læreplan i vg3 ernæringskokkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- EKF05-01 («Læreplan i ernæringskokkfaget – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ELE01-03 («Læreplan i Vg1 elektro og datateknologi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ELE02-03 («Læreplan i vg2 elenergi og ekom»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ELE03-04 («Læreplan i vg3 elektrikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- EMO03-03 («Læreplan i vg3 energimontørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ENG04-02 («Læreplan i engelsk programfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ENT01-04 («Læreplan i entreprenørskap og bedriftsutvikling»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- EOP03-04 («Læreplan i vg3 energioperatørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ERF03-02 («Læreplan i vg3 elektroreparatørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FBI01-01 («Læreplan i vg1 frisør, blomster, interiør og eksponeringsdesign»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FFA02-03 («Læreplan i vg2 fiske og fangst»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FFA03-03 («Læreplan i vg3 fiske og fangst»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FFA05-01 («Læreplan i fiske og fangst – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FGY03-02 («Læreplan i forgyllerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FIL03-02 («Læreplan i vg3 filigransølvsmedfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FIR03-02 («Læreplan i vg3 fiskeri- og akvakulturreiskapsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FJE03-03 («Læreplan i vg3 fjell- og bergverksfaget med fordjupingsområde»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FLF03-01 («Forsøkslæreplan: Forskningslære med fordypningsoppgave, vg3»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FLY02-03 («Læreplan i Vg2 flyfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FLY03-03 («Læreplan i vg3 flytekniske fag – opplæring i skole»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FMF03-01 («Læreplan i vg3 fundamenteringsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FMK03-02 («Læreplan i vg3 finmekanikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FMO04-02 («Læreplan i flymotormekanikerfaget – opplæring i bedrift»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FOT02-03 («Læreplan i vg2 fotterapi og ortopediteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FOT03-03 («Læreplan i vg3 fotterapi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FRI02-03 («Læreplan i vg2 frisør»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FRI03-02 («Læreplan i vg3 frisørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FRI05-01 («Læreplan i vg3 frisørfaget - modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FST04-02 («Læreplan i flystrukturmekanikerfaget – opplæring i bedrift»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FSY04-02 («Læreplan i flysystemmekanikerfaget – opplæring i bedrift»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FUO03-02 («Læreplan i vg3 fjernstyrte undervannsoperasjoner»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FVF03-01 («Læreplan i vg3 ferskvarehandlarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- FYS01-02 («Læreplan i fysikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GAF03-01 («Garverfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GAR03-02 («Læreplan i Vg3 gartnerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GBF03-01 («Læreplan i glassblåserfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GEO01-02 («Læreplan i geografi fellesfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GEO02-02 («Læreplan i geografi fellesfag, samisk plan»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GFG01-03 («Læreplan i geofag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GIP03-02 («Læreplan i gipsmakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GLA03-02 («Læreplan i glassfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GNS01-01 («Læreplan i norsk og samfunnskunnskap – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GNS02-01 («Læreplan i norsk og samfunnskunnskap for språklige minoriteter – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GPT03-02 («Læreplan i vg3 grafisk produksjonsteknikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GRF03-02 («Læreplan i gravørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GSF03-01 («Læreplan i glassliperfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GTL03-02 («Læreplan i gjørtlerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GUL03-02 («Læreplan i vg3 gullsmedfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GVF03-01 («Læreplan i vg3 gjenvinningsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- GVF05-01 («Læreplan i gjenvinningsfaget – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HAV03-01 («Læreplan i vg3 havbruksteknikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HBB03-02 («Læreplan i håndbokbinderfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HDF02-01 («Læreplan i Vg2 heste- og dyrefag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HEA02-04 («Læreplan i vg2 helsearbeiderfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HEA03-03 («Læreplan i vg3 helsearbeiderfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HEA05-01 («Læreplan i helsearbeiderfaget – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HEI03-03 («Læreplan i vg3 heismontørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HES02-03 («Læreplan i vg2 helseservicefag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HIF01-04 («Læreplan i historie og filosofi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HIS01-03 («Læreplan i historie fellesfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HIS02-03 («Læreplan i historie fellesfag, samisk plan»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HJU03-02 («Læreplan i vg3 hjulutrustningsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HMD03-02 («Oahppoplána - Jo3 čoarve-, dákte- ja metálladuodjefága»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HSE03-03 («Læreplan i vg3 helsesekretær»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HSF01-03 («Læreplan i vg1 helse- og oppvekstfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HSK03-02 («Læreplan i vg3 herreskredderfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HST03-02 («Læreplan i vg3 hestefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HUD02-03 («Læreplan i vg2 hudpleie»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HUD03-04 («Læreplan i vg3 hudterapi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HVF03-02 («Læreplan i vg3 håndveverfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HVF05-01 («Læreplan i vg3 håndveverfaget -  modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- HVS03-01 («Læreplan i hovslagarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IDR01-02 («Læreplan i aktivitetslære»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IDR02-03 («Læreplan i treningslære»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IDR03-02 («Læreplan i idrett og samfunn»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IDR04-03 («Læreplan i treningsledelse»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IDR05-02 («Læreplan i toppidrett»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IDR06-03 («Læreplan i breddeidrett»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IDR07-02 («Læreplan i friluftsliv»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IDR08-02 («Læreplan i lederutvikling»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IED02-01 («Læreplan i vg2 interiør og eksponeringsdesign»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IHP03-01 («Læreplan i vg3 innhaldsproduksjonsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IKM01-01 («Læreplan i vg1 informasjonsteknologi og medieproduksjon»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IME03-02 («Læreplan i vg3 industrimekanikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IMF03-02 («Læreplan i vg3 industrimalerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IMO03-02 («Læreplan i vg3 industrimontørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IMP03-02 («Læreplan i vg3 industriell matproduksjon»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- INF01-03 («Læreplan i informasjonsteknologi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- INT03-03 («Læreplan i vg3 interiør»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IOM03-02 («Læreplan i vg3 industrioppmålingsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IOV03-02 («Læreplan i vg3 industriell overflatebehandling»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IRL03-02 («Læreplan i vg3 industrirørleggerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ISL03-01 («Læreplan i vg3 isolatørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ISN03-02 («Læreplan i vg3 industrisnikkarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ITA03-02 («Læreplan i vg3 industritapetserarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ITD03-01 («Læreplan i vg3 IT-driftsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ITF03-01 («Læreplan i vg3 industritekstilfaget med fordjupingsområde»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ITK02-01 («Læreplan i vg2 informasjonsteknologi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- IUV03-01 («Læreplan i vg3 IT-utviklerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KAR03-02 («Læreplan i vg3 chassispåbyggjarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KBB03-02 («Læreplan i vg3 komposittbåtbyggerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KDA01-02 («Læreplan i kunst og visuelle verkemiddel»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KDA02-02 («Læreplan i design og arkitektur»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KDA03-02 («Læreplan i kunst og skapande arbeid»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KDA04-02 («Læreplan i design og berekraft»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KDA05-02 («Læreplan i arkitektur og samfunn»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KDA06-02 («Læreplan i foto og grafikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KDA07-02 («Oahppoplána - Sámi visuála kultuvra»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KEM02-03 («Læreplan i vg2 klima, energi og miljøteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KER03-02 («Læreplan i keramikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KJD03-02 («Læreplan i vg3 kjole- og draktsyerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KJE01-02 («Læreplan i kjemi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KJP03-02 («Læreplan i vg3 kjemiprosessfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KJT02-03 («Læreplan i vg2 kjøretøy»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KKM01-03 («Læreplan i kommunikasjon og kultur»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KLO03-03 («Læreplan i vg3 kran- og løfteoperasjonsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KOK03-02 («Læreplan i vg3 kokkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KOK05-01 («Læreplan i kokkfaget – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KON03-02 («Læreplan i vg3 konditorfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KOS02-01 («Læreplan i vg2 kokk- og servitørfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KPL02-01 («Læreplan i vg2 kjemiprosess- og laboratoriefag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KRV03-02 («Læreplan i kurvmakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KSK03-02 («Læreplan i vg3 kjøttskjærerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KST03-02 («Læreplan i vg3 kostymesyerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KVP03-01 («Læreplan i vg3 kulde- og varmepumpeteknikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- KVV02-01 («Læreplan i Vg2 kulde-, varmepumpe- og ventilasjonsteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LAB03-02 («Læreplan i vg3 laboratoriefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LBF03-01 («Læreplan i vg3 landbruksfaget — opplæring i bedrift»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LBR03-03 («Læreplan i vg3 landbruk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LBR03-04 («Læreplan i vg3 landbruk — opplæring i skole»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LBR04-02 («Læreplan i Vg3 maskiner og teknologi i landbruk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LBR05-02 («Læreplan i Vg3 økonomi og driftsledelse»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LBR06-02 («Læreplan i Vg3 økologisk landbruk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LGA02-03 («Læreplan i Vg2 landbruk og gartnernæring»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LMM03-02 («Læreplan i vg3 landbruksmaskinmekanikarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LOG03-02 («Læreplan i vg3 logistikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LOG05-01 («Læreplan i logistikkfaget – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- LSM03-01 («Læreplan i vg3 låsesmedfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAR03-02 («Læreplan i vg2 maritime fag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAT02-02 («Læreplan i matematikk X»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAT03-02 («Læreplan i matematikk for realfag (matematikk R)»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAT04-02 («Læreplan i matematikk for samfunnsfag (matematikk S)»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAT05-04 («Læreplan i matematikk fellesfag 2P»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAT06-04 («Læreplan i matematikk fellesfag 2P-Y – Vg3 påbygging til generell studiekompetanse»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAT08-01 («Læreplan i matematikk fellesfag vg1 praktisk (matematikk P)»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAT09-02 («Læreplan i matematikk fellesfag vg1 teoretisk (matematikk T)»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MAT09-02 («Læreplan i matematikk fellesfag vg1 teoretisk (matematikk T)»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MBT03-01 («Læreplan i møbeltapetsererfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MDD01-02 («Læreplan i musikk, dans og drama»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MDD02-02 («Læreplan i bevegelse»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MDD03-02 («Læreplan i lytting»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MDD04-02 («Læreplan i danseteknikker»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MDD05-02 («Læreplan i musikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MDD06-02 («Læreplan i teaterensemble»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MDF03-01 («Læreplan i vg3 mediedesignfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MED02-04 («Læreplan i vg2 medieproduksjon»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MEL03-04 («Læreplan i vg3 maritim elektriker – opplæring i skole»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MEL04-02 («Læreplan i vg3 maritim elektrikerfaget – opplæring i bedrift»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MET03-01 («Læreplan i vg3 medieteknikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MFF03-01 («Læreplan i vg3 murer- og flisleggerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MFL01-04 («Læreplan i markedsføring og ledelse»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MIN01-04 («Læreplan i medie- og informasjonskunnskap»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MME03-02 («Læreplan i vg3 motormekanikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOB03-02 («Læreplan i vg3 modellbyggjarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOD03-02 («Læreplan i vg3 modistfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOK01-03 («Læreplan i mediesamfunnet»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOK02-02 («Læreplan i medieuttrykk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOK03-02 («Læreplan i tekst»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOK04-02 («Læreplan i bilde»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOK05-02 («Læreplan i lyddesign»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOK06-02 («Læreplan i grafisk design»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOK07-02 («Læreplan i medieutvikling»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOK08-02 («Læreplan i mediespesialisering»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOT03-01 («Læreplan i vg3 målar- og overflateteknikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MOT05-01 («Læreplan i målar- og overflateteknikkfaget – modulstrukturert opplæring for vaksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MPM03-02 («Læreplan i maskør- og parykkmakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MPR02-01 («Læreplan i vg2 matproduksjon»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MSF03-02 («Læreplan i vg3 møbelsnekkerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MSY03-02 («Læreplan i vg3 motorsykkelfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MTS03-04 («Læreplan i vg3 matrosfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MUS04-02 («Læreplan i ergonomi og bevegelse»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MUS05-02 («Læreplan i instrument, kor, samspill»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MUS06-02 («Læreplan i musikk i perspektiv»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MUS07-02 («Læreplan i instruksjon og ledelse»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MUS08-02 («Læreplan i musikk fordypning»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- MUS09-02 («Oahppoplána – sámi musihkka ja lávdi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- NAB01-03 («Læreplan i vg1 naturbruk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- NAB03-02 («Læreplan i Vg3 naturforvaltning»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- NAB04-02 («Læreplan i Vg3 bruk og vern av natur»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- NAB05-02 («Læreplan i Vg3 feltarbeid i naturbruk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- NAB06-02 («Læreplan i Vg3 naturbasert næringsutvikling»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- NDT03-02 («Læreplan i vg3 NDT-kontrollørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- NOK02-04 («Læreplan i næringslivsøkonomi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- NOR09-05 («Læreplan i norsk for språklige minoriteter med kort botid i Norge - videregående opplæring»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- OFT02-03 («Læreplan i vg2 overflateteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- OPT03-02 («Læreplan i vg3 optronikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ORG03-02 («Læreplan i vg3 orgelbyggerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ORT03-02 («Læreplan i vg3 ortopediteknikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PFD03-02 («Læreplan i vg3 profileringsdesignfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PIN02-03 («Læreplan i vg2 industriteknologi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PLA03-02 («Læreplan i vg3 platearbeiderfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PLF03-01 («Læreplan i vg3 plastfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PMF03-02 («Læreplan i vg3 pølsemakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- POM03-02 («Læreplan i vg3 polymerkomposittfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- POR03-02 («Læreplan i vg3 portørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- POS02-02 («Læreplan i sosialkunnskap»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- POS03-01 («Læreplan i samfunnsgeografi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- POS04-01 («Læreplan i sosiologi og sosialantropologi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- POS05-02 («Læreplan i politikk og menneskerettigheter»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PRM01-02 («Læreplan i programmering og modellering X»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PRO03-02 («Læreplan i vg3 produksjonselektronikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PRT03-02 («Læreplan i vg3 produksjonsteknikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PRT05-01 («Læreplan i produksjonsteknikkfaget – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PSP01-04 («Læreplan i fremmedspråk programfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- PSY01-04 («Læreplan i psykologi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- REI02-03 («Oahppoplána – Jo2 boazodoallu»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- REI03-02 («Oahppoplána – Jo3 boazodoallofága»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- REL01-02 («Læreplan i religion og etikk – fellesfag i studieforberedende utdanningsprogram»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- REL02-02 («Læreplan i religion og etikk, samisk plan, fellesfag i studieforberedende utdanningsprogram»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- REP03-02 («Læreplan i repslagerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- RLF02-01 («Læreplan i vg2 røyrleggjar»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- RLF03-02 («Læreplan i vg3 røyrleggjarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- RLF05-01 («Læreplan i røyrleggjarfaget – modulstrukturert opplæring for vaksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- RLV03-02 («Læreplan i vg3 reiselivsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- RMF01-03 («Læreplan i vg1 restaurant- og matfag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ROF03-01 («Læreplan i reinhaldsoperatørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ROF05-01 («Læreplan i reinhaldsoperatørfaget – modulstrukturert opplæring for vaksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- ROM03-02 («Læreplan i vg3 romteknologi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- RSD03-02 («Læreplan i vg3 reservedelsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- RSP01-03 («Læreplan i reiseliv og språk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- RTL01-05 («Læreplan i rettslære»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SAK01-01 («Læreplan i samfunnskunnskap fellesfag vg1/vg2»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SAK02-01 («Læreplan i samfunnskunnskap, samisk plan, fellesfag vg1/vg2»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SAL03-02 («Læreplan i vg3 salmakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SAS04-01 («Oahppoplána – sámegiella nubbingiellan, sámegiella 4»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SBF03-01 («Læreplan i stillasbyggerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SBR02-03 («Læreplan i Vg2 skogbruk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SEI03-02 («Læreplan i seilmakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SER03-02 («Læreplan i vg3 servitørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SGR03-02 («Læreplan i vg3 serigrafifaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SHS01-03 («Oahppoplána - Sámi historjá ja servodat»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SIG03-03 («Læreplan i vg3 signalmontørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SIK03-02 («Læreplan i vg3 sikkerhetsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SKF03-03 («Læreplan i Vg3 skogfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SKO03-02 («Læreplan i vg3 skomakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SLF03-02 («Læreplan i vg3 slakterfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SLG03-02 («Læreplan i vg3 salgsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SLG05-01 («Læreplan i salgsfaget – modulstrukturert opplæring for voksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SLV03-02 («Læreplan i vg3 sølvsmedfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SME02-03 («Læreplan i vg2 smed»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SME03-02 («Læreplan i vg3 smedfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SMK03-01 («Læreplan i vg3 skipsmotormekanikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SMP03-02 («Læreplan i vg3 sjømatproduksjon»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SNE03-01 («Læreplan i vg3 snikkarfaget med fordjupingsområde»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SNE05-01 («Læreplan i snikkarfaget med fordjupingsområde – modulstrukturert opplæring for vaksne»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SOA03-01 («Læreplan i vg3 service- og administrasjonsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SOK01-04 («Læreplan i samfunnsøkonomi»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SPD03-02 («Oahppoplána - Jo3 siste- ja guolgaduodjefága»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SRL02-01 («Læreplan i vg2 sal og reiseliv»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SSH02-01 («Læreplan i vg2 service, sikkerheit og administrasjon»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SSR01-01 («Læreplan i vg1 sal, service og reiseliv»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SSR02-01 («Læreplan i vg2 sal, service og reiseliv»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- STE03-02 («Læreplan i steinfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- STH02-01 («Læreplan i vg2 søm og tekstilhåndverk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- STR03-02 («Læreplan i vg3 strikkefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SVE03-02 («Læreplan i vg3 sveisefaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- SYM03-01 («Læreplan i vg3 sykkelmekanikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TAK03-02 («Læreplan i vg3 tak- og membrantekkerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TAN03-03 («Læreplan i vg3 tannhelsesekretær»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TAV03-03 («Læreplan i vg3 tavlemontørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TDR03-02 («Læreplan i vg3 tredreierfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TED03-02 («Oahppoplána - Jo3 tekstiiladuodjefága»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TEL03-03 («Læreplan i vg3 telekommunikasjonsmontørfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TIP01-03 («Læreplan i vg1 teknologi- og industrifag»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TKS03-02 («Læreplan i taksidermistfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TLM03-01 («Læreplan i vg3 truck- og liftmekanikarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TLT03-01 («Læreplan i vg3 trelast- og limtreproduksjonsfaget med fordjupingsområde»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TMF02-01 («Læreplan i vg2 tømrer»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TMF03-02 («Læreplan i vg3 tømrarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TNF01-03 («Læreplan i teknologi og forskningslære»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TOG03-03 («Læreplan i vg3 togelektrikerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TOL02-01 («Læreplan i vg2 transport og logistikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TRB03-02 («Læreplan i vg3 trebåtbyggerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TRD03-02 («Oahppoplána - Jo3 muorraduodjefága»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TRT02-03 («Læreplan i vg2 treteknikk»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TSK03-02 («Læreplan i vg3 treskjerarfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- TSR03-01 («Læreplan i vg3 tekstilrensfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- UIM02-03 («Læreplan i vg2 urmaker»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- URM03-02 («Læreplan i vg3 urmakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- VAF03-01 («Læreplan i vg3 vaskerifaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- VBL03-02 («Læreplan i vg3 ventilasjons- og blikkenslagerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- VEN03-01 («Læreplan i vg3 ventilasjonsteknikkfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- VER03-02 («Læreplan i vg3 verktøymakerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- VHD03-02 («Oahppoplána - Jo3 ullo-ja láigeduodjefága»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- VIK03-02 («Læreplan i vg3 viklerfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- VOA03-03 («Læreplan i vg3 veg- og anleggsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- VOV03-02 («Læreplan i vg3 veidrifts- og veivedlikeholdsfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+- YRK03-03 («Læreplan i vg3 yrkessjåførfaget»): ikke grunnskole (opplæringsnivå: opplaeringsnivaa_videregaaende)
+
+## Kompetansemål
+- Totalt (publiserte, unike URI-er): **1410**.
+- Med nynorskversjon (`nno`): **569** · uten nynorsk: **841**.
+  - Bokmål (`nob`) finnes på 1398 mål; `default` (som regel identisk med bokmål) på alle 1410.
+  - At 841 mål mangler `nno` er Udirs egne data, ikke et hentetap: de fleste er (a) **samiske planer**, som Udir publiserer som bokmål + samisk (`sma`/`sme`/`smj`) uten nynorsk, og (b) enkelte planer publisert kun på bokmål (grunnleggende norsk for språklige minoriteter, morsmål, engelsk for hørselshemmede). Alle språkvarianter som FINNES på hvert mål er lagret ordrett.
+
+### Språkvariant-kombinasjoner (antall mål per sett av språkkoder)
+- `default+nob`: 402
+- `default+nob+sma+sme+smj`: 393
+- `default+eng+nno+nob`: 361
+- `default+eng+nno+nob+sme`: 101
+- `default+eng+nno+nob+sma+sme+smj`: 54
+- `default+nob+sme`: 46
+- `default+nno+nob`: 41
+- `default+nno`: 12
+- Utgåtte mål hoppet over: **0**.
+- Målsett hoppet over (ikke grunnskole-trinn eller feil): **97**.
+
+### Per trinn (antall mål — et mål kan telle på flere trinn)
+- aarstrinn1: 89
+- aarstrinn2: 279
+- aarstrinn3: 101
+- aarstrinn4: 342
+- aarstrinn5: 116
+- aarstrinn6: 100
+- aarstrinn7: 404
+- aarstrinn8: 186
+- aarstrinn9: 200
+- aarstrinn10: 568
+
+### Per fag / læreplan (antall mål)
+- Arbeidslivsfag, 8. årstrinn: 8
+- Demokrati i praksis: 6
+- Design og redesign: 4
+- Drama og rytmikk for hørselshemmede, 1. årstrinn: 8
+- Drama og rytmikk for hørselshemmede, 3. årstrinn: 10
+- Drama og rytmikk for hørselshemmede, 5. årstrinn: 10
+- Drama og rytmikk for hørselshemmede, 8. årstrinn: 10
+- Duodji, 1. årstrinn: 7
+- Duodji, 3. årstrinn: 9
+- Duodji, 5. årstrinn: 12
+- Duodji, 8. årstrinn: 11
+- Engelsk 1. årstrinn: 11
+- Engelsk 3. årstrinn: 15
+- Engelsk 5. årstrinn: 16
+- Engelsk 8. årstrinn: 19
+- Engelsk for hørselshemmede 1. årstrinn: 11
+- Engelsk for hørselshemmede 3. årstrinn: 15
+- Engelsk for hørselshemmede 5. årstrinn: 16
+- Engelsk for hørselshemmede 8. årstrinn: 17
+- Engelsk fordypning 8. årstrinn: 11
+- Fordypning i matematikk 8. årstrinn: 8
+- Fordypning i norsk, 8. årstrinn: 10
+- Fordypning i samisk, 8. årstrinn: 10
+- Forskning i praksis: 4
+- Fremmedspråk fellesfag nivå I, 8. årstrinn: 9
+- Fysisk aktivitet og helse: 4
+- Grunnleggende norsk for språklige minoriteter, nivå 1, 1. årstrinn: 15
+- Grunnleggende norsk for språklige minoriteter, nivå 2, 1. årstrinn: 16
+- Grunnleggende norsk for språklige minoriteter, nivå 3, 1. årstrinn: 20
+- Innsats for andre: 4
+- Internasjonalt samarbeid: 4
+- Kroppsøving 1. årssteg: 10
+- Kroppsøving 3. årssteg: 10
+- Kroppsøving 5. årssteg: 11
+- Kroppsøving 8. årssteg: 13
+- Kunst og håndverk, 1. årstrinn: 9
+- Kunst og håndverk, 3. årstrinn: 10
+- Kunst og håndverk, 5. årstrinn: 12
+- Kunst og håndverk, 8. årstrinn: 10
+- Kvensk eller finsk som andrespråk 1. årstrinn: 4
+- Kvensk eller finsk som andrespråk 3. årstrinn: 5
+- Kvensk eller finsk som andrespråk 5. årstrinn: 4
+- Kvensk eller finsk som andrespråk 8. årstrinn: 5
+- Levende kulturarv: 4
+- Mat og helse, 1. årstrinn: 9
+- Mat og helse, 5. årstrinn: 10
+- Mat og helse, 8. årstrinn: 8
+- Mat og helse, samisk plan, 1. årstrinn: 9
+- Mat og helse, samisk plan, 5. årstrinn: 11
+- Mat og helse, samisk plan, 8. årstrinn: 10
+- Matematikk 1. årstrinn: 15
+- Matematikk 10. årstrinn: 11
+- Matematikk 3. årstrinn: 12
+- Matematikk 4. årstrinn: 10
+- Matematikk 5. årstrinn: 10
+- Matematikk 6. årstrinn: 11
+- Matematikk 7. årstrinn: 11
+- Matematikk 8. årstrinn: 10
+- Matematikk 9. årstrinn: 11
+- Medier og informasjon: 5
+- Morsmål for språklige minoriteter, nivå 1, 1. årstrinn: 12
+- Morsmål for språklige minoriteter, nivå 2, 1. årstrinn: 14
+- Morsmål for språklige minoriteter, nivå 3, 1. årstrinn: 12
+- Musikk, 1. årstrinn: 4
+- Musikk, 3. årstrinn: 5
+- Musikk, 5. årstrinn: 9
+- Musikk, 8. årstrinn: 10
+- Musikk, samisk plan, 1. årstrinn: 4
+- Musikk, samisk plan, 3. årstrinn: 5
+- Musikk, samisk plan, 5. årstrinn: 9
+- Musikk, samisk plan, 8. årstrinn: 10
+- Natur, miljø og friluftsliv: 7
+- Naturfag 1. årstrinn: 10
+- Naturfag 4. årstrinn: 17
+- Naturfag 5. årstrinn: 21
+- Naturfag 8. årstrinn: 22
+- Naturfag, samisk plan, 1. årstrinn: 10
+- Naturfag, samisk plan, 3. årstrinn: 18
+- Naturfag, samisk plan, 5. årstrinn: 21
+- Naturfag, samisk plan, 8. årstrinn: 22
+- Norsk 1. årstrinn: 14
+- Norsk 3. årstrinn: 16
+- Norsk 5. årstrinn: 17
+- Norsk 8. årstrinn: 16
+- Norsk for elever med samisk som førstespråk 1. årstrinn: 10
+- Norsk for elever med samisk som førstespråk 3. årstrinn: 13
+- Norsk for elever med samisk som førstespråk 5. årstrinn: 14
+- Norsk for elever med samisk som førstespråk 8. årstrinn: 15
+- Norsk for hørselshemmede 1. årstrinn: 10
+- Norsk for hørselshemmede 3. årstrinn: 9
+- Norsk for hørselshemmede 5. årstrinn: 13
+- Norsk for hørselshemmede 8. årstrinn: 12
+- Norsk tegnspråk 1. årstrinn: 10
+- Norsk tegnspråk 3. årstrinn: 11
+- Norsk tegnspråk 5. årstrinn: 11
+- Norsk tegnspråk 8. årstrinn: 13
+- Praktisk håndverksfag: 6
+- Produksjon av varer og tjenester: 6
+- Programmering: 6
+- Reiseliv: 4
+- Religion, livssyn og etikk - samisk, 1. årstrinn: 13
+- Religion, livssyn og etikk - samisk, 5. årstrinn: 13
+- Religion, livssyn og etikk - samisk, 8. årstrinn: 15
+- Religion, livssyn og etikk, 1. årstrinn: 13
+- Religion, livssyn og etikk, 5. årstrinn: 13
+- Religion, livssyn og etikk, 8. årstrinn: 15
+- Sal og scene: 4
+- Samfunnsfag 1. årssteg: 13
+- Samfunnsfag 3. årssteg: 13
+- Samfunnsfag 5. årssteg: 17
+- Samfunnsfag 8. årssteg: 19
+- Samfunnsfag, samisk plan, 1. årstrinn: 13
+- Samfunnsfag, samisk plan, 3. årstrinn: 13
+- Samfunnsfag, samisk plan, 5. årstrinn: 17
+- Samfunnsfag, samisk plan, 8. årstrinn: 19
+- Samisk som andrespråk, samisk 2, 1. trinn: 6
+- Samisk som andrespråk, samisk 2, 3. trinn: 6
+- Samisk som andrespråk, samisk 2, 5. trinn: 10
+- Samisk som andrespråk, samisk 2, 8. trinn: 10
+- Samisk som andrespråk, samisk 3, nivå 1, 3. trinn: 7
+- Samisk som andrespråk, samisk 3, nivå 2, 5. trinn: 6
+- Samisk som andrespråk, samisk 3, nivå 3, 8. trinn: 7
+- Samisk som førstespråk 1. årstrinn: 11
+- Samisk som førstespråk 3. årstrinn: 16
+- Samisk som førstespråk 5. årstrinn: 17
+- Samisk som førstespråk 8. årstrinn: 16
+- Teknologi i praksis: 4
+- Trafikk: 6
+- Utdanningsvalg på ungdomstrinnet: 10
+
+### Mål der detaljene ikke kunne hentes
+- Ingen. Alle detaljer ble hentet.

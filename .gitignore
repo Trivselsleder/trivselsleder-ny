@@ -55,6 +55,26 @@ _kontroll-*.patch
 LES-*.md
 STATUS-mellomlagring-*.md
 KONTROLL-*.md
+_kontroll-*.tmp
+*.sql.tmp
+
+# Foreldede STATUS/dossier-backuper (kun Mac)
+.STATUS.bak*
+.dossier.bak*
+
+# Arbeidsnotater og idébank (kun Mac + prosjektkunnskap)
+HUSKELAPP-*.md
+IDEBANK-*.md
+
+# Binære dokumenter og genererte rapporter (ikke kode)
+Juristnotat-*.docx
+Personuppgiftsnotat-*.docx
+TU-terskeltest-rapport-*.pdf
+
+# Test-fasit og testdata (ikke migrasjoner)
+_TESTFASIT-*.sql
+TESTFASIT-*.md
+sql/_testdata-*/
 
 # Cowork-verifiseringsbygg (31aug) — kan slettes; ble opprettet fordi dist/ ikke lot seg tømme via bridge
 dist_verify

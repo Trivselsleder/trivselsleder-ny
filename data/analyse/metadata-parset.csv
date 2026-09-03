@@ -1,0 +1,883 @@
+nid,tittel,antall_min,antall_maks,antall_raatekst,utstyr_felt,utstyr_tekst,uenig_utstyr,har_video,antall_videoer,har_bilde,antall_bilder,har_original,avvikstype
+1037,Ostejakten,8,50,8-50,Små rockeringer | Markeringstallerkener | Forfølgelseballer | Erteposer | Markeringsvester,,nei,nei,0,ja,1,ukjent_token,c:bilde
+1039,Fengselsdirektøren og fangene,5,20,5-20,Voli-Racketer | Waboba flyers | Ogo-sport | Ogo-ball | Markeringstallerkener,"Markeringstallerkener, skumfrisbee, startkjegle og markeringsmatter",nei,ja,1,ja,1,ukjent_token,c:bilde
+1040,Bil og garasje,6,30,6-30,Forfølgelseballer | Erteposer,3 Minikjegler/erteposer,nei,ja,1,nei,0,na,
+1041,Samlerne,4,20,4-20,Markeringsmatter | Kortstokk,"Kortstokk og 40 markeringstallerkener (kan også gjennomføres utenmarkeringstallerkener), evt. en kjegle til hvert lag.",nei,ja,1,nei,0,na,
+1043,Troll-leken (Mangler tilleggsmateriale),10,,10 eller flere,Markeringstallerkener | Tilleggsmateriale | Nummerlapper,Markeringstallerkener og nummerlapper. Ferdig kopierte kartskisser (én per deltager).,nei,nei,0,ja,1,ukjent_token,c:bilde
+1044,Star Wars,10,30,10-30,Markeringstallerkener | Dragonskin skumball | Rockeringer | Lagbånd | Markeringsvester,"Markeringstallerkener, 2 Dragonskin softballer, 2 rockeringer, 2 vester i ulike farger og markeringsbånd til lagene i de samme fargene som vestene.",nei,nei,0,ja,1,ukjent_token,c:bilde
+1045,Blinkstafetten,4,,4 eller flere,Poengmatter | Erteposer | Disc-boccia | Markeringstallerkener,"2 poengmatter, 20 erteposer/Disc-boccia i 4 ulike farger. Kjegler/ markeringstallerkener til oppmerking av bane.",nei,ja,1,ja,2,ukjent_token,c:bilde
+1046,Battle Royale,8,,8 eller flere,Dragonskin skumball | Six-Ball | Monsterball 500 | Rockeringer | Markeringstallerkener | Markeringsvester,"5-8 Dragonskin softballer (det skal være færre baller enn lag), 1 Monsterball 500, 2 rockeringer, vester til byggerne, markeringstallerkener til oppmerking av bane.",nei,nei,0,ja,1,ukjent_token,c:bilde
+1047,Pizza-sisten,5,,5 eller flere,Uten utstyr,,nei,nei,0,ja,1,ukjent_token,c:bilde
+1048,Samurai,10,,10 eller flere,"Skumrør ""Samuraisverd"" | Markeringstallerkener",,nei,ja,1,nei,0,na,
+1050,"Løve, Løvetemmer og Ballerinadanser",10,100,10-100,Uten utstyr,,nei,nei,0,nei,0,na,
+1051,Lærerne knuser kidsa,30,200,30 - 200,Kin-Ball,Kin-ball,nei,ja,1,nei,0,na,
+1052,Nord og sør,20,200,ca. 20-200,Kin-Ball | Six-Ball,"KIN-ball, SIX-ball",nei,ja,1,nei,0,na,
+1053,Ringbattle,6,16,6-16,Små rockeringer | Erteposer | Minikjegler,12-20 rockeringer (koordinasjonsringer) og 12 minikjegler/ erteposer til skatter,nei,ja,1,ja,1,ukjent_token,c:bilde
+1054,Sjiraffen,8,20,8-20,Blendebrille | Markeringsmatter | Markeringstallerkener,"Øyebind til alle deltakerne (eller bare lukke øynene), markeringsmatter/tallerkener til oppmerking av banen.",nei,ja,1,nei,0,na,
+1055,Stikkball med lag,9,,9 eller flere,Dragonskin skumball | Markeringstallerkener | Markeringsvester,"3-5 Dragonskin skumballer, vester til lagene og markeringstallerkener",nei,nei,0,ja,1,ukjent_token,c:bilde
+1056,Crazyking,6,,6 eller flere,Fotball | Markeringstallerkener | Volleyball,"En fotball, volleyball eller annen ball med god sprett, kritt eller markeringstallerkener til å markere bane",nei,nei,0,ja,1,ukjent_token,c:bilde
+1057,Spring for livet!,8,,8 eller flere,Markeringskjegler | Markeringstallerkener | Rockeringer,"20 markeringskjegler (ikke gule), 12 markeringstallerkener, 6 gule markeringskjegler og 2 rockeringer",nei,nei,0,ja,1,ukjent_token,c:bilde
+1058,Yoshi,8,50,8-50,Matter | Markeringstallerkener | Lagbånd,Lagbånd til inndeling i lag og markeringsmatter/tallerkener til oppmerking av banen.,nei,ja,1,ja,1,ukjent_token,c:bilde
+1059,Snørrmonsteret,8,30,8-30,Markeringstallerkener | Monsterball 500 | Six-Ball | Erteposer,"SIX-ball med hoppetau (som puttes inni ballen når den blåses opp, slik at den festes), 4 rockeringer,",nei,ja,1,nei,0,na,
+1060,Silent Escape,6,30,6-30.,Nøkkelknippe | Uten utstyr,"Nøkkelknippe eller annen liten ting som lager lyd, markeringstallerkener eller annet for å lage en startstrek",nei,ja,1,ja,2,ukjent_token,c:bilde
+1061,Kremmerhuset,6,20,6-20,Markeringskjegler | Tennisballer | Innebandyballer | Erteposer | Rockeringer | Kurver,"4 markeringskjegler, ca. 25 mindre baller (innebandyballer/tennisballer), 20 erteposer, 3 rockeringer/kurver/bøtter.",nei,nei,0,ja,1,ukjent_token,c:bilde
+1062,Mastermind,4,,4 eller flere,Markeringstallerkener | Forfølgelseballer | Benker,"markeringstallerkener, minikjegler i fem ulike farger, benk.",nei,ja,1,ja,1,ukjent_token,c:bilde
+1063,Poengsisten,6,25,6-25,Markeringstallerkener | Rockeringer,"6-10 markeringstallekener, 1 rockering",nei,nei,0,nei,0,na,
+1064,Heia Heidi,10,200,10-200,Uten utstyr,,nei,ja,1,ja,1,ukjent_token,c:bilde
+1065,Dropball,8,,8 eller flere,Dragonskin skumball | Markeringskjegler | Lagbånd,"En myk ball, kjegler til å markere banen, markeringsvester",nei,ja,1,ja,1,ukjent_token,c:bilde
+1066,Gladiatorene,8,30,8-30,Rockeringer | Erteposer | Dragonskin skumball | Dodgebees | Six-Ball | Monsterball 500,"4 kjegler, 3 koordinasjonsringer, 15-20 minikjegler/erteposer, 4-6 Dragonskin skumballer og markeringsmatter/tallerkener",nei,ja,1,nei,0,na,
+1067,Snikskytter’n,2,20,2-20,Markeringskjegler | Dragonskin skumball,"14 markeringskjegler, mange myke baller",nei,nei,0,ja,1,ukjent_token,c:bilde
+1068,TL-veien,4,16,4-16,Agility ladder | Kritt | Markeringstallerkener,"Agility ladder (stige), kritt eller markeringstallerkener, fasit",nei,nei,0,ja,1,ukjent_token,c:bilde
+1069,Skattejakt,10,,10 eller flere,Erteposer | Forfølgelseballer | Markeringstallerkener | Rockeringer,"4 rockeringer, 10-20 erteposer/forfølgelsesballer og markerinstallerkener",nei,nei,0,ja,1,ukjent_token,c:bilde
+1070,Bildestafett,6,,6 eller flere,,Bilder og bingobrett,nei,nei,0,ja,1,ukjent_token,c:bilde
+1071,Piloten,2,,2 eller flere,Blendebrille | Markeringskjegler,"Øyebind og markeringskjegler, tau, pinner, eller lignende for å lage en bane",nei,ja,1,nei,0,na,
+1072,Juveltyven,7,20,7-20,Lagbånd | Dragonskin skumball | Markeringstallerkener,1 ball eller markeringsbånd,nei,nei,0,nei,0,na,
+1073,Den store romjakten,8,25,8-25,Markeringstallerkener,4 markeringstallerkener for å markere banen,nei,nei,0,nei,0,na,
+1075,Yeti,8,,8 eller flere,Six-Ball | Erteposer | Rockeringer,"En eller flere six-baller, krystaller (erteposer, små gjenstander eller lignende.) og én rokkering per lag",nei,nei,0,ja,1,ukjent_token,c:bilde
+1076,Fire lys,3,,3 eller flere,Markeringskjegler | Uten utstyr,"Tau eller opptegnet strek, 4 små baller/kjegler i ulike farger",nei,ja,1,nei,0,na,
+1077,Bowling-stafett m/terning,2,,2 eller flere,Fotball | Markeringskjegler | Terning,Markeringskjegler eller TL-bowlingsett og 1 terning per lag,nei,nei,0,nei,0,na,
+1078,Slimers,9,,9-,Erteposer | Markeringskjegler,2-3 erteposer og markeringskjegler til oppmerking,nei,nei,0,nei,0,na,
+1079,Blindekast,10,15,10-15,Erteposer | Stort teppe | Markeringstallerkener,"Stort teppe/vegg, 10-15 erteposer og 1 markeringstallerken",nei,nei,0,ja,1,ukjent_token,c:bilde
+1080,Fjelltåka,2,15,2-15,Blendebrille | Markeringskjegler,"20 markeringskjegler, øyebind",nei,nei,0,ja,1,ukjent_token,c:bilde
+1081,Strategiball,5,20,5-20,Markeringstallerkener | Dragonskin skumball,En liten ball (f.eks. dragonskin softball) og en kinahatt p/deltager,nei,nei,0,nei,0,na,
+1082,Wembley,6,20,6-20,Markeringsvester | Markeringskjegler | Lite mål | Fotball,"Markeringsvester til ett lag, ett lite mål, 4 markeringskjegler og 1 fotball",nei,ja,1,nei,0,na,
+1083,Basse,3,10,3-10,Rockeringer | Basseball,6 rockering og Basseball (hjemmelaget ball laget av en sykkelslange som er klippet i stykker og knytt sammen),nei,nei,0,ja,1,ukjent_token,c:bilde
+1084,Hugga Sagga,5,40,5-40,Uten utstyr,,nei,nei,0,ja,1,ukjent_token,c:bilde
+1087,Kjøtt og blod,6,30,6-30,Uten utstyr,,nei,nei,0,ja,1,ukjent_token,c:bilde
+1089,Bodyguard,10,25,10-25,Dragonskin skumball,3 Dragonskin skumballer,nei,nei,0,nei,0,na,
+1090,Gris in action,2,25,2-25,,"1-3 kortstokker, en eller flere matter/felt markert med markeringstallerkener",nei,nei,0,nei,0,na,
+1091,Ladder Golf-stafett,6,20,6-20,Ladder ball-sett | Forfølgelseballer | Forfølgelseballkurver,"2 Ladder ball-sett, 3 forfølgelsesballkurver, 30 forfølgelsesballer",nei,nei,0,ja,1,ukjent_token,c:bilde
+1092,Inn til midten,6,30,6-30,Tilleggsmateriale | Uten utstyr,Ark med flere utfordringer,nei,ja,1,nei,0,na,
+1093,15-leken,4,25,4-25,Markeringskjegler | Uten utstyr,1 stor kjegle,nei,nei,0,nei,0,na,
+1094,Rockehuset,6,30,6-30.,Små rockeringer | Dragonskin skumball,"6 koordinasjonsringer og 1-2 Dragonskin skumballer per lag, markeringsmatter.",nei,ja,1,ja,2,ukjent_token,c:bilde
+1096,Hanois tårn,,,1-3 per sett,Markeringstallerkener,Ferdig sett eller f.eks. nummererte markeringstallerkener fra 1-5,nei,nei,0,ja,1,ukjent_token,a:antall+c:bilde
+1098,Fotballkubb,2,4,2-4,Kubbespill | Fotball,1 kubb sett og 1-2 fotballer,nei,ja,1,ja,1,ukjent_token,c:bilde
+1099,"Buss, Taxi, T-bane",9,40,9-40,Markeringstallerkener | Dragonskin skumball,4 markeringstallerkener og 1 Dragonskin skumball,nei,nei,0,ja,1,ukjent_token,c:bilde
+1100,Cowboyen,3,30,3-30,Erteposer | Six-Ball | Minikjegler | Hoppetau | Markeringstallerkener,"Six-ball, hoppetau, 10-30 minikjegler/erteposer, markeringstallerkener/kjegler.",nei,ja,1,nei,0,na,
+1101,Eye of the Tiger,8,20,8-20,Monsterball 1000 | Kin-Ball | Six-Ball | Monsterball 500 | Markeringsmatter,Kin-ball/Six-ball eller Monsterball 500/1000 og 4 markeringstallerkener,nei,nei,0,nei,0,na,
+1102,Snakes,10,50,10-50,Forfølgelseballkurver | Forfølgelseballer | Blendebrille,"2 forfølgelseskurver/bøtter, 20 forfølgesesballer/gjenstander og øyebind til alle deltagerne",nei,nei,0,ja,1,ukjent_token,c:bilde
+1103,Ogo-triksing,1,30,1-30,Ogo-ball | Ogo-sport,1 OgoSport disk og 1 OgoSport ball per deltager,nei,nei,0,nei,0,na,
+1104,Magic Box,4,20,4-20,Innebandykøller | Innebandyballer | Fotball | Lite mål | Dragonskin skumball | Monsterball 500 | Markeringstallerkener,"1 innebandykølle per deltager, 1 bandyball, 1 fotball og 2 mål. Til varianten: 1 Monsterball 500, 5 Dragonskin softballer(liten) og to små mål/4 kjegler",nei,nei,0,ja,1,ukjent_token,c:bilde
+1106,Bottleflip-stafett,4,30,4-30,Flasker | Markeringstallerkener,1 flaske med litt vann og 1 markeringstallerken per lag,nei,nei,0,ja,1,ukjent_token,c:bilde
+1107,Pølse i brød,10,50,10-50,Uten utstyr,,nei,nei,0,nei,0,na,
+1108,War Ball,20,60,20-60,Markeringskjegler | Markeringstallerkener | Dragonskin skumball (små) | Dragonskin skumball,"8 markeringskjegler til oppmerking, 4 markeringstallerkener, 6 Dragonskin skumballer (store) og 4 Dragonskin skumballer (små).",nei,nei,0,ja,1,ukjent_token,c:bilde
+1109,Professor og robot,5,30,5-30,Markeringstallerkener | Blendebrille,4 markeringstallerkener og øyebind.,nei,nei,0,nei,0,na,
+1110,TL-Battle,6,24,6-24,Markeringstallerkener | TL-battle,TL-Battle sett og 4 markeringstallekener,nei,nei,0,ja,1,ukjent_token,c:bilde
+1111,Monsterpinball,10,200,10-200,Kin-Ball | Monsterball 1000,Kin-ball/1 Monsterball 1000,nei,nei,0,ja,1,ukjent_token,c:bilde
+1113,"”Zip”, ”Zap”, ”Boink”",6,,6 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1114,Pelikan og pingvin,10,,10 eller flere,Markeringskjegler,4 markeringskjegler,nei,nei,0,nei,0,na,
+1117,"Klapp, klapp, spring",,,Mange,Markeringskjegler | Rockeringer | Erteposer,"2 markeringskjegler, 2 rockeringer, 20 erteposer.",nei,nei,0,ja,1,ukjent_token,c:bilde
+1118,Dodgeball switch,10,40,10-40,Rockeringer | Dragonskin skumball,4-8 rockeringer og 3-5 Dragonskin skumballer,nei,nei,0,ja,1,ukjent_token,c:bilde
+1119,Erobreren,8,24,8-24,Six-Ball | Markeringstallerkener | Svingtau | Dragonskin skumball | Markeringsmatter,"4-6 Dragonskin skumballer, hoppetau eller markeringsmatter/tallerkener",nei,ja,1,ja,1,ukjent_token,c:bilde
+1120,Ikke mist!,,,Mange,Markeringstallerkener | Dragonskin skumball,"30 softballer, markeringtallerkener",nei,nei,0,nei,0,na,
+1121,Robotic,,,Mange,Markeringstallerkener | Erteposer | Forfølgelseballer,"Markeringstallerkener, 20-30 gjenstander (forfølgelsesballer, erteposer)",nei,nei,0,nei,0,na,
+1122,Memory-stafett,6,20,6 – 20 deltagere,Markeringstallerkener | Aball | Test,"27 markeringstallerkener, Aball1-sett, ”Fasit ark”",nei,nei,0,nei,0,na,
+1123,Balansebølla,10,15,10 – 15 deltagere,Markeringstallerkener | Pinner/stokker/plastflasker,"Markeringstallerkener, pinner/plastflasker eller for eksempel bandyballer.",nei,nei,0,nei,0,na,
+1125,Ninja,5,,5 eller flere.,Uten utstyr,,nei,nei,0,ja,1,ukjent_token,c:bilde
+1126,Fritt vilt,,,Mange,Markeringsvester | Kin-Ball,Markeringsvester i tre farger og Kin-Ball,nei,nei,0,nei,0,na,
+1127,Colourcatch,8,,8 eller flere,Små rockeringer | Markeringsmatter | Laminerte farger,"12-24 rockeringer, 30 markeringsmatter og 20 laminerte farger.",nei,nei,0,ja,1,ukjent_token,c:bilde
+1128,Rush hour,10,16,10-16,,En markeringstallerken og en forfølgelsesball færre enn antall deltagere.,nei,nei,0,ja,1,ukjent_token,c:bilde
+1129,Trejageren,5,30,5-30,Six-Ball | Uten utstyr,Eventuelt en 1 six-ball,nei,nei,0,nei,0,na,
+1130,Voli-konkurranse,6,,6 eller flere,Voli-Racketer | Waboba flyers,Voli-racket (1 per deltager) og Waboba Flyers (1 per gruppe),nei,nei,0,nei,0,na,
+1131,Frisbeekast,2,20,2-20,Små rockeringer | Rockeringer | Dodgebees,"Frisbee (Dodgebee) , 6 små eller store rockeringer Poengsystem: Standard",nei,nei,0,ja,1,ukjent_token,c:bilde
+1133,Tail Tag,6,,6 eller flere,Lagbånd | Rockeringer | Markeringstallerkener | Markeringsvester,"Lagbånd i 2 farger, 3 rockeringer, markeringstallerkener, nappe halesett (ett til hver)",nei,ja,1,ja,1,ukjent_token,c:bilde
+1134,Fargeduellen,3,20,3-20,Minikjegler,"Minikjegler i 4 ulike farger - tilpass antall sett etter deltakere,ekstramateriale: mal med fargekombinasjoner.",nei,ja,1,nei,0,na,
+1135,Brennende lavastein,6,,6 eller flere,,"Markeringsmatter, skumballer, evt. SIX-ball",nei,ja,1,nei,0,na,
+1136,Bumball-rugby,8,,8 eller flere,Bumball sett | Lagbånd | Rockeringer,"Bumballvester, bumball, markeringsbånd, 2 rockeringer",nei,nei,0,ja,1,ukjent_token,c:bilde
+1137,Brevbæreren,4,30,4 - 30,Markeringstallerkener | Tusj | Laminerte brev | Ryggsekk,"2 markeringstallerkener, 1 tusj, laminerte brev, 1 ryggsekk",nei,nei,0,nei,0,na,
+1138,Dyrene skriker,5,20,5-20,Uten utstyr,,nei,ja,1,nei,0,na,
+1139,Atomer og molekyler,8,40,8 - 40,Markeringstallerkener,,nei,nei,0,nei,0,na,
+1140,Stratego,10,30,10-30,Kortstokk | Lagbånd,"1-2 kortstokker, markeringsvester/bånd (to lag)",nei,nei,0,nei,0,na,
+1141,Bevegelsesmemory,14,30,14 - 30,Uten utstyr,,nei,ja,1,nei,0,na,
+1142,Piratene,12,24,12-24,Rockeringer | Forfølgelseballer | Markeringsvester,"8 rockeringer, 16 forfølgelsesballer, vester (fire lag)",nei,nei,0,ja,1,ukjent_token,c:bilde
+1143,Hurtigball,4,20,4 - 20,Dragonskin skumball | Markeringstallerkener | Erteposer,"10 myke Dragonskin skumballer, 6 markeringstallerkener, 20 erteposer .",nei,nei,0,ja,1,ukjent_token,c:bilde
+1144,Smash it/Spikeball,4,12,4-12,,Smash it sett eller Spikeball sett,nei,nei,0,ja,1,ukjent_token,c:bilde
+1145,Capture the flag med dodgeball,20,,20 eller flere,Dragonskin skumball | Markeringskjegler | Flagg | Rockeringer,"10-15 Dragonskin skumballer, markeringskjegler, rockering, markeringsvester og to flagg (her kan man bruke f.eks. to vester).",nei,nei,0,ja,1,ukjent_token,c:bilde
+1146,King of the ring,8,,8 eller flere,Dragonskin skumball | Markeringstallerkener | Markeringsvester,"1-3 Dragonskin skumballer, markeringstallerkener, vester",nei,nei,0,nei,0,na,
+1147,Dragonbattle,10,30,10-30,Dragonskin skumball (små) | Erteposer | Markeringsvester | Markeringskjegler | Rockeringer,"10-20 Dragonskin tennisballer, 16 erteposer, markeringsvester til laginndeling, 4 markeringskjegler og 2 rockeringer",nei,nei,0,ja,1,ukjent_token,c:bilde
+1148,Skiskytterstafetten,4,,4 eller flere,Markeringstallerkener | Erteposer,"Markeringstallerkener, erteposer og evt miniski dersom snø",nei,nei,0,nei,0,na,
+1150,Harry Potter,10,40,10-40,Dragonskin skumball | Markeringstallerkener | Markeringsmatter,"3-6 Dragonskin skumballer, markeringsmatter/tallerkener til oppmerking av banen.",nei,ja,1,nei,0,na,
+1151,Bullseye,8,20,8 – 20,Dragonskin skumball | Erteposer | Rockeringer | Bøtte,"2 Dragonskin baller, kan også bruke ertepose eller lignende. En",nei,nei,0,ja,1,ukjent_token,c:bilde
+1154,Dodgebee,6,30,6 - 30,Dodgebees | Markeringskjegler,"1-2 Dodgebee, markeringskjegler",nei,nei,0,ja,1,ukjent_token,c:bilde
+1155,Svensk stikkball,,,Mange,Dragonskin skumball,2 Dragonskin skumballer,nei,nei,0,nei,0,na,
+1156,Danseleken,5,,5 eller flere,Høyttaler,Høyttaler,nei,nei,0,nei,0,na,
+1157,Kjegletyven,8,24,8-24,Markeringskjegler | Dragonskin skumball,12 markeringskjegler og 8 dragonskin skumballer,nei,nei,0,nei,0,na,
+1158,Beitoball,,,,Tennisballer | Rockeringer,"En ball, evt. 6-7 rockeringer",nei,nei,0,nei,0,na,a:antall
+1160,Rumpeldunk,15,,Minst 15,Volleyball | Dragonskin skumball | Tennisballer | Sokk | Innebandykøller | Markeringsvester | Rockeringer,"En volleyball, tre draginskin skumballer, en tennisball i en sokk, noe som kan fungere som sopelimer, evt bandykøller, markeringsvester og rockeringer til mål",nei,nei,0,nei,0,na,
+1161,Dodgebee-femmer’n,8,20,8 - 20,Dodgebees,Dodgebee,nei,nei,0,nei,0,na,
+1162,Foldeballdraugen,7,25,7 - 25,Forfølgelseballkurver | Forfølgelseballer,Foldeballsett,nei,nei,0,nei,0,na,
+1163,Flashy,,,Mange,Erteposer | Mynt | Flasker,"1 flaske eller erteposte, 1 mynt (20kr.)",nei,nei,0,nei,0,na,
+1165,Amøbe,6,,6 eller flere,Uten utstyr,Eventuelt markeringsmatter/tallerkener til å lage lekeområde,ja,ja,1,nei,0,na,b:utstyr
+1168,Ballsparkeren,7,17,7-17,Six-Ball | Dragonskin skumball,1 SIX-ball eller 1 stor Dragonskin skumball,nei,nei,0,nei,0,na,
+1169,Bondesjakk,2,4,2-4,Erteposer,"Steiner, erteposer eller lignende og kritt eller annen oppmerking",nei,nei,0,nei,0,na,
+1170,Snørugby,8,20,8-20,Markeringstallerkener | Rockeringer | Dragonskin skumball,"Dragonskin skumball, 4 markeringstallerkener, 2 rockeringer",nei,nei,0,nei,0,na,
+1171,Scrabble Battle,6,20,6-20,Bananagrams | Kort med bokstaver,Kort med bokstaver; 4 eller mer av hver bokstav i alfabetet. Bananagrams som man,nei,nei,0,nei,0,na,
+1172,Matematikk frisbeegolf,6,27,6-27,Frisbee | Rockeringer | Markeringskjegler,"En frisbee, et poengkort til hvert lag, 9 rockeringer, 9 regnehistorier, 9",nei,nei,0,nei,0,na,
+1173,Finn din make,8,30,8-30,Kort med dyrenavn,"Kort med dyrenavn påskrevet, to kort av hver.",nei,nei,0,nei,0,na,
+1174,skjold og skytter,,,Mange,Dragonskin skumball,3-6 Dragonskin skumball,nei,nei,0,nei,0,na,
+1175,3’ern,8,15,8-15,Dragonskin skumball | Markeringskjegler,"7 Dragonskin softballer/gjenstander, 4 markeringskjegler/tallerkener",nei,nei,0,nei,0,na,
+1177,Zombie,,,Mange,Markeringstallerkener,Markeringstallerkener,nei,nei,0,nei,0,na,
+1178,"Hi, ha, ho",,,Anbefalt 5 - 10 per gruppe,Uten utstyr,,nei,ja,1,nei,0,na,a:antall
+1179,Sit around,8,,8 eller flere,Kortstokk,"1 Kortstokk, evnt. en stol pr. person",nei,nei,0,nei,0,na,
+1180,Catch and release,,,Mange,Dragonskin skumball,"8-10 små Dragonskin skumballer (ogo, tennisballer eller erteposer)",nei,nei,0,nei,0,na,
+1181,Skip o´ hai,5,31,5-31,Rockeringer,"1 rockering per par, markeringsmatter/tallerkener",nei,ja,1,nei,0,na,
+1182,Nattduellen,2,15,2-15,Kuber i ulike farger,Tre gjenstander i ulike farger,nei,ja,1,nei,0,na,
+1183,Keiserpingis,4,30,4-30,Markeringstallerkener | Basketball,"Basketball, markeringstallerkener",nei,nei,0,nei,0,na,
+1184,Chewbacca,8,20,8-20,Markeringskjegler | Six-Ball,4 markeringstallerkener og 1 sixball,nei,ja,1,nei,0,na,
+1185,Ustø,6,,6 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1186,Crazyball,,,Mange,Amerikansk fotball,2-4 crazyballer eller Amerikansk fotball,nei,nei,0,nei,0,na,
+1188,Fraktball,4,40,4-40,Kin-Ball | Markeringstallerkener | Erteposer,"To Kin-baller (man kan evt. også bruke six-baller eller andre baller), 4-8 markeringstallerkener og 2 erteposer",nei,nei,0,nei,0,na,
+1189,Gris/Flush,10,15,10-15,Kortstokk | Markeringskjegler,"1 kortstokk, markeringstallerkener.",nei,nei,0,nei,0,na,
+1191,Sko på avveie,,,Mange,Sko,Sko,nei,nei,0,nei,0,na,
+1194,Sparkekongen,5,25,5-25,Six-Ball | Markeringsvester,"Six-ball eller fotball, vester",nei,nei,0,nei,0,na,
+1196,Elgen Helge,8,,8 eller flere,Markeringsvester | Markeringstallerkener | Rockeringer,"Markeringstallerkener, markeringsvester 2-6 rockeringer",nei,ja,1,nei,0,na,
+1197,Dodgeball variant,8,20,8-20 stk,Markeringstallerkener | Dommer | Dragonskin skumball,"5 kanonballer, markeringstallerkener, dommer",nei,nei,0,nei,0,na,
+1198,Ballfangeren,4,22,4-22,Six-Ball | Markeringstallerkener | Rockeringer,"1 SIX-ball, 2 rockeringer, markeringsmatter/tallerkener, lagbånd",nei,ja,1,nei,0,na,
+1221,Parstikkball,,,Mange,Markeringstallerkener | Dragonskin skumball,3-6 dragonskin skumballer,nei,nei,0,nei,0,na,
+1222,Chirokko /dansk stikkball med frisbee,,,Mange,Dodgebees | Ogo-sport | Dragonskin skumball | Markeringstallerkener,"2-3 dodgebees, Ogo-sport eller dragonskin skumballer.",nei,nei,0,nei,0,na,
+1223,Sjakk (lynsjakk),,,2-4 per spill,Sjakkbrett | Sjakkur | Stoppeklokke,"Sjakkbrett, stoppeklokke evt. sjakkur.",nei,nei,0,nei,0,na,a:antall
+1224,Tvekampen,10,20,10-20,Blendebrille | Dragonskin skumball,"2 dragonskin skumballer, øyebind.",nei,nei,0,nei,0,na,
+1225,Dart,2,20,2-20,Dartsett,Dartsett,nei,nei,0,nei,0,na,
+1226,Minuttball,,,Mange,Kin-Ball | Six-Ball | Dragonskin skumball | Tennisballer,"Kin-ball, six-ball/myk ball, markeringstallerkener eller kjegler, tennisball eller lignende.",nei,nei,0,nei,0,na,
+1227,Frisbee ultimate,6,30,6-30.,Frisbee | Dodgebees | Markeringstallerkener,"Frisbee/dodgebee, markeringstallerkener til å merke opp bane.",nei,nei,0,nei,0,na,
+1228,Paradis Volleyball,,,3-5 per lag,Six-Ball | Benker,"Six-Ball el. ball med sprett, lavt volleyballnett el. benker",nei,nei,0,nei,0,na,a:antall
+1229,Kanonball,10,20,10-20,Dragonskin skumball | Markeringstallerkener | Benker,"2-3 dragonskin skumballer, benker eller markeringstallerkener til å markere bane.",nei,nei,0,nei,0,na,
+1230,Tullball-sisten,,,Mange,Dragonskin skumball,2-4 dragonskin skumballer,nei,nei,0,nei,0,na,
+1231,Kinesisk fotball,8,20,8-20,Kin-Ball | Six-Ball,Kin-ball og/eller Six-ball.,nei,nei,0,nei,0,na,
+1232,Speedminton,2,4,2 eller 4,Speedmintonsett | Markeringstallerkener,"Speedmintonracketer, en speeder (ball), kjegler eller lignende til å merke opp banen",nei,nei,0,nei,0,na,
+1234,Frisbeegolf,2,8,2-8,Dodgebees | Frisbee | Rockeringer | Ogo-sport | Frisbeekurv,"En frisbee pr. deltager (dodgebee/ogo sport), frisbeekurv el. rockeringer",nei,nei,0,nei,0,na,
+1235,Bingofangeren,,,Mange,Nummererte markeringskjegler | Bingobrett | Blyanter,"20 nummererte mareringskjegler, bingobrett med nummer fra 1-20, blyanter",nei,nei,0,nei,0,na,
+1236,Copter darts,8,30,8-30,Ogo Copterdart (Sett),Ogo Copterdart og Targetball,nei,nei,0,nei,0,na,
+1237,Streethåndball,,,Mange,Markeringstallerkener | Dragonskin skumball,Dragonskin skumball,nei,nei,0,nei,0,na,
+1238,Bumball,12,12,"12, eller så mange dere har vester til",Bumball sett | Rockeringer,"Bumballvester, borrelåsball og rockeringer eller målskiver",nei,nei,0,nei,0,na,
+1239,Ladder toss,2,20,2-20,Ladder ball-sett,Ladderball-sett,nei,nei,0,nei,0,na,
+1240,Dartspill,2,20,2-20,Dartsett,Dartsett,nei,nei,0,nei,0,na,
+1241,Dreiball,6,20,6 til ca 20,Basketkurv | Fotball | Fotballmål,"En basketkurv, en fotball, et lite fotballmål",nei,nei,0,nei,0,na,
+1242,Dodgeball,8,30,8- ca 30,Dragonskin skumball,6-10 dragonskin skumballer,nei,nei,0,nei,0,na,
+1243,Ogo Sport,1,20,1-20,Ogo-sport | Ogo-ball,Ogo Sport,nei,nei,0,nei,0,na,
+1244,Ballder,,,Mange,Fotball | Basketball | Basketkurv | Innebandykøller | Innebandymål | Håndball | Håndballmål | Dragonskin skumball | Stoppeklokke,"Fotball, basketball, bandykølle og ball, håndball, flere mål og stoppeklokke. (Evt bytt ut ballene med dragonskin skumballer).",nei,nei,0,nei,0,na,
+1245,"Stein, saks, papir-runden",4,,4 eller flere,Uten utstyr | Markeringstallerkener,4-5 markeringstallerkener/kjegler,nei,ja,1,nei,0,na,
+1246,Signalet,6,20,6-20,Rockeringer | Markeringstallerkener,Rockeringer eller markeringstallerkener (1-3 færre enn antall deltakere),nei,ja,1,nei,0,na,
+1247,Ekornsisten,8,30,8-30,Markeringstallerkener | Uten utstyr,"Markeringstallerkener, 4-6 rockeringer (koordinasjonsringer) og ett lagbånd per rev/kan også brukes uten utstyr",nei,ja,1,nei,0,na,
+1248,Steinen bak ryggen,6,20,6-20,Uten utstyr | Markeringstallerkener | Stein | Terning,"Stein/terning, markeringstallerkener",nei,ja,1,nei,0,na,
+1249,Speilheks,,,Mange,Uten utstyr,Bare dere selv,ja,nei,0,nei,0,na,b:utstyr
+1252,50-leken,,,Mange,Nummerlapper fra 1-50 med oppgaver,Nummererte lapper med ulike oppgaver,nei,nei,0,nei,0,na,
+1253,Sjøslag,4,20,4-20,Basketball | Medisinball | Dragonskin skumball,"To benker, en stor ball (medisinball/basketball), mange små baller",nei,nei,0,nei,0,na,
+1254,Rekkefølgen på benken,8,30,8-30,Benker,"Benker eller lignende til å stå på, oppgaver til elevene",nei,nei,0,nei,0,na,
+1255,Butterflynett,4,,4 eller flere,Six-Ball | Små rockeringer | Tryllesnor,"SIX-ball, rockeringer, tryllesnor/hoppetau, markeringsmatter",nei,ja,1,nei,0,na,
+1256,Gravid heks,,,Mange,Dragonskin skumball,En ball per par,nei,nei,0,nei,0,na,
+1257,Blindeslalåm,,,,Markeringstallerkener | Blendebrille,"Kjegler, bind for øynene",nei,nei,0,nei,0,na,a:antall
+1258,Chikuakuakua,6,,6 eller flere,Rytmeinstrument,"Rytmeinstrument (ris på en boks, pinner som kan slås mot hverandre o.l.)",nei,nei,0,nei,0,na,
+1259,Det sorte får,6,,6 eller flere,Dragonskin skumball | Markeringstallerkener,"1 ball, kjegler, hatter eller lignende",nei,nei,0,nei,0,na,
+1260,Dirigenten,,,10-20 - består klassen av 30 elever vil vi anbefale to grupper.,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,a:antall
+1261,Serbokroatiske drakamp,10,30,10-30,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1262,Ettbeinshopp,10,20,10-20,Uten utstyr,Ingen,nei,nei,0,nei,0,na,
+1263,Høy og lav,8,,8 eller flere,Uten utstyr,"En stor stein, et huskestativ, eller noe annet som er høyere enn bakkenivå",ja,nei,0,nei,0,na,b:utstyr
+1264,"Jamad, Haywan, Nabat",,,Mange,Kritt,Kritt,nei,nei,0,nei,0,na,
+1265,Ka pa kera,,,3 deltagere per bane,Dragonskin skumball | Bøtte | Rockeringer,"Rockeringer eller markeringskjegler, dragonskin skumballer, bøtte/blikkboks eller lignende.",nei,nei,0,nei,0,na,a:antall
+1266,Kirkerotta,10,,10 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1267,Kjøttbein,10,,10 eller flere,Erteposer | Uten utstyr,"1 stein, ertepose, kongle, penal e.l",nei,nei,0,nei,0,na,
+1268,Krokodillejakt med ball,,,Mange,Kritt | Tau | Dragonskin skumball,To tau eller kritt til å markere to sirkler og dragonskin skumball,nei,nei,0,nei,0,na,
+1269,Lagori,8,,8 eller flere,Dragonskin skumball (små),"1 liten dragonskin skumball, 7 steiner som kan stables oppå hverandre",nei,nei,0,nei,0,na,
+1270,Land! Land! Vi trenger soldater!,8,,8 eller flere,Dragonskin skumball | Markeringstallerkener,2 dragonskin skumballer,nei,nei,0,nei,0,na,
+1271,Mbube,7,,7 eller flere,Blendebrille,To øyebind,nei,nei,0,nei,0,na,
+1272,Nytur i hendi,2,2,2,Uten utstyr,"Perler, steiner, terninger eller lignende",ja,nei,0,nei,0,na,b:utstyr
+1273,Sauene til slakteren,6,20,6-20,Markeringstallerkener | Uten utstyr,Markeringstallerkener,nei,nei,0,nei,0,na,
+1274,Simon says!,8,,8 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1275,Skite spiker,2,10,2-10,Blyanter | Tråder | Flasker,"2 flasker, 2 spikre/blyanter, 2 tråder",nei,nei,0,nei,0,na,
+1276,Sterke og svake klapp,4,,4 eller flere,Uten utstyr,"En gjenstand som skal gjemmes, f.eks. en blyant, en stein, eller andre ting",ja,nei,0,nei,0,na,b:utstyr
+1277,Stopp!,6,15,6-15,Dragonskin skumball | Markeringstallerkener,1 dragonskin skumball og markeringstallerkener,nei,nei,0,nei,0,na,
+1278,Tallet,8,20,8-20,Dragonskin skumball | Markeringstallerkener,En dragonskin skumball og markeringstallerkener,nei,nei,0,nei,0,na,
+1279,Anti-over,4,,4 eller flere,Dragonskin skumball,En dragonskin skumball,nei,nei,0,nei,0,na,
+1280,Apen i midten,3,,3 eller flere,Erteposer | Dragonskin skumball | Frisbee,En myk ball/ertepose/plystreball/frisbee eller lignende,nei,nei,0,nei,0,na,
+1281,Attackball,8,20,8-20,Forfølgelseballkurver | Kurver | Bøtte | Markeringskjegler | Dragonskin skumball,"2 kurver/foldeballsett/bøtter, 8 markeringskjegler, 10 dragonskin skumballer, fargede lapper med rollebeskrivelse til to lag",nei,nei,0,nei,0,na,
+1282,Ballen bestemmer,2,12,2-12,Basketball,"En litt stor ball, tape til å klistre på ballen og tusj til å skrive instrukser med",nei,nei,0,nei,0,na,
+1284,Ballen er fri,5,20,5- ca. 20,,"Markeringskjegler, baller til halvparten av deltagerne",nei,nei,0,nei,0,na,
+1285,Ball på ball,3,15,3-15,Rockeringer | Dragonskin skumball | Kin-Ball | Six-Ball,"En rockering, en stor ball (f.eks. Kin-Ball eller Six- Ball ) og en myk ball til hver deltager",nei,nei,0,nei,0,na,
+1286,Balltennis,2,4,2 eller 4,Rockeringer | Ball med sprett,En ball og en rockering til hvert par,nei,nei,0,nei,0,na,
+1287,Blinkball,1,,1 eller flere,Erteposer | Poengmatter,"Erteposer, poengmatter",nei,nei,0,nei,0,na,
+1288,Crossboccia,2,,2 eller flere,Crossboccia-sett,Crossboccia-sett,nei,nei,0,nei,0,na,
+1289,Doim,8,20,8-20,Dragonskin skumball,1 dragonskin skumball,nei,nei,0,nei,0,na,
+1290,Flyktende mål,8,,8 eller flere,,"Matte eller lignende, to draginskin skumballer og markeringskjegler",nei,nei,0,nei,0,na,
+1292,Forfølgelseball - færrest baller i kurven,12,32,12-32,Forfølgelseballer | Forfølgelseballkurver | Markeringsvester,"Forfølgelseball (sett med 4 kurver i ulike farger, og 12 baller i hver farge) og vester/bånd i de 4 fargene til alle.",nei,nei,0,nei,0,na,
+1293,Frekken,6,,6 eller flere,Ball med sprett,"Ønsket ball med sprett, for eksempel fotball, basketball, håndball, innebandy",nei,nei,0,nei,0,na,
+1294,Gris,4,,4 eller flere,Ball med sprett | Frisbee | Dodgebees | Ogo-sport,"Ball, frisbee, plystreball, Ogo-sport eller lignende",nei,nei,0,nei,0,na,
+1295,Hacky sack,1,,1 eller flere,Crossboccia-sett | Hacky sack,1 Hacky Sack per deltager,nei,nei,0,nei,0,na,
+1296,Hermevegg,3,10,3-10,Moonball | Ball med sprett | Vegg,En ball og en vegg,nei,nei,0,nei,0,na,
+1297,Jump-stop game,5,,5 eller flere,Ball med sprett | Fotball | Basketball | Håndball,"En basketball, håndball, fotball eller innebandykølle og -ball til hver deltager",nei,nei,0,nei,0,na,
+1298,Kinesisk Rundball,6,20,6-20,Dragonskin skumball,En dragonskin skumball,nei,nei,0,nei,0,na,
+1299,Kjegleforsvar,8,,8 eller flere,Dragonskin skumball | Markeringskjegler | Fotball | Håndball,"Kjegler, ball (fotball, håndball eller lignende)",nei,nei,0,nei,0,na,
+1300,Kjeglekrangel,6,,6 eller flere,Markeringskjegler | Dragonskin skumball,Markeringskjegler og dragonskin skumballer,nei,nei,0,nei,0,na,
+1301,Kjeglemål,6,,6 eller flere,Markeringskjegler | Innebandyballer | Innebandykøller | Fotball | Dragonskin skumball,"10 eller flere kjegler, innebandykøller og baller eller fotball(er)",nei,nei,0,nei,0,na,
+1302,Kongeball,8,30,8-30,Benker | Matter | Frisbee | Håndball | Dragonskin skumball,To benker/stoler/matter og en ball/frisbee/plystreball,nei,nei,0,nei,0,na,
+1303,Lacrosse,8,20,8-20,Lacrosse-sett | Håndball | Markeringsvester,"Lacrossesett, to håndballmål, vester",nei,nei,0,nei,0,na,
+1304,Løpende villsvin,,,Mange,Markeringskjegler | Dragonskin skumball,"Markeringskjegler eller lignende til oppmerking, dragonskin skumballer og en kasse eller et skur",nei,nei,0,nei,0,na,
+1305,Maceball,6,12,6-12 deltagere,Funbattle-køller | Borrelåsball,12 Funbattle-køller og borrelåsball.,nei,nei,0,nei,0,na,
+1306,Slåball Multi,10,,10 eller flere,Frisbee | Plystreball | Håndball | Rockeringer,"Håndball/plystreball/frisbee, rockeringer",nei,nei,0,nei,0,na,
+1307,Skuddkonkurranse,2,,2 eller flere,Håndball | Basketball | Innebandyballer | Innebandykøller | Fotball,"Avhengig av hva du ønsker å skyte på/med. For eksempel fotball, håndball, basketball eller innebandy.",nei,nei,0,nei,0,na,
+1308,Slåball,10,,10 eller flere,Tennisballer | Rockeringer | Balltre,"En tennisball, rockeringer, balltre",nei,nei,0,nei,0,na,
+1309,Smashball,2,,2 eller flere,Smashball,Smashball,nei,nei,0,nei,0,na,
+1310,Stressball,10,,10 eller flere (lurt å være partall),Dragonskin skumball | Uten utstyr,2 små baller i ulik farge. Kan gjennomføres med 2 gjenstader dere finner i klasserommet.,nei,nei,0,nei,0,na,
+1311,Superking,8,,8 eller flere,Liten ball | Ogo-sport | Markeringsmatter,"Ogo Sport Disker, liten ball, markeringsmatter til å dele banen i fire ruter.",nei,ja,1,nei,0,na,
+1312,Tunnel,4,15,4-15,Dragonskin skumball,En dragonskin skumball,nei,nei,0,nei,0,na,
+1313,Wilkeball,4,16,4-16,Funbattle sett,"En Fun-Battle vest, to baller og ett skjold per deltager",nei,nei,0,nei,0,na,
+1314,Basketball,,,,Basketball | Basketkurv,,nei,nei,0,nei,0,na,a:antall
+1315,Basketball-øvelser,1,,1 eller flere,Basketball | Basketkurv,En basketball til hver deltager,nei,nei,0,nei,0,na,
+1316,Driblekongen,5,,5 eller flere,Basketball,En basketball til hver,nei,nei,0,nei,0,na,
+1317,Knockout,4,20,4-20,Basketball | Basketkurv,En basketballkurv og to basketballer,nei,nei,0,nei,0,na,
+1318,Streetbasket,6,,6 eller flere,Basketball | Basketkurv,En basketballkurv og en basketball,nei,nei,0,nei,0,na,
+1319,Tjueen,2,10,2-10,Basketball | Basketkurv,En basketball og en basketballkurv,nei,nei,0,nei,0,na,
+1320,Touchdown,,,Mange,Basketball | Kritt | Markeringskjegler,En basketball. Kritt eller kjegler om man ikke har basketbane tilgjengelig,nei,nei,0,nei,0,na,
+1321,Fotball,,,,Fotball | Fotballmål | Markeringskjegler,,nei,nei,0,nei,0,na,a:antall
+1322,Bommer/scorer står,6,,6 eller flere,Fotball | Fotballmål,Et fotballmål og en fotball,nei,nei,0,nei,0,na,
+1323,Prikk,2,,2 eller flere,Vegg | Fotball,En fotball,nei,ja,1,nei,0,na,
+1324,Døla,3,15,3-15,Fotball | Fotballmål,Ett fotballmål og en fotball,nei,nei,0,nei,0,na,
+1325,Fempoengsfotball,8,,8 eller flere,Fotball | Markeringskjegler | Flasker,En fotball og to tomflasker eller store kjegler,nei,nei,0,nei,0,na,
+1326,Fotballtennis,2,8,2-8,Fotball | Markeringskjegler | Volleyballnett | Tryllesnor,Nett/kjegler/tryllesnor og en fotball,nei,nei,0,nei,0,na,
+1327,Hjørnefotball,8,20,8-20,Fotball | Benker | Markeringskjegler,"Fire benker/mål, markeringskjegler og en fotball",nei,nei,0,nei,0,na,
+1328,Jungelfotball,6,20,6-20,Tennisballer | Innebandymål | Innebandyballer | Lagbånd,"2-4 innebandymål/kjegler som markerer mål, minst 3 tennisballer/innebandyballer, lagbånd.",nei,ja,1,nei,0,na,
+1329,Kickball,10,,10 eller flere,Fotball | Dragonskin skumball | Rockeringer,1 fotball eller dragonskin skumball og 4 rockeringer,nei,nei,0,nei,0,na,
+1330,Proffeloff,5,,5 eller flere,Fotball | Fotballmål,Et fotballmål og en fotball,nei,nei,0,nei,0,na,
+1331,Håndball,,,,Håndball | Håndballmål,,nei,nei,0,nei,0,na,a:antall
+1332,Ballbingehåndball,,,8 + innbyttere,Håndball | Ballbinge,En håndball (gjerne myk),nei,nei,0,nei,0,na,a:antall
+1333,Mattehåndball,8,,8 eller flere,Håndball | Matter,En håndball,nei,nei,0,nei,0,na,
+1334,Sittehåndball,6,,6 til mange,Håndball,En håndball,nei,nei,0,nei,0,na,
+1335,Tomt målfelt,8,12,8-12,Håndball,4-6 håndballer,nei,nei,0,nei,0,na,
+1336,Innebandy,,,,Innebandyballer | Innebandykøller | Innebandymål,,nei,nei,0,nei,0,na,a:antall
+1337,Bandygolf,2,,2 eller flere,Innebandyballer | Innebandykøller | Markeringskjegler | Rockeringer,"Innebandykøller, innebandyballer, kjegler, rockeringer",nei,nei,0,nei,0,na,
+1338,De fire hjørner,8,,8 eller flere,Innebandyballer | Innebandykøller,"Innebandykøller og innebandyballer. Egner seg også til bruk i fotball, basketball, håndball.",nei,nei,0,nei,0,na,
+1339,Gatebandy,6,,6 eller flere,Innebandyballer | Innebandykøller | Innebandymål | Markeringskjegler,"Innebandykøller, innebandyballer, kjegler eller små mål",nei,nei,0,nei,0,na,
+1340,Hjørnebandy,8,16,8-16,Benker | Innebandyballer | Innebandykøller,"Innebandykøller, innebandyball og 4 benker",nei,nei,0,nei,0,na,
+1341,Innebandy-sisten,5,30,5-30,,Innebandykøller og innebandyballer,nei,nei,0,nei,0,na,
+1342,Parbandy,6,,6 eller flere (partall),Innebandyballer | Innebandykøller | Innebandymål | Markeringskjegler,"Innebandykøller, innebandyballer, to små mål og markeringskjegler",nei,nei,0,nei,0,na,
+1343,Plageånden,6,,6 eller flere,Innebandyballer | Innebandykøller | Markeringstallerkener,"Innebandykøller, innebandyballer, 12 kjegler/kinahatter. Egner seg også for fotball.",nei,nei,0,nei,0,na,
+1344,Brentball,3,15,3 til 15,Markeringskjegler | Dragonskin skumball,Markeringskjegler (oppmerking av bane) og en eller flere dragonskin skumballer,nei,nei,0,nei,0,na,
+1345,Jegerball,6,25,6-25,Markeringsvester | Dragonskin skumball | Markeringskjegler,"1 markeringsvest, 1 dragonskin skumball og 4 markeringskjegler",nei,nei,0,nei,0,na,
+1346,Kong Gustav,8,,8 eller flere,Dragonskin skumball,2-3 dragonskin skumballer,nei,nei,0,nei,0,na,
+1347,Portugisisk kanonball,2,50,2-50,Basketball | Markeringstallerkener | Rockeringer | Dragonskin skumball,"10 basketballer (evt. fotball, volleyball, håndball), 10 kjegler/kinahatter, 6 kanonballer, 2 rockeringer",nei,nei,0,nei,0,na,
+1348,Stikkball,4,20,4-20,Markeringstallerkener | Dragonskin skumball,Tre dragonskin skumballer og markeringstallerkener,nei,nei,0,nei,0,na,
+1350,Østavind og vestavind,6,40,6-40,,"Markeringskjegler, draginskin skumballer",nei,nei,0,nei,0,na,
+1351,Bomben kommer!,8,30,8-30,Kin-Ball,Kin-Ball,nei,nei,0,nei,0,na,
+1353,Bulldog,10,400,10-400!,Kin-Ball | Six-Ball | Dragonskin skumball | Markeringskjegler,Six-ball/Kin-ball/dragonskin skumball og markeringskjegler.,nei,ja,1,nei,0,na,
+1354,Firkantet kickball,8,20,8-20,Six-Ball | Rockeringer | Markeringskjegler,"Six-ball, rockeringer, markeringskjegler",nei,nei,0,nei,0,na,
+1355,Hoppe bukk,3,20,3-20,Kin-Ball,Kin-ball,nei,nei,0,nei,0,na,
+1356,Indiana Jones,10,300,10-300,Kin-Ball,Kin-ball,nei,nei,0,nei,0,na,
+1357,Kin-Ball,12,12,12,Kin-Ball | Poengtavle | Markeringsvester,"1 Kin-ball, poengtavle og 12 vester i tre ulike farger",nei,nei,0,nei,0,na,
+1358,Kin-Ball-transport,6,20,6-20,Kin-Ball,Kin-Ball,nei,nei,0,nei,0,na,
+1359,Kin-fotball,6,21,6-21,Dragonskin skumball | Kin-Ball | Markeringskjegler | Fotball,"Kin-Ball, Omnikin-fotball el. vanlig fotball, markeringskjegler",nei,nei,0,nei,0,na,
+1360,Kin-ord-volleyball,6,20,6-20,Six-Ball | Omnikin-volleyball | Volleyballnett | Tryllesnor,"Six-ball eller Omnikin-volleyball, volleynett eller tryllesnor",nei,nei,0,nei,0,na,
+1361,Kin-volleyball,6,20,6-20,Six-Ball | Omnikin-volleyball | Volleyballnett | Tryllesnor,Six-ball eller Omnikin-volleyball og volleyballnett eller snor,nei,nei,0,nei,0,na,
+1362,Kjappen,,,2 lag a 5-15,Markeringstallerkener | Six-Ball | Dragonskin skumball | Stoppeklokke,"Kjegler/kinahatter, 1 Six-ball (eller en annen myk ball) og 1 stoppeklokke",nei,nei,0,nei,0,na,a:antall
+1363,Lokomotivet,10,150,10-150,Kin-Ball | Six-Ball,Kin-ball eller six-ball,nei,nei,0,ja,1,nei,c:bilde
+1365,Monster Time,10,,10 eller flere,Kin-Ball | Markeringskjegler,"1 Kin-Ball, 8 markeringskjegler",nei,nei,0,nei,0,na,
+1367,SIX Ball-spretten,8,,8 eller flere,Kin-Ball,1 eller flere SIX baller,nei,nei,0,nei,0,na,
+1368,På Nordpolen,6,10,6-10,Kin-Ball,Kin-ball,nei,nei,0,nei,0,na,
+1369,Racerbanen,20,,20 eller flere,Kin-Ball,2 Kin-baller,nei,nei,0,nei,0,na,
+1370,Sheriff med Kin-Ball,6,30,6-30,Kin-Ball,Kin-ball,nei,nei,0,nei,0,na,
+1371,Six-Ball Battle,6,10,6-10,Six-Ball | Markeringskjegler,Six-ball og markeringskjegler,nei,nei,0,nei,0,na,
+1372,Slangesisten med ball,8,20,8-20,Six-Ball,Six-ball,nei,nei,0,nei,0,na,
+1373,Sumobryting,6,10,6-10,Kin-Ball,Kin-ball,nei,nei,0,nei,0,na,
+1374,Tagball,8,20,8-20,Kin-Ball | Markeringstallerkener | Six-Ball,Kin-ball og markeringstallerkener,nei,nei,0,ja,1,nei,c:bilde
+1375,Trillball,8,20,8-20,Six-Ball | Markeringstallerkener,"Six-ball, markeringstallerkener",nei,nei,0,nei,0,na,
+1376,Tunnelball,9,30,9-30,Basketball | Markeringstallerkener | Six-Ball,"Six-ball, basketball eller lignende, markeringskjegler",nei,nei,0,nei,0,na,
+1377,Lengste drive,2,,2 eller flere,Markeringstallerkener | Tri-Golf køller | Tri-Golf baller,"Tri-Golf (Golfkøller og golfballer), minst 12 kjegler eller hatter",nei,nei,0,nei,0,na,
+1378,Putting,2,10,2-10,Tri-Golf baller | Tri-Golf køller | Rockeringer | Markeringstallerkener,"Tri-Golf (Golfkøller, golfballer), rockering/tau og markeringskjegler.",nei,nei,0,nei,0,na,
+1379,Tri-Golf triksing,2,,2 eller flere,Tri-Golf baller | Tri-Golf køller,Tri-Golf (Golfkøller og golfballer),nei,nei,0,nei,0,na,
+1380,Volleyball,,,,Volleyball | Omnikin-volleyball | Volleyballnett,,nei,nei,0,nei,0,na,a:antall
+1381,Hjørnevolleyball,8,20,8-20,Volleyball | Volleyballnett,1 volleyball,nei,nei,0,nei,0,na,
+1382,Lakenvolley,8,16,8-16,Volleyball | Volleyballnett | Fallskjerm | Six-Ball,"Laken/duk/fallskjerm/håndkle/pledd/, en Six-ball eller en myk ball og nett",nei,nei,0,nei,0,na,
+1383,Rushvolleyball,8,20,8-20,Volleyball | Volleyballnett | Tryllesnor | Markeringstallerkener,"2 volleyballer, volleyballnett/tryllesnor og markeringstallerkener",nei,nei,0,nei,0,na,
+1384,Volleyvegg,,,Mange,,En volleyball og markeringskjegler,nei,nei,0,nei,0,na,
+1385,Ballongdansen,6,,6 eller flere,Musikk | Ballonger,"Musikk-anlegg, en ballong til hver deltager",nei,nei,0,nei,0,na,
+1386,Bevegelse når musikken stopper,6,,6 eller flere,Musikk,"Musikkanlegg, morsom musikk",nei,nei,0,nei,0,na,
+1388,Dansesisten,6,,6 eller flere.,Musikk | Markeringstallerkener,Markeringstallerkener og musikk (valgfritt),nei,ja,1,nei,0,na,
+1389,Diskotek,,,Mange,Musikk,Musikkanlegg og dansemusikk,nei,nei,0,nei,0,na,
+1390,Dans i trivselsfriminuttet,2,,2 eller flere,Musikk,"Musikkanlegg og musikk til dansene, eventuelt også SmartBoard eller projektor og PC.",nei,nei,0,nei,0,na,
+1391,Hils på hverandre,8,,8 eller flere,Musikk,Musikkanlegg med morsom musikk,nei,nei,0,nei,0,na,
+1392,Hiphop,2,,2 eller flere,Musikk,Musikkanlegg og dansemusikk,nei,nei,0,nei,0,na,
+1393,Limbo,5,,5 eller flere,Musikk | Stang | Hoppetau | Lange skumrør,"Musikkanlegg, en stang eller et tau og dansemusikk, eks: Limbo Rock",nei,ja,1,nei,0,na,
+1394,Samarbeid,8,,8 eller flere (partall),Musikk,"Musikkanlegg, glad musikk",nei,nei,0,nei,0,na,
+1395,Speilbevegelse,2,,2 eller flere (partall),Musikk,,nei,nei,0,nei,0,na,
+1397,Hviskeleken,8,20,Ca. 8 - 20,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1398,Mafia,10,,10 eller flere,Kortstokk | Uten utstyr | Kostymer,"utkledning, kortstokk",nei,nei,0,nei,0,na,
+1400,Morderen er løs,10,,10 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1405,Trollmannens tryllestøv,6,,6 eller flere,Uten utstyr | Pinne,En tryllestav (en pinne eller lignende),nei,nei,0,nei,0,na,
+1406,TL-dans 1,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1407,TL-dans 2,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1408,TL-dans 3,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1409,TL-dans 4,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1410,TL-dans 5,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1411,TL-dans 6,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1412,TL-dans 7,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1413,TL-dans 8,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1414,TL-dans 9,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1415,TL-dans 10,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1416,TL-dans 11,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1417,TL-dans 12,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1418,TL-dans 13,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1419,TL-dans 14,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1420,TL-dans 15,,,,Musikk,,nei,nei,0,nei,0,na,a:antall
+1421,Ellinger,,,,Uten utstyr,,nei,nei,0,nei,0,na,a:antall
+1422,Aktiviteter med fallskjerm,8,24,8-24.,Fallskjerm,Fallskjerm og baller.,nei,ja,1,nei,0,na,
+1423,Friidrett,,,,Målebånd | Stoppeklokke,,nei,nei,0,nei,0,na,a:antall
+1424,Friidrettshinderløype i skolegården,8,,8 eller flere,Liten ball | Målebånd | Stoppeklokke,"Baller, målebånd, stoppeklokker, ulike hinder, lengdegrop og lignende",nei,nei,0,nei,0,na,
+1425,Hekkeløp,3,,3 eller flere,Stoppeklokke | Hekker,"Stoppeklokke, hekker",nei,nei,0,nei,0,na,
+1426,Høydehopp,2,,2 eller flere,Høydehoppstativ | Gummimadrass,Høydehoppstativ,nei,nei,0,nei,0,na,
+1427,Kast med ball,2,,2 eller flere,Liten ball | Målebånd,"Målebånd, kule eller ulike varianter av baller",nei,nei,0,nei,0,na,
+1428,Lengdehopp,2,,2 eller flere,Målebånd,"Målebånd, spade og rake",nei,nei,0,nei,0,na,
+1429,Løp,3,,3 eller flere,Stoppeklokke,Stoppeklokke,nei,nei,0,nei,0,na,
+1430,Stafett,6,,6 eller flere,Stoppeklokke | Stafettpinner,Stafettpinner og stoppeklokke,nei,nei,0,nei,0,na,
+1431,Alle som...,9,,9 eller flere,Stoler,En stol til alle utenom en,nei,nei,0,nei,0,na,
+1432,Annenhver,8,16,8-16,Basketball | Dragonskin skumball,1-2 baller,nei,nei,0,nei,0,na,
+1433,Atomleken,,,4-6 pr. gruppe,Uten utstyr,,nei,ja,1,nei,0,na,a:antall
+1434,Bjeff!,8,,8 eller flere,Blendebrille,"Øyebind, pannebånd, skjerf eller lignende",nei,nei,0,nei,0,na,
+1436,Blindebukk,8,,8 eller flere,Blendebrille,"Pannebånd, skjerf eller lignende eventuelt utstyr til å lage en løype",nei,nei,0,nei,0,na,
+1437,Bokstavleken,10,,10 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1438,Bøtteblink,2,,2 eller flere,Bøtte | Tau | Kritt,"Stor, solid bøtte, ball, kritt, tau eller annen oppmerking for streker",nei,nei,0,nei,0,na,
+1439,Capture the flag,16,,16 eller flere,Markeringsvester | Rockeringer | Flagg,"Markeringsvester, rockering, ”flagg” og en ”flaggstang”",nei,nei,0,nei,0,na,
+1440,Den flittige bie,5,,5 eller flere,Rockeringer | Erteposer,Erteposer og en rockering,nei,nei,0,nei,0,na,
+1441,Det forbudte tall,6,,6 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1442,Dyrehagen,9,,9 eller flere,Blendebrille,"Pannebånd, øyebind, skjerf eller lignende",nei,nei,0,nei,0,na,
+1443,Edderkoppnettet,2,16,2 - 16,Tau,Tau eller hyssing/tråd,nei,nei,0,nei,0,na,
+1444,Finn en feil,8,,8 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1445,Flaggkampen,4,10,4-10,Markeringskjegler,Markeringskjegler (en per deltager),nei,nei,0,nei,0,na,
+1446,Flasketuten peker på,6,,6 eller flere,Flasker,Plastflaske,nei,nei,0,nei,0,na,
+1447,Frigi kapteinen,8,,8 eller flere,Markeringskjegler | Dragonskin skumball,Matte eller markeringskjegler til oppmerking. Dragonskin skumballer og erteposer eller lignende.,nei,nei,0,nei,0,na,
+1449,Haha!,6,,6 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1450,"Ikke smile ikke le, ikke vise tennene, 1, 2, 3!",2,,2 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1451,Kappe land,,,Mange,Uten utstyr,"Pinne, eller annet redskap til å merke opp i grusen.",ja,nei,0,nei,0,na,b:utstyr
+1452,Siste paret ut,5,17,5-17,Uten utstyr,Markeringsmatter/tallerkener,ja,ja,1,nei,0,na,b:utstyr
+1453,Katt og mus,10,,10 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1454,Kims lek,2,,2 eller flere,Duk | Skrivesaker,"Mange ulike gjenstander, skrivesaker og noe å skrive på",nei,nei,0,nei,0,na,
+1455,Knutemor,4,,4 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1456,Knute på tråden,6,,6 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1457,Kongen befaler,6,15,6-15,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1461,Kreativ lek,2,,2 eller flere,Erteposer | Dragonskin skumball | Fotball | Rockeringer,"Erteposer, baller, rockeringer, dragonskin skumball, ogo osv.)",nei,nei,0,nei,0,na,
+1462,Make a move,4,,4 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1463,Match tiden,3,,3 eller flere,Stoppeklokke,Stoppeklokke og eventuelt utstyr til å lage en hinderløype,nei,nei,0,nei,0,na,
+1464,Mitt skip er lastet med,8,,8 eller flere,Dragonskin skumball | Erteposer | Uten utstyr,"Dragonskin skumball, ertepose eller noe man finner i klasserommet.",nei,nei,0,nei,0,na,
+1465,Panter´n,5,,5 eller flere,Uten utstyr,"Forskjellige gjenstander, som f.eks. binders, stein, viskelær osv., samt et håndkle eller tøystykke e.l.",ja,nei,0,nei,0,na,b:utstyr
+1466,Partall og oddetall,2,,2 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1467,Potetløp,2,,2 eller flere,Markeringskjegler | Poteter | Skje,"Potet eller annen rund gjenstand, skje, markeringskjegler",nei,nei,0,nei,0,na,
+1468,Rockeringer,1,,1 eller flere,Rockeringer,Rockeringer,nei,nei,0,nei,0,na,
+1469,Silly Walk,6,,6 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+1470,Slangetemmer,8,,8 eller flere,Blendebrille | Hoppetau,"Hoppetau eller lignende, pannebånd/skjerf eller lignende",nei,nei,0,nei,0,na,
+1471,Spion vs General,10,,10 eller flere,Markeringstallerkener | Tilleggsmateriale,"Spion vs General-sett eller egne laminerte kort, markering av hjemmeområde og midtpunkt",nei,nei,0,nei,0,na,
+1473,"Stein, saks, papir - med lag",8,,8 eller flere (veldig gøy med mange),Markeringstallerkener | Markeringskjegler | Kritt,Kritt eller markeringskjegler/markeringstallerkner,nei,nei,0,nei,0,na,
+1474,Stjel flagget,8,,8 eller flere,Flagg | Markeringsvester | Stoler,"Stol/stor stein eller lignende. Kjegler, kritt, eller lignende til oppmerking. Et flagg eller en markeringsvest",nei,nei,0,nei,0,na,
+1475,Stolleken,8,,8 eller flere,Musikk | Stoler,"Stoler tilsvarende antall deltagere, minus én (10 deltagere = 9 stoler) og musikkanlegg med musikk (gjerne marsjmusikk)",nei,nei,0,nei,0,na,
+1476,Tampen brenner,4,,4 eller flere,Uten utstyr,En gjenstand som skal være skatt,ja,nei,0,nei,0,na,b:utstyr
+1477,Tipp hvem?,6,,6 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+1478,Treminuttersløp,6,,6 eller flere,Stoppeklokke | Musikk,Stoppeklokke og musikk dersom man ønsker det,nei,nei,0,nei,0,na,
+1479,Tøm flasken,2,10,2-10,"Dragonskin skumball | 1,5L plastflasker",To 1.5L plastflasker med vann og 1valgfri ball,nei,nei,0,nei,0,na,
+1480,Utfordringen (mangler utstyr til nattduellen og kulestøt),4,12,4-12,Crossboccia-sett | Disc-boccia,Avhenger av hva slags tre øvelser man velger,nei,nei,0,nei,0,na,
+1481,Test upublisert innhold,,,,,,nei,nei,0,nei,0,na,a:antall+d:tekst
+1482,Test upublisert innhold,,,,,,nei,nei,0,nei,0,na,a:antall+d:tekst
+1483,Test upublisert innhold,,,,,,nei,nei,0,nei,0,na,a:antall+d:tekst
+1484,Test upublisert innhold,,,,,,nei,nei,0,nei,0,na,a:antall+d:tekst
+1513,Verdisamling: VENNSKAP,,,,,,nei,nei,0,ja,1,ja,a:antall
+1521,Verdisamling: FORSKJELLIGHET,,,,,,nei,nei,0,ja,1,ukjent_token,a:antall+c:bilde
+1524,Verdisamling: TRIVSEL,,,,,,nei,nei,0,ja,1,ukjent_token,a:antall+c:bilde
+1681,Alle mot alle,10,,10 eller flere,Uten utstyr | Markeringstallerkener,Markeringstallerkener,nei,ja,1,nei,0,na,
+1682,Myggsisten,10,,10 eller flere,Markeringstallerkener | Lange skumrør | Koblinger,"2 lange skumrør med koblinger, markeringstallerkener",nei,ja,1,nei,0,na,
+1683,Mini-Nord & Sør,8,,8 eller flere,Kin-Ball | Six-Ball | Markeringstallerkener,"2 Six-baller, markeringstallerkener",nei,nei,0,ja,1,ukjent_token,c:bilde
+1685,Rubiks matte,4,16,4-16,Disc-boccia | Poengmatter | Tilleggsmateriale | Markeringstallerkener,"2 sett Disc-Boccia (16 discer i 4 ulike farger), 2 poengmatter (3x3 ruter), 2 markeringstallerkener til start og Rubiks matte-maler",nei,ja,1,nei,0,na,
+1686,Returball,2,,2 eller flere,Returball | Markeringskjegler,"12 Returballer, kjegler i to ulike farger som kan velte, mar- keringstallerkener",nei,nei,0,ja,1,ukjent_token,c:bilde
+1687,Tvert om,5,,5 eller flere,Markeringstallerkener,"Kjegler i 6 ulike farger med tallene 1-6, markeringsmatter",nei,ja,1,nei,0,na,
+1688,Pirates of the Caribbean,10,30,10-30,Lagbånd | Terning | Markeringsmatter,"Ca. 30 minikjegler, 1-3 terninger, lagbånd, markeringsmatter/tallerkener",nei,ja,1,ja,1,ukjent_token,c:bilde
+1689,Bevegelsesbingo,4,,4 eller flere,Markeringstallerkener | Tilleggsmateriale,"16 markeringstallerkener, et bingoark med tallrekke og en penn til hvert par, 16 laminerte oppgaver skrevet på hvert sitt ark (dette materialet finner dere i dokumentbanken)",nei,nei,0,ja,1,ukjent_token,c:bilde
+1690,StreetRacket - Streetking,4,,4 eller flere,Markeringstallerkener | Kritt | Streetracket,"4 Streetracket + 1 ball, 16 markeringsskiver, alternativt kritt",nei,ja,1,ja,1,ukjent_token,c:bilde
+1691,Touchball,6,,6 eller flere,,"Skumball, lagbånd, markeringsmatter/tallerkener",nei,ja,1,nei,0,na,
+1692,TL-battle 2.0,8,,8 eller flere,TL-battle | Markeringstallerkener,"1 TL Battle sett (vester og baller), markeringstallerkener til oppmerking av bane",nei,nei,0,nei,0,na,
+1693,Nummerleken,5,,5 eller flere,Musikk | Nummererte markeringskjegler | Terning,"5 kjegler med tall (eventuelt ulike farger), aktivitetsterning eller vanlig terning, fløyte",nei,ja,1,nei,0,na,
+2263,Former,4,,4 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2264,Fange finger,5,,5 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+2265,Parsisten,4,,4 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+2266,Kikkertsisten,2,,2 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2267,Sjørøversisten,2,,2 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2270,Hermegåsa,2,,2 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2271,Elgen velger,5,15,5-15,Uten utstyr,,nei,ja,1,nei,0,na,
+2272,Beveg deg som,5,,5 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2274,Hopp inn - hopp ut,8,,8 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+2275,Bevegelsesalfabetet,1,,1 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+2276,Jeg også,8,,8 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2277,Felles krefter,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+2279,7 min workout,1,,1 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2280,Den usynlige dansematten,4,,4 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2281,100 om dagen!,1,,1 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+2282,Just dance,1,,1 eller flere,Uten utstyr,Projektor og Internett-tilgang,ja,ja,1,nei,0,na,b:utstyr
+2283,Move and freeze,1,,1 eller flere,Uten utstyr,Projektor og Internett-tilgang,ja,nei,0,nei,0,na,b:utstyr
+2461,TP- Bowling,2,10,2-10,Jungelbowling | Bowlingsett,Bowlingsett,nei,nei,0,ja,1,ja,
+2463,TP-bingo,6,,6 eller flere,Markeringstallerkener,"Bilder, bingobrett, tusjer.",nei,nei,0,nei,0,na,
+2464,Slangesisten,7,,7 eller flere,,Ingenting,nei,nei,0,ja,1,ja,
+2468,Enarmet Banditt,5,,5 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+2599,Akebrettstafett med tau,4,,4 eller flere,Akebrett | Rumpeakebrett | Tau | Markeringskjegler,"Akebrett/rumpeakebrett, tau, kjegler eller andre hindre til løypen",nei,nei,0,nei,0,na,
+2601,Aketog,3,,3 eller flere,Akebrett,Rumpeakebrett,nei,nei,0,nei,0,na,
+2602,Ake på presenning,6,,6 eller flere,Presenning,Presenning,nei,nei,0,nei,0,na,
+2605,Dansk stikkball på ski,3,,3 eller flere,Miniski | Dragonskin skumball | Markeringskjegler | Langrennski,"Miniski eller langrennski til alle, 3-4 dragonskin skumballer og markeringskjegler",nei,nei,0,nei,0,na,
+2606,Snøball på blink,1,,1 eller flere,Snøballer | Blink,"Snøballer og en blink, evt. notatblokk og penn for poengskriving",nei,nei,0,nei,0,na,
+2608,Kanonball i snø,10,,10 eller flere,Dragonskin skumball | Markeringskjegler | Miniski | Langrennski,Dragonskin skumballer og markeringskjegler,nei,nei,0,nei,0,na,
+2609,Skibandy,2,20,2-20,Miniski | Innebandyballer | Innebandykøller | Markeringskjegler | Lite mål | Langrennski,"Miniski/langrennski, innebandykøller, innebandyballer, markeringskjegler, 2 mål",nei,nei,0,nei,0,na,
+2610,Curling på is,2,12,2-12,Markeringskjegler | Isklumper,"Isklumper/stein, tusj eller sprayboks, pinne til å markere treffpunkt",nei,nei,0,nei,0,na,
+2612,Snøhuler og snøborger,2,,2 eller flere,Spade,Spader,nei,nei,0,nei,0,na,
+2614,Frisbeegolf med ski,2,,2 eller flere,Miniski | Frisbee | Blink | Rockeringer | Tau | Langrennski,"Miniski/langrennski, en frisbee til hver og blinker (rockering og tau, eller lignende)",nei,nei,0,nei,0,na,
+2617,Hauk og due på skøyter,10,,10 eller flere,Skøyter | Hjelm,Skøyter & hjelm,nei,nei,0,nei,0,na,
+2619,Rev og hare,6,,6 eller flere,Miniski | Langrennski,Miniski eller vanlig langrennski,nei,nei,0,nei,0,na,
+2621,Hest og kjerre,3,,3 eller flere,Miniski | Langrennski | Markeringskjegler | Staver,"Miniski eller vanlig langrennsski, staver og markeringskjegler",nei,nei,0,nei,0,na,
+2622,Flateslalåm,2,,2 eller flere,Miniski | Langrennski | Staver | Markeringskjegler,"Miniski eller langrennsski, staver og kjegler",nei,nei,0,nei,0,na,
+2626,Miniskifotball,6,20,6-20,Miniski | Fotball | Markeringsvester,"Miniski, fotball, mål og vester til inndeling av lag",nei,nei,0,nei,0,na,
+2627,Bøttestafetten,4,20,4-20,Miniski | Bøtte | Snøballer,"Miniski, 2 bøtter/rockeringer til hvert lag, kongler, snøballer eller småting til å ha i bøttene",nei,nei,0,nei,0,na,
+2631,Skiskyting,2,,2 eller flere,Miniski | Langrennski | Rockeringer | Snøballer,"Miniski eller langrennsski, rockeringer, noe å kaste med.",nei,nei,0,nei,0,na,
+2632,Skistafett,2,,2 eller flere,Miniski | Langrennski | Staver,"Miniski eller langrennsski, stolper/staver til å markére løypen",nei,nei,0,nei,0,na,
+2634,Sisten på skøyter/ski,3,,3 eller flere,Skøyter | Hjelm | Miniski | Langrennski,"Skøyter, hjelm og en isbelagt bane/snøbelagt bane",nei,nei,0,nei,0,na,
+2635,Skøytetoget,3,,3 eller flere,Skøyter | Hjelm,"Skøyter, hjelm og en isbelagt bane",nei,nei,0,nei,0,na,
+2637,Bandy,,,"Mange, gjerne 22",Skøyter | Hjelm | Innebandyballer | Innebandykøller,"Skøyter, bandykøller og hjelm til alle, bandyball og 2 mål",nei,nei,0,nei,0,na,
+2647,Snowboardhopp og triks,,,,Snowboard | Slideboard,,nei,nei,0,nei,0,na,a:antall
+2696,Egget,6,,6 eller flere,Liten ball med sprett | Moonball,Sprettball,nei,nei,0,nei,0,na,
+2698,Fisken i det røde hav,10,20,10-20,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2699,Hoppe lus,6,15,6-15,Ball med sprett,"1 ball, markeringskjegler/tallerkener",nei,nei,0,nei,0,na,
+2700,Hull i hatten,6,15,6-15,Dragonskin skumball,1 ball,nei,nei,0,nei,0,na,
+2701,Rødt og grønt lys,3,,3 eller flere,Uten utstyr | Markeringstallerkener,Kjegler/kinahatter eller lignende,nei,nei,0,nei,0,na,
+2702,Ståball,6,,6 eller flere,Kritt | Dragonskin skumball | Markeringstallerkener,Kritt eller markeringkjegler/tallerkener,nei,nei,0,nei,0,na,
+2703,Boksen går,6,,6 eller flere,Uten utstyr,En boks,ja,nei,0,nei,0,na,b:utstyr
+2705,Bomgjemsel (Skjønte ikke leken),6,,6 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2706,"Jeger, hund og hare",6,,6 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2707,Trangt om plassen,5,,5 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2708,"Helikopter, helikopter",6,,6 eller flere,Hoppetau,Slengtau,nei,nei,0,nei,0,na,
+2709,Måneder,6,,6 eller flere,Slengtau,Slengtau,nei,nei,0,nei,0,na,
+2710,jump for joy,1,,1 eller flere,Hoppetau,Et tau per deltaker,nei,nei,0,nei,0,na,
+2711,Hoppetau/svingtau,1,,1 eller flere,Slengtau | Hoppetau,Hoppetau eller slengtau,nei,nei,0,nei,0,na,
+2712,Slengtau (ulike varianter),6,,6 eller flere,Slengtau,Slengtau,nei,nei,0,nei,0,na,
+2713,"Fram, ned, bak",3,,3 eller flere,Kritt | Tau | Uten utstyr,Tau eller opptegnet strek,nei,nei,0,nei,0,na,
+2714,Lynet,8,,8 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2715,Sheriff,6,,6 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2716,Snipp og snapp,8,,8 eller flere,Uten utstyr,Kinahatter/kjegler,ja,nei,0,nei,0,na,b:utstyr
+2718,Alle sammen ut av huset,6,,6 eller flere,Markeringskjegler | Kritt,Markeringskjegler eller kritt til oppmerking,nei,nei,0,nei,0,na,
+2720,Basillen og medisinen,8,,8 eller flere,Markeringstallerkener | Markeringsvester,"Kinahatter/kjegler, 2-4 vester",nei,nei,0,nei,0,na,
+2721,Billesisten,8,,8 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2722,Blekkspruten,8,,8 eller mange,Markeringskjegler | Kritt,Markeringskjegler eller kritt til oppmerking,nei,nei,0,nei,0,na,
+2724,Discosisten,8,,8 eller flere,Musikk | Markeringstallerkener | Uten utstyr,"Musikk og markeringstallerkener, kan også lekes uten utstyr",nei,nei,0,nei,0,na,
+2725,Doktorsisten,8,,8 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2726,Gnu og gepard,8,,8 eller flere,Markeringskjegler | Uten utstyr,2 markeringskjegler. Kan også lekes uten utstyr,nei,nei,0,nei,0,na,
+2727,Gåsemor,5,10,5 - 10,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2728,Haien kommer!,9,,9 eller flere,Uten utstyr,Kjegler/kritt til oppmerking,ja,nei,0,nei,0,na,b:utstyr
+2729,Hauk og due,8,,8 eller flere,Markeringskjegler | Kritt | Uten utstyr,Markeringskjegler/kritt til oppmerking. Leken kan også gjøres uten utstyr,nei,nei,0,nei,0,na,
+2731,Hest og riddersisten,8,,"8 eller flere, må være partall",Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2732,Parsirkelsisten,10,,10 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2733,Ringsisten,8,,8 eller flere,Ball med sprett | Rockeringer,Rockeringer og baller som kan sprettes,nei,nei,0,nei,0,na,
+2734,Slangehale,10,,10 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2735,Snikende tiger,8,,8 eller flere.,Markeringstallerkener | Kritt | Blendebrille,Markeringstallerkener og blendebrille,nei,ja,1,nei,0,na,
+2736,Stiv heks med ball,8,,8 eller flere,Fotball | Innebandykøller | Innebandyballer | Markeringstallerkener,"Fotball, innebandykølle og ball eller baller som kan sprettes, Markeringskjegler eller lignende til oppmerking",nei,nei,0,nei,0,na,
+2737,Stokk eller stein,8,,8 eller flere,Uten utstyr,"Markeringstallerkener, lagbånd",ja,ja,1,nei,0,na,b:utstyr
+2738,Tarzansisten,8,,8 eller flere,Matter | Tau | Gummimadrass | Rockeringer | Benker,"Ting til en «jungelløype»: matter, slengtau, benker, rockeringer, kasser osv.",nei,nei,0,nei,0,na,
+2739,Tellesisten,9,,9 eller flere,Markeringstallerkener,Markeringskjegler,nei,nei,0,nei,0,na,
+2740,Titten på hjørnet,8,,8 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2741,Tre ganger rundt huset,7,,7 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2742,Ballongsprekk,,,Mange,Ballonger | Markeringstallerkener,Ballonger og kjegler,nei,nei,0,nei,0,na,
+2757,Ballongstafett,6,,6 eller flere,Ballonger,Ballonger (en per lag) og kjegler,nei,nei,0,nei,0,na,
+2758,Ballongstafett med kølle,6,,6 eller flere,Ballonger | Innebandykøller,"En innebandykølle og en ballong per lag, kjegler",nei,nei,0,nei,0,na,
+2759,Blindestafett,8,,8 eller flere,Blendebrille | Markeringskjegler,"Markeringskjegler, øyebind eller noe til å ha foran øynene",nei,nei,0,nei,0,na,
+2760,Erteposestafett,8,,8 eller flere,Erteposer | Rockeringer,"Mange erteposer, rockeringer og/eller kritt",nei,nei,0,nei,0,na,
+2761,Harehopp,8,,8 eller flere,Markeringskjegler | Fotball,Markeringskjegler og baller,nei,nei,0,nei,0,na,
+2762,Hentestafett,8,,8 eller flere,Markeringskjegler,Markeringskjegler,nei,nei,0,nei,0,na,
+2763,Hjulstafett,,,Mange,Markeringskjegler | Matter,Markeringskjegler og eventuelt matter,nei,nei,0,nei,0,na,
+2766,Kinamannen,8,24,8-24,Markeringstallerkener,Kinahatter (en per lag),nei,nei,0,nei,0,na,
+2768,Kortstokkstafett,8,24,8-24,Kortstokk | Markeringstallerkener,1 kortstokk (gjerne laminert) og kjegler,nei,nei,0,nei,0,na,
+2769,Nummerkappløp,8,,8 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2770,Rockeringestafett,8,,8 eller flere,Rockeringer | Markeringskjegler,2-3 rockeringer per lag og kjegler,nei,nei,0,nei,0,na,
+2771,Run & Gun,6,,6 eller flere,Basketball | Basketkurv,To basketballer og en eller to basketkurver,nei,nei,0,nei,0,na,
+2772,Spreder´n,8,,8 eller flere,Rockeringer | Dragonskin skumball,4 rockeringer og 4 dragonskin skumballer per lag,nei,nei,0,nei,0,na,
+2773,Terningstafett,4,30,4-30,Nummererte markeringskjegler,"1 startkjegle per lag, 1 terning per lag og 6 markeringstallerkener per lag",nei,ja,1,nei,0,na,
+2774,Vannballongstafett,8,,"8 eller flere, partall",Vannballonger | Markeringskjegler,Markeringskjegler og vannballonger,nei,nei,0,nei,0,na,
+2775,Venner for livet,10,,10 eller flere,Rockeringer | Markeringskjegler,En rockering per lag og markeringskjegler,nei,nei,0,nei,0,na,
+2776,5ern,4,20,4-20,Basketball | Dragonskin skumball | Dodgebees | Frisbee,"Plystreball, frisbee, basketball, fotball eller lignende og vester",nei,nei,0,nei,0,na,
+2777,Boccia,,,2-6 spillere per sett,Boccia,Bocciasett,nei,nei,0,nei,0,na,a:antall
+2778,Bowling,2,20,2-20,Bowlingsett,Bowlingsett,nei,nei,0,nei,0,na,
+2780,Hesteskokasting,2,20,2-20,Hestesko | Pinne,"2 hestesko, pinne på 20-25 cm",nei,nei,0,nei,0,na,
+2781,Kakkjerring,4,,4 eller flere,Treklosser,En trekloss (kakk) per deltager + 6 klosser i en annen farge,nei,nei,0,nei,0,na,
+2782,Kaste på boks,2,20,2-20,Blikkbokser | Tennisballer | Snøballer,10 Blikkbokser og tennisballer eller snøballer,nei,nei,0,nei,0,na,
+2789,Kubb,2,12,2-12,Kubbespill,Kubbesett og markeringskjegler eller hatter,nei,nei,0,nei,0,na,
+2790,Las Vegas,2,20,2-20,Erteposer | Kritt,"Erteposer, kritt",nei,nei,0,nei,0,na,
+2791,Nummerkubb,,,Mange,Nummerkubb | Markeringstallerkener | Markeringskjegler,"6 nummerkubbsett, 6 markeringskjegler",nei,nei,0,nei,0,na,
+2793,Plystreball,2,20,2-20,Plystreball,Plystreball,nei,nei,0,nei,0,na,
+2794,Ringspill,1,20,1-20,Ringspill,Ringspill,nei,nei,0,nei,0,na,
+2795,Scoop,,,To og to el. en gruppe på 4-8,Scoop sett,Scoop m/ tilhørende ball,nei,nei,0,nei,0,na,a:antall
+2796,Vippe pinne,,,2-6 på hvert lag.,Pinne,"En lang pinne, (ca. 70 cm), en kort pinne (ca. 30 cm) og en grop i bakken eller to steiner",nei,nei,0,nei,0,na,a:antall
+2797,Frisbee,,,,Frisbee,,nei,nei,0,nei,0,na,a:antall
+2799,Best shot!,2,,2 eller flere,Frisbee | Frisbeekurv,1 frisbee per deltager og minimum 1 frisbeekurv/Disc Golf Game target,nei,nei,0,nei,0,na,
+2800,Discathon,2,,2 eller flere,Frisbee | Dodgebees,"Trær, stolper, kjegler, pinner, og liknende, samt én frisbee per deltager eller lag",nei,nei,0,nei,0,na,
+2801,Disc Golf 5´er,8,,8 eller flere,Frisbee | Frisbeekurv | Dodgebees,1 frisbee og Disc Golf Game target og eventuelt markeringkjegler/hatter for å lage en bane.,nei,nei,0,nei,0,na,
+2802,Disc Golf gris,2,,2 eller flere,Frisbee | Frisbeekurv | Dodgebees,1-3 frisbeer og Disc Golf Game target,nei,nei,0,nei,0,na,
+2803,Disc Golf presisjon,2,,2 eller flere,Frisbee | Frisbeekurv | Dodgebees,1-3 frisbeer og 1 Disc Golf Game target,nei,nei,0,nei,0,na,
+2804,Double Disc Court (DDC),,,"4-8 (2 spillere per lag, 2 lag per bane)",Frisbee | Dodgebees | Markeringstallerkener,2 frisbeer per bane og markeringstallerkener,nei,nei,0,nei,0,na,a:antall
+2805,Frisbeeboccia,,,2-8 per spill,Frisbee | Markeringskjegler | Dodgebees,2-3 frisbee per deltager og 1 markeringskjegle,nei,nei,0,nei,0,na,a:antall
+2806,Frisbee Freestyle,,,En og en eller to og to,Frisbee | Dodgebees,En frisbee per deltager,nei,nei,0,nei,0,na,a:antall
+2807,Frisbeegolfstafett,,,4-6 per lag,Frisbee | Dodgebees | Bøtte | Rockeringer,En frisbee pr lag og 4-8 bøtter eller rockeringer,nei,nei,0,nei,0,na,a:antall
+2808,Frisbeestafett,,,6-12 spillere per lag,Frisbee | Rockeringer | Kritt,"En frisbee til hvert lag og kritt, tau eller rockering",nei,nei,0,nei,0,na,a:antall
+2811,GPS,2,,2 eller flere,Frisbee | Frisbeekurv | Stoppeklokke | Dodgebees,"1 frisbee per deltager, 1 frisbeekurv/Disc Golf Game target, stoppeklokke",nei,nei,0,nei,0,na,
+2813,Hemmelig distanse,2,8,2-8,Frisbee | Frisbeekurv,1 frisbee per spiller og Disc Golf Game target,nei,nei,0,nei,0,na,
+2814,Lengdefrisbee,2,,2 eller flere,Frisbee | Målebånd,Lengdefrisbee og eventuelt noe til å måle med,nei,nei,0,nei,0,na,
+2815,Moving target,4,,4 eller flere,Frisbee | Frisbeekurv,2 frisbeer og 2 Disc Golf Game Target,nei,nei,0,nei,0,na,
+2816,Presisjon på rockering,,,8 deltagere per lag,Frisbee | Dodgebees | Rockeringer,"3-6 frisbeer og rockering, kritt eller lignende til oppmerking",nei,nei,0,nei,0,na,a:antall
+2817,Self Caught Flights (SCF),1,,1 eller flere,Frisbee | Dodgebees,1 frisbee per spiller,nei,nei,0,nei,0,na,
+2818,Spinnstafett og triksing,,,4-8 per lag,Frisbee,En frisbee til hvert lag,nei,nei,0,nei,0,na,a:antall
+2819,"Zig, zag, zug",,,,Uten utstyr,,nei,nei,0,nei,0,na,a:antall
+2820,"Stein, saks, papir",,,,Uten utstyr,,nei,nei,0,nei,0,na,a:antall
+2821,Ryggprikking,,,,Uten utstyr,,nei,nei,0,nei,0,na,a:antall
+2822,Orientering,,,,,,nei,nei,0,nei,0,na,a:antall
+2823,Capsstafett,6,,6 eller flere (partall),Kart,"Ett kart per lag med inntegnede poster og en postmarkering til hvert lag (for eksempel caps, klype, nøkkelbånd)",nei,nei,0,nei,0,na,
+2824,Den usynlige posten,6,,6 eller flere,Kart | Poster,Ett kart per deltager/lag og postmarkeringer,nei,nei,0,nei,0,na,
+2825,Fire på rad,2,,2 eller flere,Markeringskjegler | Markeringstallerkener,16 kjegler/kritt og 8 markeringskjegler/markeringstallerkener,nei,nei,0,nei,0,na,
+2826,Fotoorientering,4,,4 eller flere,Blyanter | Ark | Bilder,"8-10 bilder av detaljer (hushjørne, lekestativ, gjerde osv.) i nærområdet, blyant og papir, eventuelt bokstaver/symboler til postene",nei,nei,0,nei,0,na,
+2827,Følg snoren,4,,4 eller flere,Blendebrille | Tau,"Snor, skjerf eller lignende til hver deltager for å ha foran øynene",nei,nei,0,nei,0,na,
+2828,Gymsalstafett,6,,6 eller flere,Benker | Gummimadrass | Rockeringer,"Utstyr til å bygge ”landskap” (benker, rockeringer, madrasser osv.), kart med ulike løyper",nei,nei,0,nei,0,na,
+2829,Kompasstrening,6,,6 eller flere,Kompass,Et kompass per deltager/par,nei,nei,0,nei,0,na,
+2830,Memory map,6,,6 eller flere,Kart,"Ett sett med ferdiginntegnede kart (ca. 20 poster), ett blankt kart per deltager/lag og penn/blyant",nei,nei,0,nei,0,na,
+2833,National treasure,6,,6 eller flere,Kart,"Skatt, kart",nei,nei,0,nei,0,na,
+2834,Orienteringsløype,6,,6 eller flere,Kart | Poster,"Markering av poster, et kart per elev/lag",nei,nei,0,nei,0,na,
+2835,O-skytteren,6,,6 eller flere,Erteposer | Rockeringer | Bøtte | Kart | Markeringskjegler,"Erteposer eller lignende, rockeringer eller bøtter, kart og markeringskjegler",nei,nei,0,nei,0,na,
+2836,Poengjakten,6,,6 eller flere,Kart | Poster,"Kart, oppgaver, poengkort",nei,nei,0,nei,0,na,
+2837,Rapportorientering,6,,6 eller flere,Blyanter | Ark | Poster | Kart,Svaralternativer/svarskjema kopiert opp til hver deltager og kart med inntegnede poster,nei,nei,0,nei,0,na,
+2838,Rebus-O,6,,6 eller flere,Poster | Kart | Ark | Blyanter,"Poster, kart, bokstaver, papir, penn",nei,nei,0,nei,0,na,
+2839,Stjerneorientering,6,,6 eller flere,Kart | Poster | Ark | Blyanter,"Kart, postmarkering og svarark",nei,nei,0,nei,0,na,
+2842,Å kaste pyramide,2,,2 eller flere,Kritt,"Kritt og 10 steiner, knapper, kongler eller lignende",nei,nei,0,nei,0,na,
+2843,Bokstavparadis,2,,2 eller flere,Kritt,Kritt,nei,nei,0,nei,0,na,
+2844,Flyver´n,2,,2 eller flere,Kritt,"Kritt til å tegne på asfalt eller en pinne til å streke opp i grusen, en stein",nei,ja,1,ja,1,ukjent_token,c:bilde
+2847,Konkurranseparadis,3,,3 eller flere,Kritt,Kritt og en stein,nei,nei,0,ja,1,ukjent_token,c:bilde
+2848,Nitall,2,,2 eller flere,Kritt,Kritt og en stein,nei,nei,0,nei,0,na,
+2849,Poengparadis,2,,2 eller flere,Kritt,Kritt,nei,nei,0,nei,0,na,
+2850,Skateboard,1,,1 eller flere,Skateboard | Hjelm,"Skateboard, hjelm og eventuelt kne- og albuebeskyttere",nei,nei,0,nei,0,na,
+2851,Enhjulsykkel,,,Så mange dere har sykler til,Enhjulssykkel | Hjelm,"En enhjulssykkel per deltager, hjelm",nei,nei,0,nei,0,na,
+2852,Hinderløype på sykkel,1,,1 eller flere,Hjelm | Sykkel | Sparkesykkel | Markeringskjegler,"En sykkel eller sparkesykkel per deltager, hjelm",nei,nei,0,nei,0,na,
+2853,Terrengsykling,1,,1 eller flere,Sykkel | Hjelm,En terrengsykkel per deltager,nei,nei,0,nei,0,na,
+2854,Badminton,2,4,2 eller 4,Badmintonracketer | Badmintonfjær | Badmintonnett,"Badmintonracketer, ball og nett",nei,nei,0,nei,0,na,
+2855,Bordtennis,2,4,2 eller 4,Bordtennisbord | Bordtennisracketer | Bordtennisball,"Bordtennisbord, eller et vanlig bord og nett, bordtennisracketer og ball",nei,nei,0,nei,0,na,
+2856,Kongebanen,,,"2 personer per bane, avhengig av antall baner",Badmintonracketer | Badmintonfjær,"Markeringstallerkener, baller, racketer",nei,nei,0,nei,0,na,a:antall
+2857,Kortspill og Racket,2,4,2 eller 4,Kortstokk | Racketer | Markeringstallerkener | Tennisballer,"Racketer, baller, kortstokk, markeringstallerkener",nei,nei,0,nei,0,na,
+2858,Minitennis,2,4,2 eller 4,Racketer | Tennisballer,"Racketer, tennisball, nett og noe til å markere banen med",nei,nei,0,nei,0,na,
+2860,Rundminton,8,,Minst 8,Racketer | Tennisballer | Markeringstallerkener | Badmintonracketer | Badmintonfjær,"Speedminton eller badminton utstyr, markeringstallerkener",nei,nei,0,nei,0,na,
+2861,Sjonglere med racket,2,,2 eller flere,Racketer | Tennisballer,Racketer og baller eller ballonger til alle deltagere,nei,nei,0,nei,0,na,
+2863,Tøm banen for fjærballer,8,,8 eller flere,Kritt | Markeringstallerkener | Badmintonfjær | Badmintonracketer,"Kritt eller annet markeringsutstyr. 40-60 fjærballer, som badmintonballer og et nett eller kjegler",nei,nei,0,nei,0,na,
+2866,Rugby,,,,Markeringstallerkener | Markeringsvester | Amerikansk fotball | Fotball,,nei,nei,0,nei,0,na,a:antall
+2867,Flaggfotball,,,5-6 spillere per lag + en dommer,Markeringsvester | Amerikansk fotball | Fotball | Markeringstallerkener,"1 ball, vester til alle",nei,nei,0,nei,0,na,a:antall
+2868,Kyllingrugby,,,Minimum 3 spillere per lag + en dommer,Amerikansk fotball | Fotball | Markeringsvester | Markeringstallerkener,"1 ball, markeringstallerkener og markeringsvester",nei,nei,0,nei,0,na,a:antall
+2869,Touch rugby,,,7 eller 15 spillere per lag + en dommer,Amerikansk fotball | Fotball | Markeringsvester | Markeringstallerkener,"1 ball, markeringsvester og markeringstallerkener",nei,nei,0,nei,0,na,a:antall
+2871,Bjørnen sover,5,,Minimum 5,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2872,"Bro, bro brille",8,,8 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2873,En elefant kom marsjerende,8,,8 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2874,"Lang, lang rekke",4,,4 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2875,Slå på ring,9,,9 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2876,Ta den ring og la den vandre,9,,9 eller flere,Uten utstyr,En ring eller en annen liten gjenstand,ja,nei,0,nei,0,na,b:utstyr
+2878,Diabolo,,,Så mange man har utstyr til,Diabolo,En Diabolo per deltager: https://www.klubben.no/andre/1360703x/diabolo-3-st%c3%b8rrelser,nei,nei,0,nei,0,na,
+2880,Jojo,,,Så mange dere har jojo’er til,Jojo,En jojo per deltager,nei,nei,0,nei,0,na,
+2881,Poi,,,Så mange man har utstyr til,Poi,Poi,nei,ja,2,nei,0,na,
+2887,Slakk line,,,"En om gangen, men mange kan delta",Slackline,Slackline: www.klubben.no/search?q=slackline,nei,nei,0,nei,0,na,a:antall
+2889,Balansekamp,2,,2 eller flere,Matter,"Matte, mykt underlag",nei,nei,0,nei,0,na,
+2890,Beinkrok,2,,2 eller flere,Matter,Matte eller noe mykt å ligge på,nei,nei,0,nei,0,na,
+2891,Den sterkeste rår,2,,2 eller flere,Uten utstyr,"Stubbe, benk eller lignende",ja,nei,0,nei,0,na,b:utstyr
+2892,Flytte fot,2,,2 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2893,Hest og rytter,2,,2 eller flere,Uten utstyr,Ingenting,nei,nei,0,nei,0,na,
+2894,Hanekamp,2,,2 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2895,Kronidioten,2,,2 eller flere,Benker,Hinder – friidrettshinder eller lignende,nei,nei,0,nei,0,na,
+2896,Rumpekamp,2,,2 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+2898,Til krampa tar deg,2,,"2 eller flere (Jo flere, desto kjekkere!)",Ballonger | Stoppeklokke,"En ballong per deltager, stoppeklokke",nei,nei,0,nei,0,na,
+2899,Brettspill,2,,2 eller flere,Brettspill,"Skrivesaker, lapper eller Alias-brettspill",nei,nei,0,nei,0,na,
+2907,Kortspill,1,,1 eller flere,Kortstokk,En kortstokk,nei,nei,0,nei,0,na,
+2908,Sjakk,2,2,2,Sjakkbrett | Sjakkur,Chess attack spillebrett og sjakkbrikker,nei,nei,0,nei,0,na,
+2909,100,2,,2 eller flere,Terning,Terninger,nei,nei,0,nei,0,na,
+2910,10 000,2,,2 eller flere,Terning | Skrivesaker,Terninger,nei,nei,0,nei,0,na,
+2911,Gi bort!,4,,4 eller flere,Terning,"En terning, gjenstander som knapper, binders, viskelær, papirbit e.l.",nei,nei,0,nei,0,na,
+2912,Stigespill på bakken,2,,2 eller flere,Markeringskjegler | Markeringstallerkener | Terning,"Minst 20 markeringskjegler, minst 6 markeringstallerkener i forskjellige farger, en terning til hver",nei,nei,0,nei,0,na,
+2913,Tolver´n,2,,2 eller flere,Terning,Tre terninger per deltager,nei,nei,0,nei,0,na,
+2914,Yatzy,2,,2 eller flere,Yatzy,Yatzy,nei,nei,0,nei,0,na,
+2915,Flaskeløype,2,,2 eller flere,Flasker,Plastflasker med vann eller is,nei,nei,0,nei,0,na,
+3199,Flyvende farger,8,,8 eller flere,Rockeringer | Markeringstallerkener,"Markeringstallerkener i fire farger, en til hver deltaker, pluss fire ekstra. Fire koordinasjonsringer i fire ulike farger",nei,nei,0,ja,1,ukjent_token,c:bilde
+3200,Koralljakten,4,,4 eller flere,,"Fire ulike gjenstander (erteposer, lagbånd, minikjegler, markeringstallerkener etc - ca. 20 stk av hver sort), kjegler/markeringsmatter til base",nei,ja,1,nei,0,na,
+3201,Fargesisten,9,30,9-30,Stoppeklokke | Lagbånd | Markeringstallerkener,"Markeringsbånd i ulike farger (en til hver deltaker), markeringstallerkener, stoppeklokke",nei,nei,0,nei,0,na,
+3203,Nappe hale,4,20,4-20,Markeringstallerkener | Tag-belter,"Nappe-hale-sett (et belte til hver deltaker), markeringstallerkener",nei,nei,0,ja,1,ukjent_token,c:bilde
+3204,10-sekundersisten,10,25,10-25,Markeringstallerkener | Stoppeklokke,"Markeringstallerkener til oppmerking av bane, stoppeklokke",nei,nei,0,ja,1,ukjent_token,c:bilde
+3205,Minglestasjon vår 2020,,,,Six-Ball | Ogo-ball | Ogo-sport | Speed Stacks,"1 six-ball, 2 speed stack, 4 ogo sport",nei,nei,0,ja,3,ukjent_token,a:antall+c:bilde
+3206,Boccia-bowling,4,24,4-24,Disc-boccia | Markeringstallerkener | Små rockeringer | Freeballer (7 cm),"24 markeringstallerkener, 4 disc-boccia, 24 freeballer (7 cm) og 4 koordinasjonsringer",nei,ja,1,ja,1,ukjent_token,c:bilde
+3217,Catch the ball,4,,4 eller flere,Freeballer (7 cm) | Markeringstallerkener,1 freeball (7 cm) og 1 markeringstallerken pr. par,nei,nei,0,ja,2,ukjent_token,c:bilde
+3218,Multiball,4,,4 eller flere,Innebandyballer | Markeringstallerkener | Mini-la-crosse racket | Markeringsvester | EXIT FLEXX mål,"3 innebandyballer/tennisballer, 12 mini-la-crosse racketer med to baller, markeringstallerkener, markeringsvester, terning, exit flexx mål",nei,nei,0,nei,0,na,
+3219,Crossboccia,2,16,2-16,Crossboccia-sett,2 Crossboccia-sett,nei,nei,0,ja,1,ukjent_token,c:bilde
+3220,Wrecking ball,10,30,10-30,Kin-Ball | Markeringstallerkener,Kin-ball og markeringstallerkener,nei,nei,0,ja,1,ukjent_token,c:bilde
+3634,Fun-battle,6,,6 eller flere (Settet består gjerne av 12),Funbattle sett,"Fun-battle sett, bestående av vester, skjold, køller og 3 baller pr deltaker",nei,nei,0,nei,0,na,
+3688,ABC-123,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+3689,Knyttneve high five,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+3888,Først på steinen,6,,6 eller flere,Uten utstyr,Stein (eller noe annet som kan plukkes opp).,ja,ja,1,nei,0,na,b:utstyr
+3906,Regnerunden,4,,4 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+3907,Regneduellen,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+3908,"Stein, saks, papir med hopp",2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+3927,Levende statuer,5,,5 eller flere,Uten utstyr | Musikk,musikk hvis ønskelig,nei,nei,0,nei,0,na,
+3928,Tårn på fem minutter,4,,4 eller flere,Kortstokk,"Boks med lego eller duplo, eventuelt kort",nei,nei,0,nei,0,na,
+3929,Omvendt stollek,8,,8 eller flere,Stoler,"Stoler til alle, musikk eller fløyte som signal",nei,nei,0,nei,0,na,
+3930,Kortstokktrening,2,,2 eller flere,Kortstokk,En kortstokk,nei,ja,2,ja,2,ukjent_token,c:bilde
+3931,Terningyoga,1,,1 eller flere,Terning,1 terning,nei,ja,1,nei,0,na,
+3932,Aktivitetssirkel,1,,1 eller flere,Uten utstyr,,nei,ja,1,ja,1,ukjent_token,c:bilde
+3933,Slap jack,2,4,2 -4,Kortstokk,En kortstokk,nei,ja,1,nei,0,na,
+3934,Dyreparken,2,,2 eller flere,Uten utstyr,2 terninger,ja,ja,1,ja,1,ukjent_token,b:utstyr+c:bilde
+3935,Gjett sporten,2,25,2-25,Uten utstyr,,nei,ja,1,nei,0,na,
+3936,Først til 50,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+3937,Tryllestav,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+3939,21,,,,,,nei,ja,1,nei,0,na,a:antall
+3940,Dance monkey,2,,2 eller flere,Musikk | Uten utstyr,Musikkanlegg,nei,ja,1,nei,0,na,
+4040,Hilseball,4,,4+,Freeballer (7 cm),4-5 små baller eller erteposer,nei,nei,0,nei,0,na,
+4041,Gjennom ringen,5,,5+,Rockeringer,1-3 rockeringer,nei,nei,0,nei,0,na,
+4049,Disc-boccia,,,2-6 deltakere per sett,Disc-boccia,Disc bocciasett,nei,nei,0,nei,0,na,a:antall
+4091,Spinn og spring,4,,4 eller flere,Dragonskin skumball | Markeringstallerkener | Flasker | Terning,"1 dragonskin ball, 2 markeringstallerkener, 1 flaske (eller en terning)",nei,ja,1,nei,0,na,
+4092,Råttent egg,6,30,6-30,Disc-boccia | Erteposer,"En disc-boccia, ertepose eller lignende",nei,ja,1,nei,0,na,
+4093,Griseflaks,6,,6 eller flere,Terning | Markeringstallerkener,"En terning til hvert lag, markeringstallerkener",nei,ja,1,nei,0,na,
+4094,Flytte ringen,4,,4 eller flere,Rockeringer | Ball med sprett | Markeringstallerkener,"4 store rockeringer, 1 ball med sprett, markeringstallerkener til å markere bane",nei,ja,1,nei,0,na,
+4177,Hei på deg,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+4497,Speed Stacks,1,1,1,Speed Stacks,Speed Stacks sett,nei,ja,1,ja,1,ja,
+5131,Volleyball med sixball,6,,6 eller flere,Six-Ball | Tryllesnor | Markeringstallerkener,"Six-ball, tryllesnor og markeringstallerkener",nei,ja,1,nei,0,na,
+5132,To tårn,8,16,8-16,Speed stack jumbo | Dragonskin skumball | Markeringstallerkener,"24 Speed Stack Jumbo, 4-6 dragonskin baller og markeringstallerkener",nei,ja,1,nei,0,na,
+5133,Terningsisten,8,,8 eller flere,Små rockeringer | Lagbånd | Fargeterning | Markeringstallerkener,"Koordinasjonsringer i fire ulike farger, lagbånd i fire ulike farger, fargeterning og markeringstallerkener",nei,ja,1,nei,0,na,
+5135,"Stein, saks, papir nittigradern",2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+5136,"Stein, saks, papir med ertepose",6,,6 eller flere,Erteposer,1 ertepose til hver deltaker,nei,ja,1,nei,0,na,
+5137,Spinnsisten,8,,8 eller flere,Flasker | Lagbånd | Markeringstallerkener,"1 Bowlingkjegle/flaske, 2 lagbånd og markeringstallerkener",nei,ja,1,nei,0,na,
+5138,Larven,4,12,4-12,Larve | Markeringstallerkener,To larver og markeringstallerkener,nei,ja,1,nei,0,na,
+5139,Jumbostafett,8,,8 eller flere,Speed stack jumbo | Markeringstallerkener,24 Speed Stack Jumbo og markeringstallerkener,nei,ja,1,nei,0,na,
+5140,Flip it,4,,4 eller flere,Poengmatter | Markeringskjegler | Disc-boccia,"Poengmatte, 2 kjegler som kan “flippes”, 6 disc bocca (tre og tre i hver sin farge) og 2 kjegler til å markere start",nei,ja,1,nei,0,na,
+5141,Drakamp,4,20,4-20,Drakamptau (Tug O war) | Markeringstallerkener,Drakamptau og markeringstallerkener,nei,ja,1,nei,0,na,
+5145,Varme og kalde baller,8,,8 eller flere,Six-Ball | Dragonskin skumball | Markeringstallerkener,"3 Six-ball/Dragonskin skumball (1 i en farge, 2 i en annen farge) og markeringstallerkener",nei,ja,1,nei,0,na,
+6006,Dyrene i Afrika,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+6086,Først og sist,,,,,,nei,ja,1,nei,0,na,a:antall
+6088,Toget går,4,,4 eller flere.,Koordinasjonsstige | Lagbånd,"Koordinasjonsstiger, lagbånd eller togbilletter, destinasjonslapper (tilleggsmateriale tilgjengelig på nettsiden).",nei,ja,1,nei,0,na,
+6091,Swipe up and down,5,,5 eller flere.,Dragonskin skumball,Dragonskin skumball.,nei,ja,1,nei,0,na,
+6092,Sumpmonsteret,5,,5 eller flere.,Markeringskjegler | Markeringstallerkener | Lagbånd,"En kjegle til hvert lag, ca. 40 markeringstallerkener (skatter), lagbånd til sumpmonsteret.",nei,ja,1,nei,0,na,
+6093,Alene hjemme,10,,10 eller flere,Rockeringer | Markeringskjegler,Koordinasjonsringer og kjegler (cirka 1/3 av deltakerne skal ha en ring og en kjegle).,nei,ja,1,nei,0,na,
+6094,Vinn en rockering,4,,4 eller flere.,Erteposer | Rockeringer,"10 rockeringer, erteposer (10 x 3 i ulike farger), markeringstallerkener, klemmefløyte.",nei,ja,1,nei,0,na,
+6095,Flippe kjegle på kjegle,3,,3 eller flere.,Markeringskjegler,"1 stor kjegle per lag, 5 mindre kjegler per lag.",nei,ja,1,nei,0,na,
+6096,Høyeste kortet,6,,6 eller flere.,Kortstokk,"Kortstokk (vurder hvor mange kort, jo flere kort på hvert lag jo lengre tid tar aktiviteten), markeringstallerkener.",nei,ja,1,nei,0,na,
+6097,Jumbogevinsten,8,,8 eller flere.,Speed stack jumbo | Innebandyballer | Markeringstallerkener,"24 Speed Stack Jumbo, innebandyballer i ulike farger (en farge per lag), markeringstallerkener i ulike farger.",nei,ja,1,nei,0,na,
+6098,Kjeglevelten,8,16,8-16.,Drakamptau (Tug O war) | Markeringskjegler | Markeringstallerkener,"2 Tug o war tau, 2 store og 10 små kjegler, markeringstallerkener.",nei,ja,1,nei,0,na,
+6099,Nikke-fange,6,20,6-20.,Six-Ball,Six-ball.,nei,ja,1,nei,0,na,
+6100,Digital kursmodul høst 2021,,,,,,nei,ja,1,nei,0,na,a:antall
+6101,Digital kursmodul vinter 2021,,,,,,nei,ja,1,nei,0,na,a:antall
+6102,Digital kursmodul sommer 2020,,,,,,nei,ja,1,nei,0,na,a:antall
+6146,Touche fot,2,,2 eller flere.,Uten utstyr,,nei,ja,1,nei,0,na,
+6147,"Kick, open, side to side",2,,2 eller flere.,Uten utstyr,,nei,ja,1,nei,0,na,
+6156,Trivselspatruljen: Digital kursmodul 2,,,,,,nei,ja,0,nei,0,na,a:antall
+7378,Stinkdyret,6,,6 eller flere.,Små rockeringer | Markeringskjegler | Markeringstallerkener,"2 koordinasjonsringer, 2 kjegler, markeringstallerkener til å merke bane.",nei,ja,1,ja,1,ukjent_token,c:bilde
+7379,Ulvehulen,6,,6 eller flere.,Markeringstallerkener | Markeringsmatter | Lagbånd,"Markeringstallerkener, markeringsmatter, ca. 40 lagbånd.",nei,ja,1,nei,0,na,
+7380,Jumbo over hodet,8,24,8 - 24.,Speed stack jumbo | Markeringstallerkener,"Speed Stacks Jumbo Sett (kopper), markeringstallerkener.",nei,ja,1,ja,1,ukjent_token,c:bilde
+7381,Terningduellen,4,,4 eller flere.,Terning | Markeringstallerkener,"Markeringtallerkener, 2 terninger.[[{""fid"":""10805"",""view_mode"":""wysiwyg"",""fields"":{""format"":""wysiwyg"",""alignment"":""left"",""field_file_image_alt_text[und][0][value]"":false,""field_file_image_title_text[und][0][value]"":false,""field_file_image_caption[und][0][value]"":""""},""link_text"":null,""type"":""media"",""field_deltas"":{""1"":{""format"":""wysiwyg"",""alignment"":""left"",""field_file_image_alt_text[und][0][value]"":false,""field_file_image_title_text[und][0][value]"":false,""field_file_image_caption[und][0][value]"":""""}},""attributes"":{""height"":480,""width"":770,""style"":""width: 341px; height: 227.95px; float: right;"",""class"":""media-element file-wysiwyg media-wysiwyg-align-left"",""data-delta"":""1""}}]]",nei,ja,1,ja,1,ukjent_token,c:bilde
+7382,Kjeglememory,4,20,4-20.,Markeringskjegler | Erteposer | Innebandyballer | Små rockeringer,"16 kjegler, 16 ulike gjenstander der to og to gjenstander er helt like, (f.eks. innebandyballer og erteposer i ulike farger), en koordinsjonsring per lag.",nei,ja,1,ja,1,ukjent_token,c:bilde
+7383,Perfekt pasning,6,,6 eller flere.,Markeringsmatter | Markeringstallerkener | Erteposer,"20 markeringsmatter, 1 markeringstallerken og 1 ertepose til hvert lag.",nei,ja,1,ja,1,ukjent_token,c:bilde
+7384,Gagaball,10,,10 eller flere.,Six-Ball,"Gagaballnett, Six-ball.",nei,ja,1,ja,1,ukjent_token,c:bilde
+7385,Teamtoss volley,6,18,6-18.,Team toss Chute sett | Six-Ball | Tryllesnor | Markeringstallerkener,"Team toss Chute sett, Six-ball, tryllesnor, markeringstallerkener.",nei,ja,1,ja,1,ukjent_token,c:bilde
+7387,Ja eller nei,4,,4 eller flere.,Tilleggsmateriale | Markeringstallerkener,"Spørsmål (se tilleggsmateriale), 1 grønn og 1 rød markeringstallerken til hvert par og markeringstallerkener til å markere linjer.",nei,ja,1,ja,1,ukjent_token,c:bilde
+7391,Stempelet går,4,,4 eller flere,Uten utstyr,,nei,ja,1,ja,1,ukjent_token,c:bilde
+7392,Først på kortet,3,20,3 - 20,Kortstokk,En stor kortstokk,nei,ja,1,ja,1,ukjent_token,c:bilde
+7474,Bondesjakk med Aball,4,16,4-16,Aball | Markeringstallerkener,Aball sett og markeringstallerkener,nei,nei,0,nei,0,na,
+7475,Mistet kronestykke,8,30,8- 30,Aball | Markeringstallerkener | Kronestykke,Aball sett og markeringstallerkener,nei,nei,0,nei,0,na,
+7477,Skiskyting med Aball,4,30,4-30,Aball | Markeringstallerkener,Aball sett og markeringstallerkener,nei,nei,0,nei,0,na,
+7478,Aball-toget,6,30,6-30,Aball | Markeringstallerkener,Aball-sett og markeringstallerkener,nei,nei,0,ja,1,ukjent_token,c:bilde
+7488,Balanseløypen,4,48,4-48,Aball | Markeringstallerkener,Aball sett og markeringstallerkener,nei,nei,0,nei,0,na,
+7489,Ballkast med Aball,2,50,2-50,Aball,Aball sett,nei,nei,0,ja,1,ukjent_token,c:bilde
+7490,Så rar kan man se ut..,4,30,4-30,Aball | Markeringstallerkener,Aball-sett og markeringstallerkener,nei,nei,0,ja,1,ukjent_token,c:bilde
+7491,Fotballbowling,2,30,2-30,Markeringstallerkener | Aball,Aball sett og markeringstallerkener,nei,nei,0,nei,0,na,
+7492,Hit & run!,4,24,4- 24,Aball | Markeringstallerkener,Aball sett,nei,nei,0,nei,0,na,
+7493,Molekylet,4,50,4-50,Aball,Aball sett,nei,nei,0,nei,0,na,
+7521,Digital kursmodul vinter 2022,,,,,,nei,ja,1,nei,0,na,a:antall
+8852,Slalåmkjøreren,10,20,10 - 20,Tryllesnor | Fløyte,"2 tryllesnorer, 1 fløyte",nei,ja,1,nei,0,na,
+8853,Flip out,4,16,4 - 16,Markeringskjegler | Poengmatter | Erteposer,"4 kjegler, poengmatte tre på rad, 1 ertepose",nei,ja,1,nei,0,na,
+8854,Poengball,6,30,6 - 30,Kortstokk | Innebandyballer | Markeringstallerkener | Markeringsmatter | Rockeringer,"Kortstokk, innebandyballer, markeringstallerkener, markeringsmatter, rockering",nei,ja,1,nei,0,na,
+8855,Snurr og løp,4,,4 eller flere,Markeringstallerkener,Markeringstallerkener,nei,ja,1,nei,0,na,
+8856,Haukene,10,30,10 - 30,Markeringstallerkener | Markeringskjegler | Markeringsmatter | Lagbånd,"Markeringstallerkener, 1 kjegle, markeringsmatter/benk, 2 lagbånd",nei,ja,1,nei,0,na,
+8857,Jaktlag,9,24,9 - 24,Markeringstallerkener | Lagbånd,"Markeringstallerkener, lagbånd i ulike farger (5 x 4 farger)",nei,ja,1,nei,0,na,
+8858,Soppball,6,40,6 - 40,Markeringstallerkener | Dragonskin skumball,"Markeringstallerkener, 4-5 Dragonskin skumballer",nei,ja,1,nei,0,na,
+8859,Team-Gaga,10,30,10 - 30,Små rockeringer | Six-Ball,"Gagaballnett, SIX-ball, 2 små rockeringer, lagbånd ca 20 stk",nei,ja,1,nei,0,na,
+8860,Terningfotball,8,20,8 - 20,Skumterning | Markeringskjegler | Markeringstallerkener,"1 stor skumterning, 8 kjegler, markeringstallerkener",nei,ja,1,nei,0,na,
+8863,Ertekopp,10,30,10 - 30,Speed stack jumbo | Lagbånd | Erteposer | Markeringstallerkener,"Lagbånd (2 x 10 lagbånd), 10 erteposer, 18-24 Jumbo Stacks, markeringstallerkener",nei,ja,1,nei,0,na,
+8864,StreetRacket - Nettet,2,,2 eller flere,Streetracket | Lagbånd,"1 ball og 2 lagbånd per par, 1 racket per deltaker",nei,ja,1,nei,0,na,
+8865,StreetRacket - Ringen,3,,3 eller flere,Streetracket | Rockeringer,"1 ball, 1 rockering, 2 racket",nei,ja,1,nei,0,na,
+8866,StreetRacket - Veggen,2,,2 eller flere,Streetracket | Kritt,"1 ball, 1 racket per deltaker, maskeringsteip/markeringsmatter/ kritt",nei,ja,1,nei,0,na,
+8867,StreetRacket - Spill,,,,Streetracket | Kritt,,nei,nei,0,nei,0,na,a:antall
+8868,StreetRacket - Matchspill,,,2 per spill,Streetracket | Kritt,"1 ball, 1 racket per deltaker, maskeringsteip/markeringsmatter/ kritt",nei,nei,0,nei,0,na,a:antall
+8869,StreetRacket - Rundstreet,2,20,2 - 20,Streetracket | Kritt,"1 ball, 1 racket per deltaker, maskeringsteip/markeringsmatter/ kritt",nei,nei,0,nei,0,na,
+8870,Korridoren,20,,20 eller flere,Markeringskjegler | Kin-Ball,"4 kjegler, KIN-ball",nei,ja,1,nei,0,na,
+8871,Hopp med kropp,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+8872,Bevegelsesserie,4,,4 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+8907,Digital kursmodul høst 2022,,,,,,nei,ja,1,nei,0,na,a:antall
+8917,TL-praten,,,,,,nei,ja,1,nei,0,na,a:antall
+9484,Nissesisten,6,40,6-40,Lagbånd | Nisselue | Markeringstallerkener,"Nisseluer og/eller lagbånd, markeringstallerkner",nei,nei,0,ja,1,nei,c:bilde
+9661,Det magiske tallet,2,,2 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+9662,En to tre!,,,,Uten utstyr,,nei,ja,1,nei,0,na,a:antall
+9663,Koden,1,,1 eller flere,Stoler,En stol til hver deltaker,nei,ja,1,nei,0,na,
+9664,Hoppeduellen,4,,4 eller flere,Uten utstyr,,nei,nei,0,ja,1,nei,c:bilde
+9665,Dans rundt juletreet!,8,,8 eller flere,Lagbånd | Markeringstallerkener | Reinsdyrhorn,"Lagbånd og eller reinsdyrhorn, markeringstallerkner",nei,nei,0,ja,1,nei,c:bilde
+9666,Rockeblomsten,1,3,1-3,,7 rockeringer,nei,nei,0,ja,2,ukjent_token,c:bilde
+9698,TL-dans 28,,,,Musikk,,nei,ja,1,ja,1,nei,a:antall+c:bilde
+9700,Sankta Lucia,8,,8 eller flere,Lagbånd | Luciakrone,Lagbånd og/eller Luciakrone,nei,nei,0,ja,1,nei,c:bilde
+9744,"Stein, saks, papir - Hvem vinner?",2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+10123,Byggekaos,2,20,2-20,Speed Stacks | Speed stack jumbo,3 sett Speedstack/Jumbostack (36 kopper sammenlagt),nei,ja,1,nei,0,na,
+10124,Skattekammeret,12,24,12-24,Små rockeringer | Erteposer | Markeringstallerkener | Tag-belter,"8 koordinasjonsringer (45 cm), ”Nappe hale” belte + to bånd i lagfarge til alle deltakere, minikjegler/erteposer eller lignende (6 stk i fire ulike farger = 24 totalt) , markeringsmatter og markeringstallerkener til å lage bane",nei,ja,1,nei,0,na,
+10125,Stjernegevinsten,4,25,4-25,Markeringskjegler | Markeringsmatter,"1 stor kjegle (23 cm), 5 mindre kjegler (16 cm), 5 markeringstallerkener, og 20 markeringsmatter til å merke baner (kan også bruke markeringstallerkener i en egen farge).",nei,ja,1,nei,0,na,
+10126,Kjeglevinnerne,8,24,8-24,Dragonskin skumball | Markeringsmatter | Markeringskjegler,"4-5 Dragonskin skumballer, 16 kjegler (23 cm), markeringsmatter og markeringstallerkener til å lage bane",nei,ja,1,nei,0,na,
+10127,Befrierne,6,25,6-25,Dragonskin skumball (små) | Lagbånd | Markeringstallerkener,"1-3 lagbånd, 1-3 Dragonskin skumballer og markeringstallerkener",nei,ja,1,nei,0,na,
+10129,Den forsvunne diamanten,9,18,9-18,Lagbånd | Markeringstallerkener | Koschballer,"14 lagbånd i to farger, 2 kosch baller (eller en annen liten gjenstand) og markeringstallerkener",nei,ja,1,nei,0,na,
+10130,Ringrace,8,,8 eller flere,,"12 koordinasjonsringer (60 cm), 2 Slengtau Double Dutch Kunststoff og 2 markeringstallerkener.",nei,ja,1,nei,0,na,
+10131,"Stein, saks, papir-stigen",6,18,6-18,Erteposer | Koordinasjonsstige | Markeringstallerkener,"9 minikjegler, 2 koordinasjonsstiger og 2 markeringstallerkener",nei,ja,1,nei,0,na,
+10132,Hatten på,4,24,4-24,Markeringskjegler,"4 store kjegler (32 cm), 4 kjegler (23 cm) i en farge per lag og markeringstallerkener",nei,ja,1,nei,0,na,
+10133,Slalåmstafetten,15,,15 eller flere,Uten utstyr,Markeringstallerkener (2 stk per lag),ja,ja,1,nei,0,na,b:utstyr
+10135,Finn en feil!,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+10136,Skyggen,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+10143,Digital kursmodul vinter 2023,,,,,,nei,ja,1,nei,0,na,a:antall
+10173,Oppdraget,6,25,6-25,Lagbånd | Markeringstallerkener,"3 lagbånd, markeringstallerkener og utstyr til tre valgfrie stasjoner",nei,ja,1,nei,0,na,
+10581,Dorulltårnet,,,,Dorull,,nei,ja,1,nei,0,na,a:antall
+10582,High five,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+10584,Spagaten,2,,2 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+10810,KanJam,4,,4 eller flere,KanJam,KanJam,nei,nei,0,ja,1,ukjent_token,c:bilde
+10811,Flaggline,6,,6 eller flere,Dragonskin skumball | Korte skumrør | Markeringskjegler | Flaggline,"6 stk Flaggline, 6 stk markeringskjegler,1 stk Dragonskin skumball og 12 stk korte skumrør",nei,nei,0,ja,1,ukjent_token,c:bilde
+10812,Cornhole,2,,2 eller flere,Cornhole spillplater | Erteposer,"2 Cornhole spillplater, 8 erteposer (4 per lag i to ulike farger)",nei,nei,0,ja,1,ukjent_token,c:bilde
+10813,Femball,10,30,10-30,Amerikansk fotball | Dragonskin skumball | Basketball | Fotball | Plystreball | Markeringskjegler | Små rockeringer | Skumfrisbee,"Fem ulike baller f.eks: Fotball, basketball, plystreball, amerikansk fotball, Fantyball, Dragonskin skumball, skumfrisbee, 5 ringer, 10 kjegler",nei,nei,0,ja,1,ukjent_token,c:bilde
+10814,Redd statuene,12,28,12-28,Små rockeringer | Dragonskin skumball | Markeringstallerkener,"Koordinasjonsringer (nok til halvparten av deltakerne) , 6-10 Dragonskin-baller og markeringstallerkener til å lage bane og sirkel.",nei,nei,0,ja,1,ukjent_token,c:bilde
+10815,Rev og Ulv,10,30,10-30,Lagbånd | Markeringsvester,To bånd/vester i ulike farger,nei,nei,0,ja,2,ukjent_token,c:bilde
+11593,Bingo - skolestart,6,,6 eller flere,,Bingobrett,nei,nei,0,nei,0,na,
+12388,Hoppeduellen!,4,,4 eller flere,,,nei,ja,1,nei,0,na,
+12415,Julekalender 2025 - juletre til å henge på veggen,,,,,,nei,nei,0,ja,1,ukjent_token,a:antall+c:bilde
+13080,Digital kursmodul vinter 2024,,,,,,nei,ja,1,nei,0,na,a:antall
+13623,Supermusa,6,,6 eller flere,Markeringstallerkener | Uten utstyr,Markeringstallerkener eller bli enige om et visst område hvor leken foregår,nei,ja,1,nei,0,na,
+13624,Linjekampen,8,,8 eller flere,"Markeringskjegler | Markeringskjegler 7,5 cm | Markeringsmatter | Små rockeringer","Markeringskjegler, markeringsmatter, lagbånd i 3 farger, 2 rockeringer og 20 minikjegler (skatter)",nei,ja,1,nei,0,na,
+13625,Togstopp,10,,10 eller flere,Gummimadrass | Musikk | Fløyte | Markeringsmatter,Markeringsmatter og fløyte/musikk,nei,ja,1,nei,0,na,
+13627,Rydde hagen,9,,9 eller flere,Små erteposer | Timeglass | Markeringstallerkener,"Gaganet, små erteposer, Markeringstallerkener og timeglass",nei,ja,1,nei,0,na,
+13628,Dodraugen,8,,8 eller flere,Six-Ball | Markeringstallerkener,SIX-Ball og markeringstallerkener,nei,ja,1,nei,0,na,
+13629,Masterball med frisbee,8,,8 eller flere,Frisbee | Dodgebees | Markeringstallerkener | Lagbånd | Markeringsmatter,"Markeringstallerkener, markeringsmatter og frisbee/ Dragonskin skumfrisbee.",nei,ja,1,nei,0,na,
+13630,"Indiana Jones ""Mini""",10,,10 eller flere,Kin-Ball,Kin-ball og pumpe.,nei,ja,1,nei,0,na,
+13631,Fliptriangelet,6,,6 eller flere,"Markeringstallerkener | Markeringskjegler 7,5 cm | Markeringskjegler","9 gule markeringsmatter, 3 oransje markeringsmatter, 3 minikjegler og 6 markeringskjegler i 3 ulike farger.",nei,ja,1,nei,0,na,
+13632,Klokka / Klokken,10,20,10-20,Dragonskin skumball | Blendebrille,"En ball eller ertepose og Blendebrille. Ballen eller erteposen kan byttes ut med noe man finner i klasserommet, f.eks. et penal.",nei,ja,1,nei,0,na,
+13633,Ta flagget,6,,6 eller flere,Markeringstallerkener | Markeringskjegler | Stafettpinner | Lagbånd,"Markeringstallerkener, 3 markeringskjegler, 3 stafettpinner og lagbånd",nei,ja,1,nei,0,na,
+13634,Treeren,8,,8 eller flere,Disc-boccia | Små rockeringer,7 Discboccia/erteposer og 5 rockeringer,nei,ja,1,nei,0,na,
+13635,Den flyvende pennen,4,,4 eller flere,Penner,Penner,nei,ja,1,nei,0,na,
+13649,Musenes ostefest,8,,8 eller flere,Hoppetau | Markeringsmatter | Markeringstallerkener | Tag-belter,"Tag-belter, hoppetau, markeringsmatter og markeringstallerkener",nei,ja,1,nei,0,na,
+13650,Isduellen,2,,2 eller flere,Små rockeringer | Markeringskjegler | Dragonskin skumball,"Rockeringer (to ringer i samme farge til startringer), 2 kjegler og 2 Dragonskin skumballer.",nei,ja,1,nei,0,na,
+13651,Det skjeve tårnet,8,16,8-16,Pedalo (Lagspill Kasse Nr.1),"Pedalo (Lagspill Kasse Nr. 1), byggeklosser, en ball og en treplate med snorer festet i.",nei,ja,1,nei,0,na,
+13652,Ballrenna,4,8,4-8,Pedalo (Lagspill Kasse Nr.1) | Stoppeklokke | Markeringskjegler,"Pedalo (Lagspill Kasse Nr. 1), fire takrenner + liten ball, stoppeklokker og kjegler",nei,ja,1,nei,0,na,
+13653,Jagebånd,8,,8 eller flere,Lagbånd | Markeringstallerkener,Lagbånd og markeringstallerkener,nei,ja,1,nei,0,na,
+13655,Flyvende tallerken,2,,2 eller flere,Markeringskjegler | Markeringstallerkener | Små rockeringer | Ogo-sport,"Kjegler (én per tårn), markeringstallerkener (seks per tårn), Ogodisk og rockeringer",nei,ja,1,nei,0,na,
+13656,Mastermind,4,,4 eller flere,Markeringsmatter | Markeringskjegler | Benker,"Markeringsmatter, minikjegler i fem ulike farger og benker.",nei,ja,1,nei,0,na,
+13657,Kjegleduellen,2,,2 eller flere,Markeringskjegler | Uten utstyr,1 kjegle eller annen gjenstand per par,nei,ja,1,nei,0,na,
+13658,Gamechanger,4,,4 eller flere,Dragonskin skumball | Markeringstallerkener | Markeringsmatter,"Dragonskin skumballer, markeringstallerkener og markeringsmatter",nei,ja,1,nei,0,na,
+13659,Alle mot alle,10,,10 eller flere,Markeringstallerkener | Uten utstyr,Markeringstallerkener/eller bli enige om et visst område hvor leken foregår,nei,ja,1,nei,0,na,
+13660,Høyere eller lavere,2,,2 eller flere,"Kortstokk | Markeringskjegler 7,5 cm",Kortstokk og minikjegler,nei,ja,1,nei,0,na,
+13661,"Stein, saks, papir-runden",4,,4 eller flere,Markeringstallerkener,4-5 markeringstallerkener/kjegler,nei,ja,1,nei,0,na,
+13662,Krysset,8,,8 eller flere,Six-Ball | Tryllesnor | Markeringstallerkener,"SIX ball, tryllesnorer og markeringstallerkener",nei,ja,1,nei,0,na,
+13663,Telleren,4,,4 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+13844,Forfølgelsesball - fire baller,12,32,12-32,Forfølgelseballkurver | Forfølgelseballer | Markeringstallerkener,"Forfølgelseball (sett med 4 kurver i ulike farger, og 12 baller i hver farge) og vester/bånd i de 4 fargene til alle.",nei,nei,0,nei,0,na,
+14734,Luringen,4,50,4-50,,"Ball og valgfritt utstyr som finnes tilgjengelig i klasserommet - for eksempel: vannflaske, sko, terning eller ertepose",nei,nei,0,nei,0,na,
+14735,Box ball,10,30,10-30,Kin-Ball,Kin-ball og Tiki Taka-ring eller markeringsmatter/tallerkener,nei,ja,1,nei,0,na,
+14738,Levende fotballmål,8,20,8-20,Lange skumrør | Fotball | Dragonskin skumball,"Markeringsmatter/tallerkener, 2 skumrør og 1-2 fotballer eller Dragonskin skumballer",nei,ja,1,nei,0,na,
+14739,Heis flagget,5,30,5-30,Markeringstallerkener | Markeringskjegler,"4 markeringstallerkener i 4 ulike farger (til hvert lag), 5 kjegler og 4 markeringsmatter",nei,ja,1,nei,0,na,
+14740,Minglestasjon med sirkustema,,,,,,nei,nei,0,nei,0,na,a:antall
+14748,Digital kursmodul høst 2024,,,,,,nei,ja,1,nei,0,na,a:antall
+15355,Fire lys,3,,3 eller flere,Uten utstyr | Disc-boccia,"Tau eller opptegnet strek, 4 disc boccia/små baller/minikjegler i ulikefarger.",nei,ja,1,nei,0,na,
+15364,Halloweenjakt,,,,,Halloweenbilder og spillbrett,nei,nei,0,nei,0,na,a:antall
+15373,Nattduellen,3,,3 eller flere,,3 gjenstander i ulike farger,nei,ja,1,nei,0,na,
+15468,Tipsliste til SFO/AKS,,,,,,nei,nei,0,nei,0,na,a:antall
+15510,Tipsliste til FYSAK,,,,,,nei,nei,0,nei,0,na,a:antall
+16072,Tipsliste til KRØ 1. og 2. trinn,,,,,,nei,ja,0,nei,0,na,a:antall
+16073,Tipsliste til KRØ 3. og 4. trinn,,,,,,nei,ja,0,nei,0,na,a:antall
+16074,"Tipsliste til KRØ 5., 6. og 7. trinn",,,,,,nei,ja,0,nei,0,na,a:antall
+16122,Nominasjonsvideo,,,,,,nei,ja,1,nei,0,na,a:antall
+16190,Kursmodul vinter 2025,,,,,,nei,ja,1,nei,0,na,a:antall
+16203,Månedens leker 2025,,,,,,nei,nei,0,nei,0,na,a:antall
+16212,Månedens Move it 2025,,,,,,nei,nei,0,nei,0,na,a:antall
+16213,Selfiesisten,6,30,6-30,,"2 lagbånd til å markere paparazziene, 2-6 markeringstallerkener (gjerne i ulike farger), alt etter hvor mange dere er (skal forestille kameraer), og markeringsmatter/tallerkener til å markere et lekeområde.",nei,ja,1,nei,0,na,
+16214,Kuslippet,8,50,8-50,Lagbånd | Markeringsmatter | Markeringstallerkener,"1-2 lagbånd, markeringsmatter/tallerkener til oppmerking av lekeområde.",nei,ja,1,nei,0,na,
+16227,Erteposerekorden,,,,Ertepose,,nei,nei,0,ja,1,ukjent_token,a:antall+c:bilde
+16291,Tipsliste TL-Mester,,,,,,nei,nei,0,nei,0,na,a:antall
+16486,Hanen er løs,4,,4 eller flere,Minikjegler,"Minikjegle, ertepose eller lignende",nei,nei,0,nei,0,na,
+16488,Klasseromsforflytning,6,,6 eller flere,,,nei,nei,0,nei,0,na,
+16489,Håndtrykk,8,,8 eller flere,,,nei,nei,0,nei,0,na,
+16579,"Boom, klapp, snapp",3,,3 eller flere,,Penn eller lignende,nei,ja,1,nei,0,na,
+16714,Fingerleken,,,,,,nei,ja,1,nei,0,na,a:antall
+16715,Fot 9-eren,,,,,,nei,ja,1,nei,0,na,a:antall
+16716,Hjulet,,,,,,nei,ja,1,nei,0,na,a:antall
+16717,Hode og mage,,,,,,nei,ja,1,nei,0,na,a:antall
+16718,Slange og delfin,1,,1 eller flere,,,nei,ja,1,nei,0,na,
+16719,Tommel og pekefinger,1,,1 eller flere,,,nei,ja,1,nei,0,na,
+16775,Viskelærsisten,6,,6 eller flere,,Ett viskelær per person,nei,ja,1,nei,0,na,
+16785,Påskebingo,2,,2 eller flere,,Bingobrett etter antall deltakere,nei,nei,0,nei,0,na,
+16786,Fotballbingo,2,,2 eller flere,,Bingobrett og en fotball per deltaker,nei,nei,0,nei,0,na,
+16963,Saueflokken,8,,8 eller flere,Uten utstyr,,nei,nei,0,ja,1,ukjent_token,c:bilde
+16964,Frys,4,30,4-30,Uten utstyr,,nei,nei,0,nei,0,na,
+17073,Popcorn,8,,8 eller flere,Uten utstyr,,nei,ja,1,ja,1,ukjent_token,c:bilde
+17076,Veltet kakerlakk,4,,4 eller flere,Uten utstyr,,nei,nei,0,ja,1,ukjent_token,c:bilde
+17095,Klapperingen,5,15,5-15,Uten utstyr,,nei,ja,1,nei,0,na,
+17128,Storm i klasserommet,6,,6 eller flere,Uten utstyr,,nei,nei,0,ja,3,ukjent_token,c:bilde
+17129,Natt og dag,6,,6 eller flere,Uten utstyr,,nei,nei,0,nei,0,na,
+17157,Påskejakt,,,,,,nei,nei,0,nei,0,na,a:antall
+17166,Happy Family,10,30,10-30,Uten utstyr,,nei,nei,0,nei,0,na,
+17190,Kast og bøy,4,,4 eller flere,Terning | Skumterning,1 terning per par/gruppe,nei,nei,0,nei,0,na,
+17383,Flytt koppene,1,,1 eller flere,Speed Stacks | Små rockeringer,"5 kopper, 2 rockeringer",nei,ja,1,nei,0,na,
+17385,Draduellen,2,,2 eller flere,Rockeringer | Lagbånd,"2 rockeringer, 2 lagbånd",nei,ja,1,nei,0,na,
+17386,Fang markeringstallerkenen,1,,1 eller flere,Basketball | Markeringstallerkener,1 Basketball og 1 markeringstallerken per person (man kan også dele),nei,ja,1,nei,0,na,
+17387,Hold øye med ballen,1,,1 eller flere.,Speed Stacks | Bordtennisball,6 kopper og 1 bordtennisball,nei,ja,1,nei,0,na,
+17388,Ball i kopp,2,,2 eller flere,Speed Stacks | Bordtennisball,5 kopper og 5 bordtennisballer,nei,ja,1,nei,0,na,
+17389,Minuttet,5,,5 eller flere,Stoppeklokke,Stoppeklokke,nei,ja,1,nei,0,na,
+17721,Månedens utfordringer 2025,,,,,,nei,nei,0,nei,0,na,a:antall
+17724,Blyantene,,,,Blyanter,Blyanter,nei,ja,1,nei,0,na,a:antall
+17725,Følg Lucia,9,,9 eller flere,,,nei,nei,0,nei,0,na,
+17726,Kontroll på ballen,1,,1 eller flere,Speed Stacks | Bordtennisball,"Speedstacks-kopper eller vanlige plastkopper, bordtennisball",nei,ja,1,nei,0,na,
+17727,High five - God jul!,,,,,,nei,nei,0,ja,1,nei,a:antall+c:bilde
+17728,Snøballen,8,,8 eller flere,Kin-Ball | Six-Ball | Lagbånd | Markeringsmatter,"KIN-ball eller SIX-ball, lagbånd, markeringsmatter",nei,nei,0,nei,0,na,
+17729,Tyv og politi,8,,8 eller flere,Lagbånd | Rockeringer | Markeringsmatter,"2-3 lagbånd, 2 rockeringer, markeringmatter, markeringstallerkener",nei,ja,1,nei,0,na,
+17734,Kursmodul høst 2025,,,,,,nei,ja,1,nei,0,na,a:antall
+17746,Bytt hus,5,60,5-60,Markeringsmatter,"Markeringsmatter/tallerkener, rockeringer eller kritt til oppmerking av hus",nei,ja,1,nei,0,na,
+17748,KIN-ball-sisten,8,24,8-24,Kin-Ball | Lagbånd,"KIN-ball eller SIX-ball, lagbånd (ett til hvert par) og markeringsmatter/tallerkener",nei,ja,1,nei,0,na,
+17749,Speed stacks stafett,4,,4 eller flere,Speed Stacks,Ett sett Speed Stacks og 1 startkjegle til hvert lag,nei,ja,1,nei,0,na,
+18176,Tema og høytider,,,,,,nei,nei,0,nei,0,na,a:antall
+18372,Julekalender 2025 - alle luker med video,,,,,,nei,nei,0,ja,24,nei,a:antall+c:bilde
+18397,Hei! Hello! Hallo!,,,,,"Småting i tre forskjellige farger/former, f.eks. post-it-lapper / penner i ulike farger / limstift–viskelær–penn.",nei,ja,1,nei,0,na,a:antall
+18398,Feil farge,3,,3 eller flere,,Fire fargede ark eller erteposer per deltaker,nei,ja,1,nei,0,na,
+18406,Hodepine,2,,2 eller flere,,"Bok, papir og blyant",nei,ja,1,nei,0,na,
+18407,Fotsignaturen,,,,,,nei,ja,1,nei,0,na,a:antall
+18408,Klappen går,,,,,,nei,ja,1,nei,0,na,a:antall
+18411,Kontorpingis,,,,,En bok til hver og en bordtennisball per par,nei,ja,1,nei,0,na,a:antall
+18413,Lynpennen,6,,6 eller flere,,"1 penn eller kjegle per par, eventuelt lagbånd",nei,ja,1,nei,0,na,
+18419,Klokka 1 minutt,,,,,,nei,ja,1,nei,0,na,a:antall
+18433,Tre klapp og spring,2,,2 eller flere,,Eventuelt markeringstallerkener,nei,ja,1,nei,0,na,
+18434,Klossen,2,,2 eller flere,,Kubbspill (klossene) / bøker,nei,ja,1,nei,0,na,
+18436,Sifferdans,,,,,,nei,ja,1,nei,0,na,a:antall
+18437,Klasseromsoppdrag,,,,,,nei,ja,1,nei,0,na,a:antall
+18438,Gjett ordet,,,,,,nei,ja,1,nei,0,na,a:antall
+18439,Pingvinen,,,,,,nei,ja,1,nei,0,na,a:antall
+18822,.Kursmodul vinter 2026,,,,,,nei,ja,1,nei,0,na,a:antall
+18840,Jumbojageren,8,,8 eller flere,,"Jumbo Stacks-kopper, lagbånd, markeringstallerkener",nei,ja,1,nei,0,na,
+18841,"Kjempe, trollmann og drage",,,Mange,,Markeringsmatter,nei,ja,1,nei,0,na,
+18842,Byggeracet,8,,8 eller flere,Speed stack jumbo,"Jumbo Stacks-kopper og/eller Speed Stacks-kopper 24 stk, kjegler",nei,ja,1,nei,0,na,
+18843,Vend pannekaken,4,,4 eller flere,,"Markeringstallerkener, skumballer, kjegler",nei,ja,1,nei,0,na,
+18844,Rekkefølgen - duell,2,2,2,,"Gummimatter med tall, kortstokk etc",nei,ja,1,nei,0,na,
+18884,Månedens utfordringer 2026,,,,,,nei,ja,0,nei,0,na,a:antall
+18885,Månedens leker 2026,,,,,,nei,nei,0,nei,0,na,a:antall
+18886,Månedens Move it 2026,,,,,,nei,ja,0,nei,0,na,a:antall
+18895,Speedstackmønsteret,2,,2 eller flere,Speed Stacks,2 sett med speedstack,nei,ja,1,nei,0,na,
+18896,Ball i hatt,1,1,1,,"1 tennisball, 1 markeringshatt",nei,ja,1,nei,0,na,
+18897,Klinkekule i bok,8,30,8 -30,,1-3 klinkekuler og 1 bok,nei,ja,1,nei,0,na,
+18898,Snurre rockeringen,,,4-6 per ball/rockering,,1 ball og 1 rockering,nei,ja,1,nei,0,na,a:antall
+18937,Månedens leker,,,,,,nei,nei,0,nei,0,na,a:antall
+19389,Tipsliste favorittleker,,,,,,nei,ja,0,nei,0,na,a:antall
+19390,Tipsliste sosial kompetanse,,,,,,nei,nei,0,nei,0,na,a:antall
+19696,Tipsliste leker for 100+ elever,,,,,,nei,nei,0,nei,0,na,a:antall
+19697,Tipslister,,,,,,nei,nei,0,nei,0,na,a:antall
+20030,Kursmodul høst 2026,,,,,,nei,ja,1,nei,0,na,a:antall
+20062,Test,,,,,,nei,nei,0,nei,0,na,a:antall+d:tekst
+20063,Minuttball,5,,5 eller flere,Kin-Ball | Six-Ball | Dragonskin | Innebandyballer | Bordtennisball | Markeringsmatter | Stoppeklokke,"KIN-ball/SIX-ball/skumballer/innebandyballer/bordtennisballer, markeringsmatter, stoppeklokke",nei,ja,1,nei,0,na,
+20064,Slottstriden,6,24,6-24,Speed stack jumbo | Rockeringer | Lagbånd | Dragonskin skumball | Markeringsmatter | Ertepose,"9-18 Jumbo Stacks, rockeringer, lagbånd, skumballer, markeringsmatter, erteposer",nei,ja,1,nei,0,na,
+20065,Sirkelsprett,2,20,2-20,Six-Ball | Tau | Kritt | Markeringsmatter,SIX-ball og tau/kritt/markeringsmatter for å lage en sirkel,nei,ja,1,nei,0,na,
+20066,Bikuben,6,50,6-50,Speed stack jumbo | Minikjegler | Ertepose,"1 Jumbo Stack bøtte per person, ca. 50 minikjegler/erteposer (eller lignende) per 15-20 personer",nei,ja,1,nei,0,na,
+20067,Flyvende farger,8,,8 eller flere,Markeringstallerkener | Markeringskjegler,Markeringstallerkener i fire ulike farger (en til hver deltaker) og 4 kjegler i fire ulike farger,nei,ja,1,nei,0,na,
+20068,Krokodille- og myggsisten,8,,8 eller flere,Lagbånd | Markeringsmatter | Markeringstallerkener,"Lagbånd i to farger, markeringsmatter, markeringstallerkener",nei,ja,1,nei,0,na,
+20069,Pingvin og pelikan,8,,8 eller flere,Markeringsmatter | Markeringstallerkener,Markeringsmatter/markeringstallerkener,nei,ja,1,nei,0,na,
+20070,Boccia-bowling,4,24,4-24,"Markeringstallerkener | Freeballs (6,5cm) | Disc-boccia | Rockeringer","24 markeringstallerkener, 24 freeballs (6,5cm), 4 disc-boccia, 4 rockeringer",nei,ja,1,ja,1,ukjent_token,c:bilde
+20071,Signalet,6,20,6-20,Rockeringer | Markeringsmatter,Rockeringer eller markeringsmatter (1-3 færre enn antall deltakere),nei,ja,1,nei,0,na,
+20072,"Stein, saks, papir-runden",4,,4 eller flere,Markeringskjegler,Fire kjegler,nei,ja,1,nei,0,na,
+20073,Moonball Challenge,2,,2 eller flere,Moonball,1 Moonball (eller annen ball med sprett) per 2-4 deltakere,nei,ja,1,nei,0,na,
+20074,Moonball - sprett og fang,2,,2 eller flere,Moonball,"1 Moonball (eller annen ball med sprett), 1 kjegle, og eventuelt noen markeringsmatter per par",nei,ja,1,nei,0,na,
+20075,Moonball - kast og fang,2,,2 eller flere,Moonball,"2 Moonballer (eller annen ball med sprett), 6-10 kjegler",nei,ja,1,nei,0,na,
+20076,Clap Trap,3,,3 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+20077,Rytmerebellen,3,,3 eller flere,Uten utstyr,,nei,ja,1,nei,0,na,
+20080,Verdensrekorder (fra 2018),2,,2 eller flere,,"Velg utstyr etter hvilke rekorder dere vil prøve dere på, og hvor mange dere er.",nei,nei,0,nei,0,na,

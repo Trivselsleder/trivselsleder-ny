@@ -1,0 +1,17 @@
+forslag_type,termer_tid,termer_navn,samlet_bruk,foreslaatt_kanonisk,begrunnelse,sikkerhet
+SLÅ_SAMMEN,1135 + 369,Ertepose + Erteposer,43,Ertepose,Entall/flertall av samme utstyr. Husregelen sier korteste/reneste = «Ertepose». MERK: «Erteposer» brukes 40x mot 3x — mennesket bør bekrefte hvilken form som blir kanonisk.,SIKKER
+SLÅ_SAMMEN,1025 + 376,Dragonskin + Dragonskin skumball,95,Dragonskin skumball,«Dragonskin» alene er en forkortelse av det fulle produktnavnet «Dragonskin skumball» (brukt 94x). Her vinner det fulle rene navnet framfor det korteste ufullstendige.,SIKKER
+GJENNOMGÅ_variant,376 + 418,Dragonskin skumball + Dragonskin skumball (små),98,behold begge,«(små)» er en STØRRELSE-variant — trolig egen vare. Slå IKKE sammen automatisk; menneske bekrefter.,USIKKER
+GJENNOMGÅ_variant,382 + 415,Monsterball 500 + Monsterball 1000,7,behold begge,Ulike modeller/størrelser (500 vs 1000). Trolig distinkte varer.,USIKKER
+GJENNOMGÅ_variant,392 + 474 + 1063,Markeringskjegler + Nummererte markeringskjegler + Markeringskjegler 7,5 cm,104,Markeringskjegler,«Nummererte» og «7,5 cm» er spesifikasjons-varianter. Kan slås til «Markeringskjegler» HVIS skolene ikke trenger å skille — menneske avgjør.,USIKKER
+GJENNOMGÅ_variant,453 + 541,Ball med sprett + Liten ball med sprett,9,behold begge,«Liten» er størrelse-variant. Trolig egen vare.,USIKKER
+GJENNOMGÅ_variant,537 + 1011,Lange skumrør + Korte skumrør,4,behold begge,Lengde-variant (lange vs korte) — funksjonelt ulike. Behold separat.,USIKKER
+GJENNOMGÅ_variant,772 + 877,Speed Stacks + Speed stack jumbo,18,behold begge,Case-forskjell (Stacks/stack) + «jumbo»-variant. Sjekk om «jumbo» er egen vare; ellers normaliser skrivemåte.,USIKKER
+GJENNOMGÅ_variant,773 + 1245,Freeballer (7 cm) + Freeballs (6,5cm),4,behold begge,Stavemåte (Freeballer/Freeballs) OG størrelse (7 cm/6,5 cm) skiller. Trolig to varer — men sjekk stavemåten.,USIKKER
+GJENNOMGÅ_variant,354 + 377,Små rockeringer + Rockeringer,86,behold begge,Størrelse-variant (små vs vanlige). Behold separat.,USIKKER
+GJENNOMGÅ_variant,369 + 1064,Erteposer + Små erteposer,41,behold begge,«Små erteposer» er størrelse-variant av Ertepose(r). Behold separat fra den sammenslåtte Ertepose.,USIKKER
+GJENNOMGÅ_ikke_utstyr,895,Test,1,fjern fra utstyrsliste,«Test» er tydelig et test-/søppelbegrep — ikke utstyr. Menneske bør fjerne fra vokabularet (ikke importer som utstyr).,SIKKER
+GJENNOMGÅ_ikke_utstyr,452,Dommer,1,fjern fra utstyrsliste,«Dommer» er en person/rolle — ikke fysisk utstyr. Vurder å flytte ut av utstyr.,SIKKER
+GJENNOMGÅ_ikke_utstyr,373,Tilleggsmateriale,6,gjennomgå,«Tilleggsmateriale» er en materialkategori — ikke et fysisk utstyr. Menneske avgjør om det hører hjemme i utstyrsfilteret.,USIKKER
+GJENNOMGÅ_ikke_utstyr,894,Aball,11,gjennomgå,«Aball» er et tvetydig navn (produkt? skrivefeil for «A-ball»?). Sjekk om det er en reell vare eller bør omdøpes.,USIKKER
+IMPORTREGEL,428,Uten utstyr,159,IKKE importer som utstyrsterm,«Uten utstyr» = FRAVÆR av kobling i ny modell (NOT EXISTS). Skal ikke finnes som utstyrsterm — se importregelen i IMPORTREGLER-UTSTYR-ANTALL.md §1.,SIKKER
