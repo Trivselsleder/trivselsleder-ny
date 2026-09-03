@@ -54,6 +54,16 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
 - Fonter: Marvin (overskrifter), Avenir (brødtekst)
 - Logo: BRUK public/tl-logo.png — aldri AI-tegne
 
+## FAST REGEL: fremdriftsplan-mal (docx) — fasit (fra 31. aug 2026)
+Fremdriftsplanen bygges med **docx-js (IKKE pandoc)**, **US Letter**, statisk TOC med **ekte
+sidetall via to-runde-bygg**. **Skrift = Calibri. Overskrifter (Heading1) = petrol #106C75.**
+Slik v44.docx OG v45.docx faktisk er — **filene er fasit.** Overskriftfargen er IKKE oransje
+#F47920 (det er den utgåtte web-oransjen), og skriften er IKKE Arial. Forside som v45 (petrol
+TRIVSELSLEDER-tittel, grå undertekster). Merkefarger i tekst: oransje #FF7B31, petrol #106C75
+(magenta UTGÅTT). Bordered footer «trivselsleder.no · Konfidensielt · Side {PAGE}».
+*(Cowork fanget en feil mal-spec 30. aug — «Arial + oransje #F47920» — som ikke matchet filene;
+Kjartan bekreftet Calibri + petrol, uendret.)*
+
 ## Viktige IDer
 - Kjartans superadmin-UID: 9ee20e27-c5c2-4917-a6ba-4b3baedabf11
 - Rollekolonne i profiles-tabellen heter "rolle", superadmin-verdi: "superadmin"
@@ -73,8 +83,9 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
   data (som HubSpot-status) av seg selv — flagger for manuell godkjenning.
 - Byggeren skriver ALDRI kontrollrunde-avsnittet selv — det skrives kun av den
   uavhengige kontrolløren (regel 4-innskjerping, 21. aug 2026).
-- Mac-mappa ~/trivselsleder-ny/ er eneste sannhet for CLAUDE.md og STATUS.md; ingen
-  sidekopier skal lages i claude.ai-prosjektet — koblingen speiler mappa automatisk.
+- Mac-mappa ~/trivselsleder-ny/ er autoritativ for CLAUDE.md og STATUS.md. Det finnes
+  INGEN auto-synk til claude.ai-prosjektet — Cowork gjør ALLTID begge steg: skriv fila til
+  ~/trivselsleder-ny/ OG kjør eksplisitt project_write, og bevis Mac-steget med `ls`.
 
 ## Lærdommer (snublesteiner vi har løst)
 - Supabase RLS: nye tabeller trenger BÅDE policyer OG `ENABLE ROW LEVEL SECURITY`.
@@ -112,14 +123,13 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
 
 ## Arbeidsform (fra 4. august 2026)
 
-### HVORDAN FILER HAVNER I CLAUDE-PROSJEKTET (avklart 24. aug 2026 — ikke bruk tid på dette igjen)
-Mappa ~/trivselsleder-ny/ er KOBLET som kunnskapskilde til Claude-prosjektet i desktop-appen. Det betyr:
-- Cowork skriver STATUS.md og claude_-filer til denne mappa via device-broen.
-- Appen SPEILER mappa automatisk inn i prosjektkunnskapen på claude.ai — ingen synk-jobb, intet verktøy, ingen cron, ingen GitHub-vei. Selve mappe-koblingen ER mekanismen.
-- Kjartan laster ALDRI opp filer manuelt, drar aldri filer inn i nettleseren, klikker aldri filkort.
-- Claude/Cowork skal derfor BARE skrive fila til Mac-mappa — så havner den i prosjektet av seg selv. ALDRI be Kjartan laste opp noe manuelt. ALDRI påstå at Claude eller Cowork «ikke kan» legge filer i prosjektet — de gjør det indirekte ved å skrive til den koblede mappa.
-- Vil man stoppe speilingen: fjern mappe-koblingen i Claude-appen (ikke aktuelt).
-- claude_-filer, STATUS.md og FREMDRIFTSPLAN-v* er i .gitignore (havner aldri på GitHub) — koblingen er den eneste veien inn i prosjektet.
+### HVORDAN FILER HAVNER I CLAUDE-PROSJEKTET (rettet 31. aug 2026 — INGEN auto-synk)
+Det finnes INGEN automatisk synk/speiling mellom Mac-mappa ~/trivselsleder-ny/ og claude.ai-prosjektet. To helt separate lagre. (Tidligere antakelse om auto-speiling var FEIL — den kostet mange timer.) Derfor:
+- Cowork gjør ALLTID BEGGE steg når noe skal være trygt for neste økt: (1) skriv fila til ~/trivselsleder-ny/ via device-broen, OG (2) kjør eksplisitt `project_write` på samme fil.
+- Cowork BEVISER steg 1 med `ls ~/trivselsleder-ny/` (device_list_dir) som viser fila — aldri bare påstå det.
+- project_write tar KUN tekst (.md/.txt/.sql). Binærfiler (docx/pdf) kan IKKE legges i prosjektet med project_write — Kjartan drar dem inn manuelt. Derfor lages det for planer/dossier ALLTID en .md-tekstversjon i tillegg, som project_write tar.
+- Bortsett fra binær docx/pdf laster Kjartan ALDRI opp filer manuelt — tekst havner i prosjektet via project_write, ikke ved opplasting.
+- claude_-filer, STATUS.md og FREMDRIFTSPLAN-v* er i .gitignore (havner aldri på GitHub) — project_write er veien inn i prosjektet.
 
 - Chat (Cowork) tar beslutninger, rekkefølge, SQL og formulerer oppdrag til Claude Code.
   Claude Code programmerer, stopper før push. Kjartan kjører SQL i Supabase selv og gir
@@ -134,11 +144,18 @@ Mappa ~/trivselsleder-ny/ er KOBLET som kunnskapskilde til Claude-prosjektet i d
 - Notater, planer og analyser fra chat leveres ALLTID som cat-blokk som Kjartan
   limer inn i terminalen. Filnavn: claude_NAVN.md, i ROTEN av ~/trivselsleder-ny/
   (aldri undermapper). Heredoc-terminator er alltid SLUTT.
-- Filene synkes automatisk derfra til prosjektkunnskapen paa claude.ai.
-  ALDRI be Kjartan laste opp filer manuelt, klikke filkort, eller bruke andre
-  metoder. Dette er HELE flyten - ikke finn paa noe nytt.
+- Filene havner i prosjektet KUN når Cowork kjører project_write på dem — INGEN auto-synk.
+  Cowork gjør begge steg (skriv til ~/trivselsleder-ny/ + project_write) og beviser Mac-steget
+  med ls. Tekstfiler krever ikke manuell opplasting; kun binær docx/pdf dras inn manuelt av Kjartan.
 - claude_-filer holdes UTENFOR git (kun kode og migrasjoner committes).
 - KUN EN Cowork/Code-okt mot ~/trivselsleder-ny om gangen (ellers git-laasefeil).
+
+## FAST REGEL: innspill fra ansatte/kunder — bygg nå eller bare fang (fra 30. aug 2026)
+- Når Kjartan limer inn et innspill (mail/tilbakemelding/idé), spør ALLTID om det skal
+  BYGGES NÅ eller BARE FANGES.
+- Skal det bare fanges: gjør det STRAKS til en claude_IDEBANK-*-fil under riktig tema
+  (eller føy til en eksisterende tematisk fil) — aldri la det bli liggende kun i chatten.
+  Da har senere prosjektgjennomganger noe å finne.
 
 ## ARBEIDSDELING CHAT vs COWORK (presisering 18. aug 2026)
 - Cowork = device-broen: skriver filer til ~/trivselsleder-ny, kjører kode/SQL,
