@@ -78,3 +78,7 @@ sql/_testdata-*/
 
 # Cowork-verifiseringsbygg (31aug) — kan slettes; ble opprettet fordi dist/ ikke lot seg tømme via bridge
 dist_verify
+
+# Import-motorens miljofil (databasepassord) - skal ALDRI i git
+.env.import
+.env.import.*
