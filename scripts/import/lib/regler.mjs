@@ -107,10 +107,10 @@ export function regelTrinnFraSchoolYear(schoolYearRefs) {
   return [...koder]
 }
 
-// ── MOVE IT: normaliser «Move It» → «Move it», gjenbruk seed-raden ───────────
+// ── MOVE IT: normaliser «Move It»/«Aktive pauser» → husets «Move It» (stor I), gjenbruk seed-raden ─
 export function normaliserKategori(navn) {
-  if (/^move it$/i.test(navn)) return 'Move it'
-  if (/^aktive pauser$/i.test(navn)) return 'Move it'   // Kjartans beslutning: samles under «Move it»
+  if (/^move it$/i.test(navn)) return 'Move It'
+  if (/^aktive pauser$/i.test(navn)) return 'Move It'   // Kjartans beslutning: samles under «Move It» (stor I, 092)
   return navn
 }
 
