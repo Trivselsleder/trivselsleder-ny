@@ -114,6 +114,26 @@ Kjartan bekreftet Calibri + petrol, uendret.)*
   i SAMME operasjon — ellers står {plassholder} som synlig tekst i utsendt e-post.
 - Supabase SQL-editor via nettleserbro lyver av og til «0 rows» — verifiser via nettleser-fetch
   mot REST (påstand om at noe IKKE finnes krever samme bevis som at det finnes).
+- ALDRI kjør en migrasjon i prod uten at HELE kjeden den forutsetter alt står i prod — og
+  bevis at «kontrollert = i prod» (md5 av funksjonsdefinisjonen) før du bygger videre. 3. sep:
+  TU-skjermingen ble svekket fordi kjernen (073) ble kjørt i prod mens propagatoren den
+  forutsetter (072) var kontrollert og godkjent, men aldri kjørt. Halve kjeden gikk live; den
+  kombinasjonen fikk ALDRI PASS, og 114 kjønnsceller ble entydig bestembare på 150 runder.
+  Rettet med 093C. En godkjent fil er ikke nok — det som fikk PASS må bevises byte-likt det som
+  faktisk står i prod.
+- INGEN baseendring uten et migrasjonsnummer. Alt som kjøres i basen skal være en nummerert,
+  sporet migrasjon — aldri løs SQL i editoren. 3. sep ble ti endringer funnet i prod som ingen
+  fil kjente: migr 088 (kjørt, aldri lagret som fil), «Aktive pauser»→«Move it» (løs SQL),
+  konfidens+telefon på kulturkort_partnere, skoler_status_check 6→7 verdier, to
+  profiles-policyer som hadde driftet, tu_kjonn_pinned (personvernhullet over), og 102
+  rettighetsavvik der ~70 tabeller hadde anon-tilgang prod hadde stengt. Hver ville gjort en
+  gjenoppbygging fra bunnen feil — og noen ville gjort den farlig (åpen der prod var lukket).
+- Et tomt resultat er IKKE bevis på feil — det kan bety at målingen er feil satt opp. Spør alltid
+  først: «ville denne målingen vist noe, hvis alt var i orden?». 3. sep ga tre falske alarmer:
+  «Move It»-filteret så dødt ut, men frontend og base matchet allerede — migrasjonen ville
+  ØDELAGT det, ikke rettet det; TU-loggingen så tom ut fordi ingen hadde åpnet rapporten siden
+  funksjonen ble bygget; søkeloggingen fordi spørringen ble kjørt før innsettingen rakk å skje.
+  En påstand om at noe er galt krever samme bevis som en påstand om at det virker.
 
 ## Standard arbeidsflyt for endringer
 1. Kjør SQL-migrasjon i Supabase SQL editor (hvis databaseendring)
