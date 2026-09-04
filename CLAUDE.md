@@ -67,7 +67,25 @@ Kjartan bekreftet Calibri + petrol, uendret.)*
 ## Viktige IDer
 - Kjartans superadmin-UID: 9ee20e27-c5c2-4917-a6ba-4b3baedabf11
 - Rollekolonne i profiles-tabellen heter "rolle", superadmin-verdi: "superadmin"
-- Roller: superadmin, ansatt, skoleadmin, skoleansatt, feide
+- **Roller — TO UAVHENGIGE NIVÅER, ikke bland dem:**
+  - **`profiles.rolle`** = internt nivå i plattformen: `'superadmin'` (Kjartan), `'ansatt'` (ansatt hos
+    TRIVSELSLEDER AS), `'skoleadmin'`, `'skoleansatt'`, `'feide'`. Det er DENNE `get_min_rolle()` leser.
+    Vakten `get_min_rolle() in ('ansatt','superadmin')` betyr «kun folk som jobber hos Trivselsleder AS».
+  - **`bruker_skole`** = tre uavhengige felt per person per skole (vedtatt 17. aug, migr 043):
+    - **tilgang**: `'skoleadmin'` | `'skoleansatt'` — NB: dette er kolonnen som faktisk HETER `rolle` i
+      `bruker_skole`. Det finnes ingen egen `tilgang`-kolonne; navnet «tilgang» brukes her kun for å
+      skille den fra `profiles.rolle`.
+    - **stilling**: `'rektor'` | `'inspektor'` | `'styrer'` | `'ansatt'` | `NULL`.
+    - **tl_rolle**: `'htla'` | `'tla'` | `NULL`. **Maks én HTLA per skole.**
+  - **FELLE — ordet «ansatt» finnes to steder med ULIK betydning:**
+    - `profiles.rolle = 'ansatt'`      → ansatt hos Trivselsleder AS.
+    - `bruker_skole.stilling = 'ansatt'` → vanlig lærer på en skole.
+    To forskjellige kolonner i to forskjellige tabeller. En rollevakt skal ALLTID lese `profiles` via
+    `get_min_rolle()`, ALDRI `bruker_skole` (verken dens `rolle`/tilgang eller `stilling` — merk at
+    kolonnenavnet `rolle` finnes i BEGGE tabellene, med ulike verdisett). Skriver noen en vakt mot feil
+    kolonne, åpnes interne data for hele skole-Norge.
+  - **MÅLT I PROD 4. sep:** `profiles` har 3 rader — 1 superadmin, 2 skoleadmin, 0 ansatt. Ingen ugyldige
+    verdier, ingen NULL.
 
 ## Direktelenker (gi alltid klikkbar URL når Kjartan skal sjekke noe)
 - Supabase SQL editor: https://supabase.com/dashboard/project/zpirjbrcbeubwpmtncxx/sql/new
@@ -91,6 +109,48 @@ Kjartan bekreftet Calibri + petrol, uendret.)*
 - Supabase RLS: nye tabeller trenger BÅDE policyer OG `ENABLE ROW LEVEL SECURITY`.
 - Supabase GRANT: anon + authenticated trenger eksplisitt GRANT SELECT på nye tabeller,
   ellers 403 selv med korrekte RLS-policyer.
+- Rettigheter på nye objekter — stol ALDRI på defaults. Migrasjoner kjøres som postgres, og
+  det er postgres sitt sett i pg_default_acl som gjelder. I VÅR base (målt 4. sep 2026) gir
+  det: nye TABELLER → anon, authenticated og service_role får TRUNCATE, REFERENCES, TRIGGER
+  (+MAINTAIN), INGEN select/insert/update/delete (derfor 403 for innloggede på en ny tabell
+  selv med riktige policyer); nye SEKVENSER → ingenting; nye FUNKSJONER → ingenting via
+  defaults, MEN Postgres selv gir PUBLIC (= alle roller, anon inkludert) EXECUTE på hver ny
+  funksjon (proacl NULL). Supabase-standarden er ALL til alle tre på alt — vår base er
+  strammet for hånd (udokumentert, uten fil), og det kan bli nullstilt av ny instans/
+  gjenoppretting/oppgradering. Derfor skriver hver migrasjon som lager en TABELL selv:
+    grant select, insert, update, delete on public.<tabell> to authenticated, service_role;
+    revoke all on public.<tabell> from anon;
+  og ved identity/serial-kolonne også:
+    grant usage, select on sequence public.<tabell>_id_seq to authenticated, service_role;
+    revoke all on sequence public.<tabell>_id_seq from anon;
+  (formen fra 063/077/095/100). Skal anon lese, er det en BESLUTNING: grant select … to anon,
+  begrunnet i fila. Hver migrasjon som lager eller endrer en FUNKSJON skriver:
+    revoke execute on function public.<fn>(<signatur>) from public, anon, authenticated;
+    grant execute on function public.<fn>(<signatur>) to <rollene som skal ha den>;
+  (formen fra 098/099). «from public» er linjen som fjerner den implisitte EXECUTE; «anon,
+  authenticated» tas med fordi eldre filer har gitt dem eksplisitt execute, som overlever
+  revoke fra PUBLIC; service_role må grantes eksplisitt — den får ingenting av default.
+  RLS er IKKE nok alene: RLS filtrerer rader for select/insert/update/delete, men TRUNCATE
+  omgår RLS (og anon HAR truncate på hver ny tabell til den revokes), sekvenser og funksjoner
+  har ingen RLS, og service_role omgår RLS helt — grant/revoke er det eneste vernet der.
+  093B strammet 001–093-bildet for tabeller men kjenner ikke tabeller laget etter seg; 099
+  satte alle 65 SECURITY DEFINER-funksjoner eksplisitt. Historikk: 3. sep 102 tabell-avvik og
+  28 anon-kallbare funksjoner i prod (40 fra filene alene — 12 var strammet for hånd);
+  4. sep 100 (dokument_type) laget uten revoke. Kontrollen måler has_table_privilege,
+  has_sequence_privilege og has_function_privilege for anon i en base bygget med prods
+  målte postgres-sett (retest-riggens stub_auth.sql, rettet 4. sep) — aldri fila alene.
+- Tillegg (dokumentasjon av det udokumenterte): postgres-settet i pg_default_acl er strammet
+  i prod (anon/authenticated/service_role = Dxtm på tabeller, ingenting på S og f). Det står
+  i ingen fil. Sjekk det (spørring i claude_ANON-DEFAULT-PRIVILEGES-4sep.md §3) etter enhver
+  ny instans, gjenoppretting eller Supabase-oppgradering — og før en gjenoppbygging tas som
+  bevis.
+- Ellevte udokumenterte produksjonsendring (funnet 4. sep, i rekka fra 3. sep): `Dxtm` på
+  postgres-settet i `pg_default_acl` er IKKE Supabase-standard. Noen har grantet og deretter
+  revoket select/insert/update/delete i denne basen. Det kan vises fordi `pg_default_acl` har
+  rader for `postgres | S` og `postgres | f` som bare inneholder eierens egen standard
+  (`postgres=rwU` hhv. `postgres=X`) — Postgres lager ikke slike rader for den innebygde
+  standarden; en slik rad oppstår bare når noen har kjørt `alter default privileges` og siden
+  revoket det igjen. Hvem og når er ukjent, og det står i ingen fil.
 - Supabase "Max rows" (Data API-innstilling) overstyrer .range() i koden — begge må
   settes for å hente store lister (satt til 10000).
 - RLS-rekursjon: en SECURITY DEFINER-funksjon som leser fra en tabell med RLS kan lage
