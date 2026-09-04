@@ -84,11 +84,15 @@ export function regelTrinn(schoolTypeRefs) {
   const koder = (schoolTypeRefs || []).map(v => (v.value || '').toUpperCase())
   const trinn = new Set()
   const egnet = new Set()
+  // A1 (låst, SPES steg 6/5A): K er BETINGET. K→8–10 KUN når verken B eller U er satt;
+  // er B eller U satt, gir de allerede sine trinn og K legger ingenting til. Den gamle
+  // ubetingede K→1–10 var feil.
+  const harB = koder.includes('B'), harU = koder.includes('U')
   for (const k of koder) {
     if (k === 'BH') trinn.add('bhg')
     else if (k === 'B') for (let i = 1; i <= 7; i++) trinn.add(String(i))
     else if (k === 'U') for (let i = 8; i <= 10; i++) trinn.add(String(i))
-    else if (k === 'K') for (let i = 1; i <= 10; i++) trinn.add(String(i))
+    else if (k === 'K') { if (!harB && !harU) for (let i = 8; i <= 10; i++) trinn.add(String(i)) }
     else if (k === 'S') egnet.add('SFO/AKS')
     // ukjent kode: flagges av kalleren (avvik), aldri gjettet
   }
