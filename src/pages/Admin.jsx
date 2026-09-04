@@ -7,7 +7,7 @@ const adminSider = [
     beskrivelse: 'Styringssignaler: frafallsvarsel (churn) og nøkkeltall.',
     ikon: '📊',
     til: '/admin/ledelse',
-    roller: ['superadmin'],
+    roller: ['superadmin', 'ansatt'],
   },
   {
     tittel: 'Kursplanlegger',

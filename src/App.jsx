@@ -194,7 +194,7 @@ export default function App() {
               />
               <Route path="/admin/bestillinger" element={<Navigate to="/admin/kortoversikt" replace />} />
               <Route path="/admin/tekster" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminTekster /></ProtectedRoute>} />
-              <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle="superadmin"><AdminLedelse /></ProtectedRoute>} />
+              <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle={["ansatt", "superadmin"]}><AdminLedelse /></ProtectedRoute>} />
               <Route path="/admin/haller" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminHaller /></ProtectedRoute>} />
               <Route path="/admin/kortutdeling" element={<Navigate to="/admin/kortoversikt" replace />} />
               <Route path="/admin/kortoversikt" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminKortoversikt /></ProtectedRoute>} />

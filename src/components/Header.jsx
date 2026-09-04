@@ -24,8 +24,8 @@ export default function Header() {
     { label: t('nav.kulturkortet'), to: '/kulturkortet' },
     { label: t('nav.kontakt'), to: '/kontakt' },
   ]
-  const adminLenke = bruker?.rolle === 'superadmin' ? [{ label: 'Admin', to: '/admin' }] : []
-  // Innlogget skole: skjul de offentlige markedsføringslenkene, behold Admin (superadmin).
+  const adminLenke = ['superadmin', 'ansatt'].includes(bruker?.rolle) ? [{ label: 'Admin', to: '/admin' }] : []
+  // Innlogget skole: skjul de offentlige markedsføringslenkene, behold Admin (superadmin/ansatt).
   const navLinks = session ? adminLenke : [...offentlige, ...adminLenke]
 
   const baseClass = 'text-gray-700 hover:text-orange-ink font-medium transition-colors'
