@@ -1,3 +1,9 @@
+-- ============================================================================
+-- Denne filen er ryddet 3. sep 2026 for å gjøre gjenoppbygging fra bunnen mulig.
+-- Den avviker bevisst fra SQL-en som faktisk bygget produksjonsbasen. Filen er en
+-- GJENOPPBYGGINGS-OPPSKRIFT, ikke en historisk logg.
+-- ============================================================================
+
 -- 092_kompetansemaal_kobling.sql
 -- ============================================================================
 -- ETAPPE 5 (FASE 3): KOMPETANSEMÅL-KOBLING — TILSTANDER, FORSLAG, GJELDENDE-VERN
@@ -174,7 +180,17 @@ create trigger trg_km_gjeldende
 -- SkoleAktiviteter.jsx:16 endres til «Move It» og deployes i SAMME vending — ellers gir
 -- Move it-boksen 0 treff (base «Move It» vs frontend «Move it»).
 -- Idempotent: id- og navn-vilkåret gjør at en ny kjøring ikke treffer noe.
-update egnet_kategori set navn = 'Move It' where id = 5 and navn = 'Move it';
+--
+-- REBUILD-FIKS 3. sep: egnet_kategori-vakten dekker BEGGE skrivemåtene. I prod ble rad
+-- id 5 omdøpt «Aktive pauser» -> «Move it» via LØS SQL i etappe 3 (aldri en migrasjon),
+-- så prod-vakten «= 'Move it'» traff der. Men migr 023 SEEDER «Aktive pauser» (ikke
+-- «Move it»), så ved en ren gjenoppbygging fra 001 ville «= 'Move it'» BOMME og egnet id 5
+-- blitt stående som «Aktive pauser» — ulik prod. Vakten dekker derfor nå begge: «Aktive
+-- pauser» (fra 023-seed, ved gjenoppbygging) OG «Move it» (fra prod-renamen). Kategorier
+-- (id 1) trenger ikke dette: 023 seeder «Move it» der, som vakten alt treffer.
+-- VIKTIG: 023-seeden er IKKE endret — migr 031 kobler testleker til egnet PÅ NAVN «Aktive
+-- pauser» (linje 52/54/56/58/65/66); endret vi seeden ville de koblingene bomme stille.
+update egnet_kategori set navn = 'Move It' where id = 5 and navn in ('Move it', 'Aktive pauser');
 update kategorier      set navn = 'Move It' where id = 1 and navn = 'Move it';
 
 commit;

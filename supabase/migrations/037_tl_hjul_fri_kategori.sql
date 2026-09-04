@@ -60,15 +60,20 @@ grant select, insert, update, delete on tl_hjul_kategori to authenticated, servi
 grant select on tl_hjul_kategori to anon;
 
 -- Forslag til standardtyper (skolen kan legge til / endre / bruke egne).
-insert into tl_hjul_kategori (skole_id, navn, sortering) values
-  (null, 'Move it', 10),
-  (null, 'Klassemiljø', 20),
-  (null, 'Trinn', 30),
-  (null, 'Personalet', 40),
-  (null, 'Trivselsutfordringer', 50),
-  (null, 'Klasseliste', 60),
-  (null, 'Type leker', 70)
-on conflict (navn) where skole_id is null do nothing;
+-- prod-diff B (3. sep 2026): hardkodet prods UUID-er (som 034 gjoer for leker). 037 brukte
+-- gen_random_uuid(), saa gjenoppbygging + datatilbakefoering ville gitt tl_hjul_kategori andre
+-- id-er enn prod, og tl_hjul-radene (som peker paa kategori_id) ville mistet koblingen. Navn/
+-- sortering er uendret; 'on conflict (navn) do nothing' gjoer id-ene til no-op mot prod (radene
+-- finnes alt) - id-ene slaar bare inn ved fersk gjenoppbygging.
+insert into tl_hjul_kategori (id, skole_id, navn, sortering) values
+  ('e519af66-6ca1-479e-897c-2cd1c715b117', null, 'Move it', 10),
+  ('bec49ace-47e2-4498-8328-40fe588baf9c', null, 'Klassemiljø', 20),
+  ('14c2ead5-21ac-48af-a00f-f7251db08791', null, 'Trinn', 30),
+  ('3a7a270e-65ec-4b8a-bead-cbdd5a170076', null, 'Personalet', 40),
+  ('967730dd-c570-431b-a2f0-e3a525e4ede6', null, 'Trivselsutfordringer', 50),
+  ('b8515d53-28d3-47c1-82d5-d2208d589522', null, 'Klasseliste', 60),
+  ('14268cc1-c3bb-4e9f-85d8-82f206ea14da', null, 'Type leker', 70)
+on conflict do nothing;
 
 -- 3) tl_hjul: kategori + sortering + font-standard --------------------
 alter table tl_hjul

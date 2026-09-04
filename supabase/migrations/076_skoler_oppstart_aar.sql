@@ -27,13 +27,17 @@ comment on column public.skoler.oppstart_aar is
   'Skolens oppstartsår i Trivselsprogrammet. Nullable — tom til HubSpot-import fyller den. Kuttet fra skoleundersøkelsen (hentes herfra).';
 
 -- Idempotent CHECK: tillater NULL, ellers 1990..2100 (typo-vern).
+-- prod-diff A4 (3. sep 2026): constrainten heter 'skoler_oppstart_aar_gyldig' i prod, ikke
+-- '..._check'. Navnet er rettet her (baade i conname-sjekken og i add) saa (a) gjenoppbygging
+-- gir prods navn, og (b) do-blokken finner den ved re-kjoering mot prod og legger IKKE til en
+-- nummer to. Samme regel, bare prods navn.
 do $$
 begin
   if not exists (
-    select 1 from pg_constraint where conname = 'skoler_oppstart_aar_check'
+    select 1 from pg_constraint where conname = 'skoler_oppstart_aar_gyldig'
   ) then
     alter table public.skoler
-      add constraint skoler_oppstart_aar_check
+      add constraint skoler_oppstart_aar_gyldig
       check (oppstart_aar is null or oppstart_aar between 1990 and 2100);
   end if;
 end $$;

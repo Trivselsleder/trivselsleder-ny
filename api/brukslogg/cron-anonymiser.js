@@ -2,16 +2,29 @@ import { createClient } from '@supabase/supabase-js'
 import { krevCronEllerAnsatt, erCronKall } from '../_vakt.js'
 
 // ============================================================================
-// BRUKSLOGG — ANONYMISERINGS-CRON. Kjører personvernrutinen
-// public.anonymiser_bruk_hendelse() (migr 088) én gang i døgnet, natt.
+// NATTLIG PERSONVERN-ANONYMISERING. Kjører TO personvernrutiner én gang i døgnet.
 //
-// Rutinen gjør to ting (definert i basen, ikke her):
-//   Steg 1 (30 dager): kobler søk fra BÅDE person (bruker_id) og skole
-//           (skole_id). Søketeksten kan inneholde barnenavn; på en liten skole
-//           er skole_id nesten like identifiserende som bruker_id.
+// NB OM NAVNET: mappa/ruta heter «brukslogg», men ruta rører NÅ BEGGE loggtabellene:
+//   - public.anonymiser_bruk_hendelse()  (migr 088) → tabellen `bruk_hendelse`
+//   - public.anonymiser_brukslogg()       (migr 096) → tabellen `brukslogg`
+//   Navnet «brukslogg» er altså for snevert (historisk rørte ruta bare bruk_hendelse).
+//   Full omdøping til et nøytralt navn (f.eks. api/personvern/cron-anonymiser.js) krever
+//   en SAMTIDIG vercel.json-sti-endring i samme deploy — egen sak, ikke gjort her.
+//
+// Jobb 1 — bruk_hendelse (migr 088), to frister:
+//   Steg 1 (30 dager): kobler søk fra BÅDE person (bruker_id) og skole (skole_id).
+//           Søketeksten kan inneholde barnenavn; på en liten skole er skole_id
+//           nesten like identifiserende som bruker_id.
 //   Steg 2 (24 mnd):   fjerner selve søketeksten (sok_tekst) og bruker_id.
-// Funksjonen returnerer to tall — koblet_fra_person og tekst_fjernet — som vi
-// sender rått tilbake i svaret, slik at hver kjøring kan etterprøves.
+//   Returnerer koblet_fra_person + tekst_fjernet.
+//
+// Jobb 2 — brukslogg (migr 096), én frist:
+//   12 mnd: nullstiller bruker_id (fjerner koblingen til personen); raden består
+//           så aktivitetsstatistikk over tid bevares. Ingen søketekst i denne
+//           tabellen, derfor ett steg (asymmetrien mot 088 er bevisst).
+//           Returnerer frakoblet_person.
+//
+// Begge tall sendes rått tilbake i svaret (per jobb), så hver kjøring kan etterprøves.
 //
 // HVORFOR EN VERCEL-CRON OG IKKE pg_cron:
 //   pg_cron er ikke installert i basen (Supabase-standard; bekreftes med
@@ -96,18 +109,32 @@ export default async function handler(req, res) {
     })
   }
 
-  // ---- Ekte kjøring: kall personvernrutinen og returner de to tallene ----
-  const { data, error } = await supabase.rpc('anonymiser_bruk_hendelse')
-  if (error) {
-    console.error('cron-anonymiser: anonymiser_bruk_hendelse feilet:', error.message)
-    return res.status(500).json({ error: 'Anonymisering feilet: ' + error.message })
+  // ---- Ekte kjøring: kall BEGGE personvernrutinene, rapporter hver for seg ----
+  // To uavhengige jobber på to tabeller. Én feiler ikke den andre: begge forsøkes,
+  // hver rapporteres, og en feil i den ene skjuler ikke resultatet til den andre.
+
+  // Jobb 1: bruk_hendelse (migr 088) — 30 dager / 24 mnd.
+  const bh = await supabase.rpc('anonymiser_bruk_hendelse')
+  if (bh.error) console.error('cron-anonymiser: anonymiser_bruk_hendelse feilet:', bh.error.message)
+  const bhRad = Array.isArray(bh.data) ? bh.data[0] : bh.data
+
+  // Jobb 2: brukslogg (migr 096) — 12 mnd, nullstiller bruker_id.
+  const bl = await supabase.rpc('anonymiser_brukslogg')
+  if (bl.error) console.error('cron-anonymiser: anonymiser_brukslogg feilet:', bl.error.message)
+  const blRad = Array.isArray(bl.data) ? bl.data[0] : bl.data
+
+  const svar = {
+    ok: !bh.error && !bl.error,
+    torrkjoring: false,
+    bruk_hendelse: bh.error
+      ? { feil: bh.error.message }
+      : { koblet_fra_person: Number(bhRad?.koblet_fra_person ?? 0), tekst_fjernet: Number(bhRad?.tekst_fjernet ?? 0) },
+    brukslogg: bl.error
+      ? { feil: bl.error.message }
+      : { frakoblet_person: Number(blRad?.frakoblet_person ?? 0) },
   }
 
-  const rad = Array.isArray(data) ? data[0] : data
-  return res.status(200).json({
-    ok: true,
-    torrkjoring: false,
-    koblet_fra_person: Number(rad?.koblet_fra_person ?? 0),
-    tekst_fjernet: Number(rad?.tekst_fjernet ?? 0),
-  })
+  // 500 hvis NOEN jobb feilet, så cron-overvåkingen ser det — men begge resultatene
+  // står i svaret, så en vellykket jobb ikke skjules av en mislykket.
+  return res.status(bh.error || bl.error ? 500 : 200).json(svar)
 }

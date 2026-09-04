@@ -1,7 +1,19 @@
--- Migrasjon 019: komplett live-skjema (public)
--- Hentet 10. august 2026 via introspeksjon av den kjørende Supabase-basen.
--- Fyller migrasjonsgapet: tabeller kurs/kurs_skole/kursholdere/haller/evalueringer
--- + 22 RPC-er + RLS-policyer som tidligere kun fantes i basen.
+-- ============================================================================
+-- Denne filen er ryddet 3. sep 2026 for å gjøre gjenoppbygging fra bunnen mulig.
+-- Den avviker bevisst fra SQL-en som faktisk bygget produksjonsbasen. Filen er en
+-- GJENOPPBYGGINGS-OPPSKRIFT, ikke en historisk logg.
+-- ============================================================================
+
+-- Migrasjon 019: offentlig skjema (schema "public") som fyller migrasjonsgapet.
+-- SKAL KJØRES i rekkefølge ved gjenoppbygging av en tom base (etter 018, før 020).
+-- Tabellene kurs, kurs_skole, kursholdere, haller og evalueringer + 22 RPC-er og
+-- RLS-policyer opprettes KUN i denne fila; 22 senere filer (020, 021, 022, 047-058,
+-- 060-062, 078, 082, 083, 085) bygger på dem. Uten 019 stopper gjenoppbyggingen ved 020.
+-- Bruker gjennomgående «create table if not exists», så den kolliderer ikke med
+-- tabeller som alt er opprettet i tidligere filer (f.eks. brukslogg fra 015).
+-- MERK: skal IKKE kjøres mot den eksisterende live-basen — kun ved oppbygging av en
+-- fersk/tom kopi-base. Skjemaet er avlest fra den kjørende basen 10. august 2026, så
+-- det kan avvike noe fra det 001-018 bygget; «if not exists» skjuler slike avvik.
 
 
 -- Tabell: bruker_skole
@@ -154,12 +166,19 @@ create table if not exists public.kulturkort_partnere (
   nettside text,
   beskrivelse text,
   kategori text not null default 'aktiv'::text,
-  published boolean default (kategori = 'aktiv'::text),
+  published boolean generated always as (kategori = 'aktiv'::text) stored,
   innleggsdato text,
   oppdatert text,
   konfidens text,
   telefon text
 );
+
+-- RYDDET 3. sep 2026: konfidens og telefon ble lagt til kulturkort_partnere MANUELT i basen
+-- (utenom migrasjoner). Migr 016 lager tabellen UTEN dem, og ved gjenoppbygging lager 016
+-- tabellen mens create-en over hoppes over av «if not exists» -> kolonnene ville manglet
+-- stille. Legges derfor til eksplisitt (idempotent) så gjenoppbygging matcher prod:
+alter table kulturkort_partnere add column if not exists konfidens text;
+alter table kulturkort_partnere add column if not exists telefon   text;
 
 -- Tabell: kurs
 create table if not exists public.kurs (
@@ -316,72 +335,77 @@ create table if not exists public.skoler (
 
 
 -- Constraints
-alter table bruker_skole add constraint bruker_skole_bruker_id_skole_id_key UNIQUE (bruker_id, skole_id);
-alter table bruker_skole add constraint bruker_skole_pkey PRIMARY KEY (id);
-alter table bruker_skole add constraint bruker_skole_skole_id_fkey FOREIGN KEY (skole_id) REFERENCES skoler(id) ON DELETE CASCADE;
-alter table bruker_skole add constraint bruker_skole_bruker_id_fkey FOREIGN KEY (bruker_id) REFERENCES profiles(id) ON DELETE CASCADE;
-alter table bruker_skole add constraint bruker_skole_rolle_check CHECK ((rolle = ANY (ARRAY['skoleadmin'::text, 'skoleansatt'::text])));
-alter table brukslogg add constraint brukslogg_pkey PRIMARY KEY (id);
-alter table brukslogg add constraint brukslogg_bruker_id_fkey FOREIGN KEY (bruker_id) REFERENCES profiles(id) ON DELETE SET NULL;
-alter table brukslogg add constraint brukslogg_skole_id_fkey FOREIGN KEY (skole_id) REFERENCES skoler(id) ON DELETE SET NULL;
-alter table brukslogg add constraint brukslogg_hendelse_type_check CHECK ((hendelse_type = ANY (ARRAY['innlogging'::text, 'sidevisning'::text, 'ressurs_apnet'::text, 'nedlasting'::text, 'sok'::text])));
+-- RYDDET 3. sep 2026: fjernet re-adds av PK/UNIQUE/FK/CHECK for bruker_skole og brukslogg.
+-- Disse lages allerede av 001 (bruker_skole: PK, UNIQUE, FK-er) + 006 (rolle-CHECK) og 015
+-- (brukslogg: PK, FK-er, hendelse-CHECK), med samme navn og definisjon. Å legge dem på nytt
+-- ga «multiple primary keys / constraint already exists» ved gjenoppbygging. Sluttilstand
+-- uendret (constraintene finnes fra 001/006/015).
 alter table churn_signalord add constraint churn_signalord_pkey PRIMARY KEY (id);
 alter table epost_logg add constraint epost_logg_pkey PRIMARY KEY (id);
-alter table epost_logg add constraint epost_logg_kurs_skole_mottaker_id_fkey FOREIGN KEY (kurs_skole_mottaker_id) REFERENCES kurs_skole_mottaker(id) ON DELETE SET NULL;
-alter table epost_logg add constraint epost_logg_kurs_skole_id_fkey FOREIGN KEY (kurs_skole_id) REFERENCES kurs_skole(id) ON DELETE SET NULL;
 alter table eval_pakker add constraint eval_pakker_pkey PRIMARY KEY (id);
-alter table eval_pakker add constraint eval_pakker_semester_id_fkey FOREIGN KEY (semester_id) REFERENCES eval_semester(id) ON DELETE CASCADE;
 alter table eval_semester add constraint eval_semester_pkey PRIMARY KEY (id);
 alter table eval_sporsmal add constraint eval_sporsmal_pkey PRIMARY KEY (id);
-alter table eval_sporsmal add constraint eval_sporsmal_semester_id_fkey FOREIGN KEY (semester_id) REFERENCES eval_semester(id) ON DELETE CASCADE;
 alter table evalueringer add constraint evalueringer_token_key UNIQUE (token);
 alter table evalueringer add constraint evalueringer_pkey PRIMARY KEY (id);
-alter table evalueringer add constraint evalueringer_valgt_pakke_id_fkey FOREIGN KEY (valgt_pakke_id) REFERENCES eval_pakker(id);
-alter table evalueringer add constraint evalueringer_semester_id_fkey FOREIGN KEY (semester_id) REFERENCES eval_semester(id);
-alter table evalueringer add constraint evalueringer_kurs_skole_id_fkey FOREIGN KEY (kurs_skole_id) REFERENCES kurs_skole(id) ON DELETE CASCADE;
 alter table haller add constraint haller_pkey PRIMARY KEY (id);
 alter table innstillinger add constraint innstillinger_pkey PRIMARY KEY (nokkel);
-alter table kulturkort_bestillinger add constraint kulturkort_bestillinger_pkey PRIMARY KEY (id);
-alter table kulturkort_partnere add constraint kulturkort_partnere_pkey PRIMARY KEY (id);
-alter table kulturkort_partnere add constraint kulturkort_partnere_kategori_check CHECK ((kategori = ANY (ARRAY['aktiv'::text, 'tidligere'::text, 'potensiell'::text])));
+-- RYDDET 3. sep 2026: fjernet re-adds av PK/CHECK for kulturkort_bestillinger og
+-- kulturkort_partnere. Lages allerede av 018 (bestillinger: PK) og 016 (partnere: PK +
+-- kategori-CHECK), med samme navn. Sluttilstand uendret.
 alter table kurs add constraint kurs_pkey PRIMARY KEY (id);
-alter table kurs add constraint kurs_hall_id_fkey FOREIGN KEY (hall_id) REFERENCES haller(id);
-alter table kurs add constraint kurs_backup_kursholder_id_fkey FOREIGN KEY (backup_kursholder_id) REFERENCES kursholdere(id);
-alter table kurs add constraint kurs_kursholder_id_fkey FOREIGN KEY (kursholder_id) REFERENCES kursholdere(id);
 alter table kurs_skole add constraint kurs_skole_lenke_token_key UNIQUE (lenke_token);
 alter table kurs_skole add constraint kurs_skole_lenke_token_unique UNIQUE (lenke_token);
 alter table kurs_skole add constraint kurs_skole_pkey PRIMARY KEY (id);
+alter table kurs_skole_mottaker add constraint kurs_skole_mottaker_kurs_skole_id_epost_key UNIQUE (kurs_skole_id, epost);
+alter table kurs_skole_mottaker add constraint kurs_skole_mottaker_pkey PRIMARY KEY (id);
+alter table kurs_skole_mottaker add constraint kurs_skole_mottaker_rolle_check CHECK ((rolle = ANY (ARRAY['htla'::text, 'tla'::text])));
+alter table kursholdere add constraint kursholdere_pkey PRIMARY KEY (id);
+-- RYDDET 3. sep 2026: fjernet re-adds av PK/FK/UNIQUE/CHECK for paameldinger, profiles og
+-- skoler (unntatt status-CHECK, se under). Lages allerede av 002 (paameldinger: PK + type-
+-- CHECK), 001+006 (profiles: PK, FK->auth.users, rolle-CHECK) og 001 (skoler: PK, org_nr
+-- UNIQUE). Sluttilstand uendret for disse.
+--
+-- MEN skoler_status_check har DRIFTET: migr 003 lager den med 6 verdier; prod (avlest i 019)
+-- har 7 — verdien 'Inaktiv' ble lagt til MANUELT i basen, utenom migrasjoner (samme klasse
+-- som konfidens/telefon). For at gjenoppbygging skal bli IDENTISK med prod byttes
+-- 003-versjonen ut med 7-verdi-versjonen her (DROP + ADD, idempotent):
+alter table skoler drop constraint if exists skoler_status_check;
+alter table skoler add constraint skoler_status_check
+  CHECK (status = ANY (ARRAY['Påmeldt'::text, 'Aktiv'::text, 'Aktiv sagt opp'::text, 'Pause'::text, 'Tidligere'::text, 'Potensielle'::text, 'Inaktiv'::text]));
+
+-- Foreign keys (samlet her 3. sep 2026): ALLE FK-er er flyttet til slutten av constraint-
+-- seksjonen, ETTER at alle PK/UNIQUE er lagt til over. pg_dump la dem alfabetisk, saa sju
+-- FK-er kom FOER primaernoekkelen de refererer (f.eks. epost_logg -> kurs_skole_mottaker,
+-- kurs -> kursholdere), noe som ga «there is no unique constraint matching given keys»
+-- ved gjenoppbygging. Aa samle FK-ene her garanterer at referert PK/UNIQUE alltid finnes
+-- foerst. Definisjonene (inkl. ON DELETE) er uendret; sluttilstand identisk med prod.
+alter table epost_logg add constraint epost_logg_kurs_skole_mottaker_id_fkey FOREIGN KEY (kurs_skole_mottaker_id) REFERENCES kurs_skole_mottaker(id) ON DELETE SET NULL;
+alter table epost_logg add constraint epost_logg_kurs_skole_id_fkey FOREIGN KEY (kurs_skole_id) REFERENCES kurs_skole(id) ON DELETE SET NULL;
+alter table eval_pakker add constraint eval_pakker_semester_id_fkey FOREIGN KEY (semester_id) REFERENCES eval_semester(id) ON DELETE CASCADE;
+alter table eval_sporsmal add constraint eval_sporsmal_semester_id_fkey FOREIGN KEY (semester_id) REFERENCES eval_semester(id) ON DELETE CASCADE;
+alter table evalueringer add constraint evalueringer_valgt_pakke_id_fkey FOREIGN KEY (valgt_pakke_id) REFERENCES eval_pakker(id);
+alter table evalueringer add constraint evalueringer_semester_id_fkey FOREIGN KEY (semester_id) REFERENCES eval_semester(id);
+alter table evalueringer add constraint evalueringer_kurs_skole_id_fkey FOREIGN KEY (kurs_skole_id) REFERENCES kurs_skole(id) ON DELETE CASCADE;
+alter table kurs add constraint kurs_hall_id_fkey FOREIGN KEY (hall_id) REFERENCES haller(id);
+alter table kurs add constraint kurs_backup_kursholder_id_fkey FOREIGN KEY (backup_kursholder_id) REFERENCES kursholdere(id);
+alter table kurs add constraint kurs_kursholder_id_fkey FOREIGN KEY (kursholder_id) REFERENCES kursholdere(id);
 alter table kurs_skole add constraint kurs_skole_kurs_id_fkey FOREIGN KEY (kurs_id) REFERENCES kurs(id);
 alter table kurs_skole add constraint kurs_skole_svart_av_mottaker_id_fkey FOREIGN KEY (svart_av_mottaker_id) REFERENCES kurs_skole_mottaker(id);
 alter table kurs_skole add constraint kurs_skole_onsket_kurs_id_fkey FOREIGN KEY (onsket_kurs_id) REFERENCES kurs(id);
 alter table kurs_skole add constraint kurs_skole_svar_registrert_av_fkey FOREIGN KEY (svar_registrert_av) REFERENCES auth.users(id);
 alter table kurs_skole add constraint kurs_skole_skole_id_fkey FOREIGN KEY (skole_id) REFERENCES skoler(id);
-alter table kurs_skole_mottaker add constraint kurs_skole_mottaker_kurs_skole_id_epost_key UNIQUE (kurs_skole_id, epost);
-alter table kurs_skole_mottaker add constraint kurs_skole_mottaker_pkey PRIMARY KEY (id);
 alter table kurs_skole_mottaker add constraint kurs_skole_mottaker_kurs_skole_id_fkey FOREIGN KEY (kurs_skole_id) REFERENCES kurs_skole(id) ON DELETE CASCADE;
-alter table kurs_skole_mottaker add constraint kurs_skole_mottaker_rolle_check CHECK ((rolle = ANY (ARRAY['htla'::text, 'tla'::text])));
-alter table kursholdere add constraint kursholdere_pkey PRIMARY KEY (id);
-alter table paameldinger add constraint paameldinger_pkey PRIMARY KEY (id);
-alter table paameldinger add constraint paameldinger_type_check CHECK ((type = ANY (ARRAY['barnehage'::text, 'barnetrinn'::text, 'ungdomstrinn'::text, 'kombinert'::text, 'SFO'::text])));
-alter table profiles add constraint profiles_pkey PRIMARY KEY (id);
-alter table profiles add constraint profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
-alter table profiles add constraint profiles_rolle_check CHECK ((rolle = ANY (ARRAY['superadmin'::text, 'ansatt'::text, 'skoleadmin'::text, 'skoleansatt'::text, 'feide'::text])));
-alter table skoler add constraint skoler_org_nr_key UNIQUE (org_nr);
-alter table skoler add constraint skoler_pkey PRIMARY KEY (id);
-alter table skoler add constraint skoler_status_check CHECK ((status = ANY (ARRAY['Påmeldt'::text, 'Aktiv'::text, 'Aktiv sagt opp'::text, 'Pause'::text, 'Tidligere'::text, 'Potensielle'::text, 'Inaktiv'::text])));
 
 
 -- Indexes
-CREATE INDEX brukslogg_bruker_idx ON public.brukslogg USING btree (bruker_id, tidspunkt DESC);
-CREATE INDEX brukslogg_hendelse_idx ON public.brukslogg USING btree (hendelse_type, tidspunkt DESC);
-CREATE INDEX brukslogg_skole_idx ON public.brukslogg USING btree (skole_id, tidspunkt DESC);
+-- RYDDET 3. sep 2026: fjernet re-adds av tre brukslogg-indekser (bruker/hendelse/skole).
+-- Lages allerede av 015, med samme navn. Sluttilstand uendret.
 CREATE INDEX epost_logg_kurs_skole_idx ON public.epost_logg USING btree (kurs_skole_id);
 CREATE INDEX epost_logg_tid_idx ON public.epost_logg USING btree (opprettet_at DESC);
 CREATE INDEX idx_evalueringer_kurs_skole ON public.evalueringer USING btree (kurs_skole_id);
 CREATE INDEX idx_evalueringer_token ON public.evalueringer USING btree (token);
-CREATE INDEX kulturkort_partnere_fylke_idx ON public.kulturkort_partnere USING btree (fylke);
-CREATE INDEX kulturkort_partnere_kategori_idx ON public.kulturkort_partnere USING btree (kategori);
-CREATE INDEX kulturkort_partnere_kommune_idx ON public.kulturkort_partnere USING btree (kommune);
+-- RYDDET 3. sep 2026: fjernet re-adds av tre kulturkort_partnere-indekser (fylke/kategori/
+-- kommune). Lages allerede av 016, med samme navn. Sluttilstand uendret.
 CREATE INDEX idx_kurs_skole_lenke_token ON public.kurs_skole USING btree (lenke_token);
 CREATE INDEX idx_mottaker_kurs_skole ON public.kurs_skole_mottaker USING btree (kurs_skole_id);
 CREATE UNIQUE INDEX idx_mottaker_token ON public.kurs_skole_mottaker USING btree (lenke_token);
@@ -401,37 +425,31 @@ alter table public.kursholdere enable row level security;
 alter table public.paameldinger enable row level security;
 alter table public.profiles enable row level security;
 alter table public.skoler enable row level security;
-create policy "Bruker ser egne skoletilknytninger" on public.bruker_skole as permissive for select to public using ((auth.uid() = bruker_id));
-create policy "Skoleadmin ser ansatte paa sin skole" on public.bruker_skole as permissive for select to public using (((get_min_rolle() = 'skoleadmin'::text) AND (skole_id IN ( SELECT get_mine_skole_ids() AS get_mine_skole_ids))));
-create policy "Superadmin administrerer bruker_skole" on public.bruker_skole as permissive for all to public using ((EXISTS ( SELECT 1
-   FROM profiles p
-  WHERE ((p.id = auth.uid()) AND (p.rolle = 'superadmin'::text)))));
-create policy "Bruker kan logge egne hendelser" on public.brukslogg as permissive for insert to public with check ((auth.uid() = bruker_id));
-create policy "Skoleadmin ser sin skoles logger" on public.brukslogg as permissive for select to public using ((EXISTS ( SELECT 1
-   FROM bruker_skole bs
-  WHERE ((bs.bruker_id = auth.uid()) AND (bs.skole_id = brukslogg.skole_id) AND (bs.rolle = 'skoleadmin'::text) AND (bs.aktiv = true)))));
-create policy "Superadmin og ansatt ser alle logger" on public.brukslogg as permissive for select to public using ((EXISTS ( SELECT 1
-   FROM profiles p
-  WHERE ((p.id = auth.uid()) AND (p.rolle = ANY (ARRAY['superadmin'::text, 'ansatt'::text]))))));
+-- prod-diff A2 (3. sep 2026): disse seks tabellene har RLS PAA i prod, men 019 slo den ikke
+-- paa (bare 13 tabeller over). Uten dette + rettighets-migrasjonen 093B ville en gjenoppbygd
+-- base gitt anon SELECT paa bl.a. epost_logg (e-post) og evalueringer. Prod har rls=true og
+-- INGEN policyer paa disse (= laast for alle unntatt eier/service_role). Slaas paa her:
+alter table public.churn_signalord enable row level security;
+alter table public.epost_logg      enable row level security;
+alter table public.eval_pakker     enable row level security;
+alter table public.eval_semester   enable row level security;
+alter table public.eval_sporsmal   enable row level security;
+alter table public.evalueringer    enable row level security;
+-- RYDDET 3. sep 2026: fjernet re-adds av policyer for bruker_skole. Lages allerede av 001
+-- ("Bruker ser egne skoletilknytninger", "Superadmin administrerer bruker_skole") og 007
+-- ("Skoleadmin ser ansatte paa sin skole"), med samme navn og predikat. Sluttilstand uendret.
+-- RYDDET 3. sep 2026: fjernet re-adds av policyer for brukslogg. Lages allerede av 015, med
+-- samme navn og predikat. Sluttilstand uendret.
 create policy "Ansatte ser haller" on public.haller as permissive for select to public using ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
 create policy "Superadmin og ansatt administrerer haller" on public.haller as permissive for all to public using ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
 create policy "ansatte endrer innstillinger" on public.innstillinger as permissive for update to authenticated using ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text]))) with check ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
 create policy "ansatte leser innstillinger" on public.innstillinger as permissive for select to authenticated using ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
 create policy "ansatte oppretter innstillinger" on public.innstillinger as permissive for insert to authenticated with check ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
 create policy innstillinger_les on public.innstillinger as permissive for select to authenticated using (true);
-create policy "Ansatte oppdaterer bestillinger" on public.kulturkort_bestillinger as permissive for update to public using ((EXISTS ( SELECT 1
-   FROM profiles p
-  WHERE ((p.id = auth.uid()) AND (p.rolle = ANY (ARRAY['superadmin'::text, 'ansatt'::text]))))));
-create policy "Ansatte ser bestillinger" on public.kulturkort_bestillinger as permissive for select to public using ((EXISTS ( SELECT 1
-   FROM profiles p
-  WHERE ((p.id = auth.uid()) AND (p.rolle = ANY (ARRAY['superadmin'::text, 'ansatt'::text]))))));
-create policy "Aktive partnere er offentlige" on public.kulturkort_partnere as permissive for select to public using ((kategori = 'aktiv'::text));
-create policy "Ansatt og superadmin ser alle partnere" on public.kulturkort_partnere as permissive for select to public using ((EXISTS ( SELECT 1
-   FROM profiles p
-  WHERE ((p.id = auth.uid()) AND (p.rolle = ANY (ARRAY['superadmin'::text, 'ansatt'::text]))))));
-create policy "Superadmin administrerer kulturkort-partnere" on public.kulturkort_partnere as permissive for all to public using ((EXISTS ( SELECT 1
-   FROM profiles p
-  WHERE ((p.id = auth.uid()) AND (p.rolle = 'superadmin'::text)))));
+-- RYDDET 3. sep 2026: fjernet re-adds av policyer for kulturkort_bestillinger. Lages allerede
+-- av 018 (drop policy if exists + create), med samme navn og predikat. Sluttilstand uendret.
+-- RYDDET 3. sep 2026: fjernet re-adds av policyer for kulturkort_partnere. Lages allerede av
+-- 016, med samme navn og predikat. Sluttilstand uendret.
 create policy "Ansatte ser kurs" on public.kurs as permissive for select to public using ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
 create policy "Service role har full tilgang til kurs" on public.kurs as permissive for all to service_role using (true) with check (true);
 create policy "Superadmin og ansatt administrerer kurs" on public.kurs as permissive for all to public using ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
@@ -441,21 +459,27 @@ create policy "Superadmin og ansatt administrerer kurs_skole" on public.kurs_sko
 create policy mottaker_ansatt_alt on public.kurs_skole_mottaker as permissive for all to authenticated using (true) with check (true);
 create policy "Ansatte ser kursholdere" on public.kursholdere as permissive for select to public using ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
 create policy "Superadmin og ansatt administrerer kursholdere" on public.kursholdere as permissive for all to public using ((get_min_rolle() = ANY (ARRAY['superadmin'::text, 'ansatt'::text])));
-create policy "Ansatt administrerer paameldinger" on public.paameldinger as permissive for all to public using ((get_min_rolle() = 'ansatt'::text)) with check ((get_min_rolle() = 'ansatt'::text));
-create policy "Superadmin administrerer paameldinger" on public.paameldinger as permissive for all to public using ((EXISTS ( SELECT 1
-   FROM profiles p
-  WHERE ((p.id = auth.uid()) AND (p.rolle = 'superadmin'::text)))));
-create policy "Ansatt administrerer alle profiler" on public.profiles as permissive for all to public using ((get_min_rolle() = 'ansatt'::text));
+-- RYDDET 3. sep 2026: fjernet re-adds av policyer for paameldinger. Lages allerede av 002
+-- ("Superadmin administrerer paameldinger") og 008 ("Ansatt administrerer paameldinger"),
+-- med samme navn og predikat. Sluttilstand uendret.
+-- RYDDET 3. sep 2026 (KORRIGERT etter prod-diff A5): "Bruker ser sin profil" fjernet - den er
+-- identisk med 001s versjon. MEN to profiles-policyer har DRIFTET: prod bruker 019-versjonene,
+-- ikke 001/008-versjonene, saa de BEHOLDES her som drop+create (samme moenster som "Skoleadmin
+-- ser ..."/get_skoleansatte_for_meg i C4):
+--   * "Ansatt administrerer alle profiler": prod har KUN using(get_min_rolle()='ansatt'); 008 la paa with check.
+--   * "Superadmin administrerer alle profiler": prod bruker get_min_rolle()='superadmin'; 001 bruker exists(...).
+-- drop+create gjoer at prod-versjonen vinner ved gjenoppbygging; no-op mot prod.
 create policy "Bruker kan oppdatere egen profil" on public.profiles as permissive for update to public using ((auth.uid() = id));
 create policy "Bruker kan se egen profil" on public.profiles as permissive for select to public using ((auth.uid() = id));
-create policy "Bruker ser sin profil" on public.profiles as permissive for select to public using ((auth.uid() = id));
-create policy "Skoleadmin ser profiler til skoleansatte" on public.profiles as permissive for select to public using (((get_min_rolle() = 'skoleadmin'::text) AND (id IN ( SELECT get_skoleansatte_for_meg() AS get_skoleansatte_for_meg))));
+drop policy if exists "Ansatt administrerer alle profiler" on public.profiles;
+create policy "Ansatt administrerer alle profiler" on public.profiles as permissive for all to public using ((get_min_rolle() = 'ansatt'::text));
+drop policy if exists "Superadmin administrerer alle profiler" on public.profiles;
 create policy "Superadmin administrerer alle profiler" on public.profiles as permissive for all to public using ((get_min_rolle() = 'superadmin'::text));
-create policy "Ansatt administrerer skoler" on public.skoler as permissive for all to public using ((get_min_rolle() = 'ansatt'::text)) with check ((get_min_rolle() = 'ansatt'::text));
-create policy "Innloggede ser skoler" on public.skoler as permissive for select to public using ((auth.role() = 'authenticated'::text));
-create policy "Superadmin administrerer skoler" on public.skoler as permissive for all to public using ((EXISTS ( SELECT 1
-   FROM profiles p
-  WHERE ((p.id = auth.uid()) AND (p.rolle = 'superadmin'::text)))));
+-- (policyen "Skoleadmin ser profiler til skoleansatte" er FLYTTET ned til
+--  Functions-seksjonen, rett under funksjonen get_skoleansatte_for_meg. Se C4-blokk.)
+-- RYDDET 3. sep 2026: fjernet re-adds av policyer for skoler. Lages allerede av 001 ("Innloggede
+-- ser skoler", "Superadmin administrerer skoler") og 008 ("Ansatt administrerer skoler"; 
+-- "Innloggede ser skoler" finnes ogsaa i 008). Samme navn og predikat. Sluttilstand uendret.
 
 
 -- Functions
@@ -615,6 +639,20 @@ BEGIN
 END;
 $function$
 ;
+
+-- ------------------------------------------------------------------------
+-- FLYTTET HIT 3. sep 2026 (C4): policyen «Skoleadmin ser profiler til skoleansatte» laa
+-- opprinnelig i RLS-seksjonen ~150 linjer OVER, men bruker funksjonen get_skoleansatte_for_meg()
+-- som defineres rett over her. Jeg flyttet POLICYEN ned (ikke funksjonen opp): funksjonen boer
+-- staa sammen med de andre RPC-ene i Functions-seksjonen, ett policy-flytt er mindre inngrep enn
+-- aa flytte funksjonsblokken, og funksjonen avhenger selv av get_mine_skole_ids-logikken lenger
+-- oppe. I tillegg har policyen DRIFTET: migr 007 lager samme policy med subspoerringen skrevet
+-- ut inline; prod (denne dumpen) bruker hjelpefunksjonen. drop + create gjoer at prod-versjonen
+-- vinner, saa gjenoppbygd skjema blir IDENTISK med prod. No-op mot prod (dropper og gjenskaper
+-- identisk policy).
+drop policy if exists "Skoleadmin ser profiler til skoleansatte" on public.profiles;
+create policy "Skoleadmin ser profiler til skoleansatte" on public.profiles as permissive for select to public using (((get_min_rolle() = 'skoleadmin'::text) AND (id IN ( SELECT get_skoleansatte_for_meg() AS get_skoleansatte_for_meg))));
+-- ------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION public.hent_aktive_pakker()
  RETURNS TABLE(id uuid, navn text, pris integer, beskrivelse text, bilde_url text, rekkefolge integer)
