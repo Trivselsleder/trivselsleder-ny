@@ -1,24 +1,42 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { sokLeker, hentUtstyrListe, loggBrukHendelse, TRINN_NO, SESONGER } from '../../lib/leker'
+import {
+  sokLeker, hentUtstyrListe, loggBrukHendelse,
+  hentEgnetListe, hentSesongListe,
+  SESONGER, EGNET_NO,
+} from '../../lib/leker'
 import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
 
 // «Last mer» henter 50 om gangen (besluttet av Kjartan — ikke sidetall, ikke uendelig rulling).
 const SIDE = 50
 
-// Kanoniske filter-lister. MERK: dette er IKKE UI-tekst som skal oversettes — det er
-// verdier som må matche databasens taksonomi (egnet_kategori.navn, trinn.kode osv.),
-// fordi de sendes som filterverdi til søke-RPC-en. Svensk innhold oversettes i
-// dataimporten, ikke her. Trinn/sesong kommer fra leker.js (samme kilde som før).
-const EGNET = [
-  'Friminutt', 'Kroppsøving', 'SFO/AKS', 'Aktiv læring', 'Move It', 'FYSAK',
-  'Bli kjent / klassemiljø', 'Aktivitetsdager', 'Sosial kompetanse', 'TL-Mester',
-  'Leker for 100+ elever', 'Barnehage',
-]
+// Filter-listene EGNET og SESONG er DATADREVNE (etappe 7 D1): de hentes fra basen ved sidelast
+// (hentEgnetListe/hentSesongListe) og bytter ut de kanoniske fallback-listene fra leker.js.
+// Endrer en ansatt et navn i basen, følger nedtrekket etter. MERK: verdiene sendes som filterverdi
+// til søke-RPC-en (egnet_kategori.navn), derfor er de IKKE UI-tekst som oversettes.
+//
+// TRINN-NEDTREKKET ER FJERNET FRA LEKEBIBLIOTEKET (beslutning 7. sep, målt kartlegging): enkelttrinn
+// var falsk presisjon — 74 % av lekene ligger i alle tre trinn-band, og band 1-4 vs 5-7 skiller kun
+// tre leker. Gamle siden brukte dessuten aldri enkelttrinn, kun skoletype (field_school_type).
+// SKOLETYPE-filteret erstatter det. (Trinn beholdes i AKTIV LÆRING, der kompetansemål er
+// trinn-knyttet — se SkoleAktivLaering.jsx.) p_trinn i sok_leker er URØRT (Min side + aktiv læring).
+//
+// SAMLINGER er BEVISST IKKE gjort datadrevet: «kommer»-knapper (unntatt Favoritter, koblet til
+// kunFav-bryteren), ikke et egnet_kategori-filter — de filtrerer ikke på noe ennå.
 const SAMLINGER = ['Favoritter', 'Månedens leker', 'Lekekurs', 'Utfordringer', 'Move It', 'Kropp og hjerne']
-const SKOLETYPE = ['Barnehage', 'Barnetrinn', 'Ungdomstrinn', 'Kombinert', 'SFO']
+
+// SKOLETYPE er et EKTE filter (migr 105): en avledning som sok_leker løser opp til trinn/egnet, og
+// speiler importregelen (regler.mjs::regelTrinn). «Trykk ett sted, ikke huk av sju trinn.» `kode`
+// sendes til RPC-en (p_skoletype); avledningen bor i basen. barneskole→1-7, ungdomsskole→8-10,
+// SFO/AKS→egnet «SFO/AKS». («Kombinert» er utelatt — det ga samme sett som ungdomsskole.)
+const SKOLETYPE = [
+  { label: 'Barnehage', kode: 'barnehage' },
+  { label: 'Barneskole', kode: 'barnetrinn' },
+  { label: 'Ungdomsskole', kode: 'ungdomstrinn' },
+  { label: 'SFO/AKS', kode: 'sfo' },
+]
 
 export default function SkoleAktiviteter() {
   const { t } = useTranslation()
@@ -27,7 +45,7 @@ export default function SkoleAktiviteter() {
   // Filtertilstand
   const [sok, setSok] = useState('')
   const [fEgnet, setFEgnet] = useState('')
-  const [fTrinn, setFTrinn] = useState('')
+  const [fSkoletype, setFSkoletype] = useState('')
   const [fSted, setFSted] = useState('')
   const [fUtstyr, setFUtstyr] = useState('')
   const [utenUtstyr, setUtenUtstyr] = useState(false)
@@ -44,6 +62,9 @@ export default function SkoleAktiviteter() {
   const [feil, setFeil] = useState(null)
   const [favoritter, setFavoritter] = useState(new Set())
   const [utstyrListe, setUtstyrListe] = useState([])
+  // Datadrevne filter-lister — init med kanonisk fallback, overskrives av basen ved montering.
+  const [egnetListe, setEgnetListe] = useState(EGNET_NO)
+  const [sesongListe, setSesongListe] = useState(SESONGER)
   const [klar, setKlar] = useState(false) // URL lest → søk kan starte
 
   const soekeRef = useRef(0)       // race-vakt: kun ferskeste svar teller
@@ -56,22 +77,25 @@ export default function SkoleAktiviteter() {
     if (params.get('utenutstyr') === '1') setUtenUtstyr(true)
     const sk = params.get('sok'); if (sk) setSok(sk)
     const eg = params.get('egnet'); if (eg) setFEgnet(eg)
-    const tr = params.get('trinn'); if (tr) setFTrinn(tr)
+    const sty = params.get('skoletype'); if (sty) setFSkoletype(sty)
     const st = params.get('sted'); if (st) setFSted(st)
     const us = params.get('utstyr'); if (us) setFUtstyr(us)
     const se = params.get('sesong'); if (se) setFSesong(se)
     if (params.get('bla') === '1') setBlaApen(true)
     hentMineFavoritter().then(setFavoritter).catch(() => {})
     hentUtstyrListe().then(setUtstyrListe).catch(() => {})
+    // Datadrevne lister fra basen — .catch beholder fallbacken hvis lesingen feiler.
+    hentEgnetListe().then((l) => l.length && setEgnetListe(l)).catch(() => {})
+    hentSesongListe().then((l) => l.length && setSesongListe(l)).catch(() => {})
     setKlar(true)
     // Kun ved montering.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const filtre = useMemo(() => ({
-    sok, egnet: fEgnet, trinn: fTrinn, sted: fSted, utstyr: fUtstyr,
+    sok, egnet: fEgnet, skoletype: fSkoletype, sted: fSted, utstyr: fUtstyr,
     utenUtstyr, sesong: fSesong, kunVideo, kunFav,
-  }), [sok, fEgnet, fTrinn, fSted, fUtstyr, utenUtstyr, fSesong, kunVideo, kunFav])
+  }), [sok, fEgnet, fSkoletype, fSted, fUtstyr, utenUtstyr, fSesong, kunVideo, kunFav])
 
   const filterNokkel = JSON.stringify({ ...filtre, sok: sok.trim() })
 
@@ -81,7 +105,7 @@ export default function SkoleAktiviteter() {
     const p = {}
     if (sok.trim()) p.sok = sok.trim()
     if (fEgnet) p.egnet = fEgnet
-    if (fTrinn) p.trinn = fTrinn
+    if (fSkoletype) p.skoletype = fSkoletype
     if (fSted) p.sted = fSted
     if (fUtstyr) p.utstyr = fUtstyr
     if (fSesong) p.sesong = fSesong
@@ -138,13 +162,27 @@ export default function SkoleAktiviteter() {
   }
 
   function nullstill() {
-    setSok(''); setFEgnet(''); setFTrinn(''); setFSted(''); setFUtstyr('')
+    setSok(''); setFEgnet(''); setFSkoletype(''); setFSted(''); setFUtstyr('')
     setUtenUtstyr(false); setFSesong(''); setKunVideo(false); setKunFav(false)
   }
   const bytt = (naa, ny, sett) => sett(naa === ny ? '' : ny)
 
-  const harFilter = !!(sok.trim() || fEgnet || fTrinn || fSted || fUtstyr || utenUtstyr || fSesong || kunVideo || kunFav)
+  const harFilter = !!(sok.trim() || fEgnet || fSkoletype || fSted || fUtstyr || utenUtstyr || fSesong || kunVideo || kunFav)
   const rest = Math.max(0, totalt - leker.length)
+
+  // Fane-re-klikk (RESTER-ETAPPE3-bug): «Finn en lek» navigerer til /min-side/aktiviteter uten
+  // query, så adressen tømmes mens komponenten står montert. URL→state-lesingen kjører kun ved
+  // montering, så filter-TILSTANDEN i minnet ble stående. Her speiler vi adressen: forsvinner
+  // alle filter-parametre mens vi fortsatt har aktive filtre, nullstiller vi dem. Nøklet KUN på
+  // adressen (params) — fyrer ikke på state-endringer, så et nettopp valgt filter (ennå ikke
+  // skrevet til URL) blir ikke feilaktig tømt.
+  useEffect(() => {
+    if (!klar) return
+    const FILTERNOKLER = ['sok', 'egnet', 'skoletype', 'sted', 'utstyr', 'sesong', 'utenutstyr', 'video', 'fav']
+    const urlTom = !FILTERNOKLER.some((k) => params.get(k))
+    if (urlTom && harFilter) nullstill()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, klar])
 
   const selCls = 'text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/40'
   const chip = (aktiv) =>
@@ -172,11 +210,12 @@ export default function SkoleAktiviteter() {
       <div className="mt-3 flex flex-wrap gap-2 items-center">
         <select className={selCls} aria-label={t('aktiviteter.grEgnet')} value={fEgnet} onChange={(e) => setFEgnet(e.target.value)}>
           <option value="">{t('aktiviteter.egnetAlle')}</option>
-          {EGNET.map((x) => <option key={x} value={x}>{x}</option>)}
+          {egnetListe.map((x) => <option key={x} value={x}>{x}</option>)}
         </select>
-        <select className={selCls} aria-label={t('aktiviteter.grTrinn')} value={fTrinn} onChange={(e) => setFTrinn(e.target.value)}>
-          <option value="">{t('aktiviteter.trinnAlle')}</option>
-          {TRINN_NO.map(([kode, navn]) => <option key={kode} value={kode}>{navn}</option>)}
+        {/* Skoletype står der trinn sto (etter «Egnet for», før «Sted»): hvem leken er for, så hvor. */}
+        <select className={selCls} aria-label={t('aktiviteter.grSkoletype')} value={fSkoletype} onChange={(e) => setFSkoletype(e.target.value)}>
+          <option value="">{t('aktiviteter.skoletypeAlle')}</option>
+          {SKOLETYPE.map((s) => <option key={s.kode} value={s.kode}>{s.label}</option>)}
         </select>
         <select className={selCls} aria-label={t('aktiviteter.grSted')} value={fSted} onChange={(e) => setFSted(e.target.value)}>
           <option value="">{t('aktiviteter.stedAlle')}</option>
@@ -189,7 +228,7 @@ export default function SkoleAktiviteter() {
         </select>
         <select className={selCls} aria-label={t('aktiviteter.grSesong')} value={fSesong} onChange={(e) => setFSesong(e.target.value)}>
           <option value="">{t('aktiviteter.sesongAlle')}</option>
-          {SESONGER.map((x) => <option key={x} value={x}>{x}</option>)}
+          {sesongListe.map((x) => <option key={x} value={x}>{x}</option>)}
         </select>
         <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
           <input type="checkbox" checked={utenUtstyr} onChange={(e) => setUtenUtstyr(e.target.checked)} />
@@ -223,14 +262,14 @@ export default function SkoleAktiviteter() {
         {blaApen && (
           <div className="px-4 pb-4 pt-1 space-y-4 border-t border-gray-100">
             <Gruppe tittel={t('aktiviteter.grEgnet')}>
-              {EGNET.map((x) => (
+              {egnetListe.map((x) => (
                 <button key={x} className={chip(fEgnet === x)} onClick={() => bytt(fEgnet, x, setFEgnet)}>{x}</button>
               ))}
             </Gruppe>
 
-            <Gruppe tittel={t('aktiviteter.grTrinn')}>
-              {TRINN_NO.map(([kode, navn]) => (
-                <button key={kode} className={chip(fTrinn === kode)} onClick={() => bytt(fTrinn, kode, setFTrinn)}>{navn}</button>
+            <Gruppe tittel={t('aktiviteter.grSkoletype')}>
+              {SKOLETYPE.map((s) => (
+                <button key={s.kode} className={chip(fSkoletype === s.kode)} onClick={() => bytt(fSkoletype, s.kode, setFSkoletype)}>{s.label}</button>
               ))}
             </Gruppe>
 
@@ -249,7 +288,7 @@ export default function SkoleAktiviteter() {
             )}
 
             <Gruppe tittel={t('aktiviteter.grSesong')}>
-              {SESONGER.map((x) => (
+              {sesongListe.map((x) => (
                 <button key={x} className={chip(fSesong === x)} onClick={() => bytt(fSesong, x, setFSesong)}>{x}</button>
               ))}
             </Gruppe>
@@ -257,12 +296,6 @@ export default function SkoleAktiviteter() {
             <Gruppe tittel={t('aktiviteter.grSamlinger')}>
               <button className={chip(kunFav)} onClick={() => setKunFav((v) => !v)}>{SAMLINGER[0]}</button>
               {SAMLINGER.slice(1).map((s) => (
-                <span key={s} className={chipKommer} title={t('aktiviteter.kommerTittel')}>{s}</span>
-              ))}
-            </Gruppe>
-
-            <Gruppe tittel={t('aktiviteter.grSkoletype')}>
-              {SKOLETYPE.map((s) => (
                 <span key={s} className={chipKommer} title={t('aktiviteter.kommerTittel')}>{s}</span>
               ))}
             </Gruppe>

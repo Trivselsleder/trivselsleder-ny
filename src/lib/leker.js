@@ -1,11 +1,27 @@
 import { supabase } from './supabase'
 
-// Kanoniske lister (vises alltid i nedtrekk, uansett hva testdataene inneholder).
+// Kanoniske FALLBACK-lister. Etappe 7 D1: basen er sannheten — trinn/sesong-nedtrekkene
+// hentes nå fra tabellene (hentTrinnListe/hentSesongListe) og overskriver disse ved
+// sidelast. De beholdes som umiddelbar visning + trygt fall om en DB-lesing feiler, så et
+// kjerne-filter aldri står tomt. TRINN_NO brukes dessuten som NO-oppslag i Min side-søket
+// (fritekst «4. trinn» → kode) og som kanon-grunnlag i Aktiv læring.
 export const TRINN_NO = [
   ['bhg', 'Barnehage'], ['1', '1. trinn'], ['2', '2. trinn'], ['3', '3. trinn'], ['4', '4. trinn'],
   ['5', '5. trinn'], ['6', '6. trinn'], ['7', '7. trinn'], ['8', '8. trinn'], ['9', '9. trinn'], ['10', '10. trinn'],
 ]
 export const SESONGER = ['Vinter', 'Vår', 'Sommer', 'Høst']
+
+// Kanonisk «egnet for»-fallback (egnet_kategori). Samme rolle som TRINN_NO/SESONGER:
+// vises umiddelbart, overskrives av hentEgnetListe() ved sidelast.
+export const EGNET_NO = [
+  'Friminutt', 'Kroppsøving', 'SFO/AKS', 'Aktiv læring', 'Move It', 'FYSAK',
+  'Bli kjent / klassemiljø', 'Aktivitetsdager', 'Sosial kompetanse', 'TL-Mester',
+  'Leker for 100+ elever', 'Barnehage',
+]
+
+// Utstyrsfilteret viser bare termer brukt på minst så mange leker (visningsregel besluttet
+// 7. sep: 215 termer → 117). Ingenting slettes; endre kun dette tallet for å justere terskelen.
+export const UTSTYR_MIN_LEKER = 2
 
 const VELG = `
   id, sted, antall_min, antall_maks, kan_ledes_av_elever, redaksjonell_rating, ressurstype, status,
@@ -110,11 +126,11 @@ export async function hentLeker() {
 // listen bruker + totalt antall treff. «Last mer» øker offset med limit.
 export async function sokLeker(filtre = {}) {
   const {
-    sok = '', egnet = '', trinn = '', sted = '', utstyr = '',
+    sok = '', egnet = '', trinn = '', skoletype = '', sted = '', utstyr = '',
     utenUtstyr = false, sesong = '', kunVideo = false, kunFav = false,
     offset = 0, limit = 50,
   } = filtre
-  const { data, error } = await supabase.rpc('sok_leker', {
+  const args = {
     p_sok: sok.trim() || null,
     p_egnet: egnet || null,
     p_trinn: trinn || null,
@@ -126,7 +142,12 @@ export async function sokLeker(filtre = {}) {
     p_kun_fav: !!kunFav,
     p_limit: limit,
     p_offset: offset,
-  })
+  }
+  // p_skoletype (migr 105) sendes KUN når satt, så vanlige søk fortsatt matcher funksjonen
+  // selv om 105 ikke er kjørt ennå (migrasjon kjøres alltid før kode pushes). Avledningen
+  // (barneskole → trinn 1–7 osv.) bor i RPC-en; frontend sender bare koden.
+  if (skoletype) args.p_skoletype = skoletype
+  const { data, error } = await supabase.rpc('sok_leker', args)
   if (error) throw error
   const rader = data || []
   const totalt = rader.length ? Number(rader[0].totalt_antall) : 0
@@ -149,12 +170,57 @@ function formLekListe(r) {
   }
 }
 
-// Utstyr-facetten (den eneste datadrevne filterlista) hentes separat og lett —
-// taksonomitabellen er liten og lesbar for alle innloggede.
-export async function hentUtstyrListe() {
-  const { data, error } = await supabase.from('utstyr').select('navn').order('navn')
+// Filterlistene hentes fra basen (etappe 7 D1) etter samme mønster som utstyr under:
+// slå opp taksonomitabellen, hent den ene kolonnen filteret trenger, gi tilbake en
+// ren liste. Endrer en ansatt et navn i basen, følger nedtrekket etter av seg selv.
+
+// «Egnet for» — egnet_kategori, i redaksjonell rekkefølge (rekkefolge). Verdi = navn
+// (det sok_leker matcher på), så vi henter kun navn — som utstyr.
+export async function hentEgnetListe() {
+  const { data, error } = await supabase.from('egnet_kategori').select('navn').order('rekkefolge')
   if (error) throw error
-  return (data || []).map((u) => u.navn).filter(Boolean)
+  return (data || []).map((e) => e.navn).filter(Boolean)
+}
+
+// Sesong — sesong-tabellen, i rekkefolge. Verdi = navn.
+export async function hentSesongListe() {
+  const { data, error } = await supabase.from('sesong').select('navn').order('rekkefolge')
+  if (error) throw error
+  return (data || []).map((s) => s.navn).filter(Boolean)
+}
+
+// Trinn er LANDSSTYRT (trinn.land): henter [kode, navn]-par for ETT land i tabellrekkefølge,
+// standard Norge. Filteret sender kode (ikke navn) til sok_leker, så vi henter begge — derfor
+// ikke en ren utstyr-kopi. Land-parameteren er første stedet Sverige berører etappe 7; den
+// koster ingenting nå og gjør det trivielt å vise svenske trinn senere (hentTrinnListe('SE')).
+export async function hentTrinnListe(land = 'NO') {
+  const { data, error } = await supabase.from('trinn').select('kode, navn').eq('land', land).order('id')
+  if (error) throw error
+  return (data || []).map((t) => [t.kode, t.navn])
+}
+
+// Fag (LK20) — fag-tabellen, alfabetisk. Verdi = navn (Aktiv læring filtrerer klientside).
+export async function hentFagListe() {
+  const { data, error } = await supabase.from('fag').select('navn').order('navn')
+  if (error) throw error
+  return (data || []).map((f) => f.navn).filter(Boolean)
+}
+
+// Utstyr-facetten hentes lett fra taksonomitabellen. VISNINGSREGEL (etappe 7 D1): vis bare
+// termer brukt på minst `minLeker` leker. Vi henter hvert utstyrs koblingsrader
+// (ressurs_utstyr) og teller dem — koblingstabellens PK er (ressurs_id, utstyr_id), så
+// arraylengden ER antall distinkte leker. Ingenting slettes: termer under terskel beholder
+// fritekstsøk, alle andre filtre og synlighet på selve leken.
+export async function hentUtstyrListe(minLeker = UTSTYR_MIN_LEKER) {
+  const { data, error } = await supabase
+    .from('utstyr')
+    .select('navn, ressurs_utstyr ( ressurs_id )')
+    .order('navn')
+  if (error) throw error
+  return (data || [])
+    .filter((u) => (u.ressurs_utstyr?.length || 0) >= minLeker)
+    .map((u) => u.navn)
+    .filter(Boolean)
 }
 
 export async function hentLek(id) {

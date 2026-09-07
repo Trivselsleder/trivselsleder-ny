@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { hentAktivLaering, TRINN_NO } from '../../lib/leker'
+import { useLocation } from 'react-router-dom'
+import { hentAktivLaering, hentFagListe, hentTrinnListe, TRINN_NO } from '../../lib/leker'
 import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
 
-// Kanonisk fagliste (LK20) — vises alltid, uansett hva testdataene inneholder.
-// Fag-koblingen fylles ved innholdsimporten; til da gir valg av fag 0 treff.
+// Kanonisk FALLBACK-fagliste (LK20). Etappe 7 D1: fag hentes nå fra basen (hentFagListe) og
+// overskriver denne ved sidelast; den beholdes som umiddelbar visning + trygt fall om lesingen
+// feiler. Fag-koblingen på oppleggene fylles ved innholdsimporten; til da gir valg av fag 0 treff.
 const FAG = [
   'Norsk', 'Matematikk', 'Engelsk', 'Naturfag', 'Samfunnsfag', 'KRLE',
   'Kroppsøving', 'Musikk', 'Kunst og håndverk', 'Mat og helse',
@@ -20,6 +22,10 @@ export default function SkoleAktivLaering() {
   const [fTrinn, setFTrinn] = useState('')
   const [kunVideo, setKunVideo] = useState(false)
   const [favoritter, setFavoritter] = useState(new Set())
+  // Datadrevet fag + trinn (etappe 7 D1) — init med kanonisk fallback, overskrives av basen.
+  const [fagBase, setFagBase] = useState(FAG)
+  const [trinnBase, setTrinnBase] = useState(TRINN_NO)
+  const location = useLocation()
 
   useEffect(() => {
     hentAktivLaering()
@@ -27,7 +33,15 @@ export default function SkoleAktivLaering() {
       .catch((e) => setFeil(e.message))
       .finally(() => setLaster(false))
     hentMineFavoritter().then(setFavoritter).catch(() => {})
+    hentFagListe().then((l) => l.length && setFagBase(l)).catch(() => {})
+    hentTrinnListe('NO').then((l) => l.length && setTrinnBase(l)).catch(() => {})
   }, [])
+
+  // Fane-re-klikk (RESTER-ETAPPE3-bug): Aktiv læring har ingen filter-tilstand i adressen, så
+  // en ny navigasjon til fanen remonterer ikke og filtrene ble stående. Vi nullstiller når
+  // rute-navigasjonen endrer seg (location.key) — og trygt ved montering (alt er da default).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { nullstill() }, [location.key])
 
   const valg = useMemo(() => {
     const tr = new Map()
@@ -36,13 +50,13 @@ export default function SkoleAktivLaering() {
       l.trinn.forEach((x) => tr.set(x.kode, x.navn))
       ;(l.fag || []).forEach((f) => dataFag.add(f))
     })
-    const fag = [...FAG, ...[...dataFag].filter((f) => !FAG.includes(f))]
-    // Aktiv læring følger LK20 (1.–10. trinn) — kanonisk liste, uten barnehage.
-    const kanon = TRINN_NO.filter(([k]) => k !== 'bhg')
+    const fag = [...fagBase, ...[...dataFag].filter((f) => !fagBase.includes(f))]
+    // Aktiv læring følger LK20 (1.–10. trinn) — basens trinnliste, uten barnehage.
+    const kanon = trinnBase.filter(([k]) => k !== 'bhg')
     const kanonKoder = new Set(kanon.map(([k]) => k))
     const trinn = [...kanon, ...[...tr.entries()].filter(([k]) => !kanonKoder.has(k))]
     return { trinn, fag }
-  }, [alle])
+  }, [alle, fagBase, trinnBase])
 
   const treff = useMemo(() => {
     const q = sok.trim().toLowerCase()
