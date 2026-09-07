@@ -10,10 +10,20 @@
 // Se LES-MEG.md.
 import { readFileSync, existsSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
 import { lesItems, lesFilindeks } from './lib/kilde.mjs'
 import { lesEnv, Skriver, SKRIVEREKKEFOLGE } from './lib/db.mjs'
 import { detUuid, detMedieUuid } from './lib/uuid.mjs'
 import * as R from './lib/regler.mjs'
+
+// Standard .env.import forankres i FILENS plassering, ikke i arbeidskatalogen (CWD). Samme mønster
+// som scripts/migrasjonskjorer/migrasjonskjorer.mjs. Denne fila ligger i scripts/import/, så repo-roten
+// er to nivåer opp — og den ENESTE, allerede utfylte .env.import ligger der. Uten forankring pekte
+// standarden på «scripts/import/.env.import» relativt til CWD: trygt bare ved uhell (fila finnes ikke),
+// og en tilfeldig kopi dit ville gitt to filer som glir fra hverandre. --env overstyrer fortsatt (CWD-relativt).
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const STANDARD_ENV = resolve(__dirname, '..', '..', '.env.import')
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
 const arg = process.argv.slice(2)
@@ -22,9 +32,17 @@ const verdi = (n, d) => { const i = arg.indexOf(n); return i >= 0 ? arg[i + 1] :
 const DRY = !flagg('--skriv')
 const ANTALL = verdi('--antall', null) ? parseInt(verdi('--antall'), 10) : null
 const SLETT = verdi('--slett-kjoring', null)
-const ENV_STI = verdi('--env', 'scripts/import/.env.import')
+const ENV_STI = verdi('--env', STANDARD_ENV)
 const MERKE = verdi('--merke', 'torrkjoring-50')
 const KJORING_ID = verdi('--kjoring-id', detUuid('kjoring', MERKE))
+
+// Diagnose (bivirkningsfri): vis den oppløste .env.import-stien og avslutt. Kobler ALDRI til noe,
+// leser ALDRI filinnhold — brukes til å bevise at standardstien er CWD-uavhengig.
+if (flagg('--vis-env-sti')) {
+  console.log(`standard .env.import (CWD-uavhengig): ${STANDARD_ENV}`)
+  console.log(`effektiv ENV_STI:                    ${ENV_STI}`)
+  process.exit(0)
+}
 
 // zip-sti: --zip, ellers IMPORT_ZIP fra .env.import (om den finnes), ellers standard Desktop-sti.
 function finnZip() {
@@ -141,14 +159,18 @@ function prosesserLek(node, K, plan) {
 // ── Kjør ─────────────────────────────────────────────────────────────────────
 async function main() {
   const t0 = Date.now()
-  console.log(`# Importskjelett — ${DRY ? 'TØRRMODUS (skriver ingenting)' : 'SKRIVEMODUS'}`)
-  console.log(`Kjøring-id: ${KJORING_ID}  ·  zip: ${ZIP}`)
-
-  if (SLETT) {
-    if (DRY) { console.log(`[tørrmodus] ville slettet alle rader fra kjøring ${SLETT} (én operasjon).`); return }
-    const s = new Skriver({ dryRun: false, envSti: ENV_STI }); await s.koble(); await s.slettKjøring(SLETT); await s.ferdig()
-    console.log(`Slettet kjøring ${SLETT}.`); return
+  // ERSTATTET (6. sep): import.mjs er den GAMLE enkelt-lek-skjelettet. Den samlede importen kjøres nå
+  // av import-kjorer.mjs (alle fem pass, eier rekkefølgen, per-kjøring-id, stoppregel, sperren). Denne
+  // fila kan derfor IKKE lenger skrive til noen base — kun tørrmodus (les eksport + vis planen).
+  if (!DRY || SLETT) {
+    console.error('import.mjs er erstattet av importkjøreren og kan ikke lenger skrive.')
+    console.error('  Ekte import:      node scripts/import/import-kjorer.mjs --skriv [--merke «navn»]')
+    console.error('  Slett en kjøring: importkjøreren ruller selv tilbake ved feil (slettKjøring i db.mjs).')
+    console.error('import.mjs kjøres nå KUN i tørrmodus (uten --skriv / --slett-kjoring).')
+    process.exit(1)
   }
+  console.log(`# Importskjelett (GAMMEL, erstattet av importkjøreren) — TØRRMODUS (skriver ingenting)`)
+  console.log(`Kjøring-id: ${KJORING_ID}  ·  zip: ${ZIP}`)
 
   const K0 = lastKilder()
   const K = { ...K0, kjøringId: KJORING_ID }
@@ -229,14 +251,8 @@ async function main() {
     console.log(`\nRapport skrevet: ${RAPPORT}`)
   }
 
-  if (!DRY) {
-    console.log('\n>>> SKRIVEMODUS: skriver planen i FK-rekkefølge (én transaksjon, stoppregel).')
-    const s = new Skriver({ dryRun: false, envSti: ENV_STI })
-    await s.koble(); await s.skrivPlan(plan); await s.ferdig()
-    console.log('Ferdig skrevet.')
-  } else {
-    console.log('\n[tørrmodus] Ingenting skrevet. Kjør med --skriv (og .env.import) for ekte import.')
-  }
+  // Skrivemodus er fjernet: import.mjs kan ikke lenger skrive (ekte import går via import-kjorer.mjs).
+  console.log('\n[tørrmodus] Ingenting skrevet. Ekte import: node scripts/import/import-kjorer.mjs --skriv')
   return { plan, køTyper, ms, antall: leker.length, hoppet }
 }
 
