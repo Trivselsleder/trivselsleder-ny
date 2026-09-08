@@ -24,8 +24,8 @@ export const EGNET_NO = [
 export const UTSTYR_MIN_LEKER = 2
 
 const VELG = `
-  id, sted, antall_min, antall_maks, kan_ledes_av_elever, redaksjonell_rating, ressurstype, status,
-  ressurs_innhold ( sprak, tittel, formaal, forberedelse, inndeling, utgangsposisjon, kronologi, regler, variasjoner, instruktoernotat ),
+  id, sted, antall_min, antall_maks, kan_ledes_av_elever, redaksjonell_rating, ressurstype, status, endret_at,
+  ressurs_innhold ( sprak, tittel, formaal, beskrivelse, forberedelse, inndeling, utgangsposisjon, kronologi, regler, variasjoner, instruktoernotat ),
   ressurs_egnet ( egnet_kategori ( navn ) ),
   ressurs_trinn ( trinn ( kode, navn, land ) ),
   ressurs_utstyr ( utstyr ( navn ) ),
@@ -72,6 +72,8 @@ export function formLek(rad) {
     antallMaks: rad.antall_maks,
     kanLedesAvElever: rad.kan_ledes_av_elever,
     ressurstype: rad.ressurstype,
+    status: rad.status,          // D3: redigeringsflaten trenger status + endringsstempel (lås)
+    endretAt: rad.endret_at,     // rå streng fra basen — sendes UENDRET som lås-token (funn 4b)
     egnet: (rad.ressurs_egnet || []).map((x) => x.egnet_kategori?.navn).filter(Boolean),
     trinn: (rad.ressurs_trinn || []).map((x) => x.trinn).filter(Boolean),
     utstyr,
@@ -303,6 +305,42 @@ function formDokument(d) {
 }
 
 // --- Redigering (kun interne; RLS på ressurser/ressurs_innhold = fase3_intern) ---
+
+// D3/D2: lagre en hel ressurs i ÉN transaksjon via RPC-en lagre_ressurs (migr 107).
+// payload = jsonb-en spesifikasjonen beskriver. Skjemaet sender KUN nøklene det redigerer
+// (fravær = «rør ikke», funn 3/7). endret_at MÅ være radens RÅ streng (lek.endretAt), aldri
+// gjennom Date() (funn 4b). Returnerer { id, endret_at, opprettet }. Basens forståelige
+// feilmeldinger (P0001 «Noen andre lagret …», «Alt-tekst påkrevd …») bobler opp som error.message.
+export async function lagreRessurs(payload) {
+  const { data, error } = await supabase.rpc('lagre_ressurs', { p_data: payload })
+  if (error) throw error
+  return data
+}
+
+// D3 utkast-inngang: interne finner ikke utkastene sine i biblioteket (sok_leker har et HARDT
+// publisert-filter — bevisst, 089s SIKKERHET-seksjon, fordi DEFINER omgår RLS). Vi går derfor
+// DIREKTE mot ressurser: RLS-policyen (status='publisert' OR fase3_intern()) slipper interne til
+// utkast/arkivert, andre ser ingenting. Ingen ny RPC, intet rørt publisert-filter.
+export async function hentUtkast() {
+  const { data, error } = await supabase
+    .from('ressurser')
+    .select('id, status, ressurstype, endret_at, ressurs_innhold ( sprak, tittel )')
+    .neq('status', 'publisert')
+    .order('endret_at', { ascending: false })
+  if (error) throw error
+  return (data || []).map((r) => {
+    const inn = r.ressurs_innhold || []
+    return {
+      id: r.id, status: r.status, ressurstype: r.ressurstype, endretAt: r.endret_at,
+      tittel: (inn.find((x) => x.sprak === 'nb') || inn[0] || {}).tittel || '(uten tittel)',
+    }
+  })
+}
+
+// D3 publiser/avpubliser — hurtighandling via samme RPC (én statusendring, optimistisk lås).
+export async function settStatus(lek, status) {
+  return lagreRessurs({ id: lek.id, endret_at: lek.endretAt, ressurs: { status } })
+}
 
 export async function lagreLekMeta(ressursId, felter) {
   const { error } = await supabase.from('ressurser').update(felter).eq('id', ressursId)

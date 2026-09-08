@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { lagreLekMeta, lagreInnhold } from '../lib/leker'
+import { lagreRessurs } from '../lib/leker'
 
+// Innholds-tekstfeltene (utover tittel + beskrivelse) — vises som tekstområder.
 const PUNKTER = [
   ['formaal', 'Formålet'],
   ['forberedelse', 'Forberedelse'],
@@ -13,16 +14,21 @@ const PUNKTER = [
 ]
 
 // Redigering på stedet for interne (superadmin/ansatt). lek = objektet fra formLek().
+// Lagrer via RPC-en lagre_ressurs (migr 107): én transaksjon, optimistisk lås, forståelige feil.
+// Skjemaet sender KUN feltene det redigerer (ressurs + innhold for ett språk); taksonomi/medier
+// utelates → RPC-en rører dem ikke (funn 3/7). endret_at sendes UENDRET som lås-token (funn 4b).
 export default function LekRedigering({ lek, onLagret, onAvbryt }) {
   const sprak = lek.tekst?.sprak || 'nb'
   const [meta, setMeta] = useState({
     sted: lek.sted || 'begge',
     antall_min: lek.antallMin ?? '',
     antall_maks: lek.antallMaks ?? '',
-    kan_ledes_av_elever: !!lek.kanLedesAvElever,
   })
   const [innhold, setInnhold] = useState({
     tittel: lek.tekst?.tittel || '',
+    // FUNN 3 (kritisk): beskrivelse er importens hovedtekst og MÅ vises/redigeres — ellers ble
+    // den usynlig men levende, og en tidligere skjemaversjon kunne nullet den ved lagring.
+    beskrivelse: lek.tekst?.beskrivelse || '',
     formaal: lek.tekst?.formaal || '',
     forberedelse: lek.tekst?.forberedelse || '',
     inndeling: lek.tekst?.inndeling || '',
@@ -43,18 +49,21 @@ export default function LekRedigering({ lek, onLagret, onAvbryt }) {
     setLagrer(true)
     setFeil(null)
     try {
-      await lagreLekMeta(lek.id, {
-        sted: meta.sted,
-        antall_min: meta.antall_min === '' ? null : Number(meta.antall_min),
-        antall_maks: meta.antall_maks === '' ? null : Number(meta.antall_maks),
-        // «Kan ledes av elever» er fjernet fra visningen (Kjartans beslutning 2. sep 2026):
-        // hele TL-programmet er elevledet, så feltet skiller ingenting. Verdien sendes
-        // fortsatt uendret her slik at databasekolonnen bevares intakt ved redigering.
-        kan_ledes_av_elever: meta.kan_ledes_av_elever,
+      await lagreRessurs({
+        id: lek.id,
+        endret_at: lek.endretAt,          // RÅ streng fra basen — aldri gjennom Date() (funn 4b)
+        sprak,
+        ressurs: {
+          sted: meta.sted,
+          antall_min: meta.antall_min === '' ? null : Number(meta.antall_min),
+          antall_maks: meta.antall_maks === '' ? null : Number(meta.antall_maks),
+        },
+        innhold,                          // alle innholdsfeltene skjemaet viser (inkl. beskrivelse)
       })
-      await lagreInnhold(lek.id, sprak, innhold)
       onLagret()
     } catch (e) {
+      // Basens feilmeldinger er allerede skrevet for en ikke-teknisk ansatt
+      // («Noen andre lagret denne 14:03 …», «Alt-tekst er påkrevd …»).
       setFeil(e.message)
     } finally {
       setLagrer(false)
@@ -73,6 +82,11 @@ export default function LekRedigering({ lek, onLagret, onAvbryt }) {
 
       <label className="block text-xs text-gray-500 mt-4">Tittel
         <input type="text" value={innhold.tittel} onChange={(e) => i('tittel', e.target.value)} className={`${felt} mt-0.5`} />
+      </label>
+
+      {/* Beskrivelse = hovedteksten (importens field_description). Stor, tidlig, alltid synlig. */}
+      <label className="block text-xs text-gray-500 mt-3">Beskrivelse <span className="text-gray-400">(hovedtekst)</span>
+        <textarea value={innhold.beskrivelse} onChange={(e) => i('beskrivelse', e.target.value)} className={`${omr} mt-0.5 min-h-[110px]`} />
       </label>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
@@ -99,7 +113,14 @@ export default function LekRedigering({ lek, onLagret, onAvbryt }) {
         ))}
       </div>
 
-      {feil && <p className="text-sm text-red-500 mt-3">Kunne ikke lagre: {feil}</p>}
+      {feil && (
+        <p className="text-sm text-red-600 mt-3">
+          {feil}
+          {/Noen andre lagret|finnes ikke|endringsstempel/i.test(feil) && (
+            <button onClick={() => window.location.reload()} className="ml-2 underline text-orange-ink">Last inn på nytt</button>
+          )}
+        </p>
+      )}
 
       <div className="flex gap-3 mt-4">
         <button onClick={lagre} disabled={lagrer} className="bg-petrol text-white font-medium px-6 py-2.5 rounded-full hover:bg-petrol/90 transition disabled:opacity-50">

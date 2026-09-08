@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { hentLek, hentDokumenter, loggBrukHendelse, trinnKort } from '../../lib/leker'
+import { hentLek, hentDokumenter, loggBrukHendelse, trinnKort, settStatus } from '../../lib/leker'
 import { erFavoritt, settFavoritt } from '../../lib/favoritter'
 import { hentPlaner, leggTilRad } from '../../lib/periodeplan'
 import { hentHjul, leggLekTilHjul } from '../../lib/hjul'
@@ -66,6 +66,24 @@ export default function SkoleLek() {
       await settFavoritt(id, ny)
     } catch {
       setFav(!ny) // rulle tilbake ved feil
+    }
+  }
+
+  // D3: publiser/avpubliser hurtighandling (kun interne). Via lagre_ressurs (optimistisk lås);
+  // basens feilmelding vises (f.eks. «En publisert lek må ha en tittel.», «Noen andre lagret …»).
+  const [statusJobb, setStatusJobb] = useState(false)
+  async function bytStatus() {
+    if (statusJobb || !lek) return
+    setStatusJobb(true)
+    const ny = lek.status === 'publisert' ? 'utkast' : 'publisert'
+    try {
+      await settStatus(lek, ny)
+      setLek(await hentLek(id))
+      visMelding(ny === 'publisert' ? 'Publisert' : 'Avpublisert (utkast)')
+    } catch (e) {
+      visMelding(e.message)
+    } finally {
+      setStatusJobb(false)
     }
   }
 
@@ -235,9 +253,18 @@ export default function SkoleLek() {
           </div>
         </div>
         {intern && (
-          <button onClick={() => setRediger(true)} className="text-sm bg-petrol text-white px-4 py-2 rounded-full hover:bg-petrol/90 transition shrink-0">
-            Rediger lek
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {lek.status && lek.status !== 'publisert' && (
+              <span className="text-xs font-semibold uppercase tracking-wide text-orange-ink bg-orange/10 px-2 py-1 rounded-full">{lek.status}</span>
+            )}
+            <button onClick={bytStatus} disabled={statusJobb}
+              className="text-sm border border-petrol text-petrol px-4 py-2 rounded-full hover:bg-petrol hover:text-white transition disabled:opacity-50">
+              {lek.status === 'publisert' ? 'Avpubliser' : 'Publiser'}
+            </button>
+            <button onClick={() => setRediger(true)} className="text-sm bg-petrol text-white px-4 py-2 rounded-full hover:bg-petrol/90 transition">
+              Rediger lek
+            </button>
+          </div>
         )}
       </div>
     </div>
