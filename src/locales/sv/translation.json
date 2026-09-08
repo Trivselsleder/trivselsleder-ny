@@ -709,8 +709,23 @@
     "lagrer": "Sparar …",
     "avbryt": "Avbryt"
   },
+  "redaksjon": {
+    "tittel": "Redaktion",
+    "undertittel": "Välj vad du vill redigera.",
+    "kort": {
+      "tittel": "Redaktion",
+      "beskrivelse": "Redigera texter, mallar, lekar och upplägg."
+    },
+    "tekster": {
+      "tittel": "Texter och mallar",
+      "beskrivelse": "Redigera e-posten, kursinformationssidan, avsändaradresser och tidsfrister."
+    },
+    "leker": {
+      "tittel": "Lekar och upplägg",
+      "beskrivelse": "Opublicerade lekar och upplägg — redigera och publicera."
+    }
+  },
   "utkast": {
-    "fane": "Utkast",
     "tittel": "Utkast",
     "undertittel": "Dina opublicerade lekar och upplägg — klicka för att redigera och publicera.",
     "laster": "Laddar …",

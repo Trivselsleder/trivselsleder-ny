@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 
 const adminSider = [
@@ -73,10 +74,13 @@ const adminSider = [
     roller: ['superadmin', 'ansatt'],
   },
   {
-    tittel: 'Tekster og maler',
-    beskrivelse: 'Rediger e-postene, kursinformasjonssiden, avsenderadresser og tidsfrister.',
+    // REDAKSJON (D3): samler redaksjonelt arbeid. «Tekster og maler» + «Leker og opplegg» (utkast)
+    // ligger nå ett nivå ned, under /admin/redaksjon. Tekst via i18n (i18n-nøkkel-markør).
+    i18n: 'redaksjon.kort',
+    tittel: 'Redaksjon',
+    beskrivelse: 'Rediger tekster, maler, leker og opplegg.',
     ikon: '✏️',
-    til: '/admin/tekster',
+    til: '/admin/redaksjon',
     roller: ['superadmin', 'ansatt'],
   },
   {
@@ -90,11 +94,15 @@ const adminSider = [
 
 export default function Admin() {
   const { bruker } = useAuth()
+  const { t } = useTranslation()
   const rolle = bruker?.rolle
   const synlige = adminSider.filter(s => s.roller.includes(rolle))
   const erOdde = synlige.length % 2 !== 0
   const vanlige = erOdde ? synlige.slice(0, -1) : synlige
   const siste = erOdde ? synlige[synlige.length - 1] : null
+  // Kort med i18n-markør oversettes; øvrige beholder sin (eksisterende) hardkodede tekst.
+  const tit = (s) => (s.i18n ? t(s.i18n + '.tittel') : s.tittel)
+  const besk = (s) => (s.i18n ? t(s.i18n + '.beskrivelse') : s.beskrivelse)
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
@@ -109,9 +117,9 @@ export default function Admin() {
           >
             <div className="text-4xl mb-3">{side.ikon}</div>
             <h2 className="text-lg font-semibold text-gray-800 group-hover:text-orange-ink transition-colors">
-              {side.tittel}
+              {tit(side)}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">{side.beskrivelse}</p>
+            <p className="text-sm text-gray-500 mt-1">{besk(side)}</p>
           </Link>
         ))}
       </div>
@@ -123,9 +131,9 @@ export default function Admin() {
           >
             <div className="text-4xl mb-3">{siste.ikon}</div>
             <h2 className="text-lg font-semibold text-gray-800 group-hover:text-orange-ink transition-colors">
-              {siste.tittel}
+              {tit(siste)}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">{siste.beskrivelse}</p>
+            <p className="text-sm text-gray-500 mt-1">{besk(siste)}</p>
           </Link>
         </div>
       )}

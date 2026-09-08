@@ -709,8 +709,23 @@
     "lagrer": "Lagrer …",
     "avbryt": "Avbryt"
   },
+  "redaksjon": {
+    "tittel": "Redaksjon",
+    "undertittel": "Velg hva du vil redigere.",
+    "kort": {
+      "tittel": "Redaksjon",
+      "beskrivelse": "Rediger tekster, maler, leker og opplegg."
+    },
+    "tekster": {
+      "tittel": "Tekster og maler",
+      "beskrivelse": "Rediger e-postene, kursinformasjonssiden, avsenderadresser og tidsfrister."
+    },
+    "leker": {
+      "tittel": "Leker og opplegg",
+      "beskrivelse": "Upubliserte leker og opplegg — rediger og publiser."
+    }
+  },
   "utkast": {
-    "fane": "Utkast",
     "tittel": "Utkast",
     "undertittel": "Dine upubliserte leker og opplegg — klikk for å redigere og publisere.",
     "laster": "Laster …",

@@ -148,7 +148,8 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h2 className="font-bold text-gray-900">{erAktivLaering ? t('rediger.tittelAL') : t('rediger.tittel')}</h2>
         <div className="flex items-center gap-3">
-          <button onClick={() => setForhandsvis((v) => !v)} className="text-sm text-orange-ink hover:underline">
+          <button onClick={() => setForhandsvis((v) => !v)}
+            className="text-sm border border-petrol text-petrol px-4 py-2 rounded-full hover:bg-petrol hover:text-white transition">
             {forhandsvis ? t('rediger.tilbakeRediger') : t('rediger.forhandsvis')}
           </button>
           <span className="text-xs text-gray-400">{t('rediger.loggesAuto')}</span>

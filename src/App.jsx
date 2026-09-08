@@ -26,6 +26,7 @@ import AdminKursplanlegger from './pages/AdminKursplanlegger'
 import AdminLedelse from './pages/AdminLedelse'
 import AdminHaller from './pages/AdminHaller'
 import AdminTekster from './pages/AdminTekster'
+import AdminRedaksjon from './pages/AdminRedaksjon'
 import SvarSkjema from './pages/SvarSkjema'
 import KursInfo from './pages/KursInfo'
 import EvalueringSkjema from './pages/EvalueringSkjema'
@@ -108,7 +109,6 @@ export default function App() {
                 <Route path="dokumenter" element={<SkoleDokumenter />} />
                 <Route path="aktiviteter" element={<SkoleAktiviteter />} />
                 <Route path="aktiviteter/:id" element={<SkoleLek />} />
-                <Route path="utkast" element={<SkoleUtkast />} />
                 <Route path="move-it" element={<SkoleMoveIt />} />
                 <Route path="aktiv-laering" element={<SkoleAktivLaering />} />
                 <Route path="periodeplaner" element={<SkolePeriodeplaner />} />
@@ -196,6 +196,8 @@ export default function App() {
               />
               <Route path="/admin/bestillinger" element={<Navigate to="/admin/kortoversikt" replace />} />
               <Route path="/admin/tekster" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminTekster /></ProtectedRoute>} />
+              <Route path="/admin/redaksjon" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminRedaksjon /></ProtectedRoute>} />
+              <Route path="/admin/redaksjon/leker" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><SkoleUtkast /></ProtectedRoute>} />
               <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle={["ansatt", "superadmin"]}><AdminLedelse /></ProtectedRoute>} />
               <Route path="/admin/haller" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminHaller /></ProtectedRoute>} />
               <Route path="/admin/kortutdeling" element={<Navigate to="/admin/kortoversikt" replace />} />
