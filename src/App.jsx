@@ -28,6 +28,7 @@ import AdminHaller from './pages/AdminHaller'
 import AdminTekster from './pages/AdminTekster'
 import AdminRedaksjon from './pages/AdminRedaksjon'
 import RedaksjonKo from './pages/RedaksjonKo'
+import RedaksjonDokumenter from './pages/RedaksjonDokumenter'
 import SvarSkjema from './pages/SvarSkjema'
 import KursInfo from './pages/KursInfo'
 import EvalueringSkjema from './pages/EvalueringSkjema'
@@ -200,6 +201,7 @@ export default function App() {
               <Route path="/admin/redaksjon" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminRedaksjon /></ProtectedRoute>} />
               <Route path="/admin/redaksjon/leker" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><SkoleUtkast /></ProtectedRoute>} />
               <Route path="/admin/redaksjon/ko" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><RedaksjonKo /></ProtectedRoute>} />
+              <Route path="/admin/redaksjon/dokumenter" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><RedaksjonDokumenter /></ProtectedRoute>} />
               <Route path="/admin/ledelse" element={<ProtectedRoute kreverRolle={["ansatt", "superadmin"]}><AdminLedelse /></ProtectedRoute>} />
               <Route path="/admin/haller" element={<ProtectedRoute kreverRolle={["superadmin", "ansatt"]}><AdminHaller /></ProtectedRoute>} />
               <Route path="/admin/kortutdeling" element={<Navigate to="/admin/kortoversikt" replace />} />

@@ -727,7 +727,42 @@
     "ko": {
       "tittel": "Redaktionskö",
       "beskrivelse": "Importavvikelser: bekräfta kvitton och rensa arbetsrader."
+    },
+    "dokumenter": {
+      "tittel": "Dokument",
+      "beskrivelse": "Redigera titel, typ, språk och status på dokument."
     }
+  },
+  "dok": {
+    "tilbake": "Redaktion",
+    "tittel": "Dokument",
+    "undertittel": "{{n}} dokument. Redigera titel, typ, språk och status.",
+    "laster": "Laddar …",
+    "sokPlassholder": "Sök i titel …",
+    "filterType": "Dokumenttyp",
+    "alleTyper": "Alla typer",
+    "filterSprak": "Språk",
+    "alleSprak": "Alla språk",
+    "filterStatus": "Status",
+    "alleStatus": "Alla statusar",
+    "sprak": { "nb": "Bokmål", "nn": "Nynorska" },
+    "status": { "utkast": "Utkast", "publisert": "Publicerad", "arkivert": "Arkiverad" },
+    "teller": "Visar {{vist}} av {{total}}",
+    "tomtProd": "Inga dokument ännu — importen är inte körd här.",
+    "ingenTreff": "Inga dokument matchade filtren.",
+    "utenTittel": "(utan titel)",
+    "ingenType": "ingen typ",
+    "koFlagg": "{{n}} köflaggor",
+    "koTittel": "Öppna ärenden i redaktionskön",
+    "feltTittel": "Titel",
+    "feltStatus": "Status",
+    "feltSprak": "Språk",
+    "feltTyper": "Dokumenttyper",
+    "koblet": "Kopplade lekar",
+    "ingenKobling": "Inte kopplad till någon lek. Kopplingar redigeras på lek-sidan.",
+    "lagret": "Sparat ✓",
+    "lagrer": "Sparar …",
+    "lagre": "Spara ändringar"
   },
   "ko": {
     "tittel": "Redaktionskö",

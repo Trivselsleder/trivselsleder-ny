@@ -7,6 +7,7 @@ const kort = [
   { i18n: 'redaksjon.tekster', ikon: '✏️', til: '/admin/tekster' },
   { i18n: 'redaksjon.leker', ikon: '🎲', til: '/admin/redaksjon/leker' },
   { i18n: 'redaksjon.ko', ikon: '🗂️', til: '/admin/redaksjon/ko' },
+  { i18n: 'redaksjon.dokumenter', ikon: '📄', til: '/admin/redaksjon/dokumenter' },
 ]
 
 export default function AdminRedaksjon() {

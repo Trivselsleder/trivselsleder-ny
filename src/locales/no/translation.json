@@ -727,7 +727,42 @@
     "ko": {
       "tittel": "Redaksjonskø",
       "beskrivelse": "Import-avvik: bekreft kvitteringer og rydd arbeidsrader."
+    },
+    "dokumenter": {
+      "tittel": "Dokumenter",
+      "beskrivelse": "Rediger tittel, type, språk og status på dokumenter."
     }
+  },
+  "dok": {
+    "tilbake": "Redaksjon",
+    "tittel": "Dokumenter",
+    "undertittel": "{{n}} dokumenter. Rediger tittel, type, språk og status.",
+    "laster": "Laster …",
+    "sokPlassholder": "Søk i tittel …",
+    "filterType": "Dokumenttype",
+    "alleTyper": "Alle typer",
+    "filterSprak": "Språk",
+    "alleSprak": "Alle språk",
+    "filterStatus": "Status",
+    "alleStatus": "Alle statuser",
+    "sprak": { "nb": "Bokmål", "nn": "Nynorsk" },
+    "status": { "utkast": "Utkast", "publisert": "Publisert", "arkivert": "Arkivert" },
+    "teller": "Viser {{vist}} av {{total}}",
+    "tomtProd": "Ingen dokumenter ennå — importen er ikke kjørt her.",
+    "ingenTreff": "Ingen dokumenter matchet filtrene.",
+    "utenTittel": "(uten tittel)",
+    "ingenType": "ingen type",
+    "koFlagg": "{{n}} kø-flagg",
+    "koTittel": "Åpne saker i redaksjonskøen",
+    "feltTittel": "Tittel",
+    "feltStatus": "Status",
+    "feltSprak": "Språk",
+    "feltTyper": "Dokumenttyper",
+    "koblet": "Koblede leker",
+    "ingenKobling": "Ikke koblet til noen lek. Koblinger redigeres på lek-siden.",
+    "lagret": "Lagret ✓",
+    "lagrer": "Lagrer …",
+    "lagre": "Lagre endringer"
   },
   "ko": {
     "tittel": "Redaksjonskø",
