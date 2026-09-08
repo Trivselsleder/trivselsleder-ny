@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { sjekkTuTilgang } from '../lib/tu'
 
@@ -34,6 +35,7 @@ const lenkeCls = ({ isActive }) =>
 
 export default function SkoleLayout() {
   const { bruker } = useAuth()
+  const { t } = useTranslation()
   const [visTu, setVisTu] = useState(false)
   const [apen, setApen] = useState(false)
   const [pos, setPos] = useState({ top: 0, right: 0 })
@@ -42,7 +44,13 @@ export default function SkoleLayout() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const skolenMinAktiv = skolenMin.some((s) => pathname.startsWith(s.to))
-  const alleFaner = visTu ? [...faner, tuFane] : faner
+  // Interne (TRIVSELSLEDER-ansatte) får «Utkast»-fanen — inngang til egne upubliserte leker (D3).
+  const intern = ['superadmin', 'ansatt'].includes(bruker?.rolle)
+  const alleFaner = [
+    ...faner,
+    ...(visTu ? [tuFane] : []),
+    ...(intern ? [{ label: t('utkast.fane'), to: '/min-side/utkast' }] : []),
+  ]
 
   useEffect(() => {
     let aktiv = true

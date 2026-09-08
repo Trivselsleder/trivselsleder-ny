@@ -1,24 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { hentLek, hentDokumenter, loggBrukHendelse, trinnKort, settStatus } from '../../lib/leker'
+import { hentLek, hentDokumenter, loggBrukHendelse, settStatus } from '../../lib/leker'
 import { erFavoritt, settFavoritt } from '../../lib/favoritter'
 import { hentPlaner, leggTilRad } from '../../lib/periodeplan'
 import { hentHjul, leggLekTilHjul } from '../../lib/hjul'
 import { skrivUtLek } from '../../lib/lekPdf'
 import { useAuth } from '../../contexts/AuthContext'
 import LekRedigering from '../../components/LekRedigering'
-
-const BUNNY_LIB = '727245'
-const PUNKTER = [
-  ['forberedelse', 'Forberedelse'],
-  ['inndeling', 'Inndeling'],
-  ['utgangsposisjon', 'Utgangsposisjon'],
-  ['formaal', 'Formålet'],
-  ['kronologi', 'Slik gjør dere det'],
-  ['regler', 'Regler'],
-  ['variasjoner', 'Variasjoner og tilpasninger'],
-  ['instruktoernotat', 'Notat til den voksne'],
-]
+import LekVisning from '../../components/LekVisning'
 
 export default function SkoleLek() {
   const { id } = useParams()
@@ -122,14 +111,13 @@ export default function SkoleLek() {
         <div className="mt-3">
           <LekRedigering
             lek={lek}
-            onLagret={async () => { setRediger(false); setLek(await hentLek(id)) }}
+            onLagret={async () => { setLek(await hentLek(id)) }}
             onAvbryt={() => setRediger(false)}
           />
         </div>
       </div>
     )
 
-  const t = lek.tekst
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6">
       <Link to="/min-side/aktiviteter" className="text-sm text-orange-ink">← Tilbake til Finn en lek</Link>
@@ -192,46 +180,8 @@ export default function SkoleLek() {
         )}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 rounded-xl p-4 text-sm">
-        <div><div className="text-gray-500">Sted</div><div className="font-medium capitalize">{lek.sted || '—'}</div></div>
-        <div><div className="text-gray-500">Antall</div><div className="font-medium">{lek.antallMin}–{lek.antallMaks}</div></div>
-        <div><div className="text-gray-500">Trinn</div><div className="font-medium">{trinnKort(lek.trinn)}</div></div>
-        <div><div className="text-gray-500">Utstyr</div><div className="font-medium">{lek.utstyr.join(', ') || 'Ingen'}</div></div>
-      </div>
-
-      <div className="flex flex-wrap gap-1 mt-3">
-        {lek.egnet.map((e) => <span key={e} className="text-xs bg-orange/10 text-orange-ink px-2 py-0.5 rounded-full">{e}</span>)}
-        {lek.sesong.map((s) => <span key={s} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{s}</span>)}
-      </div>
-
-      {lek.video && (
-        <div className="mt-5">
-          {lek.harVideo ? (
-            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-              <iframe
-                src={`https://iframe.mediadelivery.net/embed/${BUNNY_LIB}/${lek.video.bunny_video_id}?preload=false&autoplay=false`}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full rounded-xl border-0"
-                allow="accelerometer;gyroscope;encrypted-media;picture-in-picture"
-                allowFullScreen
-                title={lek.tittel}
-              />
-            </div>
-          ) : (
-            <div className="bg-gray-100 text-gray-500 rounded-xl p-6 text-center text-sm">Video kommer</div>
-          )}
-        </div>
-      )}
-
-      <div className="mt-6 space-y-4">
-        {PUNKTER.map(([k, label]) =>
-          t[k] ? (
-            <section key={k}>
-              <h2 className="font-bold text-gray-900">{label}</h2>
-              <p className="text-gray-700 whitespace-pre-line">{t[k]}</p>
-            </section>
-          ) : null,
-        )}
+      <div className="mt-4">
+        <LekVisning lek={lek} />
       </div>
 
       {dok.length > 0 && (

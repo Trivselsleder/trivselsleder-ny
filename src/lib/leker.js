@@ -208,6 +208,13 @@ export async function hentFagListe() {
   return (data || []).map((f) => f.navn).filter(Boolean)
 }
 
+// Fag med id — for redigeringsskjemaets fag-panel (aktiv læring), der vi sender fag_ids til RPC-en.
+export async function hentFagValg() {
+  const { data, error } = await supabase.from('fag').select('id, navn').order('navn')
+  if (error) throw error
+  return data || []
+}
+
 // Utstyr-facetten hentes lett fra taksonomitabellen. VISNINGSREGEL (etappe 7 D1): vis bare
 // termer brukt på minst `minLeker` leker. Vi henter hvert utstyrs koblingsrader
 // (ressurs_utstyr) og teller dem — koblingstabellens PK er (ressurs_id, utstyr_id), så
@@ -315,6 +322,37 @@ export async function lagreRessurs(payload) {
   const { data, error } = await supabase.rpc('lagre_ressurs', { p_data: payload })
   if (error) throw error
   return data
+}
+
+// D3 redigering: hent HELE ressursen med ALLE språkrader + medier + fag + kompetansemål, for
+// redigeringsskjemaet (språkfane, alt-tekst, aktiv læring-panel). hentLek() gir kun ett språk og
+// er for lesing; denne er for skriving. RLS slipper interne til utkast også.
+export async function hentRessursForRedigering(id) {
+  const { data, error } = await supabase
+    .from('ressurser')
+    .select(`
+      id, ressurstype, sted, antall_min, antall_maks, status, endret_at,
+      ressurs_innhold ( sprak, tittel, beskrivelse, formaal, forberedelse, inndeling, utgangsposisjon, kronologi, regler, variasjoner, instruktoernotat ),
+      medier ( id, type, storage_sti, bunny_video_id, alt_tekst, alt_tekst_kilde, rekkefolge ),
+      ressurs_fag ( fag ( id, navn ) ),
+      ressurs_kompetansemaal ( kompetansemaal ( id, kode, tekst ) )
+    `)
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return {
+    id: data.id,
+    ressurstype: data.ressurstype,
+    status: data.status,
+    endretAt: data.endret_at,
+    sted: data.sted,
+    antallMin: data.antall_min,
+    antallMaks: data.antall_maks,
+    innholdPerSprak: data.ressurs_innhold || [],
+    medier: (data.medier || []).slice().sort((a, b) => (a.rekkefolge ?? 0) - (b.rekkefolge ?? 0)),
+    fag: (data.ressurs_fag || []).map((x) => x.fag).filter(Boolean),
+    kompetansemaal: (data.ressurs_kompetansemaal || []).map((x) => x.kompetansemaal).filter(Boolean),
+  }
 }
 
 // D3 utkast-inngang: interne finner ikke utkastene sine i biblioteket (sok_leker har et HARDT
