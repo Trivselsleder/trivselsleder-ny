@@ -723,6 +723,77 @@
     "leker": {
       "tittel": "Lekar och upplägg",
       "beskrivelse": "Opublicerade lekar och upplägg — redigera och publicera."
+    },
+    "ko": {
+      "tittel": "Redaktionskö",
+      "beskrivelse": "Importavvikelser: bekräfta kvitton och rensa arbetsrader."
+    }
+  },
+  "ko": {
+    "tittel": "Redaktionskö",
+    "tilbake": "Redaktion",
+    "undertittel": "{{n}} ärenden i kön. Ta kvittona först, sedan arbetsraderna.",
+    "laster": "Laddar …",
+    "grupper": {
+      "kvittering": "Kvitton — bekräfta",
+      "arbeid": "Arbetsrader"
+    },
+    "status": {
+      "ny": "Ny",
+      "under_arbeid": "Pågår",
+      "lost": "Löst",
+      "avvist": "Avvisad"
+    },
+    "velgType": "Välj en typ i listan för att se ärendena.",
+    "tomGruppe": "Inga ärenden med denna status.",
+    "antall": "{{n}} ärenden",
+    "ingenRader": "Inga ärenden här.",
+    "rediger": "Redigera",
+    "redigerKommer": "Redigera (kommer)",
+    "redigerKommerGrunn": "Formulär kommer ({{grunn}}).",
+    "tildelMeg": "Tilldela mig",
+    "tildelt": "Tilldelad dig",
+    "fjernTildeling": "Ta bort tilldelning",
+    "tildeltAnnen": "Tilldelad en annan",
+    "lost": "Löst",
+    "avvist": "Avvisa",
+    "avvistOk": "Avvisad",
+    "lukket": "Stängd",
+    "erLukket": "Stängd ({{status}})",
+    "bekreftKommer": "Bekräfta förslag (kommer)",
+    "bekreftKommerGrunn": "Bekräftelse av kunskapskrav kräver en egen migrering — kommer senare.",
+    "bulk": {
+      "tittel": "Massstängning",
+      "forklaring": "Se stickprov från gruppen, ta ett beslut, och stäng alla {{n}} med ett klick.",
+      "seStikkprover": "Se stickprov",
+      "stikkproverTittel": "{{vist}} stickprov av {{n}}",
+      "bekreftSett": "Jag har sett stickproven och bekräftar att alla kan stängas.",
+      "lukkAlle": "Stäng alla {{n}}",
+      "lukket": "{{n}} ärenden stängda."
+    },
+    "type": {
+      "manglende_alttekst": "Saknad alt-text",
+      "usikker_maalkobling": "Osäker kunskapskravskoppling",
+      "ikke_et_maal": "Inte ett kunskapskrav",
+      "utgatt_fjernet": "Utgånget mål borttaget",
+      "manglende_maal": "Saknat kunskapskrav",
+      "kun_skjermkvalitet": "Endast skärmkvalitet",
+      "dokumenttype_uavklart": "Dokumenttyp oklar",
+      "filtype_uavklart": "Filtyp oklar",
+      "sted_uavklart": "Plats oklar",
+      "landingsnode": "Landningsnod",
+      "annet": "Annat",
+      "antall_uavklart": "Antal oklart",
+      "utstyr_uenig": "Utrustning oenig",
+      "tom_tekst": "Tom text",
+      "skoletype_mangler": "Skoltyp saknas",
+      "ekstern_video": "Extern video",
+      "fil_mangler": "Fil saknas",
+      "kategori_uavklart": "Kategori oklar",
+      "lenke_upublisert": "Länk till opublicerat",
+      "lenke_ulost": "Länk olöst",
+      "lenke_odelagt": "Trasig länk",
+      "samling_video_ulastet": "Samlingsvideo ej uppladdad"
     }
   },
   "utkast": {

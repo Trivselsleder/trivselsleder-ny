@@ -723,6 +723,77 @@
     "leker": {
       "tittel": "Leker og opplegg",
       "beskrivelse": "Upubliserte leker og opplegg — rediger og publiser."
+    },
+    "ko": {
+      "tittel": "Redaksjonskø",
+      "beskrivelse": "Import-avvik: bekreft kvitteringer og rydd arbeidsrader."
+    }
+  },
+  "ko": {
+    "tittel": "Redaksjonskø",
+    "tilbake": "Redaksjon",
+    "undertittel": "{{n}} saker i køen. Ta unna kvitteringene først, så arbeidsradene.",
+    "laster": "Laster …",
+    "grupper": {
+      "kvittering": "Kvitteringer — bekreft",
+      "arbeid": "Arbeidsrader"
+    },
+    "status": {
+      "ny": "Ny",
+      "under_arbeid": "Under arbeid",
+      "lost": "Løst",
+      "avvist": "Avvist"
+    },
+    "velgType": "Velg en type i lista for å se sakene.",
+    "tomGruppe": "Ingen saker med denne statusen.",
+    "antall": "{{n}} saker",
+    "ingenRader": "Ingen saker her.",
+    "rediger": "Rediger",
+    "redigerKommer": "Rediger (kommer)",
+    "redigerKommerGrunn": "Skjema kommer ({{grunn}}).",
+    "tildelMeg": "Tildel meg",
+    "tildelt": "Tildelt deg",
+    "fjernTildeling": "Fjern tildeling",
+    "tildeltAnnen": "Tildelt en annen",
+    "lost": "Løst",
+    "avvist": "Avvis",
+    "avvistOk": "Avvist",
+    "lukket": "Lukket",
+    "erLukket": "Lukket ({{status}})",
+    "bekreftKommer": "Bekreft forslag (kommer)",
+    "bekreftKommerGrunn": "Bekreftelse av kompetansemål krever en egen migrasjon — kommer senere.",
+    "bulk": {
+      "tittel": "Bulk-lukking",
+      "forklaring": "Se stikkprøver fra gruppen, ta én beslutning, og lukk alle {{n}} med ett klikk.",
+      "seStikkprover": "Se stikkprøver",
+      "stikkproverTittel": "{{vist}} stikkprøver av {{n}}",
+      "bekreftSett": "Jeg har sett stikkprøvene og bekrefter at alle kan lukkes.",
+      "lukkAlle": "Lukk alle {{n}}",
+      "lukket": "{{n}} saker lukket."
+    },
+    "type": {
+      "manglende_alttekst": "Manglende alt-tekst",
+      "usikker_maalkobling": "Usikker målkobling",
+      "ikke_et_maal": "Ikke et kompetansemål",
+      "utgatt_fjernet": "Utgått mål fjernet",
+      "manglende_maal": "Manglende kompetansemål",
+      "kun_skjermkvalitet": "Kun skjermkvalitet",
+      "dokumenttype_uavklart": "Dokumenttype uavklart",
+      "filtype_uavklart": "Filtype uavklart",
+      "sted_uavklart": "Sted uavklart",
+      "landingsnode": "Landingsnode",
+      "annet": "Annet",
+      "antall_uavklart": "Antall uavklart",
+      "utstyr_uenig": "Utstyr uenig",
+      "tom_tekst": "Tom tekst",
+      "skoletype_mangler": "Skoletype mangler",
+      "ekstern_video": "Ekstern video",
+      "fil_mangler": "Fil mangler",
+      "kategori_uavklart": "Kategori uavklart",
+      "lenke_upublisert": "Lenke til upublisert",
+      "lenke_ulost": "Lenke uløst",
+      "lenke_odelagt": "Ødelagt lenke",
+      "samling_video_ulastet": "Samling-video ikke lastet"
     }
   },
   "utkast": {

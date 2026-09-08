@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 const kort = [
   { i18n: 'redaksjon.tekster', ikon: '✏️', til: '/admin/tekster' },
   { i18n: 'redaksjon.leker', ikon: '🎲', til: '/admin/redaksjon/leker' },
+  { i18n: 'redaksjon.ko', ikon: '🗂️', til: '/admin/redaksjon/ko' },
 ]
 
 export default function AdminRedaksjon() {
