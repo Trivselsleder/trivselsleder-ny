@@ -23,7 +23,9 @@
 //  EKSPORT-ZIP-EN MÅ LIGGE PÅ STANDARDSTIEN — BEGGE steg trenger den: byggKontekst i --db leser
 //  nodefilene rett ut av zip-en (spesifikasjonen tar feil når den sier at DB-importen ikke trenger
 //  zip-en), og --filer strømmer bilder/dokumenter ut av den. Sti: IMPORT_ZIP i .env.import, ellers
-//  ~/Desktop/Høst 2026/trivselslederno_Full_Export_240826.zip.
+//  ~/Desktop/Høst 2026/trivselslederno_Full_Export_240826.zip. MERK: --db leser stien fra prosess-miljøet
+//  (process.env.IMPORT_ZIP), IKKE fra .env.import; --filer leser IMPORT_ZIP fra .env.import. Legg zip-en på
+//  standardstien, så er begge like.
 //
 //  Prod står nå på migrasjon 001–108 og er tom for innhold (0 ressurser / 0 dokumenter / 0 samlinger).
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
@@ -54,7 +56,7 @@ function spor(promptTekst) {
   return new Promise((resolve) => {
     const rl = createInterface({ input: process.stdin, output: process.stdout })
     rl.on('close', () => resolve(''))   // M2: Ctrl-C/EOF → tom streng, ikke stille exit 0 (kalleren avbryter)
-    rl.question(promptTekst, (svar) => { rl.close(); resolve(String(svar).trim()) })
+    rl.question(promptTekst, (svar) => { resolve(String(svar).trim()); rl.close() })   // resolve FØR close: close-lytteren fyrer synkront
   })
 }
 // Skjult innlesing (tilkoblingsstreng, service_role-nøkkel) — tastes inn, vises ikke, skrives aldri
@@ -65,7 +67,7 @@ function sporHemmelig(promptTekst) {
     let muted = false
     rl._writeToOutput = (str) => { if (!muted) rl.output.write(str) }
     rl.on('close', () => resolve(''))   // M2: Ctrl-C/EOF → tom streng, ikke stille exit 0 (kalleren avbryter)
-    rl.question(promptTekst, (svar) => { rl.close(); process.stdout.write('\n'); resolve(String(svar).trim()) })
+    rl.question(promptTekst, (svar) => { resolve(String(svar).trim()); rl.close(); process.stdout.write('\n') })   // resolve FØR close
     muted = true   // etter at question() har skrevet prompten
   })
 }
