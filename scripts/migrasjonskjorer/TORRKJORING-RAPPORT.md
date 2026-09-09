@@ -4,7 +4,7 @@
 Verktøy: `scripts/migrasjonskjorer/migrasjonskjorer.mjs`. `supabase db push` ikke brukt.
 
 ## Filoversikt
-- Migrasjonsfiler funnet: **87** (mønster `NNN_navn.sql`)
+- Migrasjonsfiler funnet: **108** (mønster `NNN_navn.sql`)
 - Hull i nummerrekken: **ingen**
 - Avvikende filnavn: **ingen**
 - Dupliserte numre: **ingen**
@@ -14,9 +14,9 @@ Verktøy: `scripts/migrasjonskjorer/migrasjonskjorer.mjs`. `supabase db push` ik
 
 | Flaggtype | Antall | Betydning |
 |---|---:|---|
-| LIVE-UUID | 148 | hardkodet UUID-literal fra live-data |
-| SEEDING | 170 | topp-nivå `insert into` — kjøres ved migrering (test- eller referansedata) |
-| INSERT-I-FUNKSJON | 37 | `insert into` inne i funksjonskropp — kjøretidslogikk, IKKE seeding |
+| LIVE-UUID | 179 | hardkodet UUID-literal fra live-data |
+| SEEDING | 269 | topp-nivå `insert into` — kjøres ved migrering (test- eller referansedata) |
+| INSERT-I-FUNKSJON | 52 | `insert into` inne i funksjonskropp — kjøretidslogikk, IKKE seeding |
 | DROP-UTEN-IF-EXISTS | 0 | `drop` som forutsetter at objektet finnes |
 | FORWARD-FUNKSJON | 0 | kall til funksjon definert i en senere fil |
 
@@ -40,9 +40,9 @@ Verktøy: `scripts/migrasjonskjorer/migrasjonskjorer.mjs`. `supabase db push` ik
 | 014 | 014_rydd_tla_kolonner.sql | 347 | 1 |  | — |
 | 015 | 015_brukslogg.sql | 1460 | 8 |  | — |
 | 016 | 016_kulturkort_partnere.sql | 1532 | 8 |  | — |
-| 017 | 017_kurs_skole_antall_kort.sql | 669 | 1 |  | — |
+| 017 | 017_kurs_skole_antall_kort.sql | 1806 | 1 |  | — |
 | 018 | 018_kulturkort_bestillinger.sql | 2241 | 8 |  | — |
-| 019 | 019_live_schema.sql | 42954 | 164 | ⚠︎ JA | INSERT-I-FUNKSJON×5 |
+| 019 | 019_live_schema.sql | 44367 | 134 |  | INSERT-I-FUNKSJON×5 |
 | 020 | 020_sikkerhet_vakter.sql | 2725 | 5 |  | — |
 | 021 | 021_hall_vertskap.sql | 29714 | 147 |  | — |
 | 022 | 022_rettinger.sql | 2890 | 7 |  | INSERT-I-FUNKSJON×1 |
@@ -60,7 +60,7 @@ Verktøy: `scripts/migrasjonskjorer/migrasjonskjorer.mjs`. `supabase db push` ik
 | 034 | 034_testimport_20leker.sql | 46591 | 189 |  | LIVE-UUID×148, SEEDING×127 |
 | 035 | 035_periodeplan_rutenett.sql | 6181 | 25 |  | — |
 | 036 | 036_tl_hjul_oppsett.sql | 337 | 1 |  | — |
-| 037 | 037_tl_hjul_fri_kategori.sql | 3377 | 20 |  | SEEDING×1 |
+| 037 | 037_tl_hjul_fri_kategori.sql | 4076 | 20 |  | SEEDING×1, LIVE-UUID×7 |
 | 038 | 038_seed_egnet_nye.sql | 1579 | 1 |  | SEEDING×1 |
 | 039 | 039_webinar_modul.sql | 16095 | 45 |  | INSERT-I-FUNKSJON×2, SEEDING×2 |
 | 040 | 040_webinar_invitasjon.sql | 2234 | 10 |  | INSERT-I-FUNKSJON×1 |
@@ -99,7 +99,7 @@ Verktøy: `scripts/migrasjonskjorer/migrasjonskjorer.mjs`. `supabase db push` ik
 | 073 | 073_tu_kjonnsrad_radeskalering.sql | 32591 | 4 |  | — |
 | 074 | 074_brukslogg_grant_og_tu_rapport.sql | 1443 | 3 |  | — |
 | 075 | 075_htla_utestengt_kjonnsdelt_utgang.sql | 2591 | 1 |  | — |
-| 076 | 076_skoler_oppstart_aar.sql | 1831 | 5 |  | — |
+| 076 | 076_skoler_oppstart_aar.sql | 2159 | 5 |  | — |
 | 077 | 077_skoleundersokelse_datamodell.sql | 15284 | 37 |  | INSERT-I-FUNKSJON×7 |
 | 078 | 078_skoleundersokelse_mottaker.sql | 12435 | 17 |  | INSERT-I-FUNKSJON×1 |
 | 079 | 079_skoleundersokelse_fleksibel.sql | 11747 | 22 |  | SEEDING×1, INSERT-I-FUNKSJON×3 |
@@ -111,10 +111,31 @@ Verktøy: `scripts/migrasjonskjorer/migrasjonskjorer.mjs`. `supabase db push` ik
 | 085 | 085_skoleundersokelse_purring_mal.sql | 2618 | 4 |  | SEEDING×2 |
 | 086 | 086_skoleundersokelse_resultat_effekt.sql | 3860 | 6 |  | — |
 | 087 | 087_skoleundersokelse_resultat_effekt_v2.sql | 3159 | 6 |  | — |
+| 088 | 088_brukslogg_treff_og_anonymisering.sql | 8700 | 14 |  | INSERT-I-FUNKSJON×2 |
+| 089 | 089_sok_leker_rpc.sql | 10550 | 7 |  | — |
+| 090 | 090_kompetansemaal_identitet.sql | 9358 | 34 |  | INSERT-I-FUNKSJON×3 |
+| 091 | 091_importvern.sql | 8622 | 31 |  | — |
+| 091 | 091B_delte_dokumenter.sql | 8197 | 14 |  | INSERT-I-FUNKSJON×1 |
+| 092 | 092_kompetansemaal_kobling.sql | 12069 | 26 |  | — |
+| 093 | 093_redaksjonell_ko.sql | 7535 | 11 |  | — |
+| 093 | 093B_rettigheter.sql | 33539 | 304 |  | — |
+| 093 | 093C_tu_kjonn_pinned_prodfiks.sql | 22659 | 6 |  | — |
+| 094 | 094_struktur_additivt.sql | 5115 | 12 |  | SEEDING×1, LIVE-UUID×1 |
+| 094 | 094B_uten_utstyr_sletting.sql | 4833 | 8 |  | — |
+| 095 | 095_medier_original_samling_medie.sql | 6195 | 17 |  | — |
+| 096 | 096_brukslogg_anonymisering.sql | 5938 | 6 |  | — |
+| 097 | 097_seed_churn_signalord.sql | 3908 | 15 |  | SEEDING×13, LIVE-UUID×13 |
+| 097 | 097B_seed_innstillinger.sql | 11997 | 23 |  | SEEDING×21 |
+| 098 | 098_rettigheter_evaluering_pakker.sql | 8360 | 15 |  | — |
+| 099 | 099_rettigheter_funksjoner.sql | 32292 | 145 |  | INSERT-I-FUNKSJON×9 |
+| 100 | 100_dokument_type.sql | 23595 | 115 |  | SEEDING×51 |
+| 101 | 101_samling_dokument.sql | 4132 | 15 |  | — |
+| 102 | 102_slett_034_testdata.sql | 13418 | 16 |  | SEEDING×1, LIVE-UUID×10 |
+| 103 | 103_dokument_koblinger_fagseed.sql | 8866 | 39 |  | SEEDING×12 |
 
 ## Alle flagg med filnavn og linjenummer
 
-### LIVE-UUID (148)
+### LIVE-UUID (179)
 
 | Fil | Linje | Detalj |
 |---|---:|---|
@@ -266,6 +287,37 @@ Verktøy: `scripts/migrasjonskjorer/migrasjonskjorer.mjs`. `supabase db push` ik
 | 034_testimport_20leker.sql | 374 | insert into ressurs_utstyr (ressurs_id, utstyr_id) select '57b36cb8-56cc-618d-8d08-e21406828091', id from utstyr where n |
 | 034_testimport_20leker.sql | 376 | insert into ressurs_utstyr (ressurs_id, utstyr_id) select '57b36cb8-56cc-618d-8d08-e21406828091', id from utstyr where n |
 | 034_testimport_20leker.sql | 378 | insert into ressurs_utstyr (ressurs_id, utstyr_id) select '57b36cb8-56cc-618d-8d08-e21406828091', id from utstyr where n |
+| 037_tl_hjul_fri_kategori.sql | 69 | ('e519af66-6ca1-479e-897c-2cd1c715b117', null, 'Move it', 10), |
+| 037_tl_hjul_fri_kategori.sql | 70 | ('bec49ace-47e2-4498-8328-40fe588baf9c', null, 'Klassemiljø', 20), |
+| 037_tl_hjul_fri_kategori.sql | 71 | ('14c2ead5-21ac-48af-a00f-f7251db08791', null, 'Trinn', 30), |
+| 037_tl_hjul_fri_kategori.sql | 72 | ('3a7a270e-65ec-4b8a-bead-cbdd5a170076', null, 'Personalet', 40), |
+| 037_tl_hjul_fri_kategori.sql | 73 | ('967730dd-c570-431b-a2f0-e3a525e4ede6', null, 'Trivselsutfordringer', 50), |
+| 037_tl_hjul_fri_kategori.sql | 74 | ('b8515d53-28d3-47c1-82d5-d2208d589522', null, 'Klasseliste', 60), |
+| 037_tl_hjul_fri_kategori.sql | 75 | ('14268cc1-c3bb-4e9f-85d8-82f206ea14da', null, 'Type leker', 70) |
+| 094_struktur_additivt.sql | 88 | where id = 'e519af66-6ca1-479e-897c-2cd1c715b117' |
+| 097_seed_churn_signalord.sql | 22 | select '747a1cc0-e6c1-4380-8e23-4098a14b7126', 'avslutt', true |
+| 097_seed_churn_signalord.sql | 26 | select '878aa5f9-e6fb-4730-8032-280dfa17552b', 'avvikl', true |
+| 097_seed_churn_signalord.sql | 30 | select '4445ec3e-e02d-48ba-8eef-bd85d1225b19', 'budsjett', true |
+| 097_seed_churn_signalord.sql | 34 | select 'b4f5089d-668b-4250-9929-4fd08e5167bf', 'i tvil', true |
+| 097_seed_churn_signalord.sql | 38 | select '18fad1ef-c47f-4a9b-9579-a3fb61595812', 'ikke fortsette', true |
+| 097_seed_churn_signalord.sql | 42 | select '8366bcc5-6dee-4ebd-97fb-8d5fcb46db5c', 'ikke videre', true |
+| 097_seed_churn_signalord.sql | 46 | select 'f94c3a49-8260-45a6-9ec9-8dbedab7e8e3', 'legges ned', true |
+| 097_seed_churn_signalord.sql | 50 | select '20383f31-f0dc-4ad9-855c-e502c0c6e96a', 'nedlegg', true |
+| 097_seed_churn_signalord.sql | 54 | select '166ed690-60ea-42fc-a5a6-4946004a2122', 'oppsig', true |
+| 097_seed_churn_signalord.sql | 58 | select '58ca2024-2ffb-46f1-96c8-e3638c1ff646', 'prioriter', true |
+| 097_seed_churn_signalord.sql | 62 | select '9d9aa40b-c41b-48f4-9a29-91912faf3f5a', 'ressurs', true |
+| 097_seed_churn_signalord.sql | 66 | select '8fcf54f1-4ec1-4026-aba6-9e2afbdc6830', 'slutt', true |
+| 097_seed_churn_signalord.sql | 70 | select '99902547-15b1-49b7-a7bf-d0a7a19331f2', 'økonomi', true |
+| 102_slett_034_testdata.sql | 46 | ('145b07af-f39a-bcd5-4fec-31957530834d'), ('2157baa1-c37a-998e-32a0-4f5dcb66ed96'), |
+| 102_slett_034_testdata.sql | 47 | ('2f99cf8c-321c-5af0-a74a-9efa8511dcc3'), ('32a91df5-6788-1407-3414-6737d95a170f'), |
+| 102_slett_034_testdata.sql | 48 | ('3820b754-2bc0-a877-c52f-0a1c45d313ed'), ('42c10c61-65b6-5fab-4b00-5bb3f74ee644'), |
+| 102_slett_034_testdata.sql | 49 | ('492e7c53-f6ec-e9ce-d3be-80df76217709'), ('57b36cb8-56cc-618d-8d08-e21406828091'), |
+| 102_slett_034_testdata.sql | 50 | ('5f8535a6-fa03-988f-5503-d4710943a86a'), ('86ebe3d4-3b73-d6f7-6a1d-2af42f4c506c'), |
+| 102_slett_034_testdata.sql | 51 | ('8b1c0b15-ce26-56d5-d1e7-87c08f1f52b9'), ('90a51fab-e4c2-df2d-1ef9-779f3d14de61'), |
+| 102_slett_034_testdata.sql | 52 | ('9d980823-b374-0d9e-1c60-9bc878bc3255'), ('acdd94fd-a32b-91a3-df56-10ceff172ffb'), |
+| 102_slett_034_testdata.sql | 53 | ('b1a296a7-64aa-866c-c1a4-09ddd063a8d6'), ('c8e533d3-7f44-4f97-1aa0-c64a7f8763c4'), |
+| 102_slett_034_testdata.sql | 54 | ('cc8d560a-dab8-8611-7ce8-88a617cf797a'), ('cd254c96-fb49-f760-4f78-ff8e2c64d820'), |
+| 102_slett_034_testdata.sql | 55 | ('e2d23ff9-d0f0-4b66-a622-7a173c4384f1'), ('edd54848-ae92-90fc-6335-20b8ff525b63'); |
 
 ### FORWARD-FUNKSJON (0)
 _Ingen._
@@ -273,14 +325,14 @@ _Ingen._
 ### DROP-UTEN-IF-EXISTS (0)
 _Ingen._
 
-### SEEDING (170)
+### SEEDING (269)
 
 | Fil | Antall insert | Linjer (utvalg) |
 |---|---:|---|
 | 023_fase3_taksonomi.sql | 4 | 54, 59, 63, 72 |
 | 031_fase3_testleker.sql | 20 | 2, 3, 4, 40, 46, 72, 98, 110, 116, 122, 130, 140 … |
 | 034_testimport_20leker.sql | 127 | 69, 72, 92, 93, 94, 97, 100, 103, 104, 105, 106, 107 … |
-| 037_tl_hjul_fri_kategori.sql | 1 | 63 |
+| 037_tl_hjul_fri_kategori.sql | 1 | 68 |
 | 038_seed_egnet_nye.sql | 1 | 20 |
 | 039_webinar_modul.sql | 2 | 293, 300 |
 | 041_trivselsundersokelsen_byggetrinn1.sql | 2 | 77, 85 |
@@ -293,12 +345,18 @@ _Ingen._
 | 079_skoleundersokelse_fleksibel.sql | 1 | 74 |
 | 082_skoleundersokelse_epostmal.sql | 2 | 28, 34 |
 | 085_skoleundersokelse_purring_mal.sql | 2 | 27, 33 |
+| 094_struktur_additivt.sql | 1 | 59 |
+| 097_seed_churn_signalord.sql | 13 | 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65 … |
+| 097B_seed_innstillinger.sql | 21 | 44, 48, 52, 56, 60, 73, 77, 92, 96, 104, 108, 118 … |
+| 100_dokument_type.sql | 51 | 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80 … |
+| 102_slett_034_testdata.sql | 1 | 45 |
+| 103_dokument_koblinger_fagseed.sql | 12 | 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104 |
 
-### INSERT-I-FUNKSJON (37)
+### INSERT-I-FUNKSJON (52)
 
 | Fil | Antall insert | Linjer (utvalg) |
 |---|---:|---|
-| 019_live_schema.sql | 5 | 509, 880, 992, 1052, 1064 |
+| 019_live_schema.sql | 5 | 533, 918, 1030, 1090, 1102 |
 | 022_rettinger.sql | 1 | 47 |
 | 027_fase3_endringslogg.sql | 1 | 38 |
 | 031_fase3_testleker.sql | 2 | 32, 34 |
@@ -318,9 +376,13 @@ _Ingen._
 | 081_skoleundersokelse_mottakerrolle.sql | 1 | 137 |
 | 083_skoleundersokelse_token_rpc.sql | 1 | 254 |
 | 084_skoleundersokelse_maalgruppe_fiks.sql | 1 | 160 |
+| 088_brukslogg_treff_og_anonymisering.sql | 2 | 178, 184 |
+| 090_kompetansemaal_identitet.sql | 3 | 163, 169, 181 |
+| 091B_delte_dokumenter.sql | 1 | 92 |
+| 099_rettigheter_funksjoner.sql | 9 | 39, 71, 113, 225, 263, 278, 286, 324, 336 |
 
 ## Arkiv/dokumentasjonsfiler
-- **019_live_schema.sql** — topp-kommentar tyder på introspeksjon/dokumentasjon.
+_Ingen filer flagget som dokumentasjon._
 
 ## Vurdering — kan disse filene bygge en base fra bunnen?
 
