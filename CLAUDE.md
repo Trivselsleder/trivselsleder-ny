@@ -272,6 +272,32 @@ Kjartan bekreftet Calibri + petrol, uendret.)*
   (Rettet 9. september 2026.)
   FAST SJEKK VED DAGENS SLUTT: list alt i prosjektet med dagens dato og kryss mot Mac.
 
+- **SPEILING GJELDER KUN NOTATER** (fra 10. september 2026). Speiling mellom Mac og prosjekt
+  gjelder KUN claude_*.md, STATUS.md og CLAUDE.md. Kodefiler heter noe annet i prosjektet
+  (claude_kode_…) enn på Mac (src/…, supabase/…). Kode har git som sikkerhetskopi og speiles
+  aldri. Ingen underagenter i speilingsoppdrag; sjekk én navngitt fil om gangen.
+
+- **PUSHET ≠ BYGGET** (fra 10. september 2026). Vercel fikk ikke beskjed om commit 1b04cb9 —
+  ingen status på GitHub, ikke i Deployments. Etter HVER push: sjekk at committen står som
+  Ready i Vercel Deployments før testing i nettleser. Fiks: git commit --allow-empty + push.
+
+- **KVITTERING INNE I EN TRANSAKSJON BEVISER IKKE AT NOE ER LAGRET** (fra 10. september 2026).
+  Prøvekjøringen av 110 med rollback viste «261 koblet» i kvitteringen, men 0 i basen. Bevis
+  ALLTID med en egen lesespørring etter kjøring.
+
+- **SJEKK PROSJEKTNAVNET I SUPABASE** (fra 10. september 2026). Prod («trivselsleder») og
+  øvingskopien («trivselsleder-ovingskopi») har samme importerte innhold og er lette å
+  forveksle i hver sin fane. En spørring i feil fane ga et forvirrende resultat 10. sep.
+
+- **BASH: UTROPSTEGN I DOBLE ANFØRSELSTEGN** (fra 10. september 2026). «!» tolkes som
+  historikk-kommando («event not found»), og ingenting kjøres. Bruk ':(exclude)src' i stedet
+  for ':!src' i git-kommandoer.
+
+- **BESKRIVELSEN ER HTML** (fra 10. september 2026). ressurs_innhold.beskrivelse vises KUN via
+  src/lib/beskrivelse.js (hviteliste av ti tagger) og redigeres KUN via BeskrivelseEditor
+  (TipTap, låst skjema). Aldri dangerouslySetInnerHTML. Beskrivelsen sendes kun ved faktisk
+  endring.
+
 ## Standard arbeidsflyt for endringer
 1. Kjør SQL-migrasjon i Supabase SQL editor (hvis databaseendring)
 2. Endre kode (Claude Code bygger, stopper alltid før push så Kjartan ser diffen)
