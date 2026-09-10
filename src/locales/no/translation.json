@@ -765,7 +765,8 @@
     "alleStatus": "Alle statuser",
     "sprak": {
       "nb": "Bokmål",
-      "nn": "Nynorsk"
+      "nn": "Nynorsk",
+      "en": "Engelsk"
     },
     "status": {
       "utkast": "Utkast",

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { hentAlleDokumenter, hentDokumenttyper, lagreDokument } from '../lib/dokument'
 
-const SPRAK = ['nb', 'nn'] // dokument_sprak CHECK = nb/nn (migr 103). «en» lagres IKKE (beslutning 5. sep).
+const SPRAK = ['nb', 'nn', 'en'] // dokument_sprak CHECK = nb/nn/en (migr 103 + 114). «en» tillatt fra 114 (beslutning 10. sep).
 const STATUSER = ['utkast', 'publisert', 'arkivert']
 
 // Grupper dokumenttypene (to nivåer): forelder + barn.
