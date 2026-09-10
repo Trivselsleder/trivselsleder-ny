@@ -25,12 +25,12 @@ export const UTSTYR_MIN_LEKER = 2
 
 const VELG = `
   id, sted, antall_min, antall_maks, kan_ledes_av_elever, redaksjonell_rating, ressurstype, status, endret_at,
-  ressurs_innhold ( sprak, tittel, formaal, beskrivelse, forberedelse, inndeling, utgangsposisjon, kronologi, regler, variasjoner, instruktoernotat ),
+  ressurs_innhold ( sprak, tittel, formaal, beskrivelse, forberedelse, inndeling, utgangsposisjon, kronologi, regler, variasjoner, instruktoernotat, antall_raatekst ),
   ressurs_egnet ( egnet_kategori ( navn ) ),
   ressurs_trinn ( trinn ( kode, navn, land ) ),
   ressurs_utstyr ( utstyr ( navn ) ),
   ressurs_sesong ( sesong ( navn ) ),
-  medier ( type, bunny_video_id, alt_tekst ),
+  medier ( type, bunny_video_id, alt_tekst, storage_sti, alt_tekst_kilde, rekkefolge ),
   vurderinger ( stjerner )
 `
 
@@ -55,10 +55,29 @@ function tekst(rad) {
   return inn.find((i) => i.sprak === 'nb') || inn.find((i) => i.sprak === 'nn') || inn[0] || {}
 }
 
+// Felles antall-formatering (skjerm, kort og PDF bruker DENNE — aldri ordet «null» i visning).
+//   min + maks  → «min–maks» (tankestrek)
+//   bare min    → råtekst hvis satt, ellers «Fra {min}»
+//   bare maks   → «Opptil {maks}»
+//   ingen tall  → råtekst hvis satt, ellers null (kalleren viser «–» eller skjuler feltet)
+export function formaterAntall(min, maks, raatekst = null) {
+  const raa = typeof raatekst === 'string' && raatekst.trim() ? raatekst.trim() : null
+  const harTall = (v) => v !== null && v !== undefined && v !== '' && !Number.isNaN(Number(v))
+  const nMin = harTall(min) ? Number(min) : null
+  const nMaks = harTall(maks) ? Number(maks) : null
+  if (nMin !== null && nMaks !== null) return `${nMin}–${nMaks}`
+  if (nMin !== null) return raa || `Fra ${nMin}`
+  if (nMaks !== null) return `Opptil ${nMaks}`
+  return raa
+}
+
 export function formLek(rad) {
   const t = tekst(rad)
   const utstyr = (rad.ressurs_utstyr || []).map((x) => x.utstyr?.navn).filter(Boolean)
   const video = (rad.medier || []).find((m) => m.type === 'video') || null
+  const bilder = (rad.medier || [])
+    .filter((m) => m.type === 'bilde')
+    .sort((a, b) => (a.rekkefolge ?? 0) - (b.rekkefolge ?? 0))
   const stjerner = (rad.vurderinger || []).map((v) => v.stjerner)
   const snitt = stjerner.length
     ? stjerner.reduce((a, b) => a + b, 0) / stjerner.length
@@ -70,6 +89,7 @@ export function formLek(rad) {
     sted: rad.sted,
     antallMin: rad.antall_min,
     antallMaks: rad.antall_maks,
+    antallRaatekst: t.antall_raatekst ?? null,   // 094: kolonnen bor på ressurs_innhold, ikke ressurser
     kanLedesAvElever: rad.kan_ledes_av_elever,
     ressurstype: rad.ressurstype,
     status: rad.status,          // D3: redigeringsflaten trenger status + endringsstempel (lås)
@@ -79,6 +99,7 @@ export function formLek(rad) {
     utstyr,
     sesong: (rad.ressurs_sesong || []).map((x) => x.sesong?.navn).filter(Boolean),
     video,
+    bilder,
     harVideo: !!(video && video.bunny_video_id),
     utenUtstyr: utstyr.length === 0,
     rating: snitt,

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { formaterAntall } from '../lib/leker'
 
 export default function LekeKort({ lek, favoritt = false }) {
   return (
@@ -25,7 +26,7 @@ export default function LekeKort({ lek, favoritt = false }) {
         )}
       </div>
       <div className="text-xs text-gray-400 mt-2">
-        {[lek.sted, `${lek.antallMin}–${lek.antallMaks}`, lek.trinn.map((t) => t.navn).slice(0, 2).join(', ')]
+        {[lek.sted, formaterAntall(lek.antallMin, lek.antallMaks), lek.trinn.map((t) => t.navn).slice(0, 2).join(', ')]
           .filter(Boolean)
           .join(' · ')}
       </div>

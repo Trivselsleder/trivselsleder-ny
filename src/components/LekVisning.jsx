@@ -1,4 +1,5 @@
-import { trinnKort } from '../lib/leker'
+import { trinnKort, formaterAntall } from '../lib/leker'
+import { beskrivelseTilReact } from '../lib/beskrivelse'
 
 // Gjenbrukbar lek-INNHOLDSVISNING: meta-rutenett, egnet/sesong-merker, video og tekstseksjonene
 // slik læreren faktisk ser dem. Brukes av SkoleLek (den ekte siden) OG som forhåndsvisning i
@@ -19,11 +20,13 @@ const BUNNY_LIB = '727245'
 
 export default function LekVisning({ lek }) {
   const t = lek.tekst || {}
+  const beskrivelse = beskrivelseTilReact(t.beskrivelse)
+  const bilder = lek.bilder || []
   return (
     <>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 rounded-xl p-4 text-sm">
         <div><div className="text-gray-500">Sted</div><div className="font-medium capitalize">{lek.sted || '—'}</div></div>
-        <div><div className="text-gray-500">Antall</div><div className="font-medium">{lek.antallMin ?? '–'}–{lek.antallMaks ?? '–'}</div></div>
+        <div><div className="text-gray-500">Antall</div><div className="font-medium">{formaterAntall(lek.antallMin, lek.antallMaks, lek.antallRaatekst) || '–'}</div></div>
         <div><div className="text-gray-500">Trinn</div><div className="font-medium">{trinnKort(lek.trinn)}</div></div>
         <div><div className="text-gray-500">Utstyr</div><div className="font-medium">{(lek.utstyr || []).join(', ') || 'Ingen'}</div></div>
       </div>
@@ -32,6 +35,27 @@ export default function LekVisning({ lek }) {
         {(lek.egnet || []).map((e) => <span key={e} className="text-xs bg-orange/10 text-orange-ink px-2 py-0.5 rounded-full">{e}</span>)}
         {(lek.sesong || []).map((s) => <span key={s} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{s}</span>)}
       </div>
+
+      {beskrivelse && (
+        <section className="mt-6">
+          <h2 className="font-bold text-gray-900">Om leken</h2>
+          <div className="mt-1 text-gray-700 space-y-3">{beskrivelse}</div>
+        </section>
+      )}
+
+      {bilder.length > 0 && (
+        <div className="mt-4 space-y-3">
+          {bilder.map((b) => (
+            <img
+              key={b.id}
+              src={b.storage_sti}
+              alt={b.alt_tekst || lek.tittel || 'Illustrasjon til leken'}
+              loading="lazy"
+              className="w-full max-w-2xl rounded-xl border border-gray-100"
+            />
+          ))}
+        </div>
+      )}
 
       {lek.video && (
         <div className="mt-5">
