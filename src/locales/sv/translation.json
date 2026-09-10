@@ -717,7 +717,15 @@
     "lagret": "Sparat ✓",
     "lagre": "Spara ändringar",
     "lagrer": "Sparar …",
-    "avbryt": "Avbryt"
+    "avbryt": "Avbryt",
+    "editor": {
+      "omrade": "Textredigering för beskrivning",
+      "fet": "Fet",
+      "kursiv": "Kursiv",
+      "punktliste": "Punktlista",
+      "nummerliste": "Numrerad lista",
+      "mellomoverskrift": "Mellanrubrik"
+    }
   },
   "redaksjon": {
     "tittel": "Redaktion",
@@ -755,8 +763,15 @@
     "alleSprak": "Alla språk",
     "filterStatus": "Status",
     "alleStatus": "Alla statusar",
-    "sprak": { "nb": "Bokmål", "nn": "Nynorska" },
-    "status": { "utkast": "Utkast", "publisert": "Publicerad", "arkivert": "Arkiverad" },
+    "sprak": {
+      "nb": "Bokmål",
+      "nn": "Nynorska"
+    },
+    "status": {
+      "utkast": "Utkast",
+      "publisert": "Publicerad",
+      "arkivert": "Arkiverad"
+    },
     "teller": "Visar {{vist}} av {{total}}",
     "tomtProd": "Inga dokument ännu — importen är inte körd här.",
     "ingenTreff": "Inga dokument matchade filtren.",

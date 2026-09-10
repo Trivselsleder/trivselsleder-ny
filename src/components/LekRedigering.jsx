@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { lagreRessurs, hentRessursForRedigering, hentFagValg } from '../lib/leker'
 import { supabase } from '../lib/supabase'
 import LekVisning from './LekVisning'
+
+// TipTap lastes i egen chunk KUN når redigeringsflaten faktisk vises (krav 4) —
+// lekesiden og lekebiblioteket henter den aldri.
+const BeskrivelseEditor = lazy(() => import('./BeskrivelseEditor'))
 
 // Innholds-tekstfeltene (utover tittel + beskrivelse), med i18n-nøkkel.
 const PUNKTER = ['formaal', 'forberedelse', 'inndeling', 'utgangsposisjon', 'kronologi', 'regler', 'variasjoner', 'instruktoernotat']
@@ -87,6 +91,12 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
   })
   const innhold = innholdMap[aktivtSprak] || initInnhold(aktivtSprak)
 
+  // «Rørt»-flagg for beskrivelsen, per språk (krav 1). TipTap normaliserer HTML ved
+  // innlasting (b→strong osv.), så vi kan IKKE stole på strengsammenligning — en urørt
+  // beskrivelse ville sett «endret» ut. Flagget settes kun av en ekte brukerendring
+  // (editorens onChange), aldri av innlasting, og beskrivelsen sendes bare når det er satt.
+  const [beskrRort, setBeskrRort] = useState(() => new Set())
+
   const [meta, setMeta] = useState({
     sted: data.sted || 'begge',
     antall_min: data.antallMin ?? '',
@@ -110,6 +120,7 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
     setNyeBilder([])
     setFjernet(new Set())
     setBildeFeil(null)
+    setBeskrRort(new Set())   // basen holder nå det lagrede — nullstill rørt-flagget
   }
   // Fag (kun aktiv læring): redigerbare avkrysninger.
   const [fagIds, setFagIds] = useState(() => new Set(data.fag.map((f) => f.id)))
@@ -178,7 +189,10 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
 
       // INNHOLD (E1): send kun feltene som faktisk er endret fra basen. Uendret NULL → ikke sendt → bevart.
       const innEndr = {}
-      for (const k of ['tittel', 'beskrivelse', ...PUNKTER]) if (endret(innhold[k], orig[k])) innEndr[k] = innhold[k]
+      for (const k of ['tittel', ...PUNKTER]) if (endret(innhold[k], orig[k])) innEndr[k] = innhold[k]
+      // Beskrivelsen er unntatt strengsammenligning (krav 1): TipTap normaliserer HTML ved
+      // innlasting, så den sendes KUN når brukeren faktisk har redigert den (rørt-flagget).
+      if (beskrRort.has(aktivtSprak)) innEndr.beskrivelse = innhold.beskrivelse
       if (Object.keys(innEndr).length) payload.innhold = innEndr
 
       // META (E1): kun endrede ressurs-felt. Sted sammenlignes mot SAMME baseline som visningen
@@ -286,9 +300,26 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
             <input type="text" value={innhold.tittel} onChange={(e) => i('tittel', e.target.value)} className={`${felt} mt-0.5`} />
           </label>
 
-          <label className="block text-xs text-gray-500 mt-3">{t('rediger.beskrivelse')} <span className="text-gray-400">{t('rediger.beskrivelseHint')}</span>
-            <textarea value={innhold.beskrivelse} onChange={(e) => i('beskrivelse', e.target.value)} className={`${omr} mt-0.5 min-h-[110px]`} />
-          </label>
+          <div className="mt-3">
+            <span className="block text-xs text-gray-500">{t('rediger.beskrivelse')} <span className="text-gray-400">{t('rediger.beskrivelseHint')}</span></span>
+            <Suspense fallback={<div className={`${omr} mt-0.5 min-h-[110px] text-gray-400`}>{t('rediger.laster')}</div>}>
+              {/* key=aktivtSprak: full remount ved språkbytte, så editoren laster riktig språks
+                  innhold på nytt uten å fyre onUpdate (rører ikke flagget). */}
+              <BeskrivelseEditor
+                key={aktivtSprak}
+                value={innhold.beskrivelse}
+                onChange={(html) => { i('beskrivelse', html); setBeskrRort((s) => new Set(s).add(aktivtSprak)) }}
+                labels={{
+                  omrade: t('rediger.editor.omrade'),
+                  fet: t('rediger.editor.fet'),
+                  kursiv: t('rediger.editor.kursiv'),
+                  punktliste: t('rediger.editor.punktliste'),
+                  nummerliste: t('rediger.editor.nummerliste'),
+                  mellomoverskrift: t('rediger.editor.mellomoverskrift'),
+                }}
+              />
+            </Suspense>
+          </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
             <label className="text-xs text-gray-500">{t('rediger.sted')}
