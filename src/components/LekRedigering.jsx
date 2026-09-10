@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { lagreRessurs, hentRessursForRedigering, hentFagValg } from '../lib/leker'
+import { supabase } from '../lib/supabase'
 import LekVisning from './LekVisning'
 
 // Innholds-tekstfeltene (utover tittel + beskrivelse), med i18n-nøkkel.
@@ -9,6 +10,20 @@ const PUNKTER = ['formaal', 'forberedelse', 'inndeling', 'utgangsposisjon', 'kro
 const SPRAK = [['nb', 'Bokmål'], ['nn', 'Nynorsk'], ['sv', 'Svenska'], ['is', 'Íslenska'], ['en', 'English']]
 const norm = (v) => (v ?? '')                       // NULL og '' behandles likt (E1)
 const endret = (a, b) => norm(a) !== norm(b)        // «faktisk redigert»
+
+// Bildeopplasting (migr 109): interne laster opp til importfiler/redaksjon/<ressurs_id>/<uuid>.
+// Frontend-grense (bøtta selv har ingen): jpg/png/webp, maks 10 MB. Originalen lastes opp uendret.
+const REDAKSJON_BUCKET = 'importfiler'
+const BILDE_TYPER = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
+const MAKS_BILDE = 10 * 1024 * 1024
+
+// Objektsti ut av en public-URL. Vi sletter KUN filer under redaksjon/ — import/<id>/ røres aldri.
+function objektStiFraUrl(url, bucket = REDAKSJON_BUCKET) {
+  if (typeof url !== 'string') return null
+  const merke = `/object/public/${bucket}/`
+  const i = url.indexOf(merke)
+  return i >= 0 ? decodeURIComponent(url.slice(i + merke.length)) : null
+}
 
 // Redigering på stedet for interne (superadmin/ansatt). Loader: henter hele ressursen + fag-valg,
 // og rendrer selve skjemaet når data er klart (unngår betingede hooks).
@@ -77,9 +92,25 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
     antall_min: data.antallMin ?? '',
     antall_maks: data.antallMaks ?? '',
   })
-  // Bilder: rediger alt-tekst på eksisterende bilder (opplasting av NYE er egen sak, migr 108).
+  // Bilder: eksisterende bilder (alt-tekst + fjern) og nye opplastede (migr 108/109).
   const bilder = useMemo(() => data.medier.filter((m) => m.type === 'bilde'), [data])
   const [altTekst, setAltTekst] = useState(() => Object.fromEntries(bilder.map((b) => [b.id, b.alt_tekst || ''])))
+  const [nyeBilder, setNyeBilder] = useState([])       // {key, sti, storage_sti, original_filnavn, alt_tekst}
+  const [fjernet, setFjernet] = useState(() => new Set()) // id-er på eksisterende bilder som skal fjernes
+  const [bildeFeil, setBildeFeil] = useState(null)
+  const [bildeLaster, setBildeLaster] = useState(false)
+  // Nullstill bilde-tilstand når parent har hentet `data` på nytt (etter lagring, uten remount):
+  // alt-tekst-kartet får de nye radenes id, nye/fjernede tømmes (nå persistert i basen). Reset skjer
+  // UNDER render — Reacts anbefalte mønster for «tilbakestill state når en prop endrer seg» (ikke i en
+  // effekt, så «Lagret ✓» (ok) overlever mens bilde-tilstanden følger den ferske basen).
+  const [dataSig, setDataSig] = useState(data.endretAt)
+  if (dataSig !== data.endretAt) {
+    setDataSig(data.endretAt)
+    setAltTekst(Object.fromEntries(bilder.map((b) => [b.id, b.alt_tekst || ''])))
+    setNyeBilder([])
+    setFjernet(new Set())
+    setBildeFeil(null)
+  }
   // Fag (kun aktiv læring): redigerbare avkrysninger.
   const [fagIds, setFagIds] = useState(() => new Set(data.fag.map((f) => f.id)))
 
@@ -91,12 +122,56 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
   function i(k, v) { setInnholdMap((s) => ({ ...s, [aktivtSprak]: { ...(s[aktivtSprak] || initInnhold(aktivtSprak)), [k]: v } })); setOk(false) }
   function m(k, v) { setMeta((s) => ({ ...s, [k]: v })); setOk(false) }
 
-  // Bilder som mangler alt-tekst OG som brukeren har rørt (endret) — blokkerer lagring (WCAG).
-  const endretBilder = bilder.filter((b) => endret(altTekst[b.id], b.alt_tekst))
-  const manglerAlt = endretBilder.filter((b) => !norm(altTekst[b.id]).trim())
+  // Aktive = ikke merket for fjerning. Endret alt-tekst på eksisterende → send. Nye bilder → send.
+  const aktiveBilder = bilder.filter((b) => !fjernet.has(b.id))
+  const endretBilder = aktiveBilder.filter((b) => endret(altTekst[b.id], b.alt_tekst))
+  // Blokkerer lagring (WCAG): endret eksisterende uten tekst, ELLER nytt bilde uten tekst.
+  const manglerAlt = [
+    ...endretBilder.filter((b) => !norm(altTekst[b.id]).trim()),
+    ...nyeBilder.filter((n) => !norm(n.alt_tekst).trim()),
+  ]
+
+  function toggleFjern(id) {
+    setFjernet((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n }); setOk(false)
+  }
+  function settNyAlt(key, v) {
+    setNyeBilder((s) => s.map((n) => (n.key === key ? { ...n, alt_tekst: v } : n))); setOk(false)
+  }
+
+  // Filvelger: valider type + størrelse FØR opplasting, last opp til redaksjon/, hent public-URL.
+  async function velgBilde(e) {
+    const fil = e.target.files?.[0]
+    e.target.value = ''                       // tillat å velge samme fil igjen etterpå
+    if (!fil) return
+    setBildeFeil(null)
+    const ext = BILDE_TYPER[fil.type]
+    if (!ext) { setBildeFeil(t('rediger.bildeFeilType')); return }
+    if (fil.size > MAKS_BILDE) { setBildeFeil(t('rediger.bildeFeilStor')); return }
+    setBildeLaster(true)
+    try {
+      const sti = `redaksjon/${data.id}/${crypto.randomUUID()}.${ext}`   // aldri upsert: ny uuid hver gang
+      const { error: oppErr } = await supabase.storage.from(REDAKSJON_BUCKET)
+        .upload(sti, fil, { upsert: false, contentType: fil.type })
+      if (oppErr) throw oppErr
+      const { data: urlData } = supabase.storage.from(REDAKSJON_BUCKET).getPublicUrl(sti)
+      setNyeBilder((s) => [...s, { key: sti, sti, storage_sti: urlData.publicUrl, original_filnavn: fil.name, alt_tekst: '' }])
+      setOk(false)
+    } catch (err) {
+      setBildeFeil(t('rediger.bildeOpplastFeil', { feil: err.message }))
+    } finally {
+      setBildeLaster(false)
+    }
+  }
+
+  // Fjern et ennå ikke lagret bilde: ta det ut av lista OG slett den opplastede fila (ingen foreldreløse).
+  async function fjernNyttBilde(key) {
+    const b = nyeBilder.find((x) => x.key === key)
+    setNyeBilder((s) => s.filter((x) => x.key !== key))
+    if (b?.sti) { try { await supabase.storage.from(REDAKSJON_BUCKET).remove([b.sti]) } catch { /* rydding, ikke kritisk */ } }
+  }
 
   async function lagre() {
-    if (lagrer || manglerAlt.length) return
+    if (lagrer || bildeLaster || manglerAlt.length) return
     setLagrer(true); setFeil(null); setOk(false)
     try {
       const payload = { id: data.id, endret_at: data.endretAt, sprak: aktivtSprak }
@@ -116,8 +191,18 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
       if (maks !== (data.antallMaks ?? null)) resEndr.antall_maks = maks
       if (Object.keys(resEndr).length) payload.ressurs = resEndr
 
-      // BILDER: send kun bilder der alt-tekst er endret (RPC setter da alt_tekst_kilde='menneske').
-      if (endretBilder.length) payload.medier = endretBilder.map((b) => ({ id: b.id, alt_tekst: altTekst[b.id] }))
+      // BILDER (RPC setter alt_tekst_kilde='menneske' når alt_tekst sendes): endret eksisterende +
+      // nye opplastede. Nye har ingen id → RPC insert'er dem (er_original=true via kolonnedefault).
+      const medierUt = endretBilder.map((b) => ({ id: b.id, alt_tekst: altTekst[b.id] }))
+      nyeBilder.forEach((n, idx) => medierUt.push({
+        type: 'bilde',
+        storage_sti: n.storage_sti,
+        original_filnavn: n.original_filnavn,
+        alt_tekst: n.alt_tekst,
+        rekkefolge: aktiveBilder.length + idx,
+      }))
+      if (medierUt.length) payload.medier = medierUt
+      if (fjernet.size) payload.medier_fjern = [...fjernet]
 
       // FAG (kun aktiv læring): send fag_ids KUN hvis endret (fravær = rør ikke).
       if (erAktivLaering) {
@@ -127,10 +212,23 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
       }
 
       await lagreRessurs(payload)
+      // Slett Storage-filer for FJERNEDE bilder — KUN under redaksjon/, aldri import/<id>/.
+      for (const b of bilder.filter((x) => fjernet.has(x.id))) {
+        const sti = objektStiFraUrl(b.storage_sti)
+        if (sti && sti.startsWith('redaksjon/')) {
+          try { await supabase.storage.from(REDAKSJON_BUCKET).remove([sti]) } catch { /* best effort */ }
+        }
+      }
       setOk(true)
-      await etterLagring()   // henter på nytt → nytt token → remonterer skjemaet
+      await etterLagring()   // henter på nytt → nytt token → resync-effekt tømmer bilde-tilstand
     } catch (e) {
       setFeil(e.message)
+      // Mislykket lagring ETTER opplasting: slett de nettopp opplastede redaksjon/-filene, ellers
+      // blir de liggende foreldreløse (ingen medier-rad peker på dem).
+      for (const n of nyeBilder) {
+        if (n.sti) { try { await supabase.storage.from(REDAKSJON_BUCKET).remove([n.sti]) } catch { /* best effort */ } }
+      }
+      setNyeBilder([])
     } finally {
       setLagrer(false)
     }
@@ -216,29 +314,91 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
             ))}
           </div>
 
-          {/* Bilder + alt-tekst (WCAG). Opplasting av nye bilder er egen sak (migr 108). */}
-          {bilder.length > 0 && (
-            <div className="mt-5">
-              <h3 className="text-sm font-semibold text-gray-800">{t('rediger.bilder')}</h3>
-              <div className="mt-2 space-y-2">
-                {bilder.map((b) => {
+          {/* Bilder (WCAG): miniatyr + alt-tekst, fjern eksisterende, last opp nye til redaksjon/. */}
+          <div className="mt-5">
+            <h3 className="text-sm font-semibold text-gray-800">{t('rediger.bilder')}</h3>
+
+            {/* Eksisterende bilder som IKKE er merket for fjerning */}
+            {aktiveBilder.length > 0 && (
+              <div className="mt-2 space-y-3">
+                {aktiveBilder.map((b) => {
                   const tom = !norm(altTekst[b.id]).trim()
+                  const visFallback = b.alt_tekst_kilde === 'fallback' && !endret(altTekst[b.id], b.alt_tekst)
+                  const hjelpId = `alt-hjelp-${b.id}`
                   return (
-                    <div key={b.id} className="flex items-start gap-2">
-                      <span className="text-lg" aria-hidden>🖼️</span>
+                    <div key={b.id} className="flex items-start gap-3">
+                      <img src={b.storage_sti} alt={b.alt_tekst || visLek.tittel || ''}
+                        className="w-16 h-16 object-cover rounded-lg border border-gray-200 shrink-0" />
                       <label className="flex-1 text-xs text-gray-500">
                         {t('rediger.altTekst')} {tom && <span className="text-orange-ink font-semibold">· {t('rediger.altTekstPakrevd')}</span>}
+                        {visFallback && <span className="ml-1 text-orange-ink font-semibold">· {t('rediger.altMaSkrives')}</span>}
                         <input type="text" value={altTekst[b.id] || ''}
                           onChange={(e) => { setAltTekst((s) => ({ ...s, [b.id]: e.target.value })); setOk(false) }}
-                          aria-invalid={tom} className={`${felt} mt-0.5 ${tom ? 'border-tlred' : ''}`}
+                          aria-invalid={tom} aria-describedby={hjelpId}
+                          className={`${felt} mt-0.5 ${tom ? 'border-tlred' : ''}`}
                           placeholder={t('rediger.altTekstPlassholder')} />
+                        <span id={hjelpId} className="block text-gray-400 mt-0.5">{t('rediger.bildeAltHjelp')}</span>
                       </label>
+                      <button type="button" onClick={() => toggleFjern(b.id)}
+                        className="text-xs text-orange-ink hover:underline shrink-0 mt-1">{t('rediger.fjernBilde')}</button>
                     </div>
                   )
                 })}
               </div>
+            )}
+
+            {/* Eksisterende bilder merket for fjerning — reversibelt til lagring */}
+            {bilder.filter((b) => fjernet.has(b.id)).map((b) => (
+              <div key={b.id} className="flex items-center gap-3 mt-3 opacity-60">
+                <img src={b.storage_sti} alt="" aria-hidden="true"
+                  className="w-16 h-16 object-cover rounded-lg border border-gray-200 grayscale shrink-0" />
+                <span className="flex-1 text-xs text-gray-500">
+                  <span className="line-through">{b.alt_tekst || visLek.tittel}</span>
+                  <span className="block text-tlred mt-0.5">{t('rediger.fjernesVedLagring')}</span>
+                </span>
+                <button type="button" onClick={() => toggleFjern(b.id)}
+                  className="text-xs text-petrol hover:underline shrink-0">{t('rediger.angreFjern')}</button>
+              </div>
+            ))}
+
+            {/* Nye opplastede bilder (ennå ikke lagret) */}
+            {nyeBilder.length > 0 && (
+              <div className="mt-3 space-y-3">
+                {nyeBilder.map((n) => {
+                  const tom = !norm(n.alt_tekst).trim()
+                  const hjelpId = `ny-alt-hjelp-${n.key}`
+                  return (
+                    <div key={n.key} className="flex items-start gap-3">
+                      <img src={n.storage_sti} alt={n.alt_tekst || ''}
+                        className="w-16 h-16 object-cover rounded-lg border border-gray-200 shrink-0" />
+                      <label className="flex-1 text-xs text-gray-500">
+                        {t('rediger.altTekst')} {tom && <span className="text-orange-ink font-semibold">· {t('rediger.altTekstPakrevd')}</span>}
+                        <input type="text" value={n.alt_tekst}
+                          onChange={(e) => settNyAlt(n.key, e.target.value)}
+                          aria-invalid={tom} aria-describedby={hjelpId}
+                          className={`${felt} mt-0.5 ${tom ? 'border-tlred' : ''}`}
+                          placeholder={t('rediger.altTekstPlassholder')} />
+                        <span id={hjelpId} className="block text-gray-400 mt-0.5">{t('rediger.bildeAltHjelp')}</span>
+                      </label>
+                      <button type="button" onClick={() => fjernNyttBilde(n.key)}
+                        className="text-xs text-orange-ink hover:underline shrink-0 mt-1">{t('rediger.fjernBilde')}</button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Legg til bilde — synlig label rundt en skjult, men tastaturfokuserbar filvelger */}
+            <div className="mt-3 flex items-center gap-3 flex-wrap">
+              <label className="inline-flex items-center gap-2 text-sm text-petrol border border-petrol rounded-full px-4 py-2 cursor-pointer hover:bg-petrol hover:text-white transition focus-within:ring-2 focus-within:ring-petrol">
+                <span aria-hidden="true">＋</span> {t('rediger.leggTilBilde')}
+                <input type="file" accept="image/jpeg,image/png,image/webp"
+                  onChange={velgBilde} disabled={bildeLaster} className="sr-only" />
+              </label>
+              {bildeLaster && <span className="text-sm text-gray-500">{t('rediger.bildeLasterOpp')}</span>}
             </div>
-          )}
+            {bildeFeil && <p role="alert" className="text-sm text-tlred mt-2">{bildeFeil}</p>}
+          </div>
 
           {/* Aktiv læring: fag (redigerbart) + kompetansemål (LESBAR liste — bekreft/avvis går via køen). */}
           {erAktivLaering && (

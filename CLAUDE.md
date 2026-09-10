@@ -104,8 +104,25 @@ Kjartan bekreftet Calibri + petrol, uendret.)*
 - Mac-mappa ~/trivselsleder-ny/ er autoritativ for CLAUDE.md og STATUS.md. Det finnes
   INGEN auto-synk til claude.ai-prosjektet — Cowork gjør ALLTID begge steg: skriv fila til
   ~/trivselsleder-ny/ OG kjør eksplisitt project_write, og bevis Mac-steget med `ls`.
+- **IMPORT-MARKØREN MÅ ALDRI FINNES I PROD** (fra Fables rev 3-kontroll, 6. sep 2026).
+  Importsperren avgjør om en base er øvingskopien ved å lese `public.import_kopi_identitet`.
+  En full gjenoppretting av øvingskopien INN i prod ville tatt markøren med seg — og da ville
+  sperren tro at prod er øvingskopien. Etter ENHVER restore, gjenoppretting eller kloning:
+  verifiser at `import_kopi_identitet` er FRAVÆRENDE i prod (`zpirjbrcbeubwpmtncxx`).
 
 ## Lærdommer (snublesteiner vi har løst)
+- **«KOPIER FRA MIGRASJON N» ER UTRYGT** (fra migrasjon 104, 6. sep 2026). Sjekk ALLTID om
+  objektet er skrevet om av en SENERE migrasjon før du kopierer en definisjon derfra. 104
+  kopierte `fase3_logg_endring()` fra migrasjon 027, men 032 hadde i mellomtiden skrevet den
+  om med `set search_path = public, pg_temp` — en SECURITY DEFINER-herding. En
+  `create or replace` uten den klausulen fjerner herdingen STILLE fra funksjonen, ingen
+  feilmelding. Migrasjonsporten kan ikke fange dette: den sammenligner to friske bygg som
+  BEGGE er etter endringen, så begge mangler herdingen likt — ingen forskjell å oppdage.
+  Kontrollen fanget det ved å måle `proconfig` FØR og ETTER migrasjonen mot en EKTE base (ikke
+  bare to bygg mot hverandre). Regel: når du kopierer en funksjons-/objektdefinisjon fra en
+  eldre migrasjon, sjekk om noen migrasjon MELLOM den og i dag har endret samme objekt — og
+  hvis den kjørende basen allerede har objektet, mål dens EKTE definisjon (`pg_get_functiondef`
+  / `proconfig` / tilsvarende) og bygg videre på DEN, ikke på filens historiske tekst.
 - Supabase RLS: nye tabeller trenger BÅDE policyer OG `ENABLE ROW LEVEL SECURITY`.
 - Supabase GRANT: anon + authenticated trenger eksplisitt GRANT SELECT på nye tabeller,
   ellers 403 selv med korrekte RLS-policyer.
@@ -188,12 +205,72 @@ Kjartan bekreftet Calibri + petrol, uendret.)*
   profiles-policyer som hadde driftet, tu_kjonn_pinned (personvernhullet over), og 102
   rettighetsavvik der ~70 tabeller hadde anon-tilgang prod hadde stengt. Hver ville gjort en
   gjenoppbygging fra bunnen feil — og noen ville gjort den farlig (åpen der prod var lukket).
+- Migrasjonsnumre tildeles når fila BYGGES, aldri på forhånd. Et reservert nummer som ikke
+  finnes som fil er et hull, og migrasjonskjøreren stopper på hull — det blokkerer
+  gjenoppbygging for ALT videre arbeid, ikke bare den ene filen. Oppdaget 4. sep: 102 var
+  reservert til læreplankode→fag mens slettemigrasjonen fikk 103; porten meldte FEILET: hull i
+  nummerrekken: 102. Fanget av porten før kjøring i prod.
 - Et tomt resultat er IKKE bevis på feil — det kan bety at målingen er feil satt opp. Spør alltid
   først: «ville denne målingen vist noe, hvis alt var i orden?». 3. sep ga tre falske alarmer:
   «Move It»-filteret så dødt ut, men frontend og base matchet allerede — migrasjonen ville
   ØDELAGT det, ikke rettet det; TU-loggingen så tom ut fordi ingen hadde åpnet rapporten siden
   funksjonen ble bygget; søkeloggingen fordi spørringen ble kjørt før innsettingen rakk å skje.
   En påstand om at noe er galt krever samme bevis som en påstand om at det virker.
+- STOPP OG SPØR HVA MÅLET ER. Før neste byggeoppdrag: hva prøver vi å oppnå, og hvor strengt
+  må det være for DETTE formålet? Kommer samme feilklasse tilbake to ganger, er designet
+  feil — bytt tilnærming, ikke lapp hullet. 5. sep: importsperren tok fire runder fordi
+  kontrollen ble bedt om å oppfinne nye angrep i stedet for å verifisere en spesifisert
+  egenskap.
+- RISIKOPROFILEN ER LAV UTENOM TRIVSELSUNDERSØKELSEN. Leker, TL-hjul, periodeplaner og
+  lærerkontaktinfo er ikke sensitive — det siste ligger allerede åpent på kommunenes sider.
+  TU er det eneste som krever streng behandling, og den er ferdig gjennomgått med jurist.
+  Alt annet måles på om det VIRKER: få bugs, tåler mange brukere, henger riktig sammen. Ikke
+  behandle en sikkerhetssele som om den skal stoppe en angriper.
+- EN SUKSESSMELDING FRA SKRIVING ER IKKE BEVIS. Les tilbake og sjekk størrelse eller md5.
+  5. sep: to skriveforsøk meldte suksess mens fila på Mac fortsatt var den gamle. Retry med
+  force løste det.
+- **SPEILING SKANNER PÅ MTIME, ALDRI PÅ BYGGERENS OPPRAMSING** (utvidet 8. september 2026).
+  Mønsteret har nå gjentatt seg SEKS ganger. Tidligere (5. sep): test-vakter.mjs, en
+  fagmapping-CSV, og et avvik i filtellingen. Deretter: test-107-r1.mjs. 8. sep, sjette
+  gang: speilingen fant `_kontroll-import/test-e1.mjs`, som Code ikke hadde nevnt. Det er
+  ikke lenger tilfeldig — en bygger som har jobbet lenge glemmer systematisk sine egne
+  hjelpefiler. Speilingen skal ALLTID melde eksplisitt begge veier: fant den mer enn
+  byggeren nevnte, eller var bildet rent.
+- KONTROLLRAPPORTER FOR SKRIVELAGET fjernes fra prosjektkunnskapen når passet er BESTÅTT og
+  det ikke står åpne funn. Dommen står i STATUS, fila står på Mac-en. Samme mønster som
+  migrasjonsregelen, men med annen utløser.
+
+- **PROSJEKTKAPASITET SJEKKES FØR EN ØKT BEGYNNER Å SKRIVE** (fra 7. sep 2026) — ikke når
+  `project_write` avvises. 7. sep sto prosjektet på ~97,5 % og STATUS.md kunne ikke speiles;
+  Mac og prosjekt sto ett hakk fra hverandre — nøyaktig det lagringsregelen finnes for å
+  hindre. Samme sak 4. sep på 95 %. FAST TERSKEL: over **90 %** ryddes det FØR nytt arbeid
+  starter, etter de eksisterende reglene (kontroll- og leveransenotater for migrasjoner
+  kjørt og verifisert i prod; kontrollrapporter for skrivelag-pass som er BESTÅTT uten åpne
+  funn). Fila blir ALLTID liggende på Mac-en — kun prosjekt-kopien fjernes. Rydding skal
+  ALDRI skje under tidspress midt i et oppdrag.
+
+- **TO-STEGSREGELEN BLE IKKE FULGT FØR 26. AUGUST** (fra 7. sep 2026). 7. sep ble 15 filer
+  funnet som fantes KUN i claude.ai-prosjektet, uten kopi på Mac — blant dem kjøringsbevis
+  for Trivselsundersøkelsen (TU-byggetrinn1-KJORT-16aug, TU-byggetrinn2-045-KJORT-17aug).
+  Prosjektkunnskapen er ikke sikkerhetskopiert noe sted, så prosjektet var eneste kopi. Alle
+  15 er nå kopiert ned til Mac med md5-bevis begge veier. Følgen for ryddereglene: FØR en
+  fil slettes fra prosjektet skal det være BEVIST at den finnes på Mac (ls + bytestørrelse)
+  — ikke antatt fordi den «burde» være der etter to-stegsregelen. Regelen gjaldt ikke i
+  august, og filer fra den perioden kan mangle. Cowork skal liste slike som usikre i stedet
+  for å slette dem.
+
+- **EN FABLE-ØKT KAN SKRIVE TIL PROSJEKTET, MEN IKKE TIL MAC** (fra 8. september 2026).
+  To-stegsregelen er formulert som «Cowork gjør begge steg», og har aldri sagt noe om hva
+  som skjer når en ANNEN økttype lagrer noe. Fable-økter har `project_write`, men ingen
+  tilgang til Mac-en. Skjedde to ganger 8. sep: `claude_KONTROLL-fable-D2-REKONTROLL-8sep.md`
+  og `claude_KARTLEGGING-search-path-8sep.md` fantes kun i prosjektet. Prosjektkunnskapen er
+  ikke sikkerhetskopiert noe sted, så prosjektet var eneste kopi — samme klasse som de 15
+  filene funnet 7. sep. REGELEN: enhver fil en økt lagrer der den bare når ett av de to
+  lagrene, må en Cowork-økt hente ned til det andre SAMME DAG. Fable-oppdrag skal be om at rapporten skrives til PROSJEKTET med project_write, og at
+  økta sier eksplisitt fra i chatten når den har gjort det. Rapporten skal ALDRI limes inn
+  i chatten for manuell kopiering — Kjartan skal ikke være mellomledd mellom økter.
+  (Rettet 9. september 2026.)
+  FAST SJEKK VED DAGENS SLUTT: list alt i prosjektet med dagens dato og kryss mot Mac.
 
 ## Standard arbeidsflyt for endringer
 1. Kjør SQL-migrasjon i Supabase SQL editor (hvis databaseendring)
