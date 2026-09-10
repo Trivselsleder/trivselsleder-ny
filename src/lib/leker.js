@@ -27,6 +27,7 @@ const VELG = `
   id, sted, antall_min, antall_maks, kan_ledes_av_elever, redaksjonell_rating, ressurstype, status, endret_at,
   ressurs_innhold ( sprak, tittel, formaal, beskrivelse, forberedelse, inndeling, utgangsposisjon, kronologi, regler, variasjoner, instruktoernotat, antall_raatekst ),
   ressurs_egnet ( egnet_kategori ( navn ) ),
+  ressurs_kategori ( kategorier ( navn ) ),
   ressurs_trinn ( trinn ( kode, navn, land ) ),
   ressurs_utstyr ( utstyr ( navn ) ),
   ressurs_sesong ( sesong ( navn ) ),
@@ -95,6 +96,7 @@ export function formLek(rad) {
     status: rad.status,          // D3: redigeringsflaten trenger status + endringsstempel (lås)
     endretAt: rad.endret_at,     // rå streng fra basen — sendes UENDRET som lås-token (funn 4b)
     egnet: (rad.ressurs_egnet || []).map((x) => x.egnet_kategori?.navn).filter(Boolean),
+    kategorier: (rad.ressurs_kategori || []).map((x) => x.kategorier?.navn).filter(Boolean),
     trinn: (rad.ressurs_trinn || []).map((x) => x.trinn).filter(Boolean),
     utstyr,
     sesong: (rad.ressurs_sesong || []).map((x) => x.sesong?.navn).filter(Boolean),

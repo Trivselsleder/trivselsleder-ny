@@ -253,7 +253,7 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
 
   // Forhåndsvisning: bygg en formLek-formet struktur fra visLek (trinn/utstyr/egnet/sesong/video) +
   // gjeldende innhold/meta, og gjenbruk LekVisning — samme som lekesiden.
-  const previewLek = { ...visLek, tittel: innhold.tittel, tekst: { ...innhold, sprak: aktivtSprak }, sted: meta.sted, antallMin: meta.antall_min, antallMaks: meta.antall_maks }
+  const previewLek = { ...visLek, tittel: innhold.tittel || t('rediger.utenTittel'), tekst: { ...innhold, sprak: aktivtSprak }, sted: meta.sted, antallMin: meta.antall_min, antallMaks: meta.antall_maks }
 
   return (
     <div className="border border-petrol/30 rounded-2xl p-5 bg-petrol/5">
@@ -291,7 +291,7 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
 
       {forhandsvis ? (
         <div className="mt-4 bg-white rounded-xl p-4 border border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">{innhold.tittel || t('rediger.utenTittel')}</h1>
+          {/* LekVisning viser nå tittelen selv (h1). Forhåndsvisningen sender ingen `handlinger`. */}
           <LekVisning lek={previewLek} />
         </div>
       ) : (

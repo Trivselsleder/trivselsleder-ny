@@ -118,70 +118,78 @@ export default function SkoleLek() {
       </div>
     )
 
+  const kategori = lek.kategorier?.[0] || null
+
+  // Handlingene fra dagens side (periodeplan, TL-hjul, PDF, favoritt) — nå ved tittelen.
+  // Nedtrekkene (velg plan / velg hjul) åpnes som popover under knapperaden.
+  const handlinger = (
+    <div className="relative">
+      <div className="flex flex-wrap gap-2 md:justify-end">
+        <button onClick={() => setAapen(aapen === 'plan' ? null : 'plan')} aria-expanded={aapen === 'plan'}
+          className="bg-orange text-gray-900 text-sm font-semibold px-4 py-2 rounded-full hover:bg-orange/90 transition">
+          Legg i periodeplan
+        </button>
+        <button onClick={() => setAapen(aapen === 'hjul' ? null : 'hjul')} aria-expanded={aapen === 'hjul'}
+          aria-label="Legg til i TL-hjul"
+          className="border border-petrol text-petrol text-sm font-medium px-4 py-2 rounded-full hover:bg-petrol hover:text-white transition">
+          TL-hjul
+        </button>
+        <button onClick={() => skrivUtLek(lek)} aria-label="Last ned leken som PDF"
+          className="border border-petrol text-petrol text-sm font-medium px-4 py-2 rounded-full hover:bg-petrol hover:text-white transition">
+          PDF
+        </button>
+        <button onClick={toggleFav} aria-pressed={fav}
+          aria-label={fav ? 'Fjern favoritt' : 'Legg til favoritt'}
+          className={`border border-petrol rounded-full w-10 h-10 flex items-center justify-center text-lg leading-none transition hover:bg-petrol/10 ${fav ? 'text-tlred' : 'text-petrol'}`}>
+          <span aria-hidden="true">{fav ? '♥' : '♡'}</span>
+        </button>
+      </div>
+      {melding && <p className="text-sm text-petrol mt-2 md:text-right">{melding}</p>}
+
+      {aapen === 'plan' && (
+        <div className="absolute left-0 right-0 md:left-auto md:right-0 mt-2 w-full md:w-72 z-20 bg-white border border-gray-200 rounded-xl shadow-lg p-3">
+          <p className="text-xs text-gray-500 mb-2">Velg periodeplan</p>
+          {planer.length === 0 ? (
+            <p className="text-sm text-gray-500">Du har ingen planer ennå. <Link to="/min-side/periodeplaner" className="text-orange-ink">Lag en plan →</Link></p>
+          ) : (
+            <div className="flex flex-col">
+              {planer.map((p) => (
+                <button key={p.id} onClick={() => leggIPlan(p)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
+                  {p.navn} <span className="text-gray-500">· {p.rader.length} leker</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {aapen === 'hjul' && (
+        <div className="absolute left-0 right-0 md:left-auto md:right-0 mt-2 w-full md:w-72 z-20 bg-white border border-gray-200 rounded-xl shadow-lg p-3">
+          <p className="text-xs text-gray-500 mb-2">Velg TL-hjul</p>
+          {hjul.length === 0 ? (
+            <p className="text-sm text-gray-500">Du har ingen hjul ennå. <Link to="/min-side/tl-hjulet" className="text-orange-ink">Lag et hjul →</Link></p>
+          ) : (
+            <div className="flex flex-col">
+              {hjul.map((h) => (
+                <button key={h.id} onClick={() => leggPaaHjul(h)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
+                  {h.navn} <span className="text-gray-500">· {h.leker.length} leker</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      <Link to="/min-side/aktiviteter" className="text-sm text-orange-ink">← Tilbake til Finn en lek</Link>
+      <nav className="text-sm" aria-label="Brødsmulesti">
+        <Link to="/min-side/aktiviteter" className="text-orange-ink hover:underline">Finn en lek</Link>
+        {kategori && <span className="text-gray-500"> <span aria-hidden="true">›</span> <span className="text-gray-700">{kategori}</span></span>}
+      </nav>
 
-      <div className="flex items-start justify-between gap-3 mt-2">
-        <h1 className="text-3xl font-bold text-gray-900">{lek.tittel}</h1>
-        <button
-          onClick={toggleFav}
-          aria-label={fav ? 'Fjern favoritt' : 'Legg til favoritt'}
-          title={fav ? 'Fjern favoritt' : 'Legg til favoritt'}
-          className={`shrink-0 text-2xl leading-none mt-1 transition ${fav ? 'text-tlred' : 'text-gray-300 hover:text-tlred'}`}
-        >
-          {fav ? '♥' : '♡'}
-        </button>
-      </div>
-
-      {/* Legg til – fullbredde, som dagens side */}
-      <div className="mt-4 space-y-2">
-        <button onClick={() => setAapen(aapen === 'plan' ? null : 'plan')}
-          className="w-full bg-petrol text-white font-semibold py-3 rounded-xl hover:bg-petrol/90 transition">
-          Legg til i periodeplan
-        </button>
-        <button onClick={() => setAapen(aapen === 'hjul' ? null : 'hjul')}
-          className="w-full bg-petrol text-white font-semibold py-3 rounded-xl hover:bg-petrol/90 transition">
-          Legg til i TL-hjul
-        </button>
-        {melding && <p className="text-sm text-petrol">{melding}</p>}
-
-        {aapen === 'plan' && (
-          <div className="border border-gray-200 rounded-xl p-3">
-            <p className="text-xs text-gray-500 mb-2">Velg periodeplan</p>
-            {planer.length === 0 ? (
-              <p className="text-sm text-gray-500">Du har ingen planer ennå. <Link to="/min-side/periodeplaner" className="text-orange-ink">Lag en plan →</Link></p>
-            ) : (
-              <div className="flex flex-col">
-                {planer.map((p) => (
-                  <button key={p.id} onClick={() => leggIPlan(p)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
-                    {p.navn} <span className="text-gray-500">· {p.rader.length} leker</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-        {aapen === 'hjul' && (
-          <div className="border border-gray-200 rounded-xl p-3">
-            <p className="text-xs text-gray-500 mb-2">Velg TL-hjul</p>
-            {hjul.length === 0 ? (
-              <p className="text-sm text-gray-500">Du har ingen hjul ennå. <Link to="/min-side/tl-hjulet" className="text-orange-ink">Lag et hjul →</Link></p>
-            ) : (
-              <div className="flex flex-col">
-                {hjul.map((h) => (
-                  <button key={h.id} onClick={() => leggPaaHjul(h)} className="text-left text-sm px-2 py-2 rounded-lg hover:bg-orange/5">
-                    {h.navn} <span className="text-gray-500">· {h.leker.length} leker</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="mt-4">
-        <LekVisning lek={lek} />
+      <div className="mt-3">
+        <LekVisning lek={lek} handlinger={handlinger} />
       </div>
 
       {dok.length > 0 && (
@@ -193,30 +201,21 @@ export default function SkoleLek() {
         </div>
       )}
 
-      {/* PDF-versjon + rediger */}
-      <div className="mt-8 bg-gray-50 rounded-2xl p-5 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl" aria-hidden>📄</span>
-          <div>
-            <p className="font-bold text-gray-900">PDF-versjon</p>
-            <button onClick={() => skrivUtLek(lek)} className="text-sm text-orange-ink hover:underline">Last ned som PDF</button>
-          </div>
+      {/* Status + rediger (kun interne) — beholdt der de er */}
+      {intern && (
+        <div className="mt-8 flex items-center gap-2 flex-wrap">
+          {lek.status && lek.status !== 'publisert' && (
+            <span className="text-xs font-semibold uppercase tracking-wide text-orange-ink bg-orange/10 px-2 py-1 rounded-full">{lek.status}</span>
+          )}
+          <button onClick={bytStatus} disabled={statusJobb}
+            className="text-sm border border-petrol text-petrol px-4 py-2 rounded-full hover:bg-petrol hover:text-white transition disabled:opacity-50">
+            {lek.status === 'publisert' ? 'Avpubliser' : 'Publiser'}
+          </button>
+          <button onClick={() => setRediger(true)} className="text-sm bg-petrol text-white px-4 py-2 rounded-full hover:bg-petrol/90 transition">
+            Rediger lek
+          </button>
         </div>
-        {intern && (
-          <div className="flex items-center gap-2 shrink-0">
-            {lek.status && lek.status !== 'publisert' && (
-              <span className="text-xs font-semibold uppercase tracking-wide text-orange-ink bg-orange/10 px-2 py-1 rounded-full">{lek.status}</span>
-            )}
-            <button onClick={bytStatus} disabled={statusJobb}
-              className="text-sm border border-petrol text-petrol px-4 py-2 rounded-full hover:bg-petrol hover:text-white transition disabled:opacity-50">
-              {lek.status === 'publisert' ? 'Avpubliser' : 'Publiser'}
-            </button>
-            <button onClick={() => setRediger(true)} className="text-sm bg-petrol text-white px-4 py-2 rounded-full hover:bg-petrol/90 transition">
-              Rediger lek
-            </button>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   )
 }

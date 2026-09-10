@@ -81,6 +81,85 @@ function konverterNode(node, nyKey) {
   return innhold
 }
 
+// ── Eksport C: skill ut «Antall:/Utstyr:/tips»-metablokken fra FØRSTE avsnitt ──
+// Ren funksjon som TOLKER beskrivelsen for lekesidens faktaboks/tips-felt. Den rører
+// ALDRI dataene i basen og endrer ALDRI redigeringsflaten (BeskrivelseEditor viser fortsatt
+// HELE teksten). Returnerer { antallTekst, utstyrTekst, tips: [], restHtml }.
+//
+// Splitter KUN når HELE det første <p>-avsnittet består av linjer (skilt med <br>) som hver
+// er ÉN av tre typer:
+//   • fet «Antall:» …   → antallTekst (teksten etter kolon, trimmet)
+//   • fet «Utstyr:» …   → utstyrTekst
+//   • en HELT fet linje → tips[]
+// OG minst én linje er «Antall:» eller «Utstyr:». En helt fet linje ALENE (uten en
+// Antall/Utstyr-linje i samme avsnitt) er en mellomoverskrift, ikke et tips — da urørt.
+// Er én linje noe annet (vanlig tekst, halvt fet), regnes avsnittet som brødtekst og ALT
+// returneres urørt i restHtml. Ren tekst uten tagger: urørt.
+export function splittMetaBlokk(html) {
+  const urort = { antallTekst: null, utstyrTekst: null, tips: [], restHtml: html }
+  if (html == null || !String(html).trim()) return urort
+  const body = parseKropp(html)
+  if (!body || !body.querySelector('*')) return urort // ren tekst / tomt → urørt
+
+  // Første ELEMENT-barn må være et <p> (hopp over rene mellomrom-tekstnoder mellom tagger).
+  let forste = null
+  for (const c of body.childNodes) {
+    if (c.nodeType === 3 && !c.textContent.trim()) continue
+    forste = c
+    break
+  }
+  if (!forste || forste.nodeType !== 1 || forste.tagName.toLowerCase() !== 'p') return urort
+
+  let antallTekst = null
+  let utstyrTekst = null
+  let harLabel = false // minst én «Antall:»/«Utstyr:»-linje kreves for å splitte
+  const tips = []
+  for (const seg of delILinjer(forste)) {
+    const linje = klassifiserMetalinje(seg)
+    if (!linje) return urort // en linje matcher ikke regelen → alt urørt
+    if (linje.type === 'tom') continue
+    if (linje.type === 'antall') { harLabel = true; if (antallTekst === null) antallTekst = linje.verdi }
+    else if (linje.type === 'utstyr') { harLabel = true; if (utstyrTekst === null) utstyrTekst = linje.verdi }
+    else if (linje.type === 'tips') tips.push(linje.verdi)
+  }
+  // Uten en Antall/Utstyr-linje er en helt fet linje en mellomoverskrift → la avsnittet stå.
+  if (!harLabel) return urort
+  // Avsnittet oppfylte regelen → fjern det, resten blir brødteksten under «Om leken».
+  forste.remove()
+  return { antallTekst, utstyrTekst, tips, restHtml: body.innerHTML }
+}
+
+// Del et <p> i linjer ved <br>. Returnerer en liste av node-lister (én per linje).
+function delILinjer(p) {
+  const segs = [[]]
+  p.childNodes.forEach((c) => {
+    if (c.nodeType === 1 && c.tagName.toLowerCase() === 'br') segs.push([])
+    else segs[segs.length - 1].push(c)
+  })
+  return segs
+}
+
+const erFet = (n) => n && n.nodeType === 1 && (n.tagName.toLowerCase() === 'strong' || n.tagName.toLowerCase() === 'b')
+const kollaps = (s) => s.replace(/\s+/g, ' ').trim()
+
+// Klassifiser én linje (node-liste). null = matcher ikke metablokk-regelen.
+function klassifiserMetalinje(seg) {
+  const nodes = seg.filter((n) => !(n.nodeType === 3 && !n.textContent.trim()))
+  if (!nodes.map((n) => n.textContent).join('').trim()) return { type: 'tom' }
+  const forst = nodes[0]
+  if (!erFet(forst)) return null // linja starter ikke med fet tekst → ikke en metalinje
+  const fetTekst = forst.textContent
+  const m = /^\s*(antall|utstyr)\s*:/i.exec(fetTekst)
+  if (m) {
+    const etterKolon = fetTekst.slice(fetTekst.indexOf(':') + 1)
+    const resten = nodes.slice(1).map((n) => n.textContent).join('')
+    return { type: m[1].toLowerCase(), verdi: kollaps(etterKolon + resten) }
+  }
+  // Ikke en label. Kun gyldig hvis HELE linja er det ene fete elementet (helt fet linje → tips).
+  if (nodes.length === 1) return { type: 'tips', verdi: kollaps(forst.textContent) }
+  return null
+}
+
 // ── Eksport B: enkle blokker (PDF) ──────────────────────────────────────────
 export function beskrivelseTilBlokker(tekst) {
   const body = parseKropp(tekst)
