@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { lagreRessurs, hentRessursForRedigering, hentFagValg } from '../lib/leker'
 import { supabase } from '../lib/supabase'
 import LekVisning from './LekVisning'
+import LekVideoRedigering from './LekVideoRedigering'
 
 // TipTap lastes i egen chunk KUN når redigeringsflaten faktisk vises (krav 4) —
 // lekesiden og lekebiblioteket henter den aldri.
@@ -104,6 +105,10 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
   })
   // Bilder: eksisterende bilder (alt-tekst + fjern) og nye opplastede (migr 108/109).
   const bilder = useMemo(() => data.medier.filter((m) => m.type === 'bilde'), [data])
+  // Video: én per lek (målt 1:1). Egen seksjon under bildene, egen lagring (medier-rad + Bunny).
+  const eksisterendeVideo = useMemo(() => data.medier.find((m) => m.type === 'video') || null, [data])
+  const videoTittel = (data.innholdPerSprak.find((r) => r.sprak === 'nb') || data.innholdPerSprak[0] || {}).tittel
+    || visLek.tittel || 'Uten tittel'
   const [altTekst, setAltTekst] = useState(() => Object.fromEntries(bilder.map((b) => [b.id, b.alt_tekst || ''])))
   const [nyeBilder, setNyeBilder] = useState([])       // {key, sti, storage_sti, original_filnavn, alt_tekst}
   const [fjernet, setFjernet] = useState(() => new Set()) // id-er på eksisterende bilder som skal fjernes
@@ -430,6 +435,15 @@ function Skjema({ visLek, data, fagValg, etterLagring, onAvbryt }) {
             </div>
             {bildeFeil && <p role="alert" className="text-sm text-tlred mt-2">{bildeFeil}</p>}
           </div>
+
+          {/* Video (egen seksjon, egen lagring): last opp direkte til Bunny, én video per lek. */}
+          <LekVideoRedigering
+            ressursId={data.id}
+            token={data.endretAt}
+            video={eksisterendeVideo}
+            tittel={videoTittel}
+            etterEndring={etterLagring}
+          />
 
           {/* Aktiv læring: fag (redigerbart) + kompetansemål (LESBAR liste — bekreft/avvis går via køen). */}
           {erAktivLaering && (
