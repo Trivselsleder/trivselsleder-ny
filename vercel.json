@@ -37,6 +37,10 @@
     {
       "path": "/api/brukslogg/cron-anonymiser?torrkjoring=false",
       "schedule": "0 1-2 * * *"
+    },
+    {
+      "path": "/api/papirkurv/cron-slett?torrkjoring=false",
+      "schedule": "0 1-2 * * *"
     }
   ]
 }

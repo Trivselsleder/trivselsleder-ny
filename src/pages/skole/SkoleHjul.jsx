@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { hentHjulEn, settHjulSegmenter, oppdaterHjul, arkiverHjul, kopierHjul, hentKategorier, opprettKategori } from '../../lib/hjul'
+import { hentHjulEn, settHjulSegmenter, oppdaterHjul, flyttTilPapirkurv, kopierHjul, hentKategorier, opprettKategori } from '../../lib/hjul'
 import Lykkehjul from '../../components/Lykkehjul'
 import KakestykkeVelger from '../../components/KakestykkeVelger'
 import HjulKategori from '../../components/HjulKategori'
+import BekreftDialog from '../../components/BekreftDialog'
 
 export default function SkoleHjul() {
   const { id } = useParams()
@@ -19,6 +20,7 @@ export default function SkoleHjul() {
   const [kategorier, setKategorier] = useState([])
   const [valgte, setValgte] = useState([]) // {kind,id?,tittel,key}
   const [lagrer, setLagrer] = useState(false)
+  const [slettApen, setSlettApen] = useState(false)
   const friTeller = useRef(0)
 
   function segmenterFraHjul(h) {
@@ -91,8 +93,9 @@ export default function SkoleHjul() {
     } catch (e) { setFeil(e.message) }
   }
 
-  async function arkiver() {
-    try { await arkiverHjul(id); navigate('/min-side/tl-hjulet') } catch (e) { setFeil(e.message) }
+  async function slett() {
+    setSlettApen(false)
+    try { await flyttTilPapirkurv(id); navigate('/min-side/tl-hjulet') } catch (e) { setFeil(e.message) }
   }
 
   if (laster) return <div className="max-w-3xl mx-auto px-4 text-gray-400">Laster …</div>
@@ -158,7 +161,7 @@ export default function SkoleHjul() {
                 {lagrer ? 'Lagrer …' : 'Lagre'}
               </button>
               <button onClick={() => { setRediger(false); last() }} className="text-gray-500 hover:text-gray-700 px-4">Avbryt</button>
-              <button onClick={arkiver} className="ml-auto text-sm text-gray-400 hover:text-red-500">Arkiver hjul</button>
+              <button onClick={() => setSlettApen(true)} className="ml-auto text-sm text-gray-400 hover:text-red-700">Slett hjul</button>
             </div>
           </div>
 
@@ -168,6 +171,15 @@ export default function SkoleHjul() {
           </div>
         </div>
       )}
+
+      <BekreftDialog
+        aapen={slettApen}
+        tittel="Slette hjulet?"
+        tekst="Hjulet flyttes til papirkurven og slettes for godt etter 30 dager. Du kan angre fram til da."
+        bekreftTekst="Slett"
+        onBekreft={slett}
+        onAvbryt={() => setSlettApen(false)}
+      />
     </div>
   )
 }

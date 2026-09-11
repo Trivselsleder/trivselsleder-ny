@@ -126,9 +126,44 @@ export async function settRekkefolge(rader) {
   )
 }
 
-export async function arkiverPlan(id) {
+// ---- Papirkurv (erstatter «arkiver»): slett med 30 dagers angrefrist ----
+// Flytt en plan til papirkurven (status='arkivert'). Trigger i basen (migr 115)
+// setter arkivert_at = now(); nattjobben sletter den for godt etter 30 dager.
+export async function flyttTilPapirkurv(id) {
   const { error } = await supabase.from('periodeplan').update({ status: 'arkivert' }).eq('id', id)
   if (error) throw error
+}
+// Bakoverkompatibelt alias (gammelt navn).
+export const arkiverPlan = flyttTilPapirkurv
+
+// Planene som ligger i papirkurven, nyeste slettet først.
+export async function hentPapirkurv() {
+  const { data, error } = await supabase
+    .from('periodeplan')
+    .select('id, navn, aar, arkivert_at')
+    .eq('status', 'arkivert')
+    .order('arkivert_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+// Ut av papirkurven igjen (status='aktiv'). Trigger nullstiller arkivert_at.
+export async function gjenopprett(id) {
+  const { error } = await supabase.from('periodeplan').update({ status: 'aktiv' }).eq('id', id)
+  if (error) throw error
+}
+
+// Slett for godt nå (uten å vente på nattjobben). Barna forsvinner via CASCADE.
+// Herding (Fable 10. sep): slett KUN en rad som ligger i papirkurven (status='arkivert'),
+// aldri en aktiv plan eller en feil id. .select() gir de slettede radene tilbake — 0 rader
+// betyr at ingenting matchet, og vi kaster en tydelig feil i stedet for en stille no-op.
+export async function slettForGodt(id) {
+  const { data, error } = await supabase
+    .from('periodeplan').delete().eq('id', id).eq('status', 'arkivert').select('id')
+  if (error) throw error
+  if (!data || data.length === 0) {
+    throw new Error('Fant ingen plan i papirkurven å slette — den er kanskje alt slettet eller gjenopprettet.')
+  }
 }
 
 // Kopier plan (til nytt semester/skoleår). Dupliserer oppsett + rader.

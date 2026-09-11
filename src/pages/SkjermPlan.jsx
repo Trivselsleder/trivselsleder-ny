@@ -31,7 +31,7 @@ export default function SkjermPlan() {
     hentDeltPlan(token)
       .then((data) => {
         if (!montert.current) return
-        if (!data) { if (!harPlan.current) setFeil('Fant ingen plan for denne lenken.'); return }
+        if (!data) { if (!harPlan.current) setFeil('Denne planen er slettet eller deles ikke lenger.'); return }
         harPlan.current = true
         setPlan(data); setFeil(null); setFrakoblet(false); setSistOppdatert(new Date())
       })

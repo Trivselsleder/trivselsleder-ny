@@ -3,8 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import QRCode from 'qrcode'
 import {
   hentPlanEn, oppdaterPlan, leggTilRad, settRadCeller, slettRad, settRekkefolge,
-  arkiverPlan, kopierPlan, smarteForslag, NIVAA, planNivaa,
+  flyttTilPapirkurv, kopierPlan, smarteForslag, NIVAA, planNivaa,
 } from '../../lib/periodeplan'
+import BekreftDialog from '../../components/BekreftDialog'
 import { hentLeker } from '../../lib/leker'
 import { hentDeltakere } from '../../lib/tlDeltaker'
 import { skrivUtPlan } from '../../lib/periodeplanPdf'
@@ -41,6 +42,7 @@ export default function SkolePeriodeplan() {
   const [minSkoleId, setMinSkoleId] = useState(null)
   const [valgtNabo, setValgtNabo] = useState(null) // { id, navn, kommune, ... } | null
   const [bibliotekApen, setBibliotekApen] = useState(true)
+  const [slettApen, setSlettApen] = useState(false)
   const meldingTimer = useRef(null)
 
   // Last plan ved id-bytte (setter laster + guarder mot ut-av-rekkefølge-svar).
@@ -186,10 +188,10 @@ export default function SkolePeriodeplan() {
     try { const nyId = await kopierPlan(id, `${plan.navn} (kopi)`); navigate(`/min-side/periodeplaner/${nyId}`) }
     catch (e) { visMelding('Kunne ikke kopiere: ' + e.message) }
   }
-  async function arkiver() {
-    if (!window.confirm('Arkivere planen? Delingslenka slutter å virke.')) return
-    try { await arkiverPlan(id); navigate('/min-side/periodeplaner') }
-    catch (e) { visMelding('Kunne ikke arkivere: ' + e.message) }
+  async function slett() {
+    setSlettApen(false)
+    try { await flyttTilPapirkurv(id); navigate('/min-side/periodeplaner') }
+    catch (e) { visMelding('Kunne ikke slette: ' + e.message) }
   }
   function skjermUrl() {
     return plan?.delingstoken ? `${window.location.origin}/skjerm/${plan.delingstoken}` : null
@@ -273,7 +275,7 @@ export default function SkolePeriodeplan() {
           <button onClick={aapneSkjerm} className={knapp}>📺 Vis på skjerm</button>
           <button onClick={() => skrivUtPlan(plan)} className="text-sm bg-orange text-gray-900 font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition whitespace-nowrap">🖨 Se arket</button>
           <button onClick={kopier} className={knapp}>Kopier</button>
-          <button onClick={arkiver} className="text-sm text-gray-500 hover:text-red-500 px-2" title="Arkiverer planen og trekker tilbake delingslenka">Arkiver</button>
+          <button onClick={() => setSlettApen(true)} className="text-sm text-gray-500 hover:text-red-700 px-2" title="Flytter planen til papirkurven; delingslenka slutter å virke">Slett</button>
         </div>
       </div>
 
@@ -435,6 +437,15 @@ export default function SkolePeriodeplan() {
           </div>
         </div>
       )}
+
+      <BekreftDialog
+        aapen={slettApen}
+        tittel="Slette planen?"
+        tekst="Planen flyttes til papirkurven og slettes for godt etter 30 dager. Du kan angre fram til da."
+        bekreftTekst="Slett"
+        onBekreft={slett}
+        onAvbryt={() => setSlettApen(false)}
+      />
     </div>
   )
 }

@@ -166,8 +166,47 @@ export async function giHjulNavn(hjulId, navn) {
   return oppdaterHjul(hjulId, { navn })
 }
 
-export async function arkiverHjul(hjulId) {
+// ---- Papirkurv (erstatter «arkiver»): slett med 30 dagers angrefrist ----
+// Flytt et hjul til papirkurven (status='arkivert'). Trigger i basen (migr 115)
+// setter arkivert_at = now(); nattjobben sletter det for godt etter 30 dager.
+export async function flyttTilPapirkurv(hjulId) {
   return oppdaterHjul(hjulId, { status: 'arkivert' })
+}
+// Bakoverkompatibelt alias (gammelt navn).
+export const arkiverHjul = flyttTilPapirkurv
+
+// Hjulene som ligger i papirkurven, nyeste slettet først.
+export async function hentPapirkurv() {
+  const { data, error } = await supabase
+    .from('tl_hjul')
+    .select('id, navn, arkivert_at, tl_hjul_kategori ( navn )')
+    .eq('status', 'arkivert')
+    .order('arkivert_at', { ascending: false })
+  if (error) throw error
+  return (data || []).map((h) => ({
+    id: h.id,
+    navn: h.navn,
+    arkivert_at: h.arkivert_at,
+    kategoriNavn: h.tl_hjul_kategori?.navn ?? null,
+  }))
+}
+
+// Ut av papirkurven igjen (status='aktiv'). Trigger nullstiller arkivert_at.
+export async function gjenopprett(hjulId) {
+  return oppdaterHjul(hjulId, { status: 'aktiv' })
+}
+
+// Slett for godt nå (uten å vente på nattjobben). Kakestykkene forsvinner via CASCADE.
+// Herding (Fable 10. sep): slett KUN et hjul som ligger i papirkurven (status='arkivert'),
+// aldri et aktivt hjul eller en feil id. .select() gir de slettede radene tilbake — 0 rader
+// betyr at ingenting matchet, og vi kaster en tydelig feil i stedet for en stille no-op.
+export async function slettForGodt(hjulId) {
+  const { data, error } = await supabase
+    .from('tl_hjul').delete().eq('id', hjulId).eq('status', 'arkivert').select('id')
+  if (error) throw error
+  if (!data || data.length === 0) {
+    throw new Error('Fant ingen hjul i papirkurven å slette — det er kanskje alt slettet eller gjenopprettet.')
+  }
 }
 
 // Kopier hjul (til nytt semester). Dupliserer oppsett + kakestykker (lek + fri).

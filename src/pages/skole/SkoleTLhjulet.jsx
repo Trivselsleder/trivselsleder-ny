@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { hentHjul, opprettHjul, kopierHjul, flyttHjul, hentKategorier, opprettKategori } from '../../lib/hjul'
+import { hentHjul, opprettHjul, kopierHjul, flyttHjul, hentKategorier, opprettKategori, hentPapirkurv, gjenopprett, slettForGodt } from '../../lib/hjul'
+import { slettesTekst } from '../../lib/papirkurv'
 import KakestykkeVelger from '../../components/KakestykkeVelger'
 import HjulKategori from '../../components/HjulKategori'
 import Lykkehjul from '../../components/Lykkehjul'
+import BekreftDialog from '../../components/BekreftDialog'
 
 export default function SkoleTLhjulet() {
   const [hjul, setHjul] = useState([])
+  const [papirkurv, setPapirkurv] = useState([])
+  const [visPapirkurv, setVisPapirkurv] = useState(false)
+  const [bekreft, setBekreft] = useState(null) // { hjul } — slett for godt nå
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
   const [nytt, setNytt] = useState(false)
@@ -23,7 +28,10 @@ export default function SkoleTLhjulet() {
 
   function last() {
     setLaster(true)
-    hentHjul().then(setHjul).catch((e) => setFeil(e.message)).finally(() => setLaster(false))
+    Promise.all([hentHjul(), hentPapirkurv()])
+      .then(([h, pk]) => { setHjul(h); setPapirkurv(pk) })
+      .catch((e) => setFeil(e.message))
+      .finally(() => setLaster(false))
   }
   useEffect(last, [])
   useEffect(() => { hentKategorier().then(setKategorier).catch(() => {}) }, [])
@@ -82,6 +90,15 @@ export default function SkoleTLhjulet() {
     try { await flyttHjul(sortert, h.id, retning); last() } catch (e) { setFeil(e.message) }
   }
 
+  async function gjenopprettHjul(h) {
+    try { await gjenopprett(h.id); last() } catch (e) { setFeil(e.message) }
+  }
+  async function slettForGodtNaa() {
+    const h = bekreft.hjul
+    setBekreft(null)
+    try { await slettForGodt(h.id); last() } catch (e) { setFeil(e.message) }
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between gap-4">
@@ -89,7 +106,7 @@ export default function SkoleTLhjulet() {
           <h1 className="text-2xl font-bold text-gray-900">TL-hjulet</h1>
           <p className="text-gray-500 text-sm mt-1">Lag hjul med leker eller fri tekst (klasseliste, trivselsutfordringer, personalet …) og la elevene snurre.</p>
         </div>
-        {!nytt && (
+        {!nytt && !visPapirkurv && (
           <button onClick={() => setNytt(true)} className="shrink-0 bg-orange text-gray-900 font-medium px-5 py-2.5 rounded-full hover:bg-orange/90 transition">+ Nytt hjul</button>
         )}
       </div>
@@ -134,20 +151,57 @@ export default function SkoleTLhjulet() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mt-8">
-        <h2 className="font-bold text-gray-900">Mine hjul</h2>
-        <label className="text-sm text-gray-500 flex items-center gap-2">Sorter:
-          <select value={sortering} onChange={(e) => setSortering(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-1 text-sm">
-            <option value="egen">Egen rekkefølge</option>
-            <option value="nyeste">Nyeste</option>
-            <option value="navn">Navn</option>
-          </select>
-        </label>
+      <div className="flex items-center justify-between mt-8 gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setVisPapirkurv(false)} aria-pressed={!visPapirkurv}
+            className={`font-bold ${visPapirkurv ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}>Mine hjul</button>
+          {papirkurv.length > 0 && (
+            <>
+              <span aria-hidden="true" className="text-gray-300">·</span>
+              <button onClick={() => setVisPapirkurv(true)} aria-pressed={visPapirkurv}
+                className={`font-bold ${visPapirkurv ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}>
+                Papirkurv ({papirkurv.length})
+              </button>
+            </>
+          )}
+        </div>
+        {!visPapirkurv && (
+          <label className="text-sm text-gray-500 flex items-center gap-2">Sorter:
+            <select value={sortering} onChange={(e) => setSortering(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-1 text-sm">
+              <option value="egen">Egen rekkefølge</option>
+              <option value="nyeste">Nyeste</option>
+              <option value="navn">Navn</option>
+            </select>
+          </label>
+        )}
       </div>
 
       {laster && <p className="text-gray-400 mt-4">Laster …</p>}
-      {!laster && sortert.length === 0 && <p className="text-gray-400 mt-4">Du har ingen hjul ennå. Trykk «+ Nytt hjul».</p>}
 
+      {!laster && visPapirkurv && (
+        <>
+          <p className="text-sm text-gray-500 mt-4">Slettede hjul ligger her i 30 dager før de fjernes for godt. Du kan gjenopprette dem fram til da.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {papirkurv.map((h) => (
+              <div key={h.id} className="bg-gray-50 rounded-2xl border border-gray-200 p-5">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-gray-900">{h.navn}</h3>
+                  {h.kategoriNavn && <span className="text-[11px] bg-petrol/10 text-petrol px-2 py-0.5 rounded-full">{h.kategoriNavn}</span>}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">{slettesTekst(h.arkivert_at)}</p>
+                <div className="flex gap-3 mt-3 pt-3 border-t border-gray-100">
+                  <button onClick={() => gjenopprettHjul(h)} className="text-xs text-petrol hover:underline">Gjenopprett</button>
+                  <button onClick={() => setBekreft({ hjul: h })} className="text-xs text-gray-400 hover:text-red-700 ml-auto">Slett for godt nå</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {!laster && !visPapirkurv && sortert.length === 0 && <p className="text-gray-400 mt-4">Du har ingen hjul ennå. Trykk «+ Nytt hjul».</p>}
+
+      {!visPapirkurv && (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {sortert.map((h, i) => (
           <div key={h.id} className="bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-5">
@@ -176,6 +230,16 @@ export default function SkoleTLhjulet() {
           </div>
         ))}
       </div>
+      )}
+
+      <BekreftDialog
+        aapen={!!bekreft}
+        tittel="Slett for godt?"
+        tekst="Dette kan ikke angres."
+        bekreftTekst="Slett for godt"
+        onBekreft={slettForGodtNaa}
+        onAvbryt={() => setBekreft(null)}
+      />
     </div>
   )
 }

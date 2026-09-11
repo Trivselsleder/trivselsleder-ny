@@ -298,6 +298,19 @@ Kjartan bekreftet Calibri + petrol, uendret.)*
   (TipTap, låst skjema). Aldri dangerouslySetInnerHTML. Beskrivelsen sendes kun ved faktisk
   endring.
 
+- **MAPPER I SUPABASE STORAGE ER BARE PREFIKS** (fra 10. september 2026). En «mappe» finnes kun så lenge
+  minst én fil ligger i den. redaksjon/ forsvant da testbildet ble slettet. Et oppdrag som sier «mappa
+  finnes» må si «opprett om den mangler».
+
+- **RLS-VARSEL I SQL-EDITOREN KAN VÆRE FALSK ALARM** (fra 10. september 2026). Supabase varsler om
+  tabeller uten RLS også når fila ikke lager tabeller (trolig select … into i DO-blokker). Sjekk fila
+  med grep etter create table før valg. Ingen tabell → «Run without RLS». Aldri «Run and enable RLS» på
+  en fil som ikke lager tabeller.
+
+- **ET DERIVAT KAN IKKE AVVISES PÅ BYTESTØRRELSE** (fra 10. september 2026). Et nedskalert bilde har
+  alltid annen størrelse enn originalen. Kun visuell kontroll avgjør om det er samme motiv. Og et søk som
+  gir null treff beviser ingenting før det er kalibrert mot filer man vet finnes.
+
 ## Standard arbeidsflyt for endringer
 1. Kjør SQL-migrasjon i Supabase SQL editor (hvis databaseendring)
 2. Endre kode (Claude Code bygger, stopper alltid før push så Kjartan ser diffen)

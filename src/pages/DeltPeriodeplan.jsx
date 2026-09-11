@@ -13,7 +13,7 @@ export default function DeltPeriodeplan() {
   useEffect(() => {
     hentDeltPlan(token)
       .then((data) => {
-        if (!data) { setFeil('Fant ingen plan for denne lenken.'); return }
+        if (!data) { setFeil('Denne planen er slettet eller deles ikke lenger.'); return }
         // tilpass RPC-formen til byggHtml (rader.lek for ikon/tittel)
         setPlan({
           navn: data.navn, aar: data.aar, uker: data.uker || [],
