@@ -42,6 +42,7 @@ import SkoleBestillinger from './pages/skole/SkoleBestillinger'
 import SkoleDokumenter from './pages/skole/SkoleDokumenter'
 import SkoleAktiviteter from './pages/skole/SkoleAktiviteter'
 import SkoleLek from './pages/skole/SkoleLek'
+import SkoleSamling from './pages/skole/SkoleSamling'
 import SkoleMoveIt from './pages/skole/SkoleMoveIt'
 import SkoleAktivLaering from './pages/skole/SkoleAktivLaering'
 import SkoleUtkast from './pages/skole/SkoleUtkast'
@@ -111,6 +112,7 @@ export default function App() {
                 <Route path="dokumenter" element={<SkoleDokumenter />} />
                 <Route path="aktiviteter" element={<SkoleAktiviteter />} />
                 <Route path="aktiviteter/:id" element={<SkoleLek />} />
+                <Route path="samlinger/:id" element={<SkoleSamling />} />
                 <Route path="move-it" element={<SkoleMoveIt />} />
                 <Route path="aktiv-laering" element={<SkoleAktivLaering />} />
                 <Route path="periodeplaner" element={<SkolePeriodeplaner />} />

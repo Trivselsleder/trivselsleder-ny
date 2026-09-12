@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import { hentAktivLaering, hentFagListe, hentTrinnListe, TRINN_NO } from '../../lib/leker'
+import { useLocation, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { hentAktivLaering, hentFagListe, hentTrinnListe, hentDokumentsideData, TRINN_NO } from '../../lib/leker'
 import { hentMineFavoritter } from '../../lib/favoritter'
+import { lagKlassifikator, grupperUnderRot, ROT_AKTIV_LAERING } from '../../lib/dokumentTre'
 import LekeKort from '../../components/LekeKort'
+import DokumentKort from '../../components/DokumentKort'
 
 // Kanonisk FALLBACK-fagliste (LK20). Etappe 7 D1: fag hentes nå fra basen (hentFagListe) og
 // overskriver denne ved sidelast; den beholdes som umiddelbar visning + trygt fall om lesingen
@@ -14,6 +17,10 @@ const FAG = [
 ]
 
 export default function SkoleAktivLaering() {
+  const { t } = useTranslation()
+  const [params, setParams] = useSearchParams()
+  const vis = params.get('vis') === 'materiell' ? 'materiell' : 'opplegg'
+
   const [alle, setAlle] = useState([])
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
@@ -25,6 +32,10 @@ export default function SkoleAktivLaering() {
   // Datadrevet fag + trinn (etappe 7 D1) — init med kanonisk fallback, overskrives av basen.
   const [fagBase, setFagBase] = useState(FAG)
   const [trinnBase, setTrinnBase] = useState(TRINN_NO)
+  // Materiell-visningen (frittstående Aktiv læring-dokumenter under kilde_tid 2).
+  const [doks, setDoks] = useState(null)
+  const [doksFeil, setDoksFeil] = useState(null)
+  const [sokMat, setSokMat] = useState('')
   const location = useLocation()
 
   useEffect(() => {
@@ -35,12 +46,12 @@ export default function SkoleAktivLaering() {
     hentMineFavoritter().then(setFavoritter).catch(() => {})
     hentFagListe().then((l) => l.length && setFagBase(l)).catch(() => {})
     hentTrinnListe('NO').then((l) => l.length && setTrinnBase(l)).catch(() => {})
+    hentDokumentsideData().then(setDoks).catch((e) => setDoksFeil(e.message))
   }, [])
 
-  // Fane-re-klikk (RESTER-ETAPPE3-bug): Aktiv læring har ingen filter-tilstand i adressen, så
+  // Fane-re-klikk (RESTER-ETAPPE3-bug): Aktiv læring har ingen opplegg-filter i adressen, så
   // en ny navigasjon til fanen remonterer ikke og filtrene ble stående. Vi nullstiller når
   // rute-navigasjonen endrer seg (location.key) — og trygt ved montering (alt er da default).
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { nullstill() }, [location.key])
 
   const valg = useMemo(() => {
@@ -63,73 +74,143 @@ export default function SkoleAktivLaering() {
     return alle.filter((l) => {
       if (q && !(`${l.tittel || ''} ${l.tekst.formaal || ''}`.toLowerCase().includes(q))) return false
       if (fFag && !(l.fag || []).includes(fFag)) return false
-      if (fTrinn && !l.trinn.some((t) => t.kode === fTrinn)) return false
+      if (fTrinn && !l.trinn.some((tt) => tt.kode === fTrinn)) return false
       if (kunVideo && !l.harVideo) return false
       return true
     })
   }, [alle, sok, fFag, fTrinn, kunVideo])
 
+  // Materiell: dokumenter i Aktiv læring-treet (2), gruppert på Kurshefter/Informasjon/Manualer/Aball.
+  const matGrupper = useMemo(() => {
+    if (!doks) return []
+    const klass = lagKlassifikator(doks.typer)
+    const q = sokMat.trim().toLowerCase()
+    // Tillegg (910/924) vises KUN under leken — ekskluderes også her (låst beslutning).
+    const basis = doks.dokumenter.filter(
+      (d) => klass.iAktivLaering(d) && !klass.erTillegg(d) && (!q || (d.tittel || '').toLowerCase().includes(q)),
+    )
+    return grupperUnderRot(klass, basis, ROT_AKTIV_LAERING)
+  }, [doks, sokMat])
+  const matAntall = useMemo(() => matGrupper.reduce((s, g) => s + g.dokumenter.length, 0), [matGrupper])
+
   function nullstill() {
     setSok(''); setFFag(''); setFTrinn(''); setKunVideo(false)
   }
+  function velgVis(v) {
+    setParams((p) => { const n = new URLSearchParams(p); v === 'materiell' ? n.set('vis', 'materiell') : n.delete('vis'); return n }, { replace: true })
+  }
 
   const selCls = 'text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-orange'
+  const visKnapp = (aktiv) =>
+    `text-sm font-semibold px-4 py-2 rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-orange/50 ${
+      aktiv ? 'bg-petrol text-white border-petrol' : 'bg-white text-petrol border-petrol/40 hover:border-petrol'
+    }`
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-900">Aktiv læring</h1>
-      <p className="text-gray-500 text-sm mt-1">Fysisk aktivitet koblet til fag og kompetansemål (LK20) — læring i bevegelse.</p>
+      <h1 className="text-2xl font-bold text-gray-900">{t('skoledok.aktiv.tittel')}</h1>
+      <p className="text-gray-500 text-sm mt-1">{t('skoledok.aktiv.undertittel')}</p>
 
-      <div className="mt-4 flex items-start gap-3 rounded-xl bg-petrol/5 border border-petrol/15 px-4 py-3">
-        <span className="text-petrol text-lg leading-none mt-0.5" aria-hidden="true">📚</span>
-        <p className="text-sm text-petrol/90">
-          Aktiv læring er et eget innhold — filtrert på <b>fag</b> og <b>trinn</b>, ikke på friminutt-kontekst.
-          Trenger du en vanlig lek i stedet, ligger den under <b>Finn en lek</b>.
-        </p>
+      {/* Visningsvalg: Opplegg (dagens innhold) eller Materiell (frittstående dokumenter). */}
+      <div className="mt-4 flex gap-2" role="group" aria-label={t('skoledok.aktiv.visLabel')}>
+        <button type="button" className={visKnapp(vis === 'opplegg')} aria-pressed={vis === 'opplegg'} onClick={() => velgVis('opplegg')}>
+          {t('skoledok.aktiv.visOpplegg')}
+        </button>
+        <button type="button" className={visKnapp(vis === 'materiell')} aria-pressed={vis === 'materiell'} onClick={() => velgVis('materiell')}>
+          {t('skoledok.aktiv.visMateriell')}
+        </button>
       </div>
 
-      <div className="mt-4">
-        <input
-          type="text"
-          value={sok}
-          onChange={(e) => setSok(e.target.value)}
-          placeholder="Søk i aktiv læring …"
-          className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-orange"
-        />
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-2 items-center">
-        <select className={selCls} aria-label="Fag" value={fFag} onChange={(e) => setFFag(e.target.value)}>
-          <option value="">Fag …</option>
-          {valg.fag.map((f) => <option key={f} value={f}>{f}</option>)}
-        </select>
-        <select className={selCls} aria-label="Trinn" value={fTrinn} onChange={(e) => setFTrinn(e.target.value)}>
-          <option value="">Trinn …</option>
-          {valg.trinn.map(([kode, navn]) => <option key={kode} value={kode}>{navn}</option>)}
-        </select>
-        <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
-          <input type="checkbox" checked={kunVideo} onChange={(e) => setKunVideo(e.target.checked)} />
-          <span className="text-orange-ink">▶</span> Med video
-        </label>
-        <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange-ink px-2">Nullstill</button>
-      </div>
-
-      {laster && <p className="text-gray-400 mt-8">Laster aktiv læring …</p>}
-      {feil && <p className="text-red-500 mt-8">Kunne ikke hente innhold: {feil}</p>}
-
-      {!laster && !feil && (
+      {vis === 'opplegg' ? (
         <>
-          {alle.length > 0 && <p className="text-sm text-gray-500 mt-5">Viser {treff.length} av {alle.length} opplegg</p>}
-          {alle.length === 0 ? (
-            <div className="text-center text-gray-500 py-16">
-              Ingen aktiv læring-opplegg publisert ennå. Innholdet importeres i innholdsjobben.
-            </div>
-          ) : treff.length === 0 ? (
-            <div className="text-center text-gray-500 py-16">Ingen opplegg matchet. Prøv å nullstille filtrene.</div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
-              {treff.map((l) => <LekeKort key={l.id} lek={l} favoritt={favoritter.has(l.id)} />)}
-            </div>
+          <div className="mt-4 flex items-start gap-3 rounded-xl bg-petrol/5 border border-petrol/15 px-4 py-3">
+            <span className="text-petrol text-lg leading-none mt-0.5" aria-hidden="true">📚</span>
+            <p className="text-sm text-petrol/90">{t('skoledok.aktiv.ingress')}</p>
+          </div>
+
+          <div className="mt-4">
+            <input
+              type="text"
+              value={sok}
+              onChange={(e) => setSok(e.target.value)}
+              placeholder={t('skoledok.aktiv.sokOpplegg')}
+              aria-label={t('skoledok.aktiv.sokOpplegg')}
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-orange"
+            />
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2 items-center">
+            <select className={selCls} aria-label={t('skoledok.aktiv.fag')} value={fFag} onChange={(e) => setFFag(e.target.value)}>
+              <option value="">{t('skoledok.aktiv.fagAlle')}</option>
+              {valg.fag.map((f) => <option key={f} value={f}>{f}</option>)}
+            </select>
+            <select className={selCls} aria-label={t('skoledok.aktiv.trinn')} value={fTrinn} onChange={(e) => setFTrinn(e.target.value)}>
+              <option value="">{t('skoledok.aktiv.trinnAlle')}</option>
+              {valg.trinn.map(([kode, navn]) => <option key={kode} value={kode}>{navn}</option>)}
+            </select>
+            <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
+              <input type="checkbox" checked={kunVideo} onChange={(e) => setKunVideo(e.target.checked)} />
+              <span className="text-orange-ink" aria-hidden="true">▶</span> {t('skoledok.aktiv.medVideo')}
+            </label>
+            <button onClick={nullstill} className="text-sm text-gray-500 hover:text-orange-ink px-2">{t('skoledok.aktiv.nullstill')}</button>
+          </div>
+
+          {laster && <p className="text-gray-400 mt-8">{t('skoledok.aktiv.laster')}</p>}
+          {feil && <p className="text-tlred mt-8">{t('skoledok.aktiv.feil', { feil })}</p>}
+
+          <p className="text-sm text-gray-500 mt-5 min-h-[1.25rem]" role="status" aria-live="polite">
+            {!laster && !feil && alle.length > 0 ? t('skoledok.aktiv.tellerOpplegg', { vist: treff.length, total: alle.length }) : ''}
+          </p>
+
+          {!laster && !feil && (
+            alle.length === 0 ? (
+              <div className="text-center text-gray-500 py-16">{t('skoledok.aktiv.tomOpplegg')}</div>
+            ) : treff.length === 0 ? (
+              <div className="text-center text-gray-500 py-16">{t('skoledok.aktiv.ingenTreffOpplegg')}</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
+                {treff.map((l) => <LekeKort key={l.id} lek={l} favoritt={favoritter.has(l.id)} />)}
+              </div>
+            )
+          )}
+        </>
+      ) : (
+        <>
+          <div className="mt-4">
+            <input
+              type="text"
+              value={sokMat}
+              onChange={(e) => setSokMat(e.target.value)}
+              placeholder={t('skoledok.aktiv.sokMateriell')}
+              aria-label={t('skoledok.aktiv.sokMateriell')}
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-orange"
+            />
+          </div>
+
+          {!doks && !doksFeil && <p className="text-gray-400 mt-8">{t('skoledok.aktiv.lasterMateriell')}</p>}
+          {doksFeil && <p className="text-tlred mt-8">{t('skoledok.aktiv.feil', { feil: doksFeil })}</p>}
+
+          <p className="text-sm text-gray-500 mt-5 min-h-[1.25rem]" role="status" aria-live="polite">
+            {doks && !doksFeil && matAntall > 0 ? t('skoledok.aktiv.tellerMateriell', { total: matAntall }) : ''}
+          </p>
+
+          {doks && !doksFeil && (
+            matAntall === 0 ? (
+              <div className="text-center text-gray-500 py-16">{t('skoledok.aktiv.tomMateriell')}</div>
+            ) : (
+              <div className="mt-2 space-y-8">
+                {matGrupper.map((g, i) => (
+                  <section key={g.node ? g.node.kilde_tid : 'ovrig'} aria-labelledby={`mat-gruppe-${i}`}>
+                    <h2 id={`mat-gruppe-${i}`} className="text-lg font-bold text-gray-900 mb-3">
+                      {g.node ? g.node.navn : t('skoledok.aktiv.ovrig')}
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {g.dokumenter.map((d) => <DokumentKort key={d.id} dok={d} />)}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            )
           )}
         </>
       )}

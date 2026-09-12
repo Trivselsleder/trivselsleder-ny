@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { hentLek, hentDokumenter, loggBrukHendelse, settStatus } from '../../lib/leker'
+import DokumentKort from '../../components/DokumentKort'
 import { erFavoritt, settFavoritt } from '../../lib/favoritter'
 import { hentPlaner, leggTilRad, opprettPlan } from '../../lib/periodeplan'
 import { hentHjul, leggLekTilHjul, opprettHjul } from '../../lib/hjul'
@@ -11,6 +13,7 @@ import LekVisning from '../../components/LekVisning'
 
 export default function SkoleLek() {
   const { id } = useParams()
+  const { t } = useTranslation()
   const { bruker } = useAuth()
   const intern = ['superadmin', 'ansatt'].includes(bruker?.rolle)
   const [lek, setLek] = useState(null)
@@ -351,10 +354,10 @@ export default function SkoleLek() {
 
       {dok.length > 0 && (
         <div className="mt-6">
-          <h2 className="font-bold text-gray-900 mb-2">Tilleggsmateriale</h2>
-          <ul className="space-y-1">
-            {dok.map((d) => <li key={d.id} className="text-sm text-gray-700">📄 {d.tittel}</li>)}
-          </ul>
+          <h2 className="font-bold text-gray-900 mb-2">{t('skoledok.lek.tilleggsmateriale')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {dok.map((d) => <DokumentKort key={d.id} dok={d} />)}
+          </div>
         </div>
       )}
 

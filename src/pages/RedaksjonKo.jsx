@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import {
-  hentKotellere, hentKorader, lukkRad, tildelRad, lukkGruppe,
-  KVITTERING_TYPER, BLOKKERT_TYPER,
+  hentKotellere, hentKorader, lukkRad, tildelRad, lukkGruppe, bekreftKompetansemaalForslag,
+  KVITTERING_TYPER, BEKREFTBAR_TYPER,
 } from '../lib/redaksjon'
 
 const STATUSER = ['ny', 'under_arbeid', 'lost', 'avvist']
@@ -35,6 +35,12 @@ export default function RedaksjonKo() {
   const [stikkSett, setStikkSett] = useState(false)
   const [jobber, setJobber] = useState(false)
   const [melding, setMelding] = useState(null)
+  const typeOverskriftRef = useRef(null)   // fokusmål etter at en sak lukkes (WCAG 2.4.3)
+
+  // Flytt fokus etter at DOM-en er oppdatert — elementet finnes først etter render.
+  function flyttFokus(ref) {
+    requestAnimationFrame(() => { try { ref.current?.focus() } catch { /* borte */ } })
+  }
 
   async function lastTellere() {
     setTellere(await hentKotellere(status))
@@ -83,6 +89,13 @@ export default function RedaksjonKo() {
     finally { setJobber(false) }
   }
 
+  // Bekreft et usikkert kompetansemål-forslag. Etter lukking forsvinner saken fra 'ny'-lista →
+  // flytt fokus til typeoverskriften så tastaturbruk ikke havner på <body> (WCAG 2.4.3).
+  async function bekreftForslag(koId) {
+    await handling(() => bekreftKompetansemaalForslag(koId), t('ko.bekreftOk'))
+    flyttFokus(typeOverskriftRef)
+  }
+
   const typeLabel = (tp) => t('ko.type.' + tp, tp)
 
   return (
@@ -103,8 +116,10 @@ export default function RedaksjonKo() {
         ))}
       </div>
 
-      {feil && <p className="text-sm text-red-600 mb-3">{feil}</p>}
-      {melding && <p className="text-sm text-petrol mb-3">{melding}</p>}
+      {/* Live-regioner alltid montert (ellers annonseres ikke oppdateringen). Uten innhold tar de
+          ingen plass (sr-only). feil = assertiv (role=alert), resultat = høflig (role=status). */}
+      <p role="alert" className={feil ? 'text-sm text-red-600 mb-3' : 'sr-only'}>{feil}</p>
+      <p role="status" aria-live="polite" className={melding ? 'text-sm text-petrol mb-3' : 'sr-only'}>{melding}</p>
       {laster ? (
         <p className="text-gray-400">{t('ko.laster')}</p>
       ) : (
@@ -125,7 +140,8 @@ export default function RedaksjonKo() {
             ) : (
               <>
                 <div className="flex items-center justify-between gap-3 mb-3">
-                  <h2 className="text-lg font-semibold text-gray-900">{typeLabel(valgtType)}</h2>
+                  <h2 ref={typeOverskriftRef} tabIndex={-1}
+                    className="text-lg font-semibold text-gray-900 rounded-sm focus:outline-none focus:ring-2 focus:ring-petrol focus:ring-offset-1">{typeLabel(valgtType)}</h2>
                   <span className="text-sm text-gray-500">{t('ko.antall', { n: tellere[valgtType] || 0 })}</span>
                 </div>
 
@@ -174,7 +190,7 @@ export default function RedaksjonKo() {
                   <ul className="space-y-2">
                     {rader.map((r) => (
                       <Rad key={r.id} r={r} apen={apenRad === r.id} onToggle={() => setApenRad(apenRad === r.id ? null : r.id)}
-                        bruker={bruker} jobber={jobber} handling={handling} t={t} />
+                        bruker={bruker} jobber={jobber} handling={handling} onBekreft={bekreftForslag} t={t} />
                     ))}
                   </ul>
                 )}
@@ -205,10 +221,10 @@ function TypeGruppe({ tittel, typer, tellere, valgtType, velgType, typeLabel, ba
   )
 }
 
-function Rad({ r, apen, onToggle, bruker, jobber, handling, t }) {
+function Rad({ r, apen, onToggle, bruker, jobber, handling, onBekreft, t }) {
   const maal = redigerMaal(r)
   const mittAnsvar = r.ansvarlig && bruker?.id && r.ansvarlig === bruker.id
-  const blokkert = BLOKKERT_TYPER.includes(r.type)
+  const bekreftbar = BEKREFTBAR_TYPER.includes(r.type)
   const lukket = r.status === 'lost' || r.status === 'avvist'
 
   return (
@@ -254,11 +270,13 @@ function Rad({ r, apen, onToggle, bruker, jobber, handling, t }) {
             )}
             {r.ansvarlig && !mittAnsvar && <span className="text-xs text-gray-400">{t('ko.tildeltAnnen')}</span>}
 
-            {/* Blokkert bekreft (usikker_maalkobling) — vises, men handlingen kommer (krever migrasjon). */}
-            {blokkert && (
-              <span className="text-sm border border-dashed border-gray-300 text-gray-400 px-4 py-2 rounded-full cursor-default" title={t('ko.bekreftKommerGrunn')}>
-                {t('ko.bekreftKommer')}
-              </span>
+            {/* Bekreft forslag (usikker_maalkobling): kobler ressursen til målet (menneske-merket),
+                markerer forslaget godkjent og lukker saken — RPC bekreft_kompetansemaal_forslag (118). */}
+            {bekreftbar && !lukket && (
+              <button type="button" disabled={jobber} onClick={() => onBekreft(r.id)}
+                className="text-sm bg-petrol text-white px-4 py-2 rounded-full hover:bg-petrol/90 transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-petrol focus:ring-offset-1">
+                {t('ko.bekreftForslag')}
+              </button>
             )}
 
             {/* Lukk / avvis */}

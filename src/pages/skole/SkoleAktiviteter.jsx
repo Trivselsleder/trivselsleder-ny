@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   sokLeker, hentUtstyrListe, loggBrukHendelse,
   hentEgnetListe, hentSesongListe,
   SESONGER, EGNET_NO,
 } from '../../lib/leker'
+import { hentSamlinger } from '../../lib/samlinger'
 import { hentMineFavoritter } from '../../lib/favoritter'
 import LekeKort from '../../components/LekeKort'
 
@@ -23,9 +24,10 @@ const SIDE = 50
 // SKOLETYPE-filteret erstatter det. (Trinn beholdes i AKTIV LÆRING, der kompetansemål er
 // trinn-knyttet — se SkoleAktivLaering.jsx.) p_trinn i sok_leker er URØRT (Min side + aktiv læring).
 //
-// SAMLINGER er BEVISST IKKE gjort datadrevet: «kommer»-knapper (unntatt Favoritter, koblet til
-// kunFav-bryteren), ikke et egnet_kategori-filter — de filtrerer ikke på noe ennå.
-const SAMLINGER = ['Favoritter', 'Månedens leker', 'Lekekurs', 'Utfordringer', 'Move It', 'Kropp og hjerne']
+// SAMLINGER er nå DATADREVNE (11. sep): de importerte tipslistene, julekalenderen, «Månedens
+// Move it», TL-dans m.fl. hentes fra samlinger-tabellen (hentSamlinger) og vises som LENKER til
+// samlingssiden — de tidligere grå «kommer»-plassholderne er borte. Favoritter-bryteren står
+// uendret (den er en filter-toggle mot favoritter-tabellen, ikke en samling).
 
 // SKOLETYPE er et EKTE filter (migr 105): en avledning som sok_leker løser opp til trinn/egnet, og
 // speiler importregelen (regler.mjs::regelTrinn). «Trykk ett sted, ikke huk av sju trinn.» `kode`
@@ -62,6 +64,7 @@ export default function SkoleAktiviteter() {
   const [feil, setFeil] = useState(null)
   const [favoritter, setFavoritter] = useState(new Set())
   const [utstyrListe, setUtstyrListe] = useState([])
+  const [samlinger, setSamlinger] = useState([]) // synlige samlinger (datadrevet, lenker)
   // Datadrevne filter-lister — init med kanonisk fallback, overskrives av basen ved montering.
   const [egnetListe, setEgnetListe] = useState(EGNET_NO)
   const [sesongListe, setSesongListe] = useState(SESONGER)
@@ -84,6 +87,7 @@ export default function SkoleAktiviteter() {
     if (params.get('bla') === '1') setBlaApen(true)
     hentMineFavoritter().then(setFavoritter).catch(() => {})
     hentUtstyrListe().then(setUtstyrListe).catch(() => {})
+    hentSamlinger().then(setSamlinger).catch(() => {}) // feiler stille → gruppa viser kun Favoritter
     // Datadrevne lister fra basen — .catch beholder fallbacken hvis lesingen feiler.
     hentEgnetListe().then((l) => l.length && setEgnetListe(l)).catch(() => {})
     hentSesongListe().then((l) => l.length && setSesongListe(l)).catch(() => {})
@@ -189,7 +193,8 @@ export default function SkoleAktiviteter() {
     `text-sm rounded-full px-3 py-1.5 border transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange/50 ${
       aktiv ? 'bg-orange text-gray-900 border-orange' : 'bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange-ink'
     }`
-  const chipKommer = 'text-sm rounded-full px-3 py-1.5 border border-dashed border-gray-200 text-gray-400 bg-gray-50 cursor-default'
+  // Samlingslenker: samme utseende som en inaktiv chip, men er en <Link> (ikke et filter).
+  const chipLenke = `${chip(false)} no-underline inline-block`
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -294,9 +299,16 @@ export default function SkoleAktiviteter() {
             </Gruppe>
 
             <Gruppe tittel={t('aktiviteter.grSamlinger')}>
-              <button className={chip(kunFav)} onClick={() => setKunFav((v) => !v)}>{SAMLINGER[0]}</button>
-              {SAMLINGER.slice(1).map((s) => (
-                <span key={s} className={chipKommer} title={t('aktiviteter.kommerTittel')}>{s}</span>
+              <button className={chip(kunFav)} onClick={() => setKunFav((v) => !v)}>{t('samling.favoritter')}</button>
+              {samlinger.map((s) => (
+                <Link
+                  key={s.id}
+                  to={`/min-side/samlinger/${s.id}`}
+                  className={chipLenke}
+                  aria-label={t('samling.aapneSamling', { tittel: s.tittel || '' })}
+                >
+                  {s.tittel || t('samling.utenTittel')}
+                </Link>
               ))}
             </Gruppe>
 

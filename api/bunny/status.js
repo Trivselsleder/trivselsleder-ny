@@ -49,6 +49,15 @@ export default async function handler(req, res) {
 
   const video = await svar.json().catch(() => ({}))
   const status = typeof video?.status === 'number' ? video.status : null
-  // Bunny-status 4 = Finished (klar til avspilling). Alt under er opplasting/koding.
-  return res.status(200).json({ guid, status, klar: status === 4 })
+  // Bunny Stream sine encode-statuskoder:
+  //   0 created · 1 uploaded · 2 processing · 3 transcoding · 4 finished
+  //   5 error · 6 upload failed · 7 JIT segmenting · 8 JIT playlists created
+  // «klar» = videoen kan faktisk SPILLES for læreren. Det er status 4 (Finished) — og for
+  // JIT-baserte bibliotek også 8 (JIT playlists created), som er den avspillbare slutt-
+  // tilstanden ETTER 4 i den flyten. Vi tar med 8 slik at et JIT-bibliotek ikke blir stående
+  // «behandles» for alltid dersom statusen går videre fra 4. 7 (JIT segmenting) er fortsatt
+  // underveis og teller IKKE som klar. 5/6 er varig feil → egen melding i skjemaet.
+  const klar = status === 4 || status === 8
+  const feil = status === 5 || status === 6
+  return res.status(200).json({ guid, status, klar, feil })
 }

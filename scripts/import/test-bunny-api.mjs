@@ -13,7 +13,7 @@
 // og sti-injeksjon (../collections/<id>). Beviser til slutt at en ny test BITER ved å kjøre
 // den samme inputen mot en kopi av den GAMLE koden (uten normalisering/validering).
 
-import { writeFileSync, unlinkSync } from 'node:fs'
+import { writeFileSync, unlinkSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -112,6 +112,7 @@ nyState(); { const r = await kjor(slettVideo, { body: { guid: 'abc' } }); krev('
 nyState(); { const r = await kjor(slettVideo, { body: { guid: 123 } }); krev('tall → 400 «Ugyldig guid.»', r.status === 400 && r.body.error === 'Ugyldig guid.' && ingenBunny(r.bunny)) }
 nyState(); { const r = await kjor(slettVideo, { body: { guid: {} } }); krev('objekt → 400 «Ugyldig guid.»', r.status === 400 && r.body.error === 'Ugyldig guid.' && ingenBunny(r.bunny)) }
 nyState(); { const r = await kjor(slettVideo, { body: { guid: `../collections/${LEDIG}` } }); krev('sti-injeksjon ../collections/… → 400, INGEN Bunny-kall', r.status === 400 && r.body.error === 'Ugyldig guid.' && ingenBunny(r.bunny)) }
+nyState(); { const r = await kjor(slettVideo, { body: { guid: `${LEDIG}/../x` } }); krev('«<uuid>/../x» (manglende $-anker) → 400, INGEN Bunny-kall', r.status === 400 && r.body.error === 'Ugyldig guid.' && ingenBunny(r.bunny)) }
 
 nyState(); {
   const r = await kjor(slettVideo, { body: { guid: LEDIG } })
@@ -146,6 +147,9 @@ nyState(); { const r = await kjor(statusVideo, { method: 'POST', query: { guid: 
 nyState(); { const r = await kjor(statusVideo, { method: 'GET', auth: false, query: { guid: LEDIG } }); krev('mangler auth → 401', r.status === 401 && ingenBunny(r.bunny)) }
 nyState(); { const r = await kjor(statusVideo, { method: 'GET', query: { guid: '' } }); krev('tom guid → 400 «Mangler guid.»', r.status === 400 && r.body.error === 'Mangler guid.') }
 nyState(); { const r = await kjor(statusVideo, { method: 'GET', query: { guid: `../collections/${LEDIG}` } }); krev('sti-injeksjon → 400, INGEN Bunny-kall', r.status === 400 && r.body.error === 'Ugyldig guid.' && ingenBunny(r.bunny)) }
+// Gyldig UUID FULGT AV «/../x». Uten $-ankeret i regexen ville prefikset matchet og sluppet
+// gjennom; med ankeret avvises hele strengen. Beviser at $-ankeret faktisk gjør en forskjell.
+nyState(); { const r = await kjor(statusVideo, { method: 'GET', query: { guid: `${LEDIG}/../x` } }); krev('«<uuid>/../x» (manglende $-anker) → 400, INGEN Bunny-kall', r.status === 400 && r.body.error === 'Ugyldig guid.' && ingenBunny(r.bunny)) }
 nyState({ bunnyResp: () => jsonResp(200, { guid: 'x', status: 4 }) }); {
   const r = await kjor(statusVideo, { method: 'GET', query: { guid: LEDIG_STORE } })
   const get = r.bunny.find((c) => c.method === 'GET')
@@ -153,7 +157,23 @@ nyState({ bunnyResp: () => jsonResp(200, { guid: 'x', status: 4 }) }); {
 }
 nyState({ bunnyResp: () => jsonResp(200, { guid: 'x', status: 2 }) }); {
   const r = await kjor(statusVideo, { method: 'GET', query: { guid: LEDIG } })
-  krev('gyldig guid, status 2 → 200 {status:2, klar:false}', r.status === 200 && r.body.status === 2 && r.body.klar === false)
+  krev('gyldig guid, status 2 → 200 {status:2, klar:false, feil:false}', r.status === 200 && r.body.status === 2 && r.body.klar === false && r.body.feil === false)
+}
+nyState({ bunnyResp: () => jsonResp(200, { guid: 'x', status: 8 }) }); {
+  const r = await kjor(statusVideo, { method: 'GET', query: { guid: LEDIG } })
+  krev('status 8 (JIT playlists created) → klar=true (JIT-bibliotek henger ikke)', r.status === 200 && r.body.status === 8 && r.body.klar === true && r.body.feil === false)
+}
+nyState({ bunnyResp: () => jsonResp(200, { guid: 'x', status: 7 }) }); {
+  const r = await kjor(statusVideo, { method: 'GET', query: { guid: LEDIG } })
+  krev('status 7 (JIT segmenting, underveis) → klar=false', r.status === 200 && r.body.status === 7 && r.body.klar === false && r.body.feil === false)
+}
+nyState({ bunnyResp: () => jsonResp(200, { guid: 'x', status: 5 }) }); {
+  const r = await kjor(statusVideo, { method: 'GET', query: { guid: LEDIG } })
+  krev('status 5 (error) → feil=true, klar=false', r.status === 200 && r.body.status === 5 && r.body.feil === true && r.body.klar === false)
+}
+nyState({ bunnyResp: () => jsonResp(200, { guid: 'x', status: 6 }) }); {
+  const r = await kjor(statusVideo, { method: 'GET', query: { guid: LEDIG } })
+  krev('status 6 (upload failed) → feil=true, klar=false', r.status === 200 && r.body.status === 6 && r.body.feil === true && r.body.klar === false)
 }
 
 // =========================================================================================
@@ -190,9 +210,13 @@ export default async function handler(req, res) {
   return res.status(200).json({ ok: true })
 }
 `
-const GAMMEL_STI = path.join(__dirname, '_gammel-slett-video-TEMP.mjs')
+// Temp-kopien av gammel kode legges i _kontroll-import/ (gitignorert), IKKE i scripts/import/
+// der den ville dukket opp i git-status og speilingen. Ryddes uansett i finally.
+const KONTROLL_DIR = path.join(ROT, '_kontroll-import')
+const GAMMEL_STI = path.join(KONTROLL_DIR, '_gammel-slett-video-TEMP.mjs')
 let gammelBiter1 = false, gammelBiter2 = false
 try {
+  mkdirSync(KONTROLL_DIR, { recursive: true })
   writeFileSync(GAMMEL_STI, GAMMEL_KILDE)
   const gammel = (await import(pathToFileURL(GAMMEL_STI).href)).default
 

@@ -6,9 +6,10 @@ import { supabase } from './supabase'
 // KVITTERINGSTYPER: importen har handlet, mennesket bekrefter → trygge å bulk-lukke etter stikkprøver.
 // Konservativt sett (lett å utvide): de tre der lukking = ren bekreftelse, ingen arbeid går tapt.
 export const KVITTERING_TYPER = ['ikke_et_maal', 'utgatt_fjernet', 'samling_video_ulastet']
-// BLOKKERT: bekreft-handlingen (insert i ressurs_kompetansemaal) krever en migrasjon (fase3_km_gjeldende
-// mangler search_path → 42P01). Vises, men bekreft er «kommer». Se D4-rapport.
-export const BLOKKERT_TYPER = ['usikker_maalkobling']
+// BEKREFTBAR: typer med en egen «Bekreft forslag»-handling (RPC). usikker_maalkobling kobler
+// ressursen til det foreslåtte målet via bekreft_kompetansemaal_forslag (migr 118). Tidligere
+// «kommer» fordi trigger-funksjonen manglet search_path (42P01) — migr 112 rettet det 10. sep.
+export const BEKREFTBAR_TYPER = ['usikker_maalkobling']
 
 const VELG = `
   id, type, status, ressurs_id, dokument_id, medie_id, samling_id, kompetansemaal_id,
@@ -67,6 +68,14 @@ export async function tildelRad(id, brukerId) {
     .from('redaksjonell_ko')
     .update({ ansvarlig: brukerId, status: brukerId ? 'under_arbeid' : 'ny' })
     .eq('id', id)
+  if (error) throw error
+}
+
+// BEKREFT et usikkert kompetansemål-forslag (migr 118, RPC): kobler ressursen til det
+// foreslåtte målet som MENNESKESATT kobling, markerer forslaget godkjent og lukker kø-raden —
+// alt i én atomisk transaksjon serverside. Triggeren stopper utgåtte/erstattede mål. Kaster ved feil.
+export async function bekreftKompetansemaalForslag(koId) {
+  const { error } = await supabase.rpc('bekreft_kompetansemaal_forslag', { p_ko_id: koId })
   if (error) throw error
 }
 

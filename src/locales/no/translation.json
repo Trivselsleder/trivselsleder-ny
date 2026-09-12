@@ -721,6 +721,8 @@
     "videoBehandles": "Videoen behandles hos Bunny og er klar om noen minutter.",
     "videoKlar": "Videoen er klar.",
     "videoLagtTil": "Video lagt til.",
+    "videoLagretBehandles": "Videoen er lastet opp og lagret på leken. Bunny gjør den klar til avspilling – det kan ta noen minutter. Du kan lukke siden; videoen dukker opp av seg selv.",
+    "videoBunnyFeil": "Noe gikk galt da Bunny skulle behandle videoen. Prøv å laste den opp på nytt.",
     "videoLasterProsent": "Laster opp: {{prosent}} %",
     "videoAvbrutt": "Opplasting avbrutt.",
     "videoFjernet": "Videoen er fjernet.",
@@ -843,6 +845,8 @@
     "erLukket": "Lukket ({{status}})",
     "bekreftKommer": "Bekreft forslag (kommer)",
     "bekreftKommerGrunn": "Bekreftelse av kompetansemål krever en egen migrasjon — kommer senere.",
+    "bekreftForslag": "Bekreft forslag",
+    "bekreftOk": "Kompetansemålet er bekreftet og koblet til opplegget.",
     "bulk": {
       "tittel": "Bulk-lukking",
       "forklaring": "Se stikkprøver fra gruppen, ta én beslutning, og lukk alle {{n}} med ett klikk.",
@@ -899,6 +903,110 @@
       "forslagTeller": "Her er noen forslag i stedet — prøv å justere søket for bedre treff",
       "ingenMatchet": "Ingen leker matchet ennå — prøv en annen beskrivelse."
     },
+    "manedensLek": {
+      "tittel": "Månedens lek",
+      "aapne": "Åpne månedens lek: {{tittel}}"
+    },
     "tilbake": "Tilbake til Min side"
+  },
+  "skoledok": {
+    "apnesNyFane": "åpnes i ny fane",
+    "alle": "Alle",
+    "maler": {
+      "tittel": "Maler & materiell",
+      "undertittel": "Skjemaer, maler, diplomer og plakater — klare til utskrift.",
+      "sokPlassholder": "Søk i maler & materiell …",
+      "sokLabel": "Søk i maler og materiell",
+      "kategori": "Kategori",
+      "underkategori": "Underkategori",
+      "laster": "Laster maler & materiell …",
+      "feil": "Kunne ikke hente dokumenter: {{feil}}",
+      "tom": "Maler & materiell er på vei — dokumentene dukker opp her så snart de er klare.",
+      "ingenTreff": "Ingen dokumenter matchet. Prøv en annen kategori eller søk.",
+      "teller": "Viser {{vist}} av {{total}} dokumenter"
+    },
+    "drift": {
+      "tittel": "Slik lykkes du med TL",
+      "undertittel": "Håndboka bak trivselslederordningen — erfaringen som får den til å virke.",
+      "ingress": "Dette er kunnskapen som gjør at TL faktisk fungerer: organisering, voksenrollen og motivasjon og anerkjennelse. Ikke skjemaer å fylle ut — men hvordan dere lykkes med ordningen i praksis.",
+      "detteFinnerDu": "Dette finner du her",
+      "tema": {
+        "komIgang": {
+          "navn": "Kom i gang",
+          "tekst": "Oppstart, roller og de første ukene med TL på skolen."
+        },
+        "voksenrollen": {
+          "navn": "Voksenrollen",
+          "tekst": "Hvordan de voksne støtter, motiverer og følger opp trivselslederne."
+        },
+        "organisering": {
+          "navn": "Organisering & logistikk",
+          "tekst": "Vaktlister, utstyr, soner og rutiner som får hverdagen til å gå rundt."
+        },
+        "motivasjon": {
+          "navn": "Motivasjon & anerkjennelse",
+          "tekst": "Å se elevene, feire innsats og holde gløden oppe gjennom året."
+        },
+        "trivselspatruljen": {
+          "navn": "Trivselspatruljen",
+          "tekst": "Rekruttering, opplæring og oppfølging av patruljen."
+        },
+        "arshjulet": {
+          "navn": "Årshjulet",
+          "tekst": "Naturlige holdepunkter gjennom skoleåret — fra oppstart til avslutning."
+        }
+      },
+      "dokumenter": "Håndbok-dokumenter",
+      "dokumenterUnder": "Samme dokumenter som i Maler & materiell — samlet her som håndbok.",
+      "ovrig": "Øvrige dokumenter",
+      "laster": "Laster håndbok …",
+      "feil": "Kunne ikke hente dokumenter: {{feil}}",
+      "teller": "{{total}} dokumenter",
+      "tom": "Håndbok-dokumentene er på vei. De dukker opp her så snart de er klare — kuratert etter temaene over."
+    },
+    "aktiv": {
+      "tittel": "Aktiv læring",
+      "undertittel": "Fysisk aktivitet koblet til fag og kompetansemål (LK20) — læring i bevegelse.",
+      "visLabel": "Velg visning",
+      "visOpplegg": "Opplegg",
+      "visMateriell": "Materiell",
+      "ingress": "Aktiv læring er et eget innhold — filtrert på fag og trinn, ikke på friminutt-kontekst. Trenger du en vanlig lek i stedet, ligger den under Finn en lek.",
+      "sokOpplegg": "Søk i aktiv læring …",
+      "fag": "Fag",
+      "fagAlle": "Fag …",
+      "trinn": "Trinn",
+      "trinnAlle": "Trinn …",
+      "medVideo": "Med video",
+      "nullstill": "Nullstill",
+      "laster": "Laster aktiv læring …",
+      "feil": "Kunne ikke hente innhold: {{feil}}",
+      "tellerOpplegg": "Viser {{vist}} av {{total}} opplegg",
+      "tomOpplegg": "Ingen aktiv læring-opplegg publisert ennå. Innholdet importeres i innholdsjobben.",
+      "ingenTreffOpplegg": "Ingen opplegg matchet. Prøv å nullstille filtrene.",
+      "sokMateriell": "Søk i materiell …",
+      "lasterMateriell": "Laster materiell …",
+      "tellerMateriell": "{{total}} dokumenter",
+      "tomMateriell": "Materiellet er på vei — dokumentene dukker opp her så snart de er klare.",
+      "ovrig": "Øvrig materiell"
+    },
+    "lek": {
+      "tilleggsmateriale": "Tilleggsmateriale"
+    }
+  },
+  "samling": {
+    "tilbake": "Finn en lek",
+    "laster": "Laster samlingen …",
+    "feil": "Kunne ikke hente samlingen. Prøv å laste siden på nytt.",
+    "ikkeFunnet": "Fant ikke samlingen.",
+    "ikkeFunnetHjelp": "Samlingen finnes ikke, eller er ikke tilgjengelig for deg.",
+    "leker": "Leker i samlingen",
+    "flereLeker": "Flere leker",
+    "ingenLeker": "Ingen publiserte leker i denne samlingen ennå.",
+    "dokumenter": "Dokumenter",
+    "video": "video",
+    "tlDans": "TL-dans",
+    "favoritter": "Favoritter",
+    "utenTittel": "Uten tittel",
+    "aapneSamling": "Åpne samlingen {{tittel}}"
   }
 }

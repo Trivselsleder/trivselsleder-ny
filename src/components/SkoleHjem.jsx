@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { hentLeker, sokLeker, trinnKort, TRINN_NO } from '../lib/leker'
+import { hentSamlingPaaNokkel } from '../lib/samlinger'
+import { hentManedensLek } from '../lib/manedensLek'
+import { harSamling } from '../lib/samlingForm'
 import { hentMineFavoritter } from '../lib/favoritter'
 import { hentPlaner } from '../lib/periodeplan'
 import { hentHjul } from '../lib/hjul'
@@ -154,11 +157,17 @@ export default function SkoleHjem({ fornavn = null }) {
   const [resultater, setResultater] = useState({ items: [], direkte: false, laster: false })
   const [teller, setTeller] = useState({ planer: null, hjul: null, fav: null })
   const [nesteWebinar, setNesteWebinar] = useState(undefined) // undefined=laster, null=ingen
+  const [tlDans, setTlDans] = useState(null) // TL-dans-samlingen (migr 117) eller null → skjul boksen
+  const [manedslek, setManedslek] = useState(null) // { lek, kilde } (migr 120) eller null → skjul kortet
   const sokRef = useRef(0) // race-vakt: kun ferskeste søkesvar teller
 
   useEffect(() => {
     hentKommendeWebinarer().then((liste) => setNesteWebinar(liste[0] || null)).catch(() => setNesteWebinar(null))
     hentLeker().then((r) => setAlle(r.map(visLek))).catch(() => {})
+    // TL-dans-boksen vises kun når migr 117 har satt nøkkelen; ellers null → boksen skjules stille.
+    hentSamlingPaaNokkel('tl-dans').then(setTlDans).catch(() => setTlDans(null))
+    // Månedens lek (migr 120): { lek, kilde } eller null (kilde 'ingen'/feil) → kortet skjules stille.
+    hentManedensLek().then(setManedslek).catch(() => setManedslek(null))
     Promise.allSettled([hentPlaner(), hentHjul(), hentMineFavoritter()]).then(([p, h, f]) => {
       setTeller({
         planer: p.status === 'fulfilled' ? p.value.length : null,
@@ -210,7 +219,6 @@ export default function SkoleHjem({ fornavn = null }) {
   // Tilbake til forsiden av Min side (fjerner ?q). Samme effekt som å klikke «Min side»-fanen.
   function reset() { setParams({}) }
 
-  const manedslek = alle.find((l) => /haien kommer/i.test(l.n)) || null
   const pills = parsed
     ? Object.entries(parsed).filter(([k]) => !k.startsWith('_')).map(([, v]) => v)
     : []
@@ -310,18 +318,41 @@ export default function SkoleHjem({ fornavn = null }) {
               <button type="button" onClick={() => run('TL-Mester turnering')}><span className="ic">🏅</span> TL-Mester</button>
               <button type="button" onClick={() => run('Leker for over 100 elever samtidig')}><span className="ic">👥</span> Leker for 100+ elever</button>
               <button type="button" onClick={() => run('Leker for barnehage')}><span className="ic">🧸</span> Barnehage</button>
+              {/* TL-dans: egen samling (migr 117). Samme utseende som inngangene, men en ekte lenke.
+                  Skjules stille hvis nøkkelen mangler (117 ikke kjørt) — ingen død lenke. */}
+              {harSamling(tlDans) && (
+                <Link to={`/min-side/samlinger/${tlDans.id}`}><span className="ic">💃</span> {t('samling.tlDans')}</Link>
+              )}
             </div>
           </div>
           <div className="tlh-panel">
-            <h2>Månedens lek</h2>
-            <Link className="tlh-month" to={manedslek ? `/min-side/aktiviteter/${manedslek.id}` : '/min-side/aktiviteter'}>
-              <div className="thumb">{manedslek ? (manedslek.n.split(' ')[0] || '').toUpperCase() : 'LEK'}</div>
-              <div>
-                <h3>{manedslek ? manedslek.n : 'Haien kommer'}</h3>
-                <div className="why">Kort, aktiv sisten-lek ute — ingen utstyr.</div>
-              </div>
-            </Link>
-            <div style={{ height: 30 }} />
+            {/* Månedens lek (migr 120): drives av hent_manedens_lek. Skjules stille når
+                kilde='ingen' / feil (manedslek === null). «Mine ting» står uansett. */}
+            {manedslek && (
+              <>
+                <h2>{t('minSide.manedensLek.tittel')}</h2>
+                <Link
+                  className="tlh-month"
+                  to={`/min-side/aktiviteter/${manedslek.lek.id}`}
+                  aria-label={t('minSide.manedensLek.aapne', { tittel: manedslek.lek.tittel })}
+                >
+                  <div className="thumb" aria-hidden="true">
+                    {(manedslek.lek.tittel?.split(' ')[0] || '').toUpperCase()}
+                    {manedslek.lek.harVideo && <span> ▶</span>}
+                  </div>
+                  <div>
+                    <h3>{manedslek.lek.tittel}</h3>
+                    <div
+                      className="why"
+                      style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                    >
+                      {manedslek.lek.tekst?.formaal || manedslek.lek.egnet.slice(0, 2).join(' · ')}
+                    </div>
+                  </div>
+                </Link>
+                <div style={{ height: 30 }} />
+              </>
+            )}
             <h2>Mine ting</h2>
             <div className="tlh-mine">
               <Link to="/min-side/periodeplaner">Planer<small>{teller.planer != null ? `${teller.planer} periodeplaner` : 'periodeplaner'}</small></Link>

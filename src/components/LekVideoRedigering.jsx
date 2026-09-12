@@ -18,8 +18,8 @@ const TILLATTE_MIME = ['video/mp4', 'video/quicktime', 'video/webm']
 const TILLATTE_ENDELSER = ['.mp4', '.mov', '.webm']
 const MAKS_VIDEO = 2 * 1024 * 1024 * 1024   // 2 GB
 const TUS_ENDEPUNKT = 'https://video.bunnycdn.com/tusupload'
-const POLL_MS = 15000
-const MAKS_POLL = 40                         // 40 × 15 s = 10 minutter
+const POLL_MS = 20000
+const MAKS_POLL = 90                         // 90 × 20 s = 30 minutter (romslig — Bunny kan bruke lang tid)
 
 function gyldigVideofil(fil) {
   if (TILLATTE_MIME.includes(fil.type)) return true
@@ -57,7 +57,8 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
     setStatus(null)
   }
 
-  // Status-polling: sjekk umiddelbart og deretter hvert 15. sekund i maks 10 min, til klar (status 4).
+  // Status-polling: sjekk umiddelbart og deretter hvert 20. sekund i inntil 30 min, til klar
+  // (status 4/8) eller varig feil (status 5/6). Stopper ved klar eller feil.
   useEffect(() => {
     if (!guid) return
     let stopp = false
@@ -69,10 +70,10 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
         const s = await videoStatus(guid)
         if (stopp) return
         setStatus(s.status)
-        // Annonser reelle statusoverganger via live-regionen (behandles → klar).
-        if (s.klar) setMelding(t('rediger.videoKlar'))
-        else if (s.status !== null) setMelding(t('rediger.videoBehandles'))
-        if (s.klar) return                     // ferdig — ikke poll mer
+        // Annonser reelle statusoverganger via live-regionen (behandles → klar/feil).
+        if (s.klar) { setMelding(t('rediger.videoKlar')); return }   // ferdig — ikke poll mer
+        if (s.feil) { setFeil(t('rediger.videoBunnyFeil')); return } // varig feil — stopp
+        if (s.status !== null) setMelding(t('rediger.videoBehandles'))
       } catch {
         /* forbigående — prøv igjen til vi når grensen */
       }
@@ -84,8 +85,9 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
     return () => { stopp = true; if (timer) clearTimeout(timer) }
   }, [guid])
 
-  const klar = status === 4
-  const behandles = guid && status !== null && status !== 4
+  const klar = status === 4 || status === 8
+  const bunnyFeil = status === 5 || status === 6
+  const behandles = guid && status !== null && !klar && !bunnyFeil
 
   // Lagre medier-rad etter fullført opplasting (evt. bytt ut den gamle i samme kall).
   async function lagreEtterOpplasting(nyGuid) {
@@ -99,7 +101,7 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
     ventendeGuidRef.current = null            // nå lagret → ikke lenger foreldreløs
     const gammelGuid = video?.bunny_video_id
     await etterEndring()                      // henter på nytt → ny token + ny video-rad (starter ny polling)
-    setMelding(t('rediger.videoLagtTil'))     // bekreft for skjermleser
+    setMelding(t('rediger.videoLagretBehandles')) // bekreft LAGRET + at Bunny behandler (ikke ferdig ennå)
     flyttFokus(overskriftRef)                 // filvelgeren er borte etter render → flytt fokus til et stabilt element
     // Slett den gamle videoen hos Bunny FØRST etter at raden er borte fra basen (ellers nekter serveren).
     if (gammelGuid && gammelGuid !== nyGuid) {
@@ -137,6 +139,7 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
     } catch (err) {
       setFeil(t('rediger.videoOpplastFeil', { feil: err.message }))
       setLasterOpp(false)
+      flyttFokus(overskriftRef)              // fremdrift/Avbryt borte → ikke mist fokus
       // Rydd opp det tomme Bunny-objektet vi nettopp opprettet.
       try { await slettVideo(params.videoId) } catch { /* best effort */ }
       ventendeGuidRef.current = null
@@ -158,6 +161,7 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
         setFeil(t('rediger.videoOpplastFeil', { feil: error?.message || String(error) }))
         setLasterOpp(false)
         setProsent(0)
+        flyttFokus(overskriftRef)            // fremdrift/Avbryt borte → ikke mist fokus
       },
       onProgress: (sendt, total) => {
         const p = total ? Math.round((sendt / total) * 100) : 0
@@ -178,6 +182,7 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
           try { await slettVideo(params.videoId) } catch { /* best effort */ }
           ventendeGuidRef.current = null
           setFeil(t('rediger.videoLagreFeil', { feil: err.message }))
+          flyttFokus(overskriftRef)          // fremdrift/Avbryt borte → ikke mist fokus
         } finally {
           setLasterOpp(false)
           setProsent(0)
@@ -215,6 +220,7 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
       if (gammelGuid) { try { await slettVideo(gammelGuid) } catch { /* best effort */ } }
     } catch (err) {
       setFeil(err.message)
+      flyttFokus(overskriftRef)               // «Ja, fjern»/«Angre» forsvinner → ikke mist fokus
     } finally {
       setJobber(false)
       setBekreftFjern(false)
@@ -226,7 +232,10 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
 
   return (
     <div className="mt-5 border-t border-gray-200 pt-4">
-      <h3 ref={overskriftRef} tabIndex={-1} className="text-sm font-semibold text-gray-800 outline-none">{t('rediger.video')}</h3>
+      {/* tabIndex=-1: kun programmatisk fokusmål. Svak, synlig petrol fokusmarkør (WCAG 2.4.7)
+          — vises kun ved .focus() siden overskriften ikke er tabbar. Petrol er lovlig som ramme. */}
+      <h3 ref={overskriftRef} tabIndex={-1}
+        className="text-sm font-semibold text-gray-800 rounded-sm focus:outline-none focus:ring-2 focus:ring-petrol focus:ring-offset-1">{t('rediger.video')}</h3>
 
       {/* ÉN alltid-montert live-region for skjermleser: får all status (laster opp / X % / lagt til /
           behandles / klar / fjernet / avbrutt). Alltid montert, ellers leses ikke oppdateringene. */}
@@ -256,7 +265,7 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
             <p className="text-sm mt-2">
               {behandles && <span className="text-gray-700">{t('rediger.videoBehandles')}</span>}
               {klar && <span className="text-petrol">{t('rediger.videoKlar')}</span>}
-              {guid && status === null && <span className="text-gray-500">{t('rediger.videoLagtTil')}</span>}
+              {status === null && <span className="text-gray-700">{t('rediger.videoLagretBehandles')}</span>}
             </p>
           )}
 
@@ -282,7 +291,7 @@ export default function LekVideoRedigering({ ressursId, token, video, tittel, et
                   className={`${knapp} border-tlred text-tlred hover:bg-tlred hover:text-white`}>
                   {jobber ? t('rediger.videoFjerner') : t('rediger.fjernVideoBekreft')}
                 </button>
-                <button type="button" onClick={() => setBekreftFjern(false)} disabled={jobber}
+                <button type="button" onClick={() => { setBekreftFjern(false); flyttFokus(overskriftRef) }} disabled={jobber}
                   className={`${knapp} border-gray-300 text-gray-600 hover:bg-gray-100`}>
                   {t('rediger.angreFjern')}
                 </button>

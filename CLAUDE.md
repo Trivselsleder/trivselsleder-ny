@@ -311,6 +311,26 @@ Kjartan bekreftet Calibri + petrol, uendret.)*
   alltid annen størrelse enn originalen. Kun visuell kontroll avgjør om det er samme motiv. Og et søk som
   gir null treff beviser ingenting før det er kalibrert mot filer man vet finnes.
 
+- **BYGGERENS TESTDATA MÅ LIGNE PROD, IKKE MIGRASJONEN** (fra 11. september 2026). Migrasjon 116 rev 1 var grønn fordi fixturen hadde nid_-prefiks i storage_sti – slik migrasjonen antok. I prod er storage_sti full URL som ender på /public/wysiwyg-media/<originalnavn>, og migrasjonen ville truffet 0 rader. Testdata skal bygges fra importens egen logikk (regler.mjs/storage.mjs), og kontrolløren bygger egne testdata.
+
+- **LESENDE GIT FRA COWORK-VM KAN ETTERLATE .git/index.lock** (fra 11. september 2026). VM-en får ikke slette lock-fila, og neste commit blokkeres. Bruk «git --no-optional-locks status/diff/show» fra Cowork- og Fable-økter.
+
+- **COWORK-BOKSER LIMES I COWORK, IKKE I VANLIG claude.ai-CHAT** (fra 11. september 2026). En vanlig prosjektchat har ikke Mac-tilgang. Står det «No folders are connected» i en ny Cowork-oppgave: koble ~/trivselsleder-ny via «Add folder», eller prøv igjen (kan være midlertidig).
+
+- **KVITTERINGER SOM TELLER PÅ BRUKER-UID BLIR KUMULATIVE** (fra 11. september 2026). En kvitteringskolonne som telte lukkede kø-rader med Kjartans UID tok også med tidligere migrasjoners lukkinger. Avgrens med lost_at = now() – now() er konstant innen transaksjonen.
+
+- **«KLAR» FRA ET EKSTERNT API ER IKKE «SPILLBAR»** (fra 11. september 2026). Videoskjemaet sa «klar» mens Bunny fortsatt behandlet videoen i over 5 minutter. For Bunny Stream er kun status 4 ferdig.
+
+- **TO LEKER KAN HA SAMME TITTEL** (fra 11. september 2026). «Stein, saks, papir-runden» finnes som nid 13661 og 20072. Identifiser alltid på kilde_nid før en test som endrer data.
+
+- **PRODS FUNKSJONSKROPPER AVVIKER FRA FILENE** (fra 12. september 2026). 15 av 82 funksjoner i prod har en ANNEN kropp enn migrasjonsfilene sier. secdef og config (inkl. search_path) er identiske — forskjellen sitter i selve kroppsteksten. De 15: anonymiser_bruk_hendelse (088), flytt_skole_til_kurs (061), hent_sendelogg_for_kurs (055), meld_paa_webinar (039), og elleve TU-funksjoner: tu_auto_lukk_forfalne, tu_folg_med, tu_lukk_runde_motor (068), tu_er_ansatt, tu_har_tilgang_skole (041), tu_lever_svar (046), tu_opprett_koder, tu_skjerm_fordeling, tu_skjermet_runde, tu_slett_utgatte_raasvar, tu_statistikk (045). BEVIS: anonymiser_brukslogg og anonymiser_bruk_hendelse er definert i SAMME fil (088), men prod matcher bare den første — en feilbygget lokal mal ville gitt avvik på begge. KONSEKVENS: basen kan IKKE gjenoppbygges fra filene og bli lik prod; det rammer generalprøven — en testkopi vil ha gamle versjoner av disse 15. REGEL: før noen skriver create or replace på en av de 15, MÅ prods faktiske kropp leses ut FØRST — ellers slettes en tidligere håndretting stille (samme klasse som 104-fellen). Status: prods råtekst for alle 15 er hentet ut i _kontroll-import/fnrydding/prod-fn-kropper-12sep.csv (md5 a2e8c87d1eb283e33559c74bd59f3de7, 20 386 bytes). Rettejobb planlagt. Kilde: claude_FN-AVVIK-KARTLAGT-12sep.md.
+
+- **DEFAULT PRIVILEGES: PROD HAR ET ÅPENT SETT** (fra 12. september 2026). Målt i prod 12. sep (skjema-detaljer.sql, kategori defacl, filtrert på defaclrole = 'postgres'): prod har SEKS rader, en lokal mal TRE. De tre lokale er prods restriktive sett: r = postgres arwdDxtm + anon/authenticated/service_role Dxtm · f = postgres X · S = postgres rwU. De tre EKSTRA i prod er et ÅPENT sett: r = anon/authenticated/service_role arwdDxtm (altså select/insert/update/delete) · f = anon/authenticated/service_role X · S = anon/authenticated/service_role rwU. Gjelder KUN framtidige objekter, ikke eksisterende — målingen 4. sep viste at prods faktiske rettigheter er rene. KONSEKVENS: en ny tabell laget på feil sted kan arve åpne anon-rettigheter uten at noen ser det; forklarer også hvorfor gjenoppbyggings-riggen målte anon ALL på sekvenser 4. sep mens prod sa null. REGEL: enhver migrasjon som lager en ny tabell skal eksplisitt sette rettighetene selv (revoke all … from anon), ikke stole på at default privileges er stramme.
+
+- **ET NULLTREFF PÅ FEIL PREFIKS** (fra 12. september 2026). Seks kø-saker (S65–S70) ble avskrevet som «ingen treff» fordi søket brukte REL og SAM, mens Udirs koder er RLE og SAF. 41 KRLE-mål og 62 samfunnsfag-mål finnes. Kalibrering mot noe man VET finnes er obligatorisk før et nulltreff kan brukes som konklusjon (samme prinsipp som «ET DERIVAT KAN IKKE AVVISES PÅ BYTESTØRRELSE», 10. sep).
+
+- **SED PÅ EN KOMMENTAR ER IKKE SED PÅ KODEN** (fra 12. september 2026). scripts/rigg/skjema-detaljer.sql har ordet BYTT_KATEGORI i en KOMMENTAR, mens det som faktisk styrer spørringen er linja «where kategori = 'pol'». En erstatning på plassholderordet traff ingenting, og spørringen kjørte med feil kategori uten feilmelding. REGEL: les hva som faktisk styrer en fil før du automatiserer en endring i den.
+
 ## Standard arbeidsflyt for endringer
 1. Kjør SQL-migrasjon i Supabase SQL editor (hvis databaseendring)
 2. Endre kode (Claude Code bygger, stopper alltid før push så Kjartan ser diffen)

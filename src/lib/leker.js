@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { velgStemplingsSkole } from './stempling'
 
 // Kanoniske FALLBACK-lister. Etappe 7 D1: basen er sannheten — trinn/sesong-nedtrekkene
 // hentes nå fra tabellene (hentTrinnListe/hentSesongListe) og overskriver disse ved
@@ -266,17 +267,25 @@ export async function hentDokumenter(ressursId) {
   // dokument_id, rekkefolge). Vi går via koblingstabellen og henter det
   // publiserte dokumentet. !inner + status-filter speiler den gamle
   // server-side «status=publisert»-silinga; rekkefolge gir stabil sortering.
+  // storage_sti hentes nå med (026-kolonne) så «Tilleggsmateriale» kan lenke til fila.
   const { data } = await supabase
     .from('ressurs_dokument')
-    .select('rekkefolge, dokumenter!inner ( id, tittel, type, status )')
+    .select('rekkefolge, dokumenter!inner ( id, tittel, type, status, storage_sti )')
     .eq('ressurs_id', ressursId)
     .eq('dokumenter.status', 'publisert')
     .order('rekkefolge', { ascending: true, nullsFirst: false })
   return (data || []).map((r) => ({
     id: r.dokumenter.id,
     tittel: r.dokumenter.tittel,
-    type: r.dokumenter.type,
+    filtype: r.dokumenter.type,
+    url: dokumentUrl(r.dokumenter.storage_sti),
   }))
+}
+
+// Lenke = storage_sti når den er en ekte http(s)-URL (målt i prod 11. sep: alle 536 har full
+// https-URL). Alt annet (tomt / ren storage-sti) gir ingen lenke — unngår 404.
+function dokumentUrl(sti) {
+  return typeof sti === 'string' && /^https?:\/\//.test(sti) ? sti : null
 }
 
 // Aktiv læring = egen innholdstype (ressurstype='aktiv_laering'), med Fag + Trinn.
@@ -306,31 +315,39 @@ export async function hentAktivLaering() {
   }
 }
 
-// Dokumentbank (Maler & materiell): frittstående + lek-koblede dokumenter, facet = Type.
-// Bred select (*) så vi tåler at kolonnenavn (url/fil) varierer; tom liste ved feil.
-export async function hentDokumentbank() {
-  // Bred select (*) så vi tåler kolonnenavn-variasjon. Ekte feil bobler opp til
-  // siden (vises som feil, ikke som «tom bank»). Publisert-filter gjøres klientside
-  // i tilfelle status-kolonnen ikke finnes.
-  const { data, error } = await supabase.from('dokumenter').select('*')
-  if (error) throw error
-  return (data || [])
-    .filter((d) => d.status === undefined || d.status === null || d.status === 'publisert')
-    .map(formDokument)
+// Dokumentsidene (Maler & materiell, Slik lykkes du med TL, Aktiv læring/Materiell): henter
+// alle PUBLISERTE dokumenter med ekte kategori (dokument_dokumenttype → dokument_type_id),
+// filtype, språk og storage_sti, PLUSS hele dokument_type-treet (kilde_tid-styrt). Klassifisering
+// og tre-bygging skjer klientside i lib/dokumentTre.js. Skolebrukere (authenticated) har
+// lesetilgang: dokumenter (093B GRANT + 030 RLS publisert), dokument_type (100 GRANT + p_les true),
+// dokument_dokumenttype (103 GRANT + p_les publisert), dokument_sprak (103).
+const VELG_DOKSIDE = `
+  id, tittel, type, storage_sti, status,
+  dokument_dokumenttype ( dokument_type_id ),
+  dokument_sprak ( sprak )
+`
+
+export async function hentDokumentsideData() {
+  const [dRes, tRes] = await Promise.all([
+    supabase.from('dokumenter').select(VELG_DOKSIDE).eq('status', 'publisert').order('tittel'),
+    supabase.from('dokument_type').select('id, navn, forelder_id, rekkefolge, kilde_tid').order('rekkefolge'),
+  ])
+  if (dRes.error) throw dRes.error
+  if (tRes.error) throw tRes.error
+  return {
+    dokumenter: (dRes.data || []).map(formDokumentSide),
+    typer: tRes.data || [],
+  }
 }
 
-function formDokument(d) {
-  // Bare ekte http(s)-lenker blir klikkbare. Storage-stier («dokumenter/x.pdf») lar
-  // vi ligge til lagrings-URL wires ordentlig ved import — unngår 404-lenker.
-  const kandidat = d.url || d.fil_url || d.lenke || null
-  const url = typeof kandidat === 'string' && /^https?:\/\//.test(kandidat) ? kandidat : null
+function formDokumentSide(d) {
   return {
     id: d.id,
     tittel: d.tittel || 'Uten tittel',
-    type: d.type || 'Annet',
-    sprak: d.sprak || d.maalform || null,
-    ressursId: d.ressurs_id ?? null,
-    url,
+    filtype: d.type || null,                                  // filendelse (pdf/pptx …) — kun merke
+    sprak: (d.dokument_sprak || []).map((x) => x.sprak),
+    typeIds: (d.dokument_dokumenttype || []).map((x) => x.dokument_type_id),
+    url: dokumentUrl(d.storage_sti),
   }
 }
 
@@ -417,6 +434,36 @@ export async function lagreInnhold(ressursId, sprak, felter) {
   if (error) throw error
 }
 
+// Brukerens skole til stempling av brukssignaler (visning/video_spilt/pdf_nedlastet/
+// favoritt), slik at «Månedens lek» (migr 120) kan telle distinkte skoler per lek.
+// INTERNE ROLLER (profiles.rolle 'superadmin'/'ansatt') stemples ALDRI: når de
+// tester/simulerer en skole (Demoskolen, testkontoer) skal det ikke telle som ekte
+// skolebruk. Dette er kilde-siden av vernet (migr 120 filtrerer i tillegg bort
+// Demoskolen for periodeplan/TL-hjul-signalene). Resultatet caches per user.id, så
+// gjentatte hendelser i samme økt ikke gir nye nettverkskall (kravet i oppdraget).
+let _stemplingsCache = { userId: null, skoleId: null }
+
+async function skoleForStempling(userId) {
+  if (_stemplingsCache.userId === userId) return _stemplingsCache.skoleId
+  let skoleId
+  try {
+    const { data: prof } = await supabase
+      .from('profiles').select('rolle').eq('id', userId).maybeSingle()
+    // Samme utvelging som hentMinSkole() (src/lib/skole.js): aktiv kobling,
+    // deterministisk ved flere. Avgjørelsen (inkl. intern-vernet) ligger i den rene,
+    // testbare velgStemplingsSkole() — én kilde til sannhet.
+    const { data: bs } = await supabase
+      .from('bruker_skole').select('skole_id')
+      .eq('bruker_id', userId).eq('aktiv', true)
+      .order('skole_id', { ascending: true }).limit(1).maybeSingle()
+    skoleId = velgStemplingsSkole(prof?.rolle, bs?.skole_id ?? null)
+  } catch {
+    skoleId = null // stempling skal aldri velte loggingen
+  }
+  _stemplingsCache = { userId, skoleId }
+  return skoleId
+}
+
 export async function loggBrukHendelse(hendelse, { ressursId = null, sokTekst = null, treffAntall = null } = {}) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
@@ -429,8 +476,13 @@ export async function loggBrukHendelse(hendelse, { ressursId = null, sokTekst = 
     const treff = hendelse === 'sok' && Number.isFinite(treffAntall)
       ? Math.max(0, Math.trunc(treffAntall))
       : null
+    // Stempl skole KUN på brukssignaler. 'sok' logges uendret (skole_id = null): et søk
+    // er ikke bruk av en bestemt lek, og skole_id på søk anonymiseres uansett etter 30
+    // dager (migr 088). skole_id er skolenivå (organisasjon), ikke personnivå.
+    const skoleId = hendelse === 'sok' ? null : await skoleForStempling(user.id)
     await supabase.from('bruk_hendelse').insert({
       bruker_id: user.id,
+      skole_id: skoleId,
       ressurs_id: ressursId,
       hendelse,
       sok_tekst: sokTekst,
