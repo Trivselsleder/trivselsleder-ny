@@ -1,12 +1,31 @@
 import { Link } from 'react-router-dom'
 import { formaterAntall } from '../lib/leker'
+import { lekEmoji, lekFarge, lekBilde } from '../lib/lekIkon'
 
 export default function LekeKort({ lek, favoritt = false }) {
+  // Samme mønster som PeriodeplanRutenett/SkjermPlan: ekte bilde hvis leken har det, ellers et
+  // auto-ikon (nøkkelord-emoji på deterministisk TL-farge). Liste-dataene bærer sjelden et bilde
+  // (søke-RPC-en returnerer ingen bilde-URL), så i praksis får de aller fleste kort ikonet.
+  const emoji = lekEmoji(lek)
+  const farge = lekFarge(lek)
+  const bilde = lekBilde(lek)
   return (
     <Link
       to={`/min-side/aktiviteter/${lek.id}`}
       className="block bg-white rounded-2xl border border-gray-200 hover:border-petrol hover:shadow-md transition p-4"
     >
+      {/* Medieflate. Rent dekorativ (aria-hidden), så skjermleseren aldri leser opp emojien —
+          tittelen under bærer meningen. Ingen tekst ligger oppå fargeflaten, så tekstkontrast
+          mot bakgrunnsfargen er ikke et tema her. */}
+      <div
+        className="flex items-center justify-center h-28 rounded-xl mb-3 overflow-hidden"
+        style={bilde ? undefined : { background: farge }}
+        aria-hidden="true"
+      >
+        {bilde
+          ? <img src={bilde} alt="" className="h-full w-full object-cover" />
+          : <span className="text-4xl leading-none">{emoji}</span>}
+      </div>
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-bold text-gray-900">{lek.tittel}</h3>
         <span className="flex items-center gap-1 shrink-0">

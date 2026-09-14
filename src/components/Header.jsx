@@ -45,8 +45,14 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3 min-w-0">
+            {/* TL-monogram + ordmerke. Logoen bærer alt-teksten «Trivselsleder»; ordmerket ved
+                siden er visuelt og aria-hidden, så skjermleseren ikke leser navnet to ganger.
+                Ordmerket er nå text-gray-900 (ikke #FF7B31, som er for lyst som tekst mot hvitt) —
+                den oransje fargen kommer fra logoen. Logoen har gjennomsiktig bakgrunn og står mot
+                den hvite menyen; h-10 holder seg innenfor h-16-raden. */}
             <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-orange">Trivselsleder</span>
+              <img src="/tl-logo.png" alt="Trivselsleder" className="h-10 w-auto" />
+              <span className="text-2xl font-bold text-gray-900" aria-hidden="true">Trivselsleder</span>
             </Link>
             {session && skoleNavn && (
               <Link to="/min-side" title="Til Min side" className="hidden sm:flex items-center gap-3 min-w-0">
