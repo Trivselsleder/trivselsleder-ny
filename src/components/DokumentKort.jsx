@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { loggBrukHendelse } from '../lib/leker'
 
 // Delt dokumentkort for skoleflatene (Maler & materiell, Slik lykkes du med TL, Aktiv læring/Materiell).
 // WCAG: hele kortet er én lenke der tittelen er lenketeksten; «(åpnes i ny fane)» ligger både
@@ -11,13 +12,16 @@ const DOK_IKON = (
   </svg>
 )
 
-// onÅpne: valgfri callback som kalles når et klikkbart dokument åpnes. Brukes av lek-siden til
-// å logge pdf_nedlastet; andre sider sender den ikke (da er onClick undefined = uendret atferd).
+// onÅpne: valgfri override. Lek-siden sender den (logger pdf_nedlastet med lekens ressurs-id).
+// UTENFOR lek-siden (Maler & materiell, Aktiv læring-materiell, samlinger) sendes den IKKE — da
+// logger kortet «dokument_apnet» med DOKUMENTETS id (migr 125), så vi vet hvilket dokument som
+// ble åpnet. loggBrukHendelse await-er internt → sendes (28.-aug-lærdom); den velter aldri klikket.
 export default function DokumentKort({ dok, onÅpne = undefined }) {
   const { t } = useTranslation()
   const klikkbar = !!dok.url
   const Wrapper = klikkbar ? 'a' : 'div'
-  const props = klikkbar ? { href: dok.url, target: '_blank', rel: 'noopener noreferrer', onClick: onÅpne } : {}
+  const aapne = onÅpne || (() => loggBrukHendelse('dokument_apnet', { dokumentId: dok.id }))
+  const props = klikkbar ? { href: dok.url, target: '_blank', rel: 'noopener noreferrer', onClick: aapne } : {}
   return (
     <Wrapper
       {...props}

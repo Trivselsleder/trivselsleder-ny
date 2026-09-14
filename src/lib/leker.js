@@ -474,7 +474,7 @@ async function skoleForStempling(userId) {
   return skoleId
 }
 
-export async function loggBrukHendelse(hendelse, { ressursId = null, sokTekst = null, treffAntall = null } = {}) {
+export async function loggBrukHendelse(hendelse, { ressursId = null, dokumentId = null, sokTekst = null, treffAntall = null } = {}) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
@@ -492,10 +492,13 @@ export async function loggBrukHendelse(hendelse, { ressursId = null, sokTekst = 
     const skoleId = hendelse === 'sok' ? null : await skoleForStempling(user.id)
     // await her er KRITISK (lærdom 28. aug): supabase-js sender ikke spørringen før noen
     // kaller .then()/await. Uten await ble raden ALDRI sendt — rotårsaken til tom brukslogg.
+    // dokument_id (migr 125): settes KUN for 'dokument_apnet' (peker til hvilket dokument).
+    // Base-CHECK bruk_hendelse_dokument_peker håndhever biimplikasjonen — her speiler vi den.
     const { error } = await supabase.from('bruk_hendelse').insert({
       bruker_id: user.id,
       skole_id: skoleId,
       ressurs_id: ressursId,
+      dokument_id: hendelse === 'dokument_apnet' ? dokumentId : null,
       hendelse,
       sok_tekst: sokTekst,
       treff_antall: treff,

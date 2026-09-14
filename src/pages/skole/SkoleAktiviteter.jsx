@@ -98,12 +98,14 @@ export default function SkoleAktiviteter() {
     const us = params.get('utstyr'); if (us) setFUtstyr(us)
     const se = params.get('sesong'); if (se) setFSesong(se)
     if (params.get('bla') === '1') setBlaApen(true)
-    hentMineFavoritter().then(setFavoritter).catch(() => {})
-    hentUtstyrListe().then(setUtstyrListe).catch(() => {})
-    hentSamlinger().then(setSamlinger).catch(() => {}) // feiler stille → gruppa viser kun Favoritter
-    // Datadrevne lister fra basen — .catch beholder fallbacken hvis lesingen feiler.
-    hentEgnetListe().then((l) => l.length && setEgnetListe(l)).catch(() => {})
-    hentSesongListe().then((l) => l.length && setSesongListe(l)).catch(() => {})
+    // Datalasting skal aldri velte siden, men feil skal ALDRI svelges helt stille (tre stille
+    // regresjoner på rad kom fra .catch(() => {}) her). Behold fallbacken, men logg alltid.
+    const stille = (hva) => (e) => console.warn(`[aktiviteter] ${hva} feilet:`, e?.message || e)
+    hentMineFavoritter().then(setFavoritter).catch(stille('favoritter'))
+    hentUtstyrListe().then(setUtstyrListe).catch(stille('utstyrliste'))
+    hentSamlinger().then(setSamlinger).catch(stille('samlinger'))
+    hentEgnetListe().then((l) => l.length && setEgnetListe(l)).catch(stille('egnetliste'))
+    hentSesongListe().then((l) => l.length && setSesongListe(l)).catch(stille('sesongliste'))
     setKlar(true)
     // Kun ved montering.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -156,7 +158,12 @@ export default function SkoleAktiviteter() {
             sistLoggetRef.current = ''
           }
         })
-        .catch((e) => { if (!avbrutt && id === soekeRef.current) setFeil(e.message) })
+        .catch((e) => {
+          // Logg ALLTID — også for forkastede/erstattede søk. Guarden under styrer kun
+          // setState (unngår React-advarsel), men feilen skal aldri forsvinne stille.
+          console.warn('[aktiviteter] søk feilet:', e?.message || e)
+          if (!avbrutt && id === soekeRef.current) setFeil(e.message)
+        })
         .finally(() => { if (!avbrutt && id === soekeRef.current) setLaster(false) })
     }, 400)
     return () => { avbrutt = true; clearTimeout(timer) }

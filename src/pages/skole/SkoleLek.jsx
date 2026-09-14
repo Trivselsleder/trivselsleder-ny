@@ -62,7 +62,10 @@ export default function SkoleLek() {
       .then((l) => {
         if (!aktiv) return
         setLek(l)
-        loggBrukHendelse('visning', { ressursId: id })
+        // Aktiv læring-opplegg er ressurser (ressurstype='aktiv_laering') som åpnes via denne
+        // siden — logg dem som eget signal (migr 125) så «hvilke opplegg brukes» kan måles skilt
+        // fra vanlige lek-visninger. Vanlige leker logges som før ('visning').
+        loggBrukHendelse(l.ressurstype === 'aktiv_laering' ? 'aktiv_laering_apnet' : 'visning', { ressursId: id })
       })
       .catch((e) => aktiv && setFeil(e.message))
     hentDokumenter(id).then((d) => aktiv && setDok(d))
