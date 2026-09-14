@@ -40,6 +40,12 @@ const SKOLETYPE = [
   { label: 'SFO/AKS', kode: 'sfo' },
 ]
 
+// Egnet-verdier som skjules i «Egnet for»-nedtrekket og kategoripanelet (Kjartan 13. sep).
+// Skjules KUN i visning — de slettes ikke fra egnet_kategori (ansatte fyller dem senere).
+const SKJUL_EGNET = new Set([
+  'Friminutt', 'Kroppsøving', 'Aktiv læring', 'Bli kjent / klassemiljø', 'Aktivitetsdager',
+])
+
 export default function SkoleAktiviteter() {
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
@@ -54,7 +60,9 @@ export default function SkoleAktiviteter() {
   const [fSesong, setFSesong] = useState('')
   const [kunVideo, setKunVideo] = useState(false)
   const [kunFav, setKunFav] = useState(false)
-  const [blaApen, setBlaApen] = useState(false)
+  // Åpent som standard (midlertidig, til samlingene primært ligger på Min side) så læreren
+  // faktisk finner samlingene. URL-param ?bla=0/1 og toggle-knappen styrer resten.
+  const [blaApen, setBlaApen] = useState(true)
 
   // Resultat + status
   const [leker, setLeker] = useState([])
@@ -67,6 +75,11 @@ export default function SkoleAktiviteter() {
   const [samlinger, setSamlinger] = useState([]) // synlige samlinger (datadrevet, lenker)
   // Datadrevne filter-lister — init med kanonisk fallback, overskrives av basen ved montering.
   const [egnetListe, setEgnetListe] = useState(EGNET_NO)
+  // Egnet-verdier som SKJULES i nedtrekket/kategoripanelet (Kjartans beslutning 13. sep):
+  // 0 treff (Friminutt/Kroppsøving/Aktiv læring/Aktivitetsdager) eller overlapp med «Sosial
+  // kompetanse» (Bli kjent / klassemiljø). Verdiene BEHOLDES i basen (egnet_kategori) — dette
+  // er kun en visnings-skjuling; ansatte kan fylle dem senere. Se rapport for migrasjons-note.
+  const egnetVises = egnetListe.filter((x) => !SKJUL_EGNET.has(x))
   const [sesongListe, setSesongListe] = useState(SESONGER)
   const [klar, setKlar] = useState(false) // URL lest → søk kan starte
 
@@ -215,7 +228,7 @@ export default function SkoleAktiviteter() {
       <div className="mt-3 flex flex-wrap gap-2 items-center">
         <select className={selCls} aria-label={t('aktiviteter.grEgnet')} value={fEgnet} onChange={(e) => setFEgnet(e.target.value)}>
           <option value="">{t('aktiviteter.egnetAlle')}</option>
-          {egnetListe.map((x) => <option key={x} value={x}>{x}</option>)}
+          {egnetVises.map((x) => <option key={x} value={x}>{x}</option>)}
         </select>
         {/* Skoletype står der trinn sto (etter «Egnet for», før «Sted»): hvem leken er for, så hvor. */}
         <select className={selCls} aria-label={t('aktiviteter.grSkoletype')} value={fSkoletype} onChange={(e) => setFSkoletype(e.target.value)}>
@@ -267,7 +280,7 @@ export default function SkoleAktiviteter() {
         {blaApen && (
           <div className="px-4 pb-4 pt-1 space-y-4 border-t border-gray-100">
             <Gruppe tittel={t('aktiviteter.grEgnet')}>
-              {egnetListe.map((x) => (
+              {egnetVises.map((x) => (
                 <button key={x} className={chip(fEgnet === x)} onClick={() => bytt(fEgnet, x, setFEgnet)}>{x}</button>
               ))}
             </Gruppe>
@@ -311,12 +324,6 @@ export default function SkoleAktiviteter() {
                 </Link>
               ))}
             </Gruppe>
-
-            <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{t('aktiviteter.grAktivitetstype')}</div>
-              <p className="text-sm text-gray-500">{t('aktiviteter.aktivitetstypeEks')} <span className="italic">{t('aktiviteter.aktivitetstypeHale')}</span></p>
-            </div>
-            <p className="text-xs text-gray-400">{t('aktiviteter.kommerHint')}</p>
           </div>
         )}
       </div>

@@ -52,7 +52,6 @@ import DeltPeriodeplan from './pages/DeltPeriodeplan'
 import SkjermPlan from './pages/SkjermPlan'
 import SkoleTLhjulet from './pages/skole/SkoleTLhjulet'
 import SkoleHjul from './pages/skole/SkoleHjul'
-import SkoleDriftAvTL from './pages/skole/SkoleDriftAvTL'
 import SkoleWebinarer from './pages/skole/SkoleWebinarer'
 // Trivselsundersøkelsen — lærerflaten (steg 4.1–4.2). Role-gates internt
 // (HTLA/skoleadmin/superadmin) i tillegg til at fanen er skjult for andre.
@@ -119,7 +118,6 @@ export default function App() {
                 <Route path="periodeplaner/:id" element={<SkolePeriodeplan />} />
                 <Route path="tl-hjulet" element={<SkoleTLhjulet />} />
                 <Route path="tl-hjulet/:id" element={<SkoleHjul />} />
-                <Route path="drift-av-tl" element={<SkoleDriftAvTL />} />
                 <Route path="webinarer" element={<SkoleWebinarer />} />
                 <Route path="trivselsundersokelsen" element={<SkoleTrivselsundersokelsen />} />
                 <Route path="trivselsundersokelsen/opprett" element={<SkoleTuOpprett />} />

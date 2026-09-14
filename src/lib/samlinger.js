@@ -29,6 +29,10 @@ const LEK_VELG = `
 export async function hentSamlinger(sprak = 'nb') {
   const { data, error } = await supabase
     .from('samlinger')
+    // Eksplisitt synlig=true: RLS alene (synlig OR intern, migr 030/032) lekker skjulte
+    // samlinger til interne (superadmin/ansatt) som blar i lærer-flaten. Denne LISTA skal
+    // vise kun synlige for ALLE roller — jf. migr 124 som skjulte «Tipslister» (19697).
+    .eq('synlig', true)
     .select('id, rekkefolge, samling_innhold ( sprak, tittel )')
     .order('rekkefolge')
   if (error) throw error

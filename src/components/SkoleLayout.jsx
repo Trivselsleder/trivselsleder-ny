@@ -13,7 +13,6 @@ const faner = [
   { label: 'Periodeplaner', to: '/min-side/periodeplaner' },
   { label: 'TL-hjul', to: '/min-side/tl-hjulet' },
   { label: 'Maler & materiell', to: '/min-side/dokumenter' },
-  { label: 'Slik lykkes du med TL', to: '/min-side/drift-av-tl' },
 ]
 
 // Trivselsundersøkelsen (steg 4): egen fane, synlig KUN for HTLA/skoleadmin/
