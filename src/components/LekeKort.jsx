@@ -1,33 +1,32 @@
 import { Link } from 'react-router-dom'
 import { formaterAntall } from '../lib/leker'
-import { lekEmoji, lekFarge, lekBilde } from '../lib/lekIkon'
+import { lekEmoji, lekFarge } from '../lib/lekIkon'
 
 export default function LekeKort({ lek, favoritt = false }) {
-  // Samme mønster som PeriodeplanRutenett/SkjermPlan: ekte bilde hvis leken har det, ellers et
-  // auto-ikon (nøkkelord-emoji på deterministisk TL-farge). Liste-dataene bærer sjelden et bilde
-  // (søke-RPC-en returnerer ingen bilde-URL), så i praksis får de aller fleste kort ikonet.
+  // Lite auto-ikon ved tittelen — NØYAKTIG samme uttrykk som PeriodeplanRutenett (w-8 h-8,
+  // rounded-lg, emoji på deterministisk TL-farge). Diskret, tar nesten ingen plass, og lar
+  // kortet være et rolig hvitt kort. Rent dekorativt (aria-hidden), så skjermleseren aldri leser
+  // opp emojien — tittelen ved siden bærer meningen. Ingen tekst ligger oppå fargekvadratet, så
+  // tekstkontrast mot fargen er ikke et tema. (Bildegrenen er fjernet: et miniatyrbilde i et 32px
+  // kvadrat gir ikke mening, og liste-RPC-en sok_leker returnerer uansett ingen bilde-URL.)
   const emoji = lekEmoji(lek)
   const farge = lekFarge(lek)
-  const bilde = lekBilde(lek)
   return (
     <Link
       to={`/min-side/aktiviteter/${lek.id}`}
       className="block bg-white rounded-2xl border border-gray-200 hover:border-petrol hover:shadow-md transition p-4"
     >
-      {/* Medieflate. Rent dekorativ (aria-hidden), så skjermleseren aldri leser opp emojien —
-          tittelen under bærer meningen. Ingen tekst ligger oppå fargeflaten, så tekstkontrast
-          mot bakgrunnsfargen er ikke et tema her. */}
-      <div
-        className="flex items-center justify-center h-28 rounded-xl mb-3 overflow-hidden"
-        style={bilde ? undefined : { background: farge }}
-        aria-hidden="true"
-      >
-        {bilde
-          ? <img src={bilde} alt="" className="h-full w-full object-cover" />
-          : <span className="text-4xl leading-none">{emoji}</span>}
-      </div>
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-bold text-gray-900">{lek.tittel}</h3>
+        <div className="flex items-start gap-2.5 min-w-0">
+          <span
+            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-base shrink-0"
+            style={{ background: farge }}
+            aria-hidden="true"
+          >
+            {emoji}
+          </span>
+          <h3 className="font-bold text-gray-900">{lek.tittel}</h3>
+        </div>
         <span className="flex items-center gap-1 shrink-0">
           {favoritt && <span title="Favoritt" className="text-tlred">♥</span>}
           {lek.harVideo && <span title="Har video" className="text-orange-ink">▶</span>}
