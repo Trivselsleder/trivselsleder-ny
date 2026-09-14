@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { opprettSelskap } from './_hubspot.js'
+import { opprettEllerOppdaterSelskap } from './_hubspot.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -155,11 +155,14 @@ export default async function handler(req, res) {
   // HubSpot: opprett Company (ikke-kritisk – logger feil men stopper ikke innsending)
   if (process.env.HUBSPOT_API_KEY) {
     try {
-      const hubspotId = await opprettSelskap(d)
-      await supabase
-        .from('paameldinger')
-        .update({ hubspot_company_id: hubspotId })
-        .eq('id', nyRad.id)
+      // null = flere HubSpot-treff (tvetydig) → ingen id lagres, et menneske må se på det.
+      const hubspotId = await opprettEllerOppdaterSelskap(d)
+      if (hubspotId) {
+        await supabase
+          .from('paameldinger')
+          .update({ hubspot_company_id: hubspotId })
+          .eq('id', nyRad.id)
+      }
     } catch (e) {
       console.error('HubSpot-feil ved påmelding:', e.message)
     }
