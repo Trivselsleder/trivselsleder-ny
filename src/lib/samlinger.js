@@ -32,8 +32,11 @@ export async function hentSamlinger(sprak = 'nb') {
     // Eksplisitt synlig=true: RLS alene (synlig OR intern, migr 030/032) lekker skjulte
     // samlinger til interne (superadmin/ansatt) som blar i lærer-flaten. Denne LISTA skal
     // vise kun synlige for ALLE roller — jf. migr 124 som skjulte «Tipslister» (19697).
-    .eq('synlig', true)
+    // MERK: .eq() må stå ETTER .select() — .from() gir en QueryBuilder uten .eq(); filter-
+    // metodene finnes først på FilterBuilder fra .select(). (Regresjon 41e25de: .eq før
+    // .select kastet TypeError som kallstedets .catch(()=>{}) svelget → tom liste.)
     .select('id, rekkefolge, samling_innhold ( sprak, tittel )')
+    .eq('synlig', true)
     .order('rekkefolge')
   if (error) throw error
   return sorterSamlinger(data || [], sprak)

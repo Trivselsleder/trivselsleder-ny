@@ -244,10 +244,8 @@ export default function SkoleAktiviteter() {
           <option value="">{t('aktiviteter.utstyrAlle')}</option>
           {utstyrListe.map((x) => <option key={x} value={x}>{x}</option>)}
         </select>
-        <select className={selCls} aria-label={t('aktiviteter.grSesong')} value={fSesong} onChange={(e) => setFSesong(e.target.value)}>
-          <option value="">{t('aktiviteter.sesongAlle')}</option>
-          {sesongListe.map((x) => <option key={x} value={x}>{x}</option>)}
-        </select>
+        {/* Sesong-nedtrekket fjernet: ressurs_sesong har 0 rader (0 treff for alle verdier).
+            Verdiene beholdes i basen; ansatte kan fylle dem senere (jf. egnet-terskelen). */}
         <label className="text-sm text-gray-600 flex items-center gap-2 px-2">
           <input type="checkbox" checked={utenUtstyr} onChange={(e) => setUtenUtstyr(e.target.checked)} />
           {t('aktiviteter.utenUtstyr')}
@@ -305,11 +303,7 @@ export default function SkoleAktiviteter() {
               </Gruppe>
             )}
 
-            <Gruppe tittel={t('aktiviteter.grSesong')}>
-              {sesongListe.map((x) => (
-                <button key={x} className={chip(fSesong === x)} onClick={() => bytt(fSesong, x, setFSesong)}>{x}</button>
-              ))}
-            </Gruppe>
+            {/* SESONG-seksjonen fjernet: ressurs_sesong har 0 rader (jf. sesong-nedtrekket). */}
 
             <Gruppe tittel={t('aktiviteter.grSamlinger')}>
               <button className={chip(kunFav)} onClick={() => setKunFav((v) => !v)}>{t('samling.favoritter')}</button>

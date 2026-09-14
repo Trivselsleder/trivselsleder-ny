@@ -202,10 +202,20 @@ function formLekListe(r) {
 
 // «Egnet for» — egnet_kategori, i redaksjonell rekkefølge (rekkefolge). Verdi = navn
 // (det sok_leker matcher på), så vi henter kun navn — som utstyr.
-export async function hentEgnetListe() {
-  const { data, error } = await supabase.from('egnet_kategori').select('navn').order('rekkefolge')
+// «Egnet for»-verdier som faktisk HAR leker (minst `minLeker`). Samme prinsipp som
+// hentUtstyrListe (7. sep): et filter skal aldri tilby en verdi som gir 0 treff. egnet_kategori
+// har 12 verdier, men flere (f.eks. TL-Mester) har ingen ressurs_egnet-koblinger ennå — de
+// skal ikke stå i nedtrekket. Verdiene beholdes i basen (ansatte fyller dem senere).
+export async function hentEgnetListe(minLeker = 1) {
+  const { data, error } = await supabase
+    .from('egnet_kategori')
+    .select('navn, ressurs_egnet ( ressurs_id )')
+    .order('rekkefolge')
   if (error) throw error
-  return (data || []).map((e) => e.navn).filter(Boolean)
+  return (data || [])
+    .filter((e) => (e.ressurs_egnet?.length || 0) >= minLeker)
+    .map((e) => e.navn)
+    .filter(Boolean)
 }
 
 // Sesong — sesong-tabellen, i rekkefolge. Verdi = navn.
