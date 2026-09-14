@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { trygFallbackOrigin, krevAnsatt } from '../_vakt.js'
 import { oppdaterStatus } from '../_hubspot.js'
 import { epostMal } from '../_epost-mal.js'
+import { krevMotorAktiv, loggEpost } from '../_epost.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -54,21 +55,44 @@ async function inviterEllerKnytt(supabase, { epost, navn, rolle, skoleId, skolen
   const userId = data.user.id
   const inviteLenke = data.properties.action_link
 
-  await supabase
+  // ATOMISK reservasjon (dobbeltsending): kun den kjøringen som FAKTISK oppretter profilraden får
+  // sende aktiveringsmail. ignoreDuplicates (on conflict do nothing) → et samtidig/gjentatt kall
+  // får 0 rader tilbake og hopper over e-posten, så aktiveringsmailen aldri går ut to ganger.
+  const { data: nyProfil } = await supabase
     .from('profiles')
-    .upsert({ id: userId, navn, rolle, epost, aktiv: true }, { onConflict: 'id' })
+    .upsert({ id: userId, navn, rolle, epost, aktiv: true }, { onConflict: 'id', ignoreDuplicates: true })
+    .select('id')
 
   await supabase
     .from('bruker_skole')
     .upsert({ bruker_id: userId, skole_id: skoleId, rolle }, { onConflict: 'bruker_id,skole_id' })
 
-  const { error: epostFeil } = await resend.emails.send({
-    from: 'noreply@trivselsleder.no',
-    to: epost,
-    subject: `Velkommen til Trivselsleder – aktiver kontoen din`,
-    html: epostHtml(navn, rolle, skolenavn, inviteLenke, origin),
+  if (!nyProfil || nyProfil.length === 0) {
+    // En parallell/gjentatt kjøring vant profil-innsettingen → den sender e-posten. Vi hopper over.
+    return { status: 'eksisterer' }
+  }
+
+  let resendId = null, sendFeil = null
+  try {
+    const { data: sendData, error: epostFeil } = await resend.emails.send({
+      from: 'noreply@trivselsleder.no',
+      to: epost,
+      subject: `Velkommen til Trivselsleder – aktiver kontoen din`,
+      html: epostHtml(navn, rolle, skolenavn, inviteLenke, origin),
+    })
+    if (epostFeil) sendFeil = epostFeil.message || String(epostFeil)
+    else resendId = sendData?.id || null
+  } catch (e) { sendFeil = e?.message || String(e) }
+  if (sendFeil) console.error('Resend feil:', sendFeil)
+
+  await loggEpost(supabase, {
+    type: 'konto_aktivering',
+    mottaker_epost: epost,
+    mottaker_navn: navn,
+    status: sendFeil ? 'feil' : 'sendt',
+    resend_id: resendId,
+    feilmelding: sendFeil,
   })
-  if (epostFeil) console.error('Resend feil:', epostFeil)
 
   return { status: 'invitert' }
 }
@@ -100,6 +124,11 @@ export default async function handler(req, res) {
     .single()
   if (hentFeil) return res.status(404).json({ error: 'Påmelding ikke funnet' })
 
+  // Nødbrems (fail-closed): en godkjenning oppretter konto(er) OG sender aktiveringsmail — begge
+  // skal stanses når bremsen er på. Stopp FØR noe opprettes.
+  const brems = await krevMotorAktiv(supabase)
+  if (brems) return res.status(brems.status).json({ error: brems.error })
+
   // Sjekk om det finnes en skole med samme org.nr fra før.
   const { data: eksisterendeSkole } = await supabase
     .from('skoler')
@@ -113,6 +142,20 @@ export default async function handler(req, res) {
     return res.status(409).json({
       error: `En skole med org.nr ${p.organisasjonsnummer} finnes allerede i registeret: «${eksisterendeSkole.navn}». Påmeldingen er IKKE godkjent. Sjekk om dette er en duplikat-påmelding, eller rett org.nr før ny godkjenning.`,
     })
+  }
+
+  // ATOMISK CLAIM (dobbeltsending): vinn påmeldingen FØR skole/kontoer opprettes. To samtidige
+  // «Godkjenn»-klikk (eller to admin-faner) → bare den FØRSTE flipper status til 'godkjent'; den
+  // andre får 0 rader tilbake og stoppes her, så vi aldri oppretter to skoler eller sender to sett
+  // aktiveringsmailer. (Erstatter den tidligere status-oppdateringen som skjedde ETTER utsending.)
+  const { data: claim } = await supabase
+    .from('paameldinger')
+    .update({ status: 'godkjent' })
+    .eq('id', paameldinId)
+    .neq('status', 'godkjent')
+    .select('id')
+  if (!claim || claim.length === 0) {
+    return res.status(409).json({ error: 'Denne påmeldingen er allerede godkjent (eller godkjennes akkurat nå).' })
   }
 
   // Felles feltsett fra påmelding → skolekort (samme felter ved ny skole og re-godkjenning).
@@ -156,10 +199,13 @@ export default async function handler(req, res) {
       .select('id, navn, kommunenavn, fylke')
       .single())
   }
-  if (skoleFeil) return res.status(500).json({ error: 'Kunne ikke opprette/oppdatere skole: ' + skoleFeil.message })
+  if (skoleFeil) {
+    // Frigi claimen så påmeldingen kan godkjennes på nytt når feilen er løst.
+    await supabase.from('paameldinger').update({ status: 'påmeldt' }).eq('id', paameldinId)
+    return res.status(500).json({ error: 'Kunne ikke opprette/oppdatere skole: ' + skoleFeil.message })
+  }
 
-  // Alt kritisk har lykkes → marker påmeldingen som godkjent.
-  await supabase.from('paameldinger').update({ status: 'godkjent' }).eq('id', paameldinId)
+  // (Status ble allerede satt til 'godkjent' av den atomiske claimen over — ingen ny oppdatering her.)
 
   // FIKS 3: hent nettverksforslag (kommune → fylke → intet)
   let nettverksforslag = []

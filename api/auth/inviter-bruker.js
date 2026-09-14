@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { trygFallbackOrigin } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
+import { krevMotorAktiv, loggEpost } from '../_epost.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -66,6 +67,10 @@ export default async function handler(req, res) {
   if (callerProfil?.aktiv === false) {
     return res.status(403).json({ error: 'Kontoen er deaktivert.' })
   }
+
+  // Nødbrems (fail-closed): oppretter en konto OG sender invitasjonsmail — stopp FØR noe opprettes.
+  const brems = await krevMotorAktiv(supabase)
+  if (brems) return res.status(brems.status).json({ error: brems.error })
 
   const { epost, navn, rolle, skoleId, stilling, tl_rolle } = req.body
   if (!epost || !navn || !rolle) return res.status(400).json({ error: 'Mangler påkrevde felt.' })
@@ -147,13 +152,27 @@ export default async function handler(req, res) {
   }
 
   // Send branded e-post via Resend
-  const { error: epostFeil } = await resend.emails.send({
-    from: 'noreply@trivselsleder.no',
-    to: epost,
-    subject: 'Invitasjon til Trivselsleder',
-    html: epostHtml(navn, rolle, skolenavn, inviteLenke, origin),
+  let resendId = null, sendFeil = null
+  try {
+    const { data: sendData, error: epostFeil } = await resend.emails.send({
+      from: 'noreply@trivselsleder.no',
+      to: epost,
+      subject: 'Invitasjon til Trivselsleder',
+      html: epostHtml(navn, rolle, skolenavn, inviteLenke, origin),
+    })
+    if (epostFeil) sendFeil = epostFeil.message || String(epostFeil)
+    else resendId = sendData?.id || null
+  } catch (e) { sendFeil = e?.message || String(e) }
+  if (sendFeil) console.error('Resend feil:', sendFeil)
+
+  await loggEpost(supabase, {
+    type: 'konto_invitasjon',
+    mottaker_epost: epost,
+    mottaker_navn: navn,
+    status: sendFeil ? 'feil' : 'sendt',
+    resend_id: resendId,
+    feilmelding: sendFeil,
   })
-  if (epostFeil) console.error('Resend feil:', epostFeil)
 
   return res.status(200).json({ ok: true })
 }

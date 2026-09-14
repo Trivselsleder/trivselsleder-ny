@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { krevMotorAktiv, loggEpost } from './_epost.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -140,14 +141,15 @@ export default async function handler(req, res) {
   // Lagre bestillingen i databasen — delt kilde for admin-lista. Service-nøkkel
   // går utenom RLS. Feiler dette, logger vi det men lar e-postene gå: e-posten
   // er sikkerhetsnettet, så en bestilling går aldri tapt.
+  const supabase = createClient(
+    process.env.VITE_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
   let lagringsfeil = null
   try {
-    const db = createClient(
-      process.env.VITE_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    )
-    const { error: dbFeil } = await db.from('kulturkort_bestillinger').insert({
+    const { error: dbFeil } = await supabase.from('kulturkort_bestillinger').insert({
       skolenavn,
       antall_kort: parseInt(antallKort, 10) || 0,
       kontaktperson,
@@ -167,26 +169,43 @@ export default async function handler(req, res) {
     console.error('Uventet feil ved lagring av bestilling:', e)
   }
 
-  try {
-    await Promise.all([
-      resend.emails.send({
-        from: 'Kulturkort <noreply@trivselsleder.no>',
-        to: ['kulturkort@trivselsleder.no'],
-        replyTo: epost,
-        subject: `Ny Kulturkort-bestilling fra ${skolenavn}`,
-        html: internEpost(data),
-      }),
-      resend.emails.send({
-        from: 'Kulturkort <noreply@trivselsleder.no>',
-        to: [epost],
-        subject: 'Bekreftelse på din Kulturkort-bestilling',
-        html: kundeBekreftelse(data),
-      }),
-    ])
-
-    return res.status(200).json({ ok: true, lagret: !lagringsfeil, ...(lagringsfeil ? { lagringsfeil } : {}) })
-  } catch (err) {
-    console.error('Resend feil:', err)
-    return res.status(500).json({ error: 'Kunne ikke sende e-post' })
+  // Nødbrems (fail-closed): bestillingen er ALLEREDE lagret over (går aldri tapt), men de to
+  // e-postene (intern + kundebekreftelse) sendes KUN når bremsen er åpen.
+  const brems = await krevMotorAktiv(supabase)
+  if (brems) {
+    console.warn('[send-bestilling] motor_aktiv stengt — e-poster ikke sendt for', skolenavn)
+    return res.status(200).json({ ok: true, lagret: !lagringsfeil, epost_sendt: false, ...(lagringsfeil ? { lagringsfeil } : {}) })
   }
+
+  // Send hver e-post, fang resultatet, og logg ÉN epost_logg-rad per mottaker. En feilet logging
+  // (eller e-post) velter aldri resten — begge forsøkes uansett.
+  const sendEn = async (opts, type, mottaker) => {
+    let resendId = null, sendFeil = null
+    try {
+      const { data: sd, error: rFeil } = await resend.emails.send(opts)
+      if (rFeil) sendFeil = rFeil.message || String(rFeil)
+      else resendId = sd?.id || null
+    } catch (e) { sendFeil = e?.message || String(e) }
+    if (sendFeil) console.error(`Resend feil (${type}):`, sendFeil)
+    await loggEpost(supabase, { type, mottaker_epost: mottaker, status: sendFeil ? 'feil' : 'sendt', resend_id: resendId, feilmelding: sendFeil })
+    return !sendFeil
+  }
+
+  const [internOk, kundeOk] = await Promise.all([
+    sendEn({
+      from: 'Kulturkort <noreply@trivselsleder.no>',
+      to: ['kulturkort@trivselsleder.no'],
+      replyTo: epost,
+      subject: `Ny Kulturkort-bestilling fra ${skolenavn}`,
+      html: internEpost(data),
+    }, 'kulturkort_intern', 'kulturkort@trivselsleder.no'),
+    sendEn({
+      from: 'Kulturkort <noreply@trivselsleder.no>',
+      to: [epost],
+      subject: 'Bekreftelse på din Kulturkort-bestilling',
+      html: kundeBekreftelse(data),
+    }, 'kulturkort_kunde', epost),
+  ])
+
+  return res.status(200).json({ ok: true, lagret: !lagringsfeil, epost_sendt: internOk && kundeOk, ...(lagringsfeil ? { lagringsfeil } : {}) })
 }

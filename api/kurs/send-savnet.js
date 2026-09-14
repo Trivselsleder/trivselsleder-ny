@@ -100,6 +100,21 @@ export default async function handler(req, res) {
 
   // ---- EKTE KJØRING ----
   const tid = new Date().toISOString()
+
+  // ATOMISK RESERVASJON (dobbeltsending): vinn raden FØR Resend kalles. .is('savnet_sendt_at', null)
+  // gjør at bare det FØRSTE kallet vinner — et samtidig dobbeltklikk får 0 rader tilbake og hopper
+  // over, så omsorgsmailen aldri går ut to ganger. (Frigis ved feil så den kan sendes på nytt.)
+  const { data: reservert, error: reservFeil } = await supabase
+    .from('kurs_skole')
+    .update({ savnet_sendt_at: tid })
+    .eq('id', ks.id)
+    .is('savnet_sendt_at', null)
+    .select('id')
+  if (reservFeil) return res.status(500).json({ error: 'Kunne ikke reservere utsending: ' + reservFeil.message })
+  if (!reservert || reservert.length === 0) {
+    return res.status(200).json({ ok: true, sendt: false, skole: skoleNavn, grunn: 'allerede sendt (reservert)' })
+  }
+
   let resendId = null, sendFeil = null
   try {
     const { data: sendData, error: rFeil } = await resend.emails.send({
@@ -117,9 +132,12 @@ export default async function handler(req, res) {
     status: sendFeil ? 'feil' : 'sendt', resend_id: resendId, feilmelding: sendFeil,
   })
 
-  if (sendFeil) return res.status(200).json({ ok: false, sendt: false, skole: skoleNavn, grunn: sendFeil })
+  if (sendFeil) {
+    // FRIGI reservasjonen så skolen kan forsøkes på nytt (stempelet skal bare stå når e-post gikk).
+    await supabase.from('kurs_skole').update({ savnet_sendt_at: null }).eq('id', ks.id)
+    return res.status(200).json({ ok: false, sendt: false, skole: skoleNavn, grunn: sendFeil })
+  }
 
-  // Stempel for visning («sendt <dato>»). Sperrer ikke gjensending.
-  await supabase.from('kurs_skole').update({ savnet_sendt_at: tid }).eq('id', ks.id)
+  // E-posten gikk. savnet_sendt_at står allerede (fra reservasjonen) — vi frigir den ALDRI her.
   return res.status(200).json({ ok: true, sendt: true, skole: skoleNavn, mottaker: mottakerEpost, resend_id: resendId })
 }

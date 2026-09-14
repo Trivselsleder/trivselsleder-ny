@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { opprettEllerOppdaterSelskap } from './_hubspot.js'
+import { krevMotorAktiv, loggEpost } from './_epost.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -168,13 +169,34 @@ export default async function handler(req, res) {
     }
   }
 
-  await resend.emails.send({
-    from: 'noreply@trivselsleder.no',
-    to: 'post@trivselsleder.no',
-    replyTo: d.rektor_epost,
-    subject: `Ny påmelding: ${d.skolenavn}`,
-    html: epostHtml(d),
+  // Nødbrems (fail-closed): påmeldingsraden er ALLEREDE lagret over (leadet går aldri tapt), men
+  // den interne varsel-e-posten sendes KUN når bremsen er åpen.
+  const brems = await krevMotorAktiv(supabase)
+  if (brems) {
+    console.warn('[paamelding] motor_aktiv stengt — varsel-e-post ikke sendt for', d.skolenavn)
+    return res.status(200).json({ ok: true, epost_sendt: false })
+  }
+
+  let resendId = null, sendFeil = null
+  try {
+    const { data: sendData, error: rFeil } = await resend.emails.send({
+      from: 'noreply@trivselsleder.no',
+      to: 'post@trivselsleder.no',
+      replyTo: d.rektor_epost,
+      subject: `Ny påmelding: ${d.skolenavn}`,
+      html: epostHtml(d),
+    })
+    if (rFeil) sendFeil = rFeil.message || String(rFeil)
+    else resendId = sendData?.id || null
+  } catch (e) { sendFeil = e?.message || String(e) }
+
+  await loggEpost(supabase, {
+    type: 'paamelding_varsel',
+    mottaker_epost: 'post@trivselsleder.no',
+    status: sendFeil ? 'feil' : 'sendt',
+    resend_id: resendId,
+    feilmelding: sendFeil,
   })
 
-  return res.status(200).json({ ok: true })
+  return res.status(200).json({ ok: true, epost_sendt: !sendFeil })
 }

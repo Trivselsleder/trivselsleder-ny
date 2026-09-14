@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { epostMal } from '../_epost-mal.js'
 import { trygFallbackOrigin } from '../_vakt.js'
+import { krevMotorAktiv, loggEpost } from '../_epost.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -48,11 +49,33 @@ export default async function handler(req, res) {
 
   const resetLenke = data.properties.action_link
 
-  await resend.emails.send({
-    from: 'noreply@trivselsleder.no',
-    to: epost,
-    subject: 'Tilbakestill passordet ditt – Trivselsleder',
-    html: epostHtml(resetLenke, origin),
+  // Nødbrems (fail-closed): ingen ekte e-post når bremsen er av. Vi svarer fortsatt 200 (samme svar
+  // uansett), så bremsen avslører ikke om e-postadressen finnes.
+  const brems = await krevMotorAktiv(supabase)
+  if (brems) {
+    console.warn('[glemt-passord] motor_aktiv stengt — reset-e-post ikke sendt')
+    return res.status(200).json({ ok: true })
+  }
+
+  let resendId = null, sendFeil = null
+  try {
+    const { data: sendData, error: rFeil } = await resend.emails.send({
+      from: 'noreply@trivselsleder.no',
+      to: epost,
+      subject: 'Tilbakestill passordet ditt – Trivselsleder',
+      html: epostHtml(resetLenke, origin),
+    })
+    if (rFeil) sendFeil = rFeil.message || String(rFeil)
+    else resendId = sendData?.id || null
+  } catch (e) { sendFeil = e?.message || String(e) }
+  if (sendFeil) console.error('Resend feil:', sendFeil)
+
+  await loggEpost(supabase, {
+    type: 'passord_reset',
+    mottaker_epost: epost,
+    status: sendFeil ? 'feil' : 'sendt',
+    resend_id: resendId,
+    feilmelding: sendFeil,
   })
 
   return res.status(200).json({ ok: true })

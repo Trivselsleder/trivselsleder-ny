@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { trygFallbackOrigin, krevAnsatt } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
+import { krevMotorAktiv, loggEpost } from '../_epost.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -53,21 +54,44 @@ async function inviterEllerKnytt(supabase, { epost, navn, rolle, skoleId, skolen
   const userId = data.user.id
   const inviteLenke = data.properties.action_link
 
-  await supabase
+  // ATOMISK reservasjon (dobbeltsending): kun den kjøringen som FAKTISK oppretter profilraden får
+  // sende aktiveringsmail. ignoreDuplicates (on conflict do nothing) → et samtidig/gjentatt kall
+  // får 0 rader tilbake og hopper over e-posten, så aktiveringsmailen aldri går ut to ganger.
+  const { data: nyProfil } = await supabase
     .from('profiles')
-    .upsert({ id: userId, navn, rolle, epost, aktiv: true }, { onConflict: 'id' })
+    .upsert({ id: userId, navn, rolle, epost, aktiv: true }, { onConflict: 'id', ignoreDuplicates: true })
+    .select('id')
 
   await supabase
     .from('bruker_skole')
     .upsert({ bruker_id: userId, skole_id: skoleId, rolle }, { onConflict: 'bruker_id,skole_id' })
 
-  const { error: epostFeil } = await resend.emails.send({
-    from: 'noreply@trivselsleder.no',
-    to: epost,
-    subject: 'Velkommen til Trivselsleder – aktiver kontoen din',
-    html: epostHtml(navn, rolle, skolenavn, inviteLenke, origin),
+  if (!nyProfil || nyProfil.length === 0) {
+    // En parallell/gjentatt kjøring vant profil-innsettingen → den sender e-posten. Vi hopper over.
+    return { status: 'eksisterer' }
+  }
+
+  let resendId = null, sendFeil = null
+  try {
+    const { data: sendData, error: epostFeil } = await resend.emails.send({
+      from: 'noreply@trivselsleder.no',
+      to: epost,
+      subject: 'Velkommen til Trivselsleder – aktiver kontoen din',
+      html: epostHtml(navn, rolle, skolenavn, inviteLenke, origin),
+    })
+    if (epostFeil) sendFeil = epostFeil.message || String(epostFeil)
+    else resendId = sendData?.id || null
+  } catch (e) { sendFeil = e?.message || String(e) }
+  if (sendFeil) console.error('Resend feil:', sendFeil)
+
+  await loggEpost(supabase, {
+    type: 'konto_aktivering',
+    mottaker_epost: epost,
+    mottaker_navn: navn,
+    status: sendFeil ? 'feil' : 'sendt',
+    resend_id: resendId,
+    feilmelding: sendFeil,
   })
-  if (epostFeil) console.error('Resend feil:', epostFeil)
 
   return { status: 'invitert' }
 }
@@ -88,6 +112,10 @@ export default async function handler(req, res) {
   // kontoer (aktiv = false).
   const vakt = await krevAnsatt(req, supabase)
   if (vakt) return res.status(vakt.status).json({ error: vakt.error })
+
+  // Nødbrems (fail-closed): oppretter konto(er) OG sender aktiveringsmail — stopp FØR noe opprettes.
+  const brems = await krevMotorAktiv(supabase)
+  if (brems) return res.status(brems.status).json({ error: brems.error })
 
   const {
     navn, orgNr, kommunenavn, fylke, type, status, ansvarlig,
