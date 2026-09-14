@@ -19,6 +19,7 @@ export default function Header() {
   }, [session])
 
   const offentlige = [
+    { label: t('nav.paamelding'), to: '/paamelding' },
     { label: t('nav.omOss'), to: '/om-oss' },
     { label: t('nav.forSkoler'), to: '/for-skoler' },
     { label: t('nav.kulturkortet'), to: '/kulturkortet' },
