@@ -16,7 +16,7 @@ function builder(table) {
 export function createClient() {
   return {
     from: (t) => builder(t),
-    rpc: async () => ({ data: [], error: null }),
+    rpc: async (navn, args) => (globalThis.__rpcResolver ? globalThis.__rpcResolver(navn, args) : { data: [], error: null }),
     auth: {
       admin: {
         generateLink: async (o) => {

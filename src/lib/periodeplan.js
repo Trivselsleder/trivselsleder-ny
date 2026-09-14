@@ -245,6 +245,24 @@ export async function hentDeltPlan(token) {
   return data // jsonb eller null
 }
 
+// Roter delingstoken → den FORRIGE delte lenken slutter å virke umiddelbart (RPC-en matcher på
+// nøyaktig token). Dette er «slå av deling» uten basendring: delingstoken er NOT NULL, så vi kan
+// ikke fjerne den helt, men en rotasjon dreper en lekket/overdelt lenke. En EKTE av/på-bryter og
+// utløpsdato krever en migrasjon (egen kolonne + RPC-sjekk) — se rapport.
+export async function roterDelingstoken(planId) {
+  const ny = (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  const { data, error } = await supabase
+    .from('periodeplan')
+    .update({ delingstoken: ny })
+    .eq('id', planId)
+    .select('delingstoken')
+    .single()
+  if (error) throw error
+  return data.delingstoken
+}
+
 // ---- Smarte lek-forslag ----
 // Basert på sesong (måned), sted, trinn og «ikke allerede på planen».
 // (Vær er utelatt – ingen værkilde koblet ennå. Dokumentert valg.)

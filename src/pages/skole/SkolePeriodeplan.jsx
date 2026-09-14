@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import QRCode from 'qrcode'
 import {
   hentPlanEn, oppdaterPlan, leggTilRad, settRadCeller, slettRad, settRekkefolge,
-  flyttTilPapirkurv, kopierPlan, smarteForslag, NIVAA, planNivaa,
+  flyttTilPapirkurv, kopierPlan, smarteForslag, NIVAA, planNivaa, roterDelingstoken,
 } from '../../lib/periodeplan'
 import BekreftDialog from '../../components/BekreftDialog'
 import { hentLeker } from '../../lib/leker'
@@ -208,6 +208,13 @@ export default function SkolePeriodeplan() {
     const url = skjermUrl(); if (!url) return
     try { await navigator.clipboard.writeText(url); visMelding('Skjerm-lenke kopiert.') } catch { visMelding(url) }
   }
+  async function stoppDeling() {
+    try {
+      const ny = await roterDelingstoken(id)
+      setPlan((p) => ({ ...p, delingstoken: ny }))
+      visMelding('Deling stoppet. Den forrige lenken virker ikke lenger. Trykk «Del» for å lage en ny.')
+    } catch (e) { visMelding('Kunne ikke stoppe deling: ' + e.message) }
+  }
   async function delMedNabo() {
     let t
     try { t = await sikreDelingstoken() } catch (e) { visMelding('Kunne ikke lage lenke: ' + e.message); return }
@@ -271,6 +278,7 @@ export default function SkolePeriodeplan() {
             ))}
           </div>
           <button onClick={delLenke} className={knapp}>🔗 Del</button>
+          <button onClick={stoppDeling} className={knapp} title="Den forrige delingslenken slutter å virke">🚫 Stopp deling</button>
           <button onClick={() => setDelNaboApen(true)} className={knapp}>🤝 Del med naboskole</button>
           <button onClick={aapneSkjerm} className={knapp}>📺 Vis på skjerm</button>
           <button onClick={() => skrivUtPlan(plan)} className="text-sm bg-orange text-gray-900 font-medium px-4 py-2 rounded-full hover:bg-[#e8641c] transition whitespace-nowrap">🖨 Se arket</button>

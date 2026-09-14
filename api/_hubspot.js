@@ -108,10 +108,9 @@ export async function opprettEllerOppdaterSelskap(p) {
   })
 
   if (treff.length > 1) {
+    // Personvern: logg ID-ene (ikke navn/kommune) — nok til manuell oppfølging uten innhold.
     console.warn(
-      '[HubSpot] opprettEllerOppdaterSelskap: FLERE treff på', JSON.stringify(navn),
-      '/ kommune', JSON.stringify(p.kommune), '— skriver INGENTING, må sjekkes manuelt. Treff:',
-      treff.map(t => `${t.id} (${t.name} / ${t.municipality || 'uten kommune'})`).join(', ')
+      `[HubSpot] opprettEllerOppdaterSelskap: ${treff.length} treff (id: ${treff.map(t => t.id).join(', ')}) — skriver INGENTING, må sjekkes manuelt.`
     )
     return null
   }
@@ -149,32 +148,31 @@ export async function oppdaterStatus(hubspotId, status) {
 
 // Søker etter Company på navn, returnerer HubSpot-ID eller null
 export async function finnSelskapIdPaaNavn(navn) {
-  console.log('[HubSpot] finnSelskapIdPaaNavn: søker på navn:', JSON.stringify(navn))
+  console.log('[HubSpot] finnSelskapIdPaaNavn: søker på skolenavn')
   const payload = {
     filterGroups: [{ filters: [{ propertyName: 'name', operator: 'EQ', value: navn }] }],
     properties: ['name'],
     limit: 1,
   }
-  console.log('[HubSpot] finnSelskapIdPaaNavn: payload:', JSON.stringify(payload))
   const res = await fetch(`${BASE_URL}/crm/v3/objects/companies/search`, {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify(payload),
   })
   const rawBody = await res.text()
-  console.log('[HubSpot] finnSelskapIdPaaNavn: HTTP-status:', res.status, '| rårespons:', rawBody)
+  console.log('[HubSpot] finnSelskapIdPaaNavn: HTTP-status:', res.status)
   if (!res.ok) {
     console.error('[HubSpot] finnSelskapIdPaaNavn: søk feilet')
     return null
   }
   const data = JSON.parse(rawBody)
-  console.log('[HubSpot] finnSelskapIdPaaNavn: total:', data.total, '| treff:', data.results?.map(r => `${r.id} (${r.properties?.name})`).join(', ') || 'ingen')
+  console.log('[HubSpot] finnSelskapIdPaaNavn: total:', data.total)
   return data.results?.[0]?.id ?? null
 }
 
 // Oppdaterer vilkårlige felter på et Company
 export async function oppdaterSelskapFelter(hubspotId, felter) {
-  console.log('[HubSpot] oppdaterSelskapFelter: PATCH company', hubspotId, JSON.stringify(felter))
+  console.log('[HubSpot] oppdaterSelskapFelter: PATCH company', hubspotId)
   const res = await fetch(`${BASE_URL}/crm/v3/objects/companies/${hubspotId}`, {
     method: 'PATCH',
     headers: headers(),
@@ -183,7 +181,7 @@ export async function oppdaterSelskapFelter(hubspotId, felter) {
   console.log('[HubSpot] oppdaterSelskapFelter: HTTP-status:', res.status)
   if (!res.ok) {
     const feil = await res.json()
-    console.error('[HubSpot] oppdaterSelskapFelter: feil:', JSON.stringify(feil))
+    console.error('[HubSpot] oppdaterSelskapFelter: feil:', feil.message)
     throw new Error(feil.message ?? 'HubSpot PATCH-feil')
   }
   console.log('[HubSpot] oppdaterSelskapFelter: OK')
@@ -198,7 +196,7 @@ function splitNavn(navn) {
 // Oppretter eller oppdaterer en Contact basert på e-post, returnerer kontakt-ID
 export async function oppdaterEllerOpprettKontakt({ navn, epost, tittel, telefon }) {
   const { firstname, lastname } = splitNavn(navn)
-  console.log('[HubSpot] oppdaterEllerOpprettKontakt: søker kontakt epost:', epost, '| tittel:', tittel)
+  console.log('[HubSpot] oppdaterEllerOpprettKontakt: søker kontakt, rolle:', tittel)
 
   const soekRes = await fetch(`${BASE_URL}/crm/v3/objects/contacts/search`, {
     method: 'POST',
@@ -282,8 +280,8 @@ export async function fjernGamleKoblinger(selskapId, tittel, nyeKontaktIder) {
   )
 
   for (const kontakt of gamle) {
-    const navn = [kontakt.properties.firstname, kontakt.properties.lastname].filter(Boolean).join(' ')
-    console.log(`[HubSpot] Fjerner gammel ${tittel}-kobling: ${navn || '(ukjent navn)'} (kontakt-ID: ${kontakt.id})`)
+    // Personvern: logg kun rolle + kontakt-ID, aldri kontaktpersonens navn.
+    console.log(`[HubSpot] Fjerner gammel ${tittel}-kobling (kontakt-ID: ${kontakt.id})`)
     await fetch(
       `${BASE_URL}/crm/v4/objects/companies/${selskapId}/associations/contacts/${kontakt.id}`,
       { method: 'DELETE', headers: headers() }

@@ -149,7 +149,7 @@ export default async function handler(req, res) {
   if (dbError) {
     // Full feil i serverloggen, kort beskjed til kalleren. Den rå Postgres-
     // teksten røper tabell-, kolonne- og constraint-navn til hele internett.
-    console.error('DB-feil ved påmelding:', dbError)
+    console.error('DB-feil ved påmelding:', dbError.message, '| kode:', dbError.code)
     return res.status(500).json({ error: 'Kunne ikke lagre påmeldingen. Prøv igjen, eller kontakt post@trivselsleder.no.' })
   }
 
@@ -173,7 +173,7 @@ export default async function handler(req, res) {
   // den interne varsel-e-posten sendes KUN når bremsen er åpen.
   const brems = await krevMotorAktiv(supabase)
   if (brems) {
-    console.warn('[paamelding] motor_aktiv stengt — varsel-e-post ikke sendt for', d.skolenavn)
+    console.warn('[paamelding] motor_aktiv stengt — varsel-e-post ikke sendt')
     return res.status(200).json({ ok: true, epost_sendt: false })
   }
 

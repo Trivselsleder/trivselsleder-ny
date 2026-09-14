@@ -40,8 +40,8 @@ export async function loggEpost(supabase, { type, mottaker_epost, mottaker_navn 
       resend_id,
       feilmelding,
     })
-    if (error) console.error(`[epost_logg] insert feilet (${type} → ${mottaker_epost}):`, error.message)
+    if (error) console.error(`[epost_logg] insert feilet (type ${type}):`, error.message)
   } catch (e) {
-    console.error(`[epost_logg] insert kastet (${type} → ${mottaker_epost}):`, e?.message || e)
+    console.error(`[epost_logg] insert kastet (type ${type}):`, e?.message || e)
   }
 }

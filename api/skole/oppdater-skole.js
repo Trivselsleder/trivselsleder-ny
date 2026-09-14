@@ -43,7 +43,9 @@ export default async function handler(req, res) {
   } = req.body
 
   if (!skoleId) return res.status(400).json({ error: 'Mangler skoleId.' })
-  console.log('[oppdater-skole] Request body:', JSON.stringify(req.body))
+  // Personvern: logg ALDRI request-body (navn/e-post/telefon havner ellers i kjøretidsloggen,
+  // som lagres i USA). skoleId er en UUID og trygg å logge.
+  console.log('[oppdater-skole] mottok oppdatering for skole', skoleId)
 
   // Skoleadmin kan kun redigere sin egen skole
   if (profil.rolle === 'skoleadmin') {
@@ -93,7 +95,6 @@ export default async function handler(req, res) {
   if (process.env.HUBSPOT_API_KEY) {
     try {
       console.log('[HubSpot] HUBSPOT_API_KEY er satt ✓')
-      console.log('[HubSpot] gammel:', JSON.stringify(gammel))
 
       let selskapId = gammel?.hubspot_company_id ?? null
 
@@ -104,7 +105,7 @@ export default async function handler(req, res) {
           console.error('[HubSpot] AVBRYTER: gammel.navn er tom/null — kan ikke søke i HubSpot')
           return res.status(200).json({ ok: true })
         }
-        console.log('[HubSpot] Ingen lagret ID — søker på navn:', gammel.navn)
+        console.log('[HubSpot] Ingen lagret ID — søker på skolenavn')
         selskapId = await finnSelskapIdPaaNavn(gammel.navn)
         console.log('[HubSpot] selskapId fra navnesøk:', selskapId ?? 'IKKE FUNNET — hopper over')
 
@@ -134,11 +135,11 @@ export default async function handler(req, res) {
           ...(type          ? { school_type:      type }                      : {}),
           ...(nettverk      ? { nettverk:         nettverk }                  : {}),
         }
-        console.log('[HubSpot] Oppdaterer selskap med felter:', JSON.stringify(selskapFelter))
+        console.log('[HubSpot] Oppdaterer selskapsfelter')
         await oppdaterSelskapFelter(selskapId, selskapFelter)
 
         // Rektor
-        console.log('[HubSpot] rektor_navn:', rektor_navn, '| rektor_epost:', rektor_epost)
+        console.log('[HubSpot] Synker rektor-kontakt')
         if (rektor_epost && rektor_navn) {
           const id = await oppdaterEllerOpprettKontakt({
             navn: rektor_navn, epost: rektor_epost,
@@ -155,7 +156,7 @@ export default async function handler(req, res) {
         // skoleadmin ved godkjenning og oppdateres ikke herfra. hktl_ (Hovedkontakt TL) er den
         // løpende kontaktrollen som skoleadmin vedlikeholder på Min side.
         // Hovedkontakt TL
-        console.log('[HubSpot] hktl_navn:', hktl_navn, '| hktl_epost:', hktl_epost)
+        console.log('[HubSpot] Synker hovedkontakt TL')
         if (hktl_epost && hktl_navn) {
           const id = await oppdaterEllerOpprettKontakt({
             navn: hktl_navn, epost: hktl_epost,
@@ -187,7 +188,7 @@ export default async function handler(req, res) {
         await fjernGamleKoblinger(selskapId, 'TL-ansvarlig', nyeTlaIder)
       }
     } catch (e) {
-      console.error('[HubSpot] Feil ved skole-oppdatering:', e.message, e.stack)
+      console.error('[HubSpot] Feil ved skole-oppdatering:', e.message)
     }
   } else {
     console.log('[HubSpot] HUBSPOT_API_KEY ikke satt — synk deaktivert')

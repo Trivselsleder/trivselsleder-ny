@@ -166,14 +166,14 @@ export default async function handler(req, res) {
     if (dbFeil) { lagringsfeil = dbFeil.message; console.error('Kunne ikke lagre bestilling i DB:', dbFeil.message) }
   } catch (e) {
     lagringsfeil = String((e && e.message) || e)
-    console.error('Uventet feil ved lagring av bestilling:', e)
+    console.error('Uventet feil ved lagring av bestilling:', e?.message || 'ukjent')
   }
 
   // Nødbrems (fail-closed): bestillingen er ALLEREDE lagret over (går aldri tapt), men de to
   // e-postene (intern + kundebekreftelse) sendes KUN når bremsen er åpen.
   const brems = await krevMotorAktiv(supabase)
   if (brems) {
-    console.warn('[send-bestilling] motor_aktiv stengt — e-poster ikke sendt for', skolenavn)
+    console.warn('[send-bestilling] motor_aktiv stengt — e-poster ikke sendt')
     return res.status(200).json({ ok: true, lagret: !lagringsfeil, epost_sendt: false, ...(lagringsfeil ? { lagringsfeil } : {}) })
   }
 
