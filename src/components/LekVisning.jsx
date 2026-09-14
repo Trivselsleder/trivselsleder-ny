@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { trinnKort, formaterAntall } from '../lib/leker'
 import { beskrivelseTilReact, splittMetaBlokk } from '../lib/beskrivelse'
 
@@ -18,9 +19,31 @@ const PUNKTER = [
 ]
 
 const BUNNY_LIB = '727245'
+// CDN-vertsnavn (pull zone) for Bunny-biblioteket, kilde: Bunny-dashbordet 13. sep 2026.
+// Ligger her sammen med BUNNY_LIB, ikke spredt i koden. Hotlink-beskyttet (Referer-allowlist):
+// nettleseren sender Referer fra vårt domene og får bildet. «Embed view token authentication»
+// er AV, så thumbnailene hentes direkte uten signering.
+const BUNNY_CDN = 'vz-ace6fd97-c27.b-cdn.net'
 
-export default function LekVisning({ lek, handlinger = null }) {
+// Rene hjelpere for video-flaten (modul-lokale — ikke eksportert, jf. react-refresh-regelen):
+//   thumbnailUrl: Bunnys forhåndsvisningsbilde for en video-guid (default-filnavnet thumbnail.jpg).
+//   visVideoThumbnail: vis bildet KUN når vi har en guid OG det ikke har feilet å laste.
+//     Feiler bildet (manglende/404) → false → flaten faller tilbake til petrol-boksen (aldri
+//     et brutt bildeikon). Dette er selve fallback-beslutningen.
+const thumbnailUrl = (guid) => (guid ? `https://${BUNNY_CDN}/${guid}/thumbnail.jpg` : null)
+const visVideoThumbnail = (guid, imgFeilet) => !!guid && !imgFeilet
+
+// onVideoSpilt: valgfri callback som kalles ÉN gang når brukeren faktisk starter videoen.
+// Sendes KUN fra den ekte lek-siden (SkoleLek) — IKKE fra redigerings-forhåndsvisningen, så
+// interne som forhåndsviser ikke genererer et video_spilt-signal. Uten callback er atferden
+// nøyaktig som før (iframe rendres direkte).
+export default function LekVisning({ lek, handlinger = null, onVideoSpilt = null }) {
   const t = lek.tekst || {}
+  // Klikk-for-å-spille: vi kontrollerer selv klikket (kan ikke lyttes fra et cross-origin
+  // Bunny-iframe), så video_spilt logges pålitelig — aldri stille tapt.
+  const [videoStartet, setVideoStartet] = useState(false)
+  // Thumbnail-lasting feilet (mangler / 404) → fall tilbake til petrol-boksen med ▶.
+  const [imgFeilet, setImgFeilet] = useState(false)
   // Metablokk (Antall/Utstyr/tips) skilles ut fra FØRSTE avsnitt — kun for visning, aldri i basen.
   const meta = splittMetaBlokk(t.beskrivelse)
   const beskrivelse = beskrivelseTilReact(meta.restHtml)
@@ -33,18 +56,57 @@ export default function LekVisning({ lek, handlinger = null }) {
 
   let media = null
   if (harVideo) {
-    media = (
-      <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-        <iframe
-          src={`https://iframe.mediadelivery.net/embed/${BUNNY_LIB}/${lek.video.bunny_video_id}?preload=false&autoplay=false`}
-          loading="lazy"
-          className="absolute inset-0 w-full h-full rounded-xl border-0"
-          allow="accelerometer;gyroscope;encrypted-media;picture-in-picture"
-          allowFullScreen
-          title={lek.tittel}
-        />
-      </div>
-    )
+    // Kan logge = ekte side (callback sendt) og videoen er ikke startet ennå → vis en
+    // klikk-for-å-spille-flate. Ved klikk: logg video_spilt (én gang) og last iframe med
+    // autoplay. Ellers (forhåndsvisning uten callback, eller allerede startet): vanlig iframe.
+    const kanLogge = typeof onVideoSpilt === 'function'
+    if (kanLogge && !videoStartet) {
+      // Bakgrunn: Bunnys thumbnail hvis vi har guid og bildet ikke har feilet; ellers står
+      // petrol-boksen (button-bakgrunnen) igjen — aldri et brutt bildeikon. ▶-knappen ligger
+      // alltid oppå, med et mørkt sirkel-sjikt så den er synlig mot ALLE thumbnails (også lyse).
+      const guid = lek.video?.bunny_video_id
+      const visThumb = visVideoThumbnail(guid, imgFeilet)
+      media = (
+        <button
+          type="button"
+          onClick={() => { setVideoStartet(true); onVideoSpilt() }}
+          aria-label={`Spill av video: ${lek.tittel || 'leken'}`}
+          className="relative w-full block rounded-xl overflow-hidden bg-petrol focus:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2 group"
+          style={{ paddingTop: '56.25%' }}
+        >
+          {visThumb && (
+            <img
+              src={thumbnailUrl(guid)}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              onError={() => setImgFeilet(true)}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+          <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
+            <span className="w-16 h-16 rounded-full bg-black/55 ring-1 ring-white/30 flex items-center justify-center shadow-lg transition group-hover:bg-black/70">
+              <svg className="w-7 h-7 text-white ml-1" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+          </span>
+        </button>
+      )
+    } else {
+      media = (
+        <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+          <iframe
+            src={`https://iframe.mediadelivery.net/embed/${BUNNY_LIB}/${lek.video.bunny_video_id}?preload=false&autoplay=${videoStartet ? '1' : 'false'}`}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full rounded-xl border-0"
+            allow="accelerometer;gyroscope;encrypted-media;picture-in-picture;autoplay"
+            allowFullScreen
+            title={lek.tittel}
+          />
+        </div>
+      )
+    }
   } else if (slotBilde) {
     media = (
       <img

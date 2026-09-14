@@ -11,11 +11,13 @@ const DOK_IKON = (
   </svg>
 )
 
-export default function DokumentKort({ dok }) {
+// onÅpne: valgfri callback som kalles når et klikkbart dokument åpnes. Brukes av lek-siden til
+// å logge pdf_nedlastet; andre sider sender den ikke (da er onClick undefined = uendret atferd).
+export default function DokumentKort({ dok, onÅpne = undefined }) {
   const { t } = useTranslation()
   const klikkbar = !!dok.url
   const Wrapper = klikkbar ? 'a' : 'div'
-  const props = klikkbar ? { href: dok.url, target: '_blank', rel: 'noopener noreferrer' } : {}
+  const props = klikkbar ? { href: dok.url, target: '_blank', rel: 'noopener noreferrer', onClick: onÅpne } : {}
   return (
     <Wrapper
       {...props}

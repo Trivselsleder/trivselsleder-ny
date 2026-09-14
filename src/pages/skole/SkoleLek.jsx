@@ -220,7 +220,7 @@ export default function SkoleLek() {
           className="border border-petrol text-petrol text-sm font-medium px-4 py-2 rounded-full hover:bg-petrol hover:text-white transition">
           TL-hjul
         </button>
-        <button onClick={() => skrivUtLek(lek)} aria-label="Last ned leken som PDF"
+        <button onClick={() => { loggBrukHendelse('pdf_nedlastet', { ressursId: id }); skrivUtLek(lek) }} aria-label="Last ned leken som PDF"
           className="border border-petrol text-petrol text-sm font-medium px-4 py-2 rounded-full hover:bg-petrol hover:text-white transition">
           PDF
         </button>
@@ -349,14 +349,21 @@ export default function SkoleLek() {
       </nav>
 
       <div className="mt-3">
-        <LekVisning lek={lek} handlinger={handlinger} />
+        <LekVisning lek={lek} handlinger={handlinger}
+          onVideoSpilt={() => loggBrukHendelse('video_spilt', { ressursId: id })} />
       </div>
 
       {dok.length > 0 && (
         <div className="mt-6">
           <h2 className="font-bold text-gray-900 mb-2">{t('skoledok.lek.tilleggsmateriale')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {dok.map((d) => <DokumentKort key={d.id} dok={d} />)}
+            {/* PDF-dokument åpnet fra lek-siden logges som pdf_nedlastet, med LEKENS ressurs-id
+                (dokumentet er tilleggsmateriale til denne leken). Kun PDF — andre filtyper er
+                ikke pdf_nedlastet, og «åpnet dokument» er ingen definert hendelsestype (se rapport). */}
+            {dok.map((d) => (
+              <DokumentKort key={d.id} dok={d}
+                onÅpne={/pdf/i.test(d.filtype || '') ? () => loggBrukHendelse('pdf_nedlastet', { ressursId: id }) : undefined} />
+            ))}
           </div>
         </div>
       )}

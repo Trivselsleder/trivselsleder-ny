@@ -480,7 +480,9 @@ export async function loggBrukHendelse(hendelse, { ressursId = null, sokTekst = 
     // er ikke bruk av en bestemt lek, og skole_id på søk anonymiseres uansett etter 30
     // dager (migr 088). skole_id er skolenivå (organisasjon), ikke personnivå.
     const skoleId = hendelse === 'sok' ? null : await skoleForStempling(user.id)
-    await supabase.from('bruk_hendelse').insert({
+    // await her er KRITISK (lærdom 28. aug): supabase-js sender ikke spørringen før noen
+    // kaller .then()/await. Uten await ble raden ALDRI sendt — rotårsaken til tom brukslogg.
+    const { error } = await supabase.from('bruk_hendelse').insert({
       bruker_id: user.id,
       skole_id: skoleId,
       ressurs_id: ressursId,
@@ -488,7 +490,10 @@ export async function loggBrukHendelse(hendelse, { ressursId = null, sokTekst = 
       sok_tekst: sokTekst,
       treff_antall: treff,
     })
-  } catch {
-    /* logging skal aldri velte siden */
+    // Skal aldri velte brukerhandlingen, men ikke svelges helt stille: en diskré advarsel
+    // gjør at f.eks. et policy-avslag (migr 121) blir synlig i konsollen, ikke usynlig.
+    if (error) console.warn(`[brukslogg] «${hendelse}» ikke logget:`, error.message)
+  } catch (e) {
+    console.warn(`[brukslogg] «${hendelse}» ikke logget:`, e?.message || e)
   }
 }
