@@ -3,8 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   sokLeker, hentUtstyrListe, loggBrukHendelse,
-  hentEgnetListe, hentSesongListe,
-  SESONGER, EGNET_NO,
+  hentEgnetListe, EGNET_NO,
 } from '../../lib/leker'
 import { hentSamlinger } from '../../lib/samlinger'
 import { hentMineFavoritter } from '../../lib/favoritter'
@@ -13,10 +12,16 @@ import LekeKort from '../../components/LekeKort'
 // «Last mer» henter 50 om gangen (besluttet av Kjartan — ikke sidetall, ikke uendelig rulling).
 const SIDE = 50
 
-// Filter-listene EGNET og SESONG er DATADREVNE (etappe 7 D1): de hentes fra basen ved sidelast
-// (hentEgnetListe/hentSesongListe) og bytter ut de kanoniske fallback-listene fra leker.js.
+// Filter-lista EGNET er DATADREVET (etappe 7 D1): den hentes fra basen ved sidelast
+// (hentEgnetListe) og bytter ut den kanoniske fallback-lista fra leker.js.
 // Endrer en ansatt et navn i basen, følger nedtrekket etter. MERK: verdiene sendes som filterverdi
 // til søke-RPC-en (egnet_kategori.navn), derfor er de IKKE UI-tekst som oversettes.
+//
+// SESONG-FILTERET ER HELT FJERNET (13. sep): ressurs_sesong har 0 rader, så ethvert sesongvalg ga
+// 0 treff. Verre: b9db55c fjernet nedtrekket men lot URL-lesingen (?sesong=) og p_sesong stå igjen,
+// så en gammel «?sesong=Høst» i adresselinja (fra da nedtrekket fantes) fortsatte usynlig å nulle
+// ut ALLE søk. Nå leses/skrives/sendes sesong ikke i det hele tatt. Verdiene beholdes i basen —
+// bygges opp igjen som filter når de ansatte har fylt dem.
 //
 // TRINN-NEDTREKKET ER FJERNET FRA LEKEBIBLIOTEKET (beslutning 7. sep, målt kartlegging): enkelttrinn
 // var falsk presisjon — 74 % av lekene ligger i alle tre trinn-band, og band 1-4 vs 5-7 skiller kun
@@ -57,7 +62,6 @@ export default function SkoleAktiviteter() {
   const [fSted, setFSted] = useState('')
   const [fUtstyr, setFUtstyr] = useState('')
   const [utenUtstyr, setUtenUtstyr] = useState(false)
-  const [fSesong, setFSesong] = useState('')
   const [kunVideo, setKunVideo] = useState(false)
   const [kunFav, setKunFav] = useState(false)
   // Åpent som standard (midlertidig, til samlingene primært ligger på Min side) så læreren
@@ -80,7 +84,6 @@ export default function SkoleAktiviteter() {
   // kompetanse» (Bli kjent / klassemiljø). Verdiene BEHOLDES i basen (egnet_kategori) — dette
   // er kun en visnings-skjuling; ansatte kan fylle dem senere. Se rapport for migrasjons-note.
   const egnetVises = egnetListe.filter((x) => !SKJUL_EGNET.has(x))
-  const [sesongListe, setSesongListe] = useState(SESONGER)
   const [klar, setKlar] = useState(false) // URL lest → søk kan starte
 
   const soekeRef = useRef(0)       // race-vakt: kun ferskeste svar teller
@@ -96,7 +99,6 @@ export default function SkoleAktiviteter() {
     const sty = params.get('skoletype'); if (sty) setFSkoletype(sty)
     const st = params.get('sted'); if (st) setFSted(st)
     const us = params.get('utstyr'); if (us) setFUtstyr(us)
-    const se = params.get('sesong'); if (se) setFSesong(se)
     if (params.get('bla') === '1') setBlaApen(true)
     // Datalasting skal aldri velte siden, men feil skal ALDRI svelges helt stille (tre stille
     // regresjoner på rad kom fra .catch(() => {}) her). Behold fallbacken, men logg alltid.
@@ -105,7 +107,6 @@ export default function SkoleAktiviteter() {
     hentUtstyrListe().then(setUtstyrListe).catch(stille('utstyrliste'))
     hentSamlinger().then(setSamlinger).catch(stille('samlinger'))
     hentEgnetListe().then((l) => l.length && setEgnetListe(l)).catch(stille('egnetliste'))
-    hentSesongListe().then((l) => l.length && setSesongListe(l)).catch(stille('sesongliste'))
     setKlar(true)
     // Kun ved montering.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,8 +114,8 @@ export default function SkoleAktiviteter() {
 
   const filtre = useMemo(() => ({
     sok, egnet: fEgnet, skoletype: fSkoletype, sted: fSted, utstyr: fUtstyr,
-    utenUtstyr, sesong: fSesong, kunVideo, kunFav,
-  }), [sok, fEgnet, fSkoletype, fSted, fUtstyr, utenUtstyr, fSesong, kunVideo, kunFav])
+    utenUtstyr, kunVideo, kunFav,
+  }), [sok, fEgnet, fSkoletype, fSted, fUtstyr, utenUtstyr, kunVideo, kunFav])
 
   const filterNokkel = JSON.stringify({ ...filtre, sok: sok.trim() })
 
@@ -127,7 +128,6 @@ export default function SkoleAktiviteter() {
     if (fSkoletype) p.skoletype = fSkoletype
     if (fSted) p.sted = fSted
     if (fUtstyr) p.utstyr = fUtstyr
-    if (fSesong) p.sesong = fSesong
     if (utenUtstyr) p.utenutstyr = '1'
     if (kunVideo) p.video = '1'
     if (kunFav) p.fav = '1'
@@ -187,11 +187,11 @@ export default function SkoleAktiviteter() {
 
   function nullstill() {
     setSok(''); setFEgnet(''); setFSkoletype(''); setFSted(''); setFUtstyr('')
-    setUtenUtstyr(false); setFSesong(''); setKunVideo(false); setKunFav(false)
+    setUtenUtstyr(false); setKunVideo(false); setKunFav(false)
   }
   const bytt = (naa, ny, sett) => sett(naa === ny ? '' : ny)
 
-  const harFilter = !!(sok.trim() || fEgnet || fSkoletype || fSted || fUtstyr || utenUtstyr || fSesong || kunVideo || kunFav)
+  const harFilter = !!(sok.trim() || fEgnet || fSkoletype || fSted || fUtstyr || utenUtstyr || kunVideo || kunFav)
   const rest = Math.max(0, totalt - leker.length)
 
   // Fane-re-klikk (RESTER-ETAPPE3-bug): «Finn en lek» navigerer til /min-side/aktiviteter uten
@@ -202,7 +202,7 @@ export default function SkoleAktiviteter() {
   // skrevet til URL) blir ikke feilaktig tømt.
   useEffect(() => {
     if (!klar) return
-    const FILTERNOKLER = ['sok', 'egnet', 'skoletype', 'sted', 'utstyr', 'sesong', 'utenutstyr', 'video', 'fav']
+    const FILTERNOKLER = ['sok', 'egnet', 'skoletype', 'sted', 'utstyr', 'utenutstyr', 'video', 'fav']
     const urlTom = !FILTERNOKLER.some((k) => params.get(k))
     if (urlTom && harFilter) nullstill()
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -153,9 +153,12 @@ export async function hentLeker() {
 export async function sokLeker(filtre = {}) {
   const {
     sok = '', egnet = '', trinn = '', skoletype = '', sted = '', utstyr = '',
-    utenUtstyr = false, sesong = '', kunVideo = false, kunFav = false,
+    utenUtstyr = false, kunVideo = false, kunFav = false,
     offset = 0, limit = 50,
   } = filtre
+  // p_sesong sendes IKKE (fjernet 13. sep): ressurs_sesong er tom, og et gammelt «?sesong=Høst»
+  // i adresselinja nullet ellers ut alle søk usynlig. RPC-en har DEFAULT null, så utelatelse er
+  // trygt (samme mønster som p_skoletype). Bygges opp igjen når de ansatte har fylt sesong.
   const args = {
     p_sok: sok.trim() || null,
     p_egnet: egnet || null,
@@ -163,7 +166,6 @@ export async function sokLeker(filtre = {}) {
     p_sted: sted || null,
     p_utstyr: utstyr || null,
     p_uten_utstyr: !!utenUtstyr,
-    p_sesong: sesong || null,
     p_kun_video: !!kunVideo,
     p_kun_fav: !!kunFav,
     p_limit: limit,
