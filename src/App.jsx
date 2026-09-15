@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider } from './contexts/AuthContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import TlIkonSprite from './components/TlIkonSprite'
 import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
 import OmOss from './pages/OmOss'
@@ -72,6 +73,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <TlIkonSprite />
         <div className="min-h-screen flex flex-col">
           <KanskjeHeader />
           <main className="flex-grow">

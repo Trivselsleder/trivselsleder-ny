@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { hentDeltPlan, nivaaLabel } from '../lib/periodeplan'
-import { lekEmoji, lekFarge } from '../lib/lekIkon'
+import LekeIkon from '../components/LekeIkon'
 
 const DAG_IDX = ['SØNDAG', 'MANDAG', 'TIRSDAG', 'ONSDAG', 'TORSDAG', 'FREDAG', 'LØRDAG']
 
@@ -142,7 +142,7 @@ export default function SkjermPlan() {
                     <tr key={i} className="border-t border-gray-200/70">
                       <th className="text-left p-3 lg:p-4">
                         <div className="flex items-center gap-3">
-                          <span className="inline-flex items-center justify-center w-10 h-10 lg:w-14 lg:h-14 rounded-xl text-xl lg:text-3xl shrink-0" style={{ background: lekFarge(lek) }}>{lekEmoji(lek)}</span>
+                          <LekeIkon lek={lek} className="w-10 h-10 lg:w-14 lg:h-14 rounded-xl" />
                           <div>
                             <span className="block text-xl lg:text-3xl font-bold leading-tight">{lek.tittel}</span>
                             {(r.celler || {})._sted && <span className="block text-base lg:text-xl text-gray-500 mt-0.5">📍 {(r.celler || {})._sted}</span>}

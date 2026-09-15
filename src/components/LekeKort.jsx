@@ -1,16 +1,11 @@
 import { Link } from 'react-router-dom'
 import { formaterAntall } from '../lib/leker'
-import { lekEmoji, lekFarge } from '../lib/lekIkon'
+import LekeIkon from './LekeIkon'
 
 export default function LekeKort({ lek, favoritt = false }) {
-  // Lite auto-ikon ved tittelen — NØYAKTIG samme uttrykk som PeriodeplanRutenett (w-8 h-8,
-  // rounded-lg, emoji på deterministisk TL-farge). Diskret, tar nesten ingen plass, og lar
-  // kortet være et rolig hvitt kort. Rent dekorativt (aria-hidden), så skjermleseren aldri leser
-  // opp emojien — tittelen ved siden bærer meningen. Ingen tekst ligger oppå fargekvadratet, så
-  // tekstkontrast mot fargen er ikke et tema. (Bildegrenen er fjernet: et miniatyrbilde i et 32px
-  // kvadrat gir ikke mening, og liste-RPC-en sok_leker returnerer uansett ingen bilde-URL.)
-  const emoji = lekEmoji(lek)
-  const farge = lekFarge(lek)
+  // Lite TL-symbol (SVG-sprite) ved tittelen — samme uttrykk som før (w-8 h-8, rounded-lg, på
+  // deterministisk TL-farge), bare bedre symbol enn emojien. Diskret, lar kortet være et rolig
+  // hvitt kort. Rent dekorativt (aria-hidden) — tittelen ved siden bærer meningen.
   return (
     <Link
       to={`/min-side/aktiviteter/${lek.id}`}
@@ -18,13 +13,7 @@ export default function LekeKort({ lek, favoritt = false }) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-start gap-2.5 min-w-0">
-          <span
-            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-base shrink-0"
-            style={{ background: farge }}
-            aria-hidden="true"
-          >
-            {emoji}
-          </span>
+          <LekeIkon lek={lek} className="w-8 h-8 rounded-lg" />
           <h3 className="font-bold text-gray-900">{lek.tittel}</h3>
         </div>
         <span className="flex items-center gap-1 shrink-0">

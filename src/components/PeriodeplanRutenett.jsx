@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { lekEmoji, lekFarge } from '../lib/lekIkon'
+import LekeIkon from './LekeIkon'
 
 // A2-stylet ukerutenett: dager som kolonner, leker som rader, TL-klasser som «chips»
 // i cellene, ansvarlig (TL-vakt) per dag. Samme data-plumbing som før
@@ -61,15 +61,13 @@ export default function PeriodeplanRutenett({ plan, deltakere, onCelle, onAnsvar
             </tr>
           ) : (
             plan.rader.map((r, idx) => {
-              const emoji = r.lek?.id ? lekEmoji(r.lek) : '🎈'
-              const farge = r.lek?.id ? lekFarge(r.lek) : '#9ca3af'
               const meta = r.lek?.egnet?.[0]
               const tittel = r.lek?.tittel || 'Lek'
               return (
                 <tr key={r.id} className="border-b border-gray-50 last:border-b-0 hover:bg-gray-50/50">
                   <th scope="row" className="text-left px-4 py-3 align-top font-normal">
                     <div className="flex items-start gap-2.5">
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-base shrink-0" style={{ background: farge }}>{emoji}</span>
+                      <LekeIkon lek={r.lek} className="w-8 h-8 rounded-lg" />
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-gray-900 leading-snug">{tittel}</p>
                         {meta && <p className="text-xs text-gray-500 mt-0.5">{meta}</p>}
