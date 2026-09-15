@@ -2,11 +2,13 @@ import { createClient } from '@supabase/supabase-js'
 import { krevCronEllerAnsatt, erCronKall } from '../_vakt.js'
 
 // ============================================================================
-// NATTLIG PERSONVERN-ANONYMISERING. Kjører TO personvernrutiner én gang i døgnet.
+// NATTLIG PERSONVERN-ANONYMISERING. Kjører FIRE personvernrutiner én gang i døgnet.
 //
-// NB OM NAVNET: mappa/ruta heter «brukslogg», men ruta rører NÅ BEGGE loggtabellene:
+// NB OM NAVNET: mappa/ruta heter «brukslogg», men ruta rører NÅ FIRE loggtabeller:
 //   - public.anonymiser_bruk_hendelse()  (migr 088) → tabellen `bruk_hendelse`
 //   - public.anonymiser_brukslogg()       (migr 096) → tabellen `brukslogg`
+//   - public.anonymiser_epost_logg()      (migr 127) → tabellen `epost_logg`
+//   - public.anonymiser_endringslogg()    (migr 127) → tabellen `endringslogg`
 //   Navnet «brukslogg» er altså for snevert (historisk rørte ruta bare bruk_hendelse).
 //   Full omdøping til et nøytralt navn (f.eks. api/personvern/cron-anonymiser.js) krever
 //   en SAMTIDIG vercel.json-sti-endring i samme deploy — egen sak, ikke gjort her.
@@ -24,7 +26,17 @@ import { krevCronEllerAnsatt, erCronKall } from '../_vakt.js'
 //           tabellen, derfor ett steg (asymmetrien mot 088 er bevisst).
 //           Returnerer frakoblet_person.
 //
-// Begge tall sendes rått tilbake i svaret (per jobb), så hver kjøring kan etterprøves.
+// Jobb 3 — epost_logg (migr 127), én frist:
+//   12 mnd: nuller mottaker_epost, mottaker_navn og kurs_skole_mottaker_id; beholder
+//           type/status/resend_id/feilmelding/kurs_skole_id/opprettet_at (statistikk).
+//           Returnerer frakoblet_person.
+//
+// Jobb 4 — endringslogg (migr 127), én frist:
+//   12 mnd: nuller topp-nivå endret_av OG stripper person-uuid-nøklene (endret_av,
+//           opprettet_av) ut av full_rad/endringer-jsonb — innholdsradene bærer dem.
+//           Returnerer frakoblet_person.
+//
+// Alle tall sendes rått tilbake i svaret (per jobb), så hver kjøring kan etterprøves.
 //
 // HVORFOR EN VERCEL-CRON OG IKKE pg_cron:
 //   pg_cron er ikke installert i basen (Supabase-standard; bekreftes med
@@ -123,8 +135,18 @@ export default async function handler(req, res) {
   if (bl.error) console.error('cron-anonymiser: anonymiser_brukslogg feilet:', bl.error.message)
   const blRad = Array.isArray(bl.data) ? bl.data[0] : bl.data
 
+  // Jobb 3: epost_logg (migr 127) — 12 mnd, nuller mottaker-navn/e-post + kurs_skole_mottaker_id.
+  const el = await supabase.rpc('anonymiser_epost_logg')
+  if (el.error) console.error('cron-anonymiser: anonymiser_epost_logg feilet:', el.error.message)
+  const elRad = Array.isArray(el.data) ? el.data[0] : el.data
+
+  // Jobb 4: endringslogg (migr 127) — 12 mnd, nuller endret_av + stripper person-uuid fra jsonb.
+  const en = await supabase.rpc('anonymiser_endringslogg')
+  if (en.error) console.error('cron-anonymiser: anonymiser_endringslogg feilet:', en.error.message)
+  const enRad = Array.isArray(en.data) ? en.data[0] : en.data
+
   const svar = {
-    ok: !bh.error && !bl.error,
+    ok: !bh.error && !bl.error && !el.error && !en.error,
     torrkjoring: false,
     bruk_hendelse: bh.error
       ? { feil: bh.error.message }
@@ -132,9 +154,16 @@ export default async function handler(req, res) {
     brukslogg: bl.error
       ? { feil: bl.error.message }
       : { frakoblet_person: Number(blRad?.frakoblet_person ?? 0) },
+    epost_logg: el.error
+      ? { feil: el.error.message }
+      : { frakoblet_person: Number(elRad?.frakoblet_person ?? 0) },
+    endringslogg: en.error
+      ? { feil: en.error.message }
+      : { frakoblet_person: Number(enRad?.frakoblet_person ?? 0) },
   }
 
-  // 500 hvis NOEN jobb feilet, så cron-overvåkingen ser det — men begge resultatene
+  // 500 hvis NOEN jobb feilet, så cron-overvåkingen ser det — men alle resultatene
   // står i svaret, så en vellykket jobb ikke skjules av en mislykket.
-  return res.status(bh.error || bl.error ? 500 : 200).json(svar)
+  const noenFeil = bh.error || bl.error || el.error || en.error
+  return res.status(noenFeil ? 500 : 200).json(svar)
 }
