@@ -142,7 +142,10 @@ export async function hentLeker() {
     .from('ressurser')
     .select(VELG_LISTE)
     .eq('status', 'publisert')
-    .neq('ressurstype', 'aktiv_laering') // aktiv læring er egen side (Fag + Trinn)
+    // HVITLISTE (Fable F1, 15. sep): kun leker. En svarteliste (neq aktiv_laering) ruster —
+    // hver ny ressurstype (aktiv_laering, tl_dans, …) må ellers jaktes ned overalt. Med eq='lek'
+    // holder plukkeren seg til leker uansett hvilke nye typer som kommer til.
+    .eq('ressurstype', 'lek')
   if (error) throw error
   return (data || []).map(formLek)
 }

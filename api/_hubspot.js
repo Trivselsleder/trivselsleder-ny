@@ -18,12 +18,26 @@ const SKOLETYPE_HUBSPOT = {
   // barnehage, SFO: bevisst utelatt — ingen tilsvarende HubSpot-verdi.
 }
 
-// RETTING 5 — VENTER PÅ VERDI. HubSpots statusfelt heter internt `kategori` (label «Status»),
-// med gyldige verdier: Aktiv · Aktiv, sagt opp · Potensielle · Pause · Nedlagt. Verdien for en
-// ny påmelding («Påmeldt») opprettes i HubSpot akkurat nå; den interne verdien er ennå ukjent.
-// FYLL INN verdien PÅ ÉN LINJE HER når den er kjent. Så lenge den er null, sendes `kategori`
-// IKKE til HubSpot (selskapet opprettes/oppdateres uten å røre statusfeltet — ingen gjetting).
-const PAAMELDING_KATEGORI = null // ← SETT HubSpot-verdien for «Påmeldt» her (internt kategori-navn)
+// HubSpots statusfelt heter internt `kategori` (label «Status»), med verdiene Aktiv · Aktiv, sagt
+// opp · Potensielle · Pause · Nedlagt. Marielle opprettet «Påmeldt» i HubSpot 15. sep og bekrefter
+// at den staves nøyaktig slik (samme mønster som de øvrige). Er verdien null, sendes `kategori`
+// IKKE til HubSpot. Skulle verdien likevel være feil, AVVISER HubSpot hele skrivingen — det
+// logges tydelig via loggKategoriAvvist() under, så det ikke oppdages stille (jf. den gamle
+// trivselsleder_status-feilen som først ble oppdaget etter måneder).
+const PAAMELDING_KATEGORI = 'Påmeldt'
+
+// Logg TYDELIG dersom HubSpot avviste selve `kategori`-verdien (statusfeltet), så en feil verdi
+// aldri oppdages stille. Vi leser feilteksten kun for å AVGJØRE om det gjaldt kategori — vi
+// logger ALDRI feilobjektet (kan inneholde innsendte felt/PII), bare en fast linje med
+// kategori-verdien som ble avvist.
+function loggKategoriAvvist(feil, verdi) {
+  if (verdi != null && /kategori/i.test(JSON.stringify(feil ?? ''))) {
+    console.error(
+      `[HubSpot] ADVARSEL: statusverdien kategori=«${verdi}» ble AVVIST av HubSpot. ` +
+      'Sjekk at verdien finnes og staves nøyaktig slik i HubSpot (Selskap → Status). Status ble IKKE satt.'
+    )
+  }
+}
 
 // Skolenavn-normalisering for duplikatmatching. Det fantes INGEN felles rutine i kodebasen å
 // gjenbruke (sjekket), så denne er enkel og selvstendig: små bokstaver, fjern skilletegn,
@@ -126,6 +140,7 @@ export async function opprettEllerOppdaterSelskap(p) {
   })
   if (!res.ok) {
     const feil = await res.json()
+    loggKategoriAvvist(feil, egenskaper.kategori)
     throw new Error(feil.message ?? 'HubSpot-feil ved opprettelse')
   }
   return (await res.json()).id
@@ -142,6 +157,7 @@ export async function oppdaterStatus(hubspotId, status) {
   })
   if (!res.ok) {
     const feil = await res.json()
+    loggKategoriAvvist(feil, status)
     throw new Error(feil.message ?? 'HubSpot PATCH-feil')
   }
 }
@@ -182,6 +198,7 @@ export async function oppdaterSelskapFelter(hubspotId, felter) {
   if (!res.ok) {
     const feil = await res.json()
     console.error('[HubSpot] oppdaterSelskapFelter: feil:', feil.message)
+    loggKategoriAvvist(feil, felter?.kategori)
     throw new Error(feil.message ?? 'HubSpot PATCH-feil')
   }
   console.log('[HubSpot] oppdaterSelskapFelter: OK')
