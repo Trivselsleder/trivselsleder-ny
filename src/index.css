@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @theme {
+  /* Skrift: Nunito Sans på HELE nettstedet, selvhostet (@fontsource, importert i
+     main.jsx). Tailwinds font-sans (som body arver) peker nå hit → gjelder alt. */
+  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
   /* Grafisk identitet v2.0 (offisiell) */
   --color-orange: #FF7B31;   /* primær oransje */
   --color-petrol: #106C75;   /* sekundær (erstattet utgått «magenta»/rosa fullstendig 15. aug) */
@@ -12,4 +16,10 @@
      2,6:1 mot hvitt og kan derfor ikke brukes som tekstfarge paa lys bakgrunn. */
   --color-orange-ink: #B5560F;      /* oransje TEKST/ikon paa lys bakgrunn - 4,9:1 */
   --color-orange-ink-dark: #8A4109; /* hover for oransje tekst - 7,4:1 */
+}
+
+/* Sikrer at HELE dokumentet arver Nunito Sans, uavhengig av Tailwinds
+   default-font-wiring. Elementer med egen font-sans/font-* arver også herfra. */
+html, body {
+  font-family: var(--font-sans);
 }

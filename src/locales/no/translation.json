@@ -910,6 +910,11 @@
     },
     "tilbake": "Tilbake til Min side"
   },
+  "favoritt": {
+    "leggTil": "Legg til i favoritter: {{navn}}",
+    "fjern": "Fjern fra favoritter: {{navn}}",
+    "ikkeLagret": "Favoritten ble ikke lagret. Prøv igjen."
+  },
   "skoledok": {
     "apnesNyFane": "åpnes i ny fane",
     "alle": "Alle",

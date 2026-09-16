@@ -6,6 +6,7 @@ import {
   lagKlassifikator, malerOgMateriell, hovedkategorier, underkategorier, iValgtKategori,
 } from '../../lib/dokumentTre'
 import DokumentKort from '../../components/DokumentKort'
+import { hentMineDokumentFavoritter, settDokumentFavoritt } from '../../lib/favoritter'
 
 // «Maler & materiell»: alle publiserte dokumenter som IKKE er tilleggsmateriale til leker (910/924)
 // og som har minst én kategori utenfor Aktiv læring-treet (2). Kategorifilteret bygges av
@@ -21,13 +22,39 @@ export default function SkoleDokumenter() {
   const [data, setData] = useState(null) // { dokumenter, typer }
   const [laster, setLaster] = useState(true)
   const [feil, setFeil] = useState(null)
+  const [favoritter, setFavoritter] = useState(new Set()) // dokument_id-er (migr 132)
+  const [lagringsfeil, setLagringsfeil] = useState(false)  // K9: vis kort beskjed når favoritt ikke ble lagret
 
   useEffect(() => {
     hentDokumentsideData()
       .then(setData)
       .catch((e) => setFeil(e.message))
       .finally(() => setLaster(false))
+    // Egne dokumentfavoritter (kun innlogget skolebruker har rader; ellers tom mengde).
+    hentMineDokumentFavoritter().then(setFavoritter).catch((e) => console.warn('[favoritter] kunne ikke hentes:', e?.message || e))
   }, [])
+
+  // Optimistisk veksling: oppdater UI straks, rull tilbake ved feil (svelger ingen feil stille).
+  async function vekslFavoritt(dok) {
+    const paa = !favoritter.has(dok.id)
+    setLagringsfeil(false)
+    setFavoritter((f) => {
+      const n = new Set(f)
+      paa ? n.add(dok.id) : n.delete(dok.id)
+      return n
+    })
+    try {
+      await settDokumentFavoritt(dok.id, paa)
+    } catch (e) {
+      console.warn('[favoritter] kunne ikke lagres:', e?.message || e)
+      setFavoritter((f) => {
+        const n = new Set(f)
+        paa ? n.delete(dok.id) : n.add(dok.id)
+        return n
+      })
+      setLagringsfeil(true)  // K9: si fra i live-regionen (WCAG 3.3.1/4.1.3)
+    }
+  }
 
   const klass = useMemo(() => (data ? lagKlassifikator(data.typer) : null), [data])
   const basis = useMemo(() => (klass ? malerOgMateriell(klass, data.dokumenter) : []), [klass, data])
@@ -113,9 +140,16 @@ export default function SkoleDokumenter() {
       {laster && <p className="text-gray-500 mt-8">{t('skoledok.maler.laster')}</p>}
       {feil && <p className="text-tlred mt-8">{t('skoledok.maler.feil', { feil })}</p>}
 
-      {/* Alltid montert live-region: annonserer antall treff for skjermleser. */}
-      <p className="text-sm text-gray-500 mt-6 min-h-[1.25rem]" role="status" aria-live="polite">
-        {!laster && !feil && basis.length > 0 ? t('skoledok.maler.teller', { vist: treff.length, total: basis.length }) : ''}
+      {/* Alltid montert live-region: annonserer antall treff for skjermleser, og en kort
+          beskjed hvis en favoritt ikke ble lagret (K9). */}
+      <p
+        className={`text-sm mt-6 min-h-[1.25rem] ${lagringsfeil ? 'text-tlred' : 'text-gray-500'}`}
+        role="status"
+        aria-live="polite"
+      >
+        {lagringsfeil
+          ? t('favoritt.ikkeLagret')
+          : (!laster && !feil && basis.length > 0 ? t('skoledok.maler.teller', { vist: treff.length, total: basis.length }) : '')}
       </p>
 
       {!laster && !feil && (
@@ -125,7 +159,14 @@ export default function SkoleDokumenter() {
           <div className="text-center text-gray-500 py-16">{t('skoledok.maler.ingenTreff')}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
-            {treff.map((d) => <DokumentKort key={d.id} dok={d} />)}
+            {treff.map((d) => (
+              <DokumentKort
+                key={d.id}
+                dok={d}
+                erFavoritt={favoritter.has(d.id)}
+                onToggleFavoritt={vekslFavoritt}
+              />
+            ))}
           </div>
         )
       )}

@@ -910,6 +910,11 @@
     },
     "tilbake": "Tillbaka till Min sida"
   },
+  "favoritt": {
+    "leggTil": "Lägg till i favoriter: {{navn}}",
+    "fjern": "Ta bort från favoriter: {{navn}}",
+    "ikkeLagret": "Favoriten kunde inte sparas. Försök igen."
+  },
   "skoledok": {
     "apnesNyFane": "öppnas i ny flik",
     "alle": "Alla",
