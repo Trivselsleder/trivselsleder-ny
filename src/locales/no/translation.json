@@ -957,7 +957,17 @@
       "raSporsmaal": "Vil du ha råd om leker? Ta kontakt med din regionansvarlige.",
       "webinarer": "Webinarer",
       "meldPaa": "Meld dere på",
-      "ingenWebinar": "Ingen planlagte webinarer akkurat nå — du får e-post når neste er klart."
+      "ingenWebinar": "Ingen planlagte webinarer akkurat nå — du får e-post når neste er klart.",
+      "nominasjonslapp": "Nominasjonslapp",
+      "nominasjonsregler": "Nominasjonsregler",
+      "sprakBokmaal": "Bokmål",
+      "sprakNynorsk": "Nynorsk",
+      "sprakEngelsk": "Engelsk",
+      "danserTeller": "{{antall}} danser",
+      "nyesteDans": "Nyeste dans",
+      "velgTidligereDans": "Velg tidligere dans",
+      "velgDans": "Velg en dans",
+      "arkUtskrift": "Ark til utskrift"
     }
   },
   "adminMinside": {

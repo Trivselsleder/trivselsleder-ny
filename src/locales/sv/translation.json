@@ -957,7 +957,17 @@
       "raSporsmaal": "Vill du ha råd om lekar? Kontakta din regionansvariga.",
       "webinarer": "Webbinarier",
       "meldPaa": "Anmäl er",
-      "ingenWebinar": "Inga planerade webbinarier just nu — du får e-post när nästa är klart."
+      "ingenWebinar": "Inga planerade webbinarier just nu — du får e-post när nästa är klart.",
+      "nominasjonslapp": "Nomineringslapp",
+      "nominasjonsregler": "Nomineringsregler",
+      "sprakBokmaal": "Bokmål",
+      "sprakNynorsk": "Nynorsk",
+      "sprakEngelsk": "Engelska",
+      "danserTeller": "{{antall}} danser",
+      "nyesteDans": "Nyaste dansen",
+      "velgTidligereDans": "Välj tidigare dans",
+      "velgDans": "Välj en dans",
+      "arkUtskrift": "Ark för utskrift"
     }
   },
   "adminMinside": {

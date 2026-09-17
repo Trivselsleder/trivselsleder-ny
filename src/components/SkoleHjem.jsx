@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { hentSamlingPaaNokkel } from '../lib/samlinger'
+import { hentSamlingKort } from '../lib/samlinger'
 import { harSamling } from '../lib/samlingForm'
+import { grupperNominasjonDok, stripTipslistePrefiks, lekekursTittel, nominasjonEtikettNokkel, sorterDanser } from '../lib/minsideKort'
 import { hentManedensLek, hentManedensAktivLaering } from '../lib/manedensLek'
 import { hentMineFavoritter, hentMineDokumentFavoritter } from '../lib/favoritter'
 import { hentPlaner } from '../lib/periodeplan'
@@ -36,7 +37,8 @@ const CSS = `
 .ms-card{background:#fff;border-radius:20px;box-shadow:0 2px 12px rgba(20,24,40,.07);padding:22px}
 .ms-grid5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
 .ms-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.ms-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+/* stretch: to kort i samme rad får jevn høyde (retterunde 2, punkt 7). */
+.ms-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch}
 .ms-tile{text-decoration:none;background:#fff;border-radius:18px;box-shadow:0 2px 12px rgba(20,24,40,.07);
   padding:18px;min-height:96px;display:flex;flex-direction:column;justify-content:center;gap:4px}
 .ms-tile:hover{box-shadow:0 4px 16px rgba(20,24,40,.12)}
@@ -106,6 +108,18 @@ const CSS = `
   outline:3px solid var(--petrol);outline-offset:3px;border-radius:6px}
 .ms-count{font-size:16px;color:var(--grey)}
 .ms-sechead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:0 0 14px}
+/* Nominasjonslapp: én knapp som folder ut språkvalg. */
+.ms-sprakvalg{display:inline-block}
+.ms-sprakvalg>summary{gap:8px;cursor:pointer;list-style:none}
+.ms-sprakvalg>summary::-webkit-details-marker{display:none}
+.ms-sprakrad{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+/* TL-dans: nyeste dans + nedtrekk for tidligere. */
+.ms-dansmedia{display:block;text-decoration:none;margin:6px 0 12px}
+.ms-dansnavn{font-size:18px;font-weight:700;color:var(--dark);margin:0}
+.ms-danssub{font-size:16px;color:var(--grey);margin:3px 0 12px}
+.ms-dansvelg label{display:block;font-size:16px;font-weight:600;color:var(--grey2);margin:0 0 6px}
+.ms-dansvelg select{width:100%;min-height:44px;font-size:16px;font-weight:600;color:var(--dark);
+  background:#fff;border:1px solid var(--line);border-radius:999px;padding:0 16px}
 @media(max-width:900px){
   .ms-grid5{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ms-grid3{grid-template-columns:1fr}
@@ -170,11 +184,13 @@ export default function SkoleHjem() {
     hentKommendeWebinarer().then((l) => setNesteWebinar(l[0] || null)).catch(() => setNesteWebinar(null))
     hentTipslister(i18n.language === 'sv' ? 'sv' : 'nb').then(setTipslister).catch(() => setTipslister([]))
 
-    // Nøkkelbaserte samlinger (låses opp av nøkkelmigrasjonen). Uteblir stille → «Kommer snart».
-    hentSamlingPaaNokkel('tl-dans').then((s) => setSamlinger((p) => ({ ...p, tldans: s }))).catch(() => {})
-    hentSamlingPaaNokkel('laginndeling').then((s) => setSamlinger((p) => ({ ...p, laginndeling: s }))).catch(() => {})
-    hentSamlingPaaNokkel('nominasjon').then((s) => setSamlinger((p) => ({ ...p, nominasjon: s }))).catch(() => {})
-    hentKursmodul().then((s) => setSamlinger((p) => ({ ...p, kursmodul: s }))).catch(() => {})
+    // Nøkkelbaserte samlinger MED innhold (låses opp av nøkkelmigrasjonen). Kortene viser én
+    // knapp per lek/dokument; uteblir stille → «Kommer snart».
+    const sp = i18n.language === 'sv' ? 'sv' : 'nb'
+    hentSamlingKort('tl-dans', sp).then((s) => setSamlinger((p) => ({ ...p, tldans: s }))).catch(() => {})
+    hentSamlingKort('laginndeling', sp).then((s) => setSamlinger((p) => ({ ...p, laginndeling: s }))).catch(() => {})
+    hentSamlingKort('nominasjon', sp).then((s) => setSamlinger((p) => ({ ...p, nominasjon: s }))).catch(() => {})
+    hentKursmodul(sp).then((s) => setSamlinger((p) => ({ ...p, kursmodul: s }))).catch(() => {})
 
     Promise.allSettled([hentPlaner(), hentHjul(), hentMineFavoritter(), hentMineDokumentFavoritter()]).then(
       ([p, h, fl, fd]) => setTellere({
@@ -231,9 +247,9 @@ export default function SkoleHjem() {
 }
 
 // Prøver kursmodulnøklene i tur (nøkkelmigrasjonen setter én av disse). Uteblir stille.
-async function hentKursmodul() {
+async function hentKursmodul(sprak = 'nb') {
   for (const nokkel of ['kursmodul-host-2026', 'kursmodul-host', 'kursmodul-vinter-2026', 'kursmodul']) {
-    const s = await hentSamlingPaaNokkel(nokkel).catch(() => null)
+    const s = await hentSamlingKort(nokkel, sprak).catch(() => null)
     if (harSamling(s)) return s
   }
   return null
@@ -311,59 +327,163 @@ function AktueltSeksjon({ t, aktuelt }) {
   )
 }
 
-// Kort som enten lenker til en samling, eller viser «Kommer snart» til nøkkelen finnes.
-function SamlingKnapp({ t, samling, label }) {
-  if (harSamling(samling)) {
-    return (
-      <Link className="ms-btn" to={`/min-side/samlinger/${samling.id}`}>
-        {samling.tittel || label}
-      </Link>
-    )
+// Ett dokument = én knapp som åpner PDF-en i ny fane. Uten url gir dokumentet ingen knapp
+// (unngår død lenke) — kortet degraderer stille.
+function DokKnapp({ tittel, url }) {
+  if (!url) return null
+  return (
+    <a className="ms-btn" href={url} target="_blank" rel="noopener noreferrer">{tittel}</a>
+  )
+}
+
+// Petrol chevron ned (for språkvalg og sammenleggbar tipsgruppe).
+function ChevronNed() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" style={{ color: '#106C75', flex: 'none' }} strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M4 7l6 6 6-6" /></svg>
+  )
+}
+
+// Nominasjonslappen finnes på bm/nn/en → ÉN knapp «Nominasjonslapp» som folder ut språkvalg
+// (retterunde 2, punkt 1). <details>/<summary> gir tastaturvennlig utfelling uten egen JS-state.
+function NominasjonslappGruppe({ t, varianter }) {
+  const sprakLabel = {
+    nb: t('minSide.hjem.sprakBokmaal'),
+    nn: t('minSide.hjem.sprakNynorsk'),
+    en: t('minSide.hjem.sprakEngelsk'),
   }
-  return <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
+  return (
+    <details className="ms-sprakvalg">
+      <summary className="ms-btn">{t('minSide.hjem.nominasjonslapp')}<ChevronNed /></summary>
+      <div className="ms-sprakrad">
+        {varianter.map((v) => (
+          <a key={v.sprak} className="ms-btn" href={v.url} target="_blank" rel="noopener noreferrer"
+             aria-label={`${t('minSide.hjem.nominasjonslapp')} — ${sprakLabel[v.sprak] || v.sprak}`}>
+            {sprakLabel[v.sprak] || v.sprak}
+          </a>
+        ))}
+      </div>
+    </details>
+  )
 }
 
 function NominasjonKurs({ t, samlinger }) {
+  const nom = samlinger.nominasjon
+  const kurs = samlinger.kursmodul
+  const nomElementer = nom ? grupperNominasjonDok(nom.dokumenter) : []
+  const kursTittel = lekekursTittel(t('minSide.hjem.lekekurs'), kurs?.tittel)
   return (
     <div className="ms-grid2">
       <section className="ms-card" aria-labelledby="ms-nom">
         <h2 id="ms-nom" className="ms-h2 ms-h2ic"><Ikon navn="dok" />{t('minSide.hjem.nominasjon')}</h2>
         <p className="ms-sub">{t('minSide.hjem.nominasjonSub')}</p>
-        <div className="ms-btnrow">
-          <SamlingKnapp t={t} samling={samlinger.nominasjon} label={t('minSide.hjem.aapneNominasjon')} />
-        </div>
+        {nomElementer.length ? (
+          <div className="ms-btnrow">
+            {nomElementer.map((el, i) => {
+              if (el.type === 'sprakgruppe') return <NominasjonslappGruppe key={`sg${i}`} t={t} varianter={el.varianter} />
+              // Enkelte dokumenter har en kort visningsetikett (f.eks. 17740 → «Nominasjonsregler»).
+              const etikett = nominasjonEtikettNokkel(el.kilde_nid)
+              return <DokKnapp key={el.id} tittel={etikett ? t(`minSide.hjem.${etikett}`) : el.tittel} url={el.url} />
+            })}
+          </div>
+        ) : (
+          <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
+        )}
       </section>
       <section className="ms-card" aria-labelledby="ms-kurs">
-        <h2 id="ms-kurs" className="ms-h2">{t('minSide.hjem.lekekurs')}</h2>
+        <h2 id="ms-kurs" className="ms-h2">{kursTittel}</h2>
         <div className="ms-mediarow" style={{ marginTop: 6 }}>
-          <div className="ms-thumb" role="img" aria-label={t('minSide.hjem.lekekurs')}><Play /></div>
+          <div className="ms-thumb" role="img" aria-label={kursTittel}><Play /></div>
           <p className="ms-sub" style={{ margin: 0 }}>{t('minSide.hjem.lekekursSub')}</p>
         </div>
         <div className="ms-btnrow" style={{ marginTop: 14 }}>
-          <SamlingKnapp t={t} samling={samlinger.kursmodul} label={t('minSide.hjem.aapneKurs')} />
+          {harSamling(kurs) ? (
+            <>
+              <Link className="ms-btn" to={`/min-side/samlinger/${kurs.id}`}>{t('minSide.hjem.aapneKurs')}</Link>
+              {(kurs.dokumenter || []).map((d) => <DokKnapp key={d.id} tittel={d.tittel} url={d.url} />)}
+            </>
+          ) : (
+            <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
+          )}
         </div>
       </section>
     </div>
   )
 }
 
+// Nedtrekk for tidligere danser — navigerer til lek-siden ved valg.
+function DansVelger({ t, danser }) {
+  const navigate = useNavigate()
+  return (
+    <div className="ms-dansvelg">
+      <label htmlFor="ms-dans-sel">{t('minSide.hjem.velgTidligereDans')}</label>
+      <select id="ms-dans-sel" defaultValue=""
+              onChange={(e) => { if (e.target.value) navigate(`/min-side/aktiviteter/${e.target.value}`) }}>
+        <option value="" disabled>{t('minSide.hjem.velgDans')}</option>
+        {danser.map((d) => <option key={d.id} value={d.id}>{d.tittel}</option>)}
+      </select>
+    </div>
+  )
+}
+
+function TlDansKort({ t, dans }) {
+  // Prod-rekkefolge er ubrukelig (19 danser på rekkefolge 0) — sortér på tallet i tittelen,
+  // nyeste (høyeste tall) først. Se sorterDanser i lib/minsideKort.
+  const leker = sorterDanser((dans && dans.leker) || [])
+  const nyeste = leker[0] || null
+  const tidligere = leker.slice(1)
+  return (
+    <section className="ms-card" aria-labelledby="ms-dans">
+      <div className="ms-sechead" style={{ marginBottom: 6 }}>
+        <h2 id="ms-dans" className="ms-h2" style={{ margin: 0 }}>{t('minSide.hjem.tldans')}</h2>
+        {leker.length > 0 && <span className="ms-count">{t('minSide.hjem.danserTeller', { antall: leker.length })}</span>}
+      </div>
+      {!harSamling(dans) ? (
+        <>
+          <div className="ms-thumb petrol" role="img" aria-label={t('minSide.hjem.tldans')} style={{ width: '100%', height: 112, marginTop: 6, marginBottom: 12 }}><Play /></div>
+          <div className="ms-btnrow"><span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span></div>
+        </>
+      ) : nyeste ? (
+        <>
+          <Link to={`/min-side/aktiviteter/${nyeste.id}`} className="ms-dansmedia" aria-label={nyeste.tittel}>
+            <div className="ms-thumb petrol" role="img" aria-label={nyeste.tittel} style={{ width: '100%', height: 112 }}><Play /></div>
+          </Link>
+          <p className="ms-dansnavn">{nyeste.tittel}</p>
+          <p className="ms-danssub">{t('minSide.hjem.nyesteDans')}</p>
+          {tidligere.length > 0 && <DansVelger t={t} danser={tidligere} />}
+        </>
+      ) : (
+        <div className="ms-btnrow"><Link className="ms-btn" to={`/min-side/samlinger/${dans.id}`}>{t('minSide.hjem.aapneDans')}</Link></div>
+      )}
+    </section>
+  )
+}
+
+function LaginndelingKort({ t, lag }) {
+  return (
+    <section className="ms-card" aria-labelledby="ms-lag">
+      <h2 id="ms-lag" className="ms-h2 ms-h2ic"><Ikon navn="lag" />{t('minSide.hjem.laginndeling')}</h2>
+      <p className="ms-sub">{t('minSide.hjem.laginndelingSub')}</p>
+      {harSamling(lag) ? (
+        <div className="ms-btnrow">
+          {(lag.leker || []).map((l) => (
+            <Link key={l.id} className="ms-btn" to={`/min-side/aktiviteter/${l.id}`}>{l.tittel}</Link>
+          ))}
+          {(lag.dokumenter || []).map((d) => (
+            <DokKnapp key={d.id} tittel={t('minSide.hjem.arkUtskrift')} url={d.url} />
+          ))}
+        </div>
+      ) : (
+        <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
+      )}
+    </section>
+  )
+}
+
 function DansLag({ t, samlinger }) {
   return (
     <div className="ms-grid2">
-      <section className="ms-card" aria-labelledby="ms-dans">
-        <h2 id="ms-dans" className="ms-h2">{t('minSide.hjem.tldans')}</h2>
-        <div className="ms-thumb petrol" role="img" aria-label={t('minSide.hjem.tldans')} style={{ width: '100%', height: 112, marginTop: 6, marginBottom: 12 }}><Play /></div>
-        <div className="ms-btnrow">
-          <SamlingKnapp t={t} samling={samlinger.tldans} label={t('minSide.hjem.aapneDans')} />
-        </div>
-      </section>
-      <section className="ms-card" aria-labelledby="ms-lag">
-        <h2 id="ms-lag" className="ms-h2 ms-h2ic"><Ikon navn="lag" />{t('minSide.hjem.laginndeling')}</h2>
-        <p className="ms-sub">{t('minSide.hjem.laginndelingSub')}</p>
-        <div className="ms-btnrow">
-          <SamlingKnapp t={t} samling={samlinger.laginndeling} label={t('minSide.hjem.aapneLaginndeling')} />
-        </div>
-      </section>
+      <TlDansKort t={t} dans={samlinger.tldans} />
+      <LaginndelingKort t={t} lag={samlinger.laginndeling} />
     </div>
   )
 }
@@ -420,17 +540,18 @@ function TipslisteInnhold({ t, tipslister }) {
       {andre.length > 0 && (
         <div className="ms-btnrow">
           {andre.map((s) => (
-            <Link key={s.id} className="ms-btn" to={`/min-side/samlinger/${s.id}`}>{s.tittel}</Link>
+            <Link key={s.id} className="ms-btn" to={`/min-side/samlinger/${s.id}`}>{stripTipslistePrefiks(s.tittel)}</Link>
           ))}
         </div>
       )}
       {kro.length > 0 && (
-        <div className="ms-tipsgruppe" role="group" aria-label={t('minSide.hjem.tipsKroppsoving')}>
-          <span className="lbl">
+        <details className="ms-details" open style={{ marginTop: andre.length > 0 ? 10 : 0 }}>
+          <summary aria-label={`${t('minSide.hjem.tipsKroppsoving')} — ${t('minSide.hjem.tipsKroppsovingSub')}`}>
+            <ChevronNed />
             {t('minSide.hjem.tipsKroppsoving')}{' '}
             <span className="lett">— {t('minSide.hjem.tipsKroppsovingSub')}</span>
-          </span>
-          <div className="ms-btnrow">
+          </summary>
+          <div className="ms-btnrow" style={{ padding: '10px 0 4px' }}>
             {kro.map((s) => (
               <Link
                 key={s.id} className="ms-btn" to={`/min-side/samlinger/${s.id}`}
@@ -440,7 +561,7 @@ function TipslisteInnhold({ t, tipslister }) {
               </Link>
             ))}
           </div>
-        </div>
+        </details>
       )}
     </>
   )

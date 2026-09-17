@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 import { formLek } from './leker'
 import {
   velgInnhold, sorterSamlinger, synligeLeker, synligeDokumenter,
-  formSamlingDokument, sorterMedier,
+  formSamlingDokument, sorterMedier, dokumentUrl,
 } from './samlingForm'
 
 // Samlingsvisning for lærere (visning, ikke redigering — D6 kommer senere). All synlighet
@@ -97,6 +97,49 @@ export async function hentSamlingPaaNokkel(nokkel, sprak = 'nb') {
     if (!data) return null
     const innhold = velgInnhold(data.samling_innhold, sprak)
     return { id: data.id, nokkel: data.nokkel, tittel: innhold.tittel ?? null }
+  } catch {
+    return null
+  }
+}
+
+// Slå opp en samling på nøkkel MED innhold til «Min side»-kortene (retterunde 2): kortet viser
+// én knapp per lek/dokument i samlingen, ikke bare én lenke til samlingssiden. Returnerer
+//   { id, nokkel, tittel, leker: [{ id, tittel, formaal }], dokumenter: [{ id, tittel, url, kilde_nid, sprak }] }
+// eller null. Kun PUBLISERTE barn (synligeLeker/synligeDokumenter), i samlingens rekkefolge.
+// kilde_nid tas med fordi kortene identifiserer språkvarianter på den (aldri tittel), jf.
+// grupperNominasjonDok i lib/minsideKort.js. Feiler stille (null) — kortet degraderer da til
+// «Kommer snart» slik det gjorde før nøkkelen fantes.
+export async function hentSamlingKort(nokkel, sprak = 'nb') {
+  try {
+    const { data, error } = await supabase
+      .from('samlinger')
+      .select(`
+        id, nokkel,
+        samling_innhold ( sprak, tittel ),
+        samling_ressurs ( rekkefolge, ressurser ( id, status, ressurs_innhold ( sprak, tittel, formaal ) ) ),
+        samling_dokument ( rekkefolge, dokumenter ( id, tittel, status, storage_sti, kilde_nid, dokument_sprak ( sprak ) ) )
+      `)
+      .eq('nokkel', nokkel)
+      .maybeSingle()
+    if (error) throw error
+    if (!data) return null
+    const innhold = velgInnhold(data.samling_innhold, sprak)
+    return {
+      id: data.id,
+      nokkel: data.nokkel,
+      tittel: innhold.tittel ?? null,
+      leker: synligeLeker(data.samling_ressurs).map((r) => {
+        const ri = velgInnhold(r.ressurs_innhold, sprak)
+        return { id: r.id, tittel: ri.tittel ?? null, formaal: ri.formaal ?? null }
+      }),
+      dokumenter: synligeDokumenter(data.samling_dokument).map((d) => ({
+        id: d.id,
+        tittel: d.tittel || 'Uten tittel',
+        url: dokumentUrl(d.storage_sti),
+        kilde_nid: d.kilde_nid ?? null,
+        sprak: (d.dokument_sprak || []).map((x) => x.sprak),
+      })),
+    }
   } catch {
     return null
   }
