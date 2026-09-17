@@ -1,407 +1,523 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { hentLeker, sokLeker, trinnKort, TRINN_NO } from '../lib/leker'
 import { hentSamlingPaaNokkel } from '../lib/samlinger'
-import { hentManedensLek } from '../lib/manedensLek'
 import { harSamling } from '../lib/samlingForm'
-import { hentMineFavoritter } from '../lib/favoritter'
+import { hentManedensLek, hentManedensAktivLaering } from '../lib/manedensLek'
+import { hentMineFavoritter, hentMineDokumentFavoritter } from '../lib/favoritter'
 import { hentPlaner } from '../lib/periodeplan'
 import { hentHjul } from '../lib/hjul'
 import { hentKommendeWebinarer, datoBlokk, klokkeslett } from '../lib/webinar'
+import { hentMinSkole, hentMinSkoleNavn } from '../lib/skole'
+import { loggBrukHendelse } from '../lib/leker'
+import {
+  hentMinsideSeksjoner, hentAktuelt, hentMestKjopt, hentRegionansvarlig, hentTipslister,
+} from '../lib/minside'
 import { useNedtelling } from './webinar/Nedtelling'
 
-// Bygget 1:1 fra min-side-mockup_4.html (den vi har iterert på), koblet til ekte data.
+// Skolens «Min side» — arbeidsbenk (design runde 7). Radene 1–2 ligger fast; radene
+// 3–8 ordnes/skjules av minside_seksjon (migr 130). Ekte data der datalaget finnes;
+// ellers uteblir kortet stille eller viser «Kommer snart». Nunito Sans (selvhostet,
+// lastet globalt i main.jsx). Fargeregel: oransje som TEKST = --color-orange-ink.
 const CSS = `
-.tlh{ --o:#FF7B31; --petrol:#106C75; --dark:#2B2B2B; --grey:#5B6470; --line:#ECEEF1; --soft:#FDEEE2; }
-.tlh *{box-sizing:border-box}
-.tlh-hero{background:linear-gradient(135deg,#fff 0%,#FFF6EF 100%);border-bottom:1px solid var(--line);border-radius:20px;padding:34px 26px 26px}
-.tlh-hero h1{font-size:30px;font-weight:800;letter-spacing:-.3px;color:var(--dark)}
-.tlh-hero .sub{color:var(--grey);margin-top:6px;font-size:16px}
-.tlh-searchbox{margin-top:20px;background:#fff;border:2px solid var(--o);border-radius:16px;box-shadow:0 6px 24px rgba(255,123,49,.12);padding:6px 6px 6px 18px;display:flex;align-items:center;gap:10px}
-.tlh-searchbox svg{flex:0 0 22px}
-.tlh-searchbox input{flex:1;border:0;outline:0;font-size:17px;padding:14px 0;background:transparent;color:var(--dark);min-width:0}
-.tlh-searchbox input::placeholder{color:#9aa1ab}
-.tlh-searchbox button{border:0;background:var(--o);color:#fff;font-weight:700;font-size:15px;padding:13px 22px;border-radius:11px;cursor:pointer;white-space:nowrap}
-.tlh-searchbox button:hover{filter:brightness(.95)}
-.tlh-chips{margin-top:14px;display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-.tlh-chips .lbl{color:var(--grey);font-size:13px;margin-right:2px}
-.tlh-chip{border:1px solid #E4D3C4;background:#fff;color:#8a5a2f;font-size:13.5px;font-family:inherit;padding:7px 13px;border-radius:999px;cursor:pointer;transition:.12s}
-.tlh-chip:hover{background:var(--soft);border-color:var(--o)}
-.tlh-parse{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-.tlh-parse .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.tlh-parse .said{color:var(--grey);font-size:14px}
-.tlh-parse .said b{color:var(--dark)}
-.tlh-fchip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);color:#B5560F;font-weight:700;font-size:13px;padding:6px 11px;border-radius:8px}
-.tlh-parse .note{margin-top:10px;font-size:13px;color:var(--grey)}
-.tlh-backlink{display:inline-block;margin-top:16px}
-.tlh-backlink a,.tlh-backlink button{color:var(--o);font-weight:700;text-decoration:none;font-size:14px;font-family:inherit;background:none;border:0;padding:0;cursor:pointer}
-.tlh-backrow{margin-top:18px}
-.tlh-back{display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--petrol);color:var(--petrol);font-weight:700;font-size:15px;font-family:inherit;padding:11px 20px;border-radius:11px;cursor:pointer;transition:.12s}
-.tlh-back:hover{background:var(--petrol);color:#fff}
-.tlh-back:focus-visible{outline:3px solid var(--o);outline-offset:2px}
-.tlh-brow{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:22px}
-.tlh-panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
-.tlh-panel h2{font-size:16px;margin-bottom:4px;color:var(--dark)}
-.tlh-panel .s{color:var(--grey);font-size:13.5px;margin-bottom:14px}
-.tlh-ctx{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tlh-ctx a,.tlh-ctx button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;text-decoration:none;color:var(--dark);background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 12px;font-weight:600;font-size:14px;font-family:inherit;transition:.12s;cursor:pointer}
-.tlh-ctx a:hover,.tlh-ctx button:hover{border-color:var(--o);background:#FFF8F2}
-.tlh-ctx .ic{width:26px;height:26px;border-radius:8px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 26px}
-.tlh-month{display:flex;gap:14px;align-items:center;text-decoration:none;color:inherit;border-radius:12px;padding:6px;margin:-6px}
-.tlh-month:hover{background:#fff7f1}
-.tlh-month:hover h3{color:#0d565e}
-.tlh-month .thumb{flex:0 0 84px;height:84px;border-radius:12px;background:linear-gradient(135deg,#FDEEE2,#FBE9C7);display:flex;align-items:center;justify-content:center;color:#c98a3a;font-weight:800}
-.tlh-month h3{font-size:17px}
-.tlh-month .why{font-size:13px;color:var(--grey);margin-top:3px}
-.tlh-mine{display:flex;gap:10px;flex-wrap:nowrap;margin-top:6px}
-.tlh-mine a{flex:1;min-width:0;text-decoration:none;color:var(--dark);border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;font-weight:700;font-size:14px}
-.tlh-mine a:hover{border-color:var(--petrol);color:#0d565e}
-.tlh-mine a small{display:block;font-weight:400;color:var(--grey);font-size:12px;margin-top:3px}
-.tlh-results h2{font-size:18px;margin-bottom:2px;color:var(--dark)}
-.tlh-results .cnt{color:var(--grey);font-size:14px;margin-bottom:16px}
-.tlh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.tlh-lek{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:.14s;cursor:pointer;text-decoration:none;color:inherit;display:block}
-.tlh-lek:hover{box-shadow:0 8px 22px rgba(0,0,0,.08);transform:translateY(-2px)}
-.tlh-lek .ph{height:104px;background:linear-gradient(135deg,#FDEEE2,#FBE9C7);display:flex;align-items:center;justify-content:center;color:#c98a3a;font-size:13px;font-weight:700;letter-spacing:.5px}
-.tlh-lek .body{padding:12px 14px}
-.tlh-lek h3{font-size:16px;margin-bottom:6px}
-.tlh-lek .meta{font-size:12.5px;color:var(--grey);margin-bottom:9px}
-.tlh-tags{display:flex;gap:6px;flex-wrap:wrap}
-.tlh-tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:#EEF1F4;color:#5B6470}
-.tlh-tag.o{background:var(--soft);color:#B5560F}
-@media(max-width:820px){.tlh-brow{grid-template-columns:1fr}.tlh-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.tlh-grid{grid-template-columns:1fr}.tlh-hero h1{font-size:24px}}
+.ms{ --dark:#16181A; --grey:#5C6066; --grey2:#4A5056; --petrol:#106C75; --orange:#FF7B31;
+  --ink:#B5560F; --line:#E2DED9; --soft:#FAF8F6; --pill:#F1EFEC; }
+.ms *{box-sizing:border-box}
+.ms{background:#FBF9F7;min-height:100vh}
+.ms-wrap{max-width:1180px;margin:0 auto;padding:0 28px 40px;
+  background:linear-gradient(180deg,#FFEDDD 0,#FDF6F0 110px,#FBF9F7 190px,#FBF9F7 100%)}
+.ms-hei{display:flex;align-items:center;gap:14px;padding:20px 4px 14px;flex-wrap:wrap}
+.ms-hei h1{font-size:26px;font-weight:700;letter-spacing:-.01em;color:var(--dark);margin:0}
+.ms-hei .mnd{font-size:17px;color:var(--grey);text-transform:capitalize}
+.ms-cols{display:flex;flex-direction:column;gap:18px}
+.ms h2{color:var(--dark);margin:0}
+.ms-sec{}
+.ms-h2{font-size:21px;font-weight:700;line-height:1.25;color:var(--dark);margin:0 0 12px}
+.ms-card{background:#fff;border-radius:20px;box-shadow:0 2px 12px rgba(20,24,40,.07);padding:22px}
+.ms-grid5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.ms-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.ms-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.ms-tile{text-decoration:none;background:#fff;border-radius:18px;box-shadow:0 2px 12px rgba(20,24,40,.07);
+  padding:18px;min-height:96px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.ms-tile:hover{box-shadow:0 4px 16px rgba(20,24,40,.12)}
+.ms-tile .t{font-size:18px;font-weight:700;color:var(--dark)}
+.ms-tile .n{font-size:16px;font-weight:600;color:var(--petrol)}
+.ms-tile .n.tom{color:var(--grey)}
+.ms-tile.soft{background:var(--soft)}
+.ms-pill{align-self:flex-start;font-size:15px;font-weight:600;color:var(--grey2);
+  background:var(--pill);border-radius:999px;padding:4px 12px}
+.ms-tile-lbl{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:700;color:var(--grey2)}
+.ms-btn{text-decoration:none;display:inline-flex;align-items:center;min-height:44px;font-size:16px;
+  font-weight:700;color:var(--dark);background:#fff;border:1px solid var(--line);border-radius:999px;padding:0 18px}
+.ms-btn:hover{border-color:var(--orange);background:#FFF8F2}
+.ms-btn.primary{color:#2A1405;background:var(--orange);border:none}
+.ms-btn.primary:hover{filter:brightness(.96)}
+.ms-btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.ms-sub{font-size:16px;line-height:1.5;color:var(--grey);margin:0 0 14px}
+.ms-h2ic{display:flex;align-items:center;gap:10px}
+.ms-aktuelt{display:grid;grid-template-columns:260px minmax(0,1fr);gap:22px;align-items:center;border-radius:20px}
+.ms-aktuelt img,.ms-aktuelt .ph{width:100%;aspect-ratio:4/3;border-radius:16px;object-fit:cover;
+  background:linear-gradient(140deg,#FFC79C,#FF7B31)}
+.ms-kicker{font-size:16px;font-weight:700;color:var(--petrol);margin:0 0 6px}
+.ms-aktuelt h2{font-size:25px;font-weight:700;line-height:1.25;margin:0 0 10px}
+.ms-aktuelt p.tx{font-size:17px;line-height:1.6;color:var(--grey2);margin:0 0 16px;max-width:660px}
+.ms-mediarow{display:flex;gap:16px;align-items:center}
+.ms-thumb{width:150px;flex:none;aspect-ratio:16/10;border-radius:14px;
+  background:linear-gradient(140deg,#FFB577,#FF7B31);display:flex;align-items:center;justify-content:center}
+.ms-thumb.petrol{background:linear-gradient(140deg,#5FB3BB,#106C75)}
+.ms-thumb .play{width:46px;height:46px;border-radius:999px;background:#fff;display:flex;align-items:center;justify-content:center}
+.ms-usecard{text-decoration:none;background:var(--soft);border-radius:16px;padding:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px}
+.ms-usecard:hover{box-shadow:0 2px 10px rgba(20,24,40,.08)}
+.ms-usecard .k{display:block;font-size:16px;font-weight:600;color:var(--petrol)}
+.ms-usecard .v{display:block;font-size:21px;font-weight:700;color:var(--dark);margin-top:4px}
+.ms-klubbrow{text-decoration:none;display:flex;align-items:center;gap:14px;min-height:72px;
+  border-radius:14px;padding:8px 10px;color:inherit}
+.ms-klubbrow:hover{background:var(--soft)}
+.ms-klubbrow img,.ms-klubbrow .ph{width:56px;height:56px;flex:none;border-radius:12px;object-fit:cover;
+  background:linear-gradient(140deg,#FDEEE2,#FBE9C7)}
+.ms-klubbrow .navn{flex:1;font-size:17px;font-weight:600;color:var(--dark)}
+.ms-klubbrow .pris{display:flex;align-items:baseline;gap:8px;flex:none}
+.ms-klubbrow .forpris{font-size:16px;color:#8C9095;text-decoration:line-through}
+.ms-klubbrow .npris{font-size:17px;font-weight:700;color:var(--dark)}
+.ms-ra{margin-top:14px;padding-top:14px;border-top:1px solid #F1EDE9;font-size:16px;line-height:1.5;color:var(--grey2)}
+.ms-ra a{font-weight:700;color:var(--ink)}
+.ms-klassekort{text-decoration:none;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  min-height:56px;background:var(--soft);border-radius:14px;padding:12px 16px;color:inherit}
+.ms-klassekort:hover{box-shadow:0 2px 10px rgba(20,24,40,.08)}
+.ms-klassekort .navn{font-size:17px;font-weight:700;color:var(--dark)}
+.ms-klassekort .les{flex:none;display:inline-flex;align-items:center;min-height:44px;font-size:16px;font-weight:700;color:var(--ink)}
+.ms-trivsel{display:flex;gap:16px;align-items:flex-start;margin-top:16px;padding-top:16px;border-top:1px solid #F1EDE9}
+.ms-trivsel .navn{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;color:var(--dark);margin:0 0 6px}
+.ms-trivsel p{font-size:16px;line-height:1.5;color:var(--grey);margin:0}
+.ms-details{background:var(--soft);border-radius:16px;padding:12px 16px;margin-top:10px}
+.ms-details summary{display:flex;align-items:center;gap:8px;min-height:44px;font-size:17px;font-weight:700;color:var(--dark);cursor:pointer;list-style:none}
+.ms-details summary::-webkit-details-marker{display:none}
+.ms-details summary .lett{font-weight:400;color:var(--grey)}
+.ms-webinar .rad{padding-bottom:12px;border-bottom:1px solid #F1EDE9}
+.ms-webinar .tittel{font-size:18px;font-weight:700;line-height:1.35;color:var(--dark);margin:0}
+.ms-webinar .meta{font-size:16px;color:var(--grey);margin:3px 0 10px}
+.ms-webinar .tom{font-size:16px;color:var(--grey);margin:0}
+.ms a:focus-visible,.ms button:focus-visible,.ms summary:focus-visible,.ms select:focus-visible{
+  outline:3px solid var(--petrol);outline-offset:3px;border-radius:6px}
+.ms-count{font-size:16px;color:var(--grey)}
+.ms-sechead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:0 0 14px}
+@media(max-width:900px){
+  .ms-grid5{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ms-grid3{grid-template-columns:1fr}
+  .ms-grid2{grid-template-columns:1fr}
+  .ms-aktuelt{grid-template-columns:1fr}
+}
 `
 
-// Tolke-lag: fritekst → felt (som mockupen, men mot ekte «egnet for»-verdier).
-function parseQ(t) {
-  t = (t || '').toLowerCase()
-  const f = {}
-  if (/sfo|aks/.test(t)) { f.egnet = 'SFO/AKS'; f._key = 'sfo' }
-  else if (/kroppsøv|gymtime/.test(t)) { f.egnet = 'Kroppsøving'; f._key = 'kroppsøv' }
-  else if (/aktive? pause/.test(t)) { f.egnet = 'Move It'; f._key = 'aktive pause' }
-  else if (/aktivitetsdag/.test(t)) { f.egnet = 'Aktivitetsdager'; f._key = 'aktivitetsdag' }
-  else if (/friminutt/.test(t)) { f.egnet = 'Friminutt'; f._key = 'friminutt' }
-  else if (/aktiv læring|matte|matematikk|\bnorsk\b|\bfag\b/.test(t)) { f.egnet = 'Aktiv læring'; f._key = 'aktiv læring' }
-  else if (/fysak|uteskole/.test(t)) { f.egnet = 'FYSAK'; f._key = 'fysak' }
-  else if (/bli.?kjent|klassemilj|trivsel|første skoledag/.test(t)) { f.egnet = 'Bli kjent / klassemiljø'; f._key = 'kjent' }
-  else if (/sosial kompetanse|vennskap|inkluder/.test(t)) { f.egnet = 'Sosial kompetanse'; f._key = 'sosial' }
-  else if (/tl-?mester|turnering/.test(t)) { f.egnet = 'TL-Mester'; f._key = 'mester' }
-  else if (/100\s*\+|hundre|mange elever|stor gruppe/.test(t)) { f.egnet = 'Leker for 100+ elever'; f._key = '100' }
-  else if (/barnehage|førskole/.test(t)) { f.trinn = 'Barnehage'; f._key = 'barnehage' }
-  if (/\bute|utend|uteskole/.test(t)) f.sted = 'Ute'
-  else if (/\binne|klasserom/.test(t)) f.sted = 'Inne'
-  const mt = t.match(/(\d+)\s*(barn|elever|stk)/); if (mt) f.antall = '~' + mt[1] + ' barn'
-  const tr = t.match(/(\d+)\.?\s*trinn/); if (tr) f.trinn = tr[1] + '. trinn'
-  if (/uten utstyr/.test(t)) f.utstyr = 'Uten utstyr'
-  if (/rolig/.test(t)) f.stemning = 'Rolig'
-  return f
+// Petrol chevron/dokument-/lag-ikoner (fra designet). aria-hidden — dekorativt.
+function Ikon({ navn }) {
+  const felles = { width: 28, height: 28, viewBox: '0 0 32 32', fill: 'none', stroke: 'currentColor',
+    strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, style: { color: '#106C75' } }
+  if (navn === 'dok') return (<svg {...felles}><path d="M9 4h14l4 4v20H9z" /><path d="M13 13h10M13 19h7" /></svg>)
+  if (navn === 'lag') return (<svg {...felles}><circle cx="11" cy="11" r="4" /><circle cx="22" cy="12" r="3.5" /><path d="M4 26c1-4.5 3.6-7 7-7s6 2.5 7 7M19 26c.7-3.4 2.6-5.5 5-5.5s4.3 2.1 5 5.5" /></svg>)
+  return null
 }
 
-function visLek(l) {
-  const sted = l.sted === 'begge' ? 'Inne/ute' : (l.sted ? l.sted[0].toUpperCase() + l.sted.slice(1) : '–')
-  return {
-    id: l.id,
-    n: l.tittel,
-    sted,
-    trinn: trinnKort(l.trinn).replace(/ trinn/g, ''),
-    antall: (l.antallMin != null && l.antallMaks != null) ? `${l.antallMin}–${l.antallMaks}` : '–',
-    utstyr: l.utstyr.length ? l.utstyr.join(', ') : 'Ingen',
-    egnet: l.egnet,
-    m: l.utenUtstyr ? 'Uten utstyr' : (l.egnet[0] || ''),
-    _sted: l.sted, _utenUtstyr: l.utenUtstyr,
-  }
-}
-// Formar en rad fra søke-RPC-en (sok_leker, migr 089) til samme visningsform som
-// visLek. RPC-en leverer ikke utstyrsnavn i listevisningen (kun uten_utstyr), så
-// utstyr vises som «Ingen» / «–» her — de fulle navnene ligger på lekesiden.
-function visLekRPC(l) {
-  const sted = l.sted === 'begge' ? 'Inne/ute' : (l.sted ? l.sted[0].toUpperCase() + l.sted.slice(1) : '–')
-  const egnet = l.egnet || []
-  return {
-    id: l.id,
-    n: l.tittel,
-    sted,
-    trinn: trinnKort(l.trinn).replace(/ trinn/g, ''),
-    antall: (l.antallMin != null && l.antallMaks != null) ? `${l.antallMin}–${l.antallMaks}` : '–',
-    utstyr: l.utenUtstyr ? 'Ingen' : '–',
-    egnet,
-    m: l.utenUtstyr ? 'Uten utstyr' : (egnet[0] || ''),
-  }
+function Play() {
+  return (
+    <span className="play"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 3.5l10 6.5-10 6.5z" fill="#106C75" /></svg></span>
+  )
 }
 
-// Gjør tolkede felt (parseQ) om til RPC-filtre. Når tolkningen gir minst ett filter
-// er dette et situasjonssøk («SFO ute 4. trinn») → filtrér på det. Gir tolkningen
-// ingenting, er det et fritekst-/tittelsøk → da sender vi teksten til RPC-en som
-// gjør skrivefeil-toleransen (trgm) i basen (jf. «balfangeren» → «Ballfangeren»).
-function filtreFraParse(f) {
-  const ut = {}
-  if (f.egnet) ut.egnet = f.egnet
-  if (f.sted) ut.sted = f.sted.toLowerCase()
-  if (f.utstyr === 'Uten utstyr') ut.utenUtstyr = true
-  if (f.trinn) {
-    const par = TRINN_NO.find(([, navn]) => navn === f.trinn)
-    if (par) ut.trinn = par[0]
-  }
-  return ut
+// Liten «søyle-sparkline» (dekorativ) for bruks-kortene.
+function Spark({ label }) {
+  const h = [38, 56, 74, 100]
+  const farge = ['#BFDDE0', '#BFDDE0', '#7FBAC0', '#106C75']
+  return (
+    <span role="img" aria-label={label} style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 40, flex: 'none' }}>
+      {h.map((v, i) => (<span key={i} style={{ width: 8, borderRadius: 3, height: `${v}%`, background: farge[i] }} />))}
+    </span>
+  )
 }
 
-export default function SkoleHjem({ fornavn = null }) {
-  const [params, setParams] = useSearchParams()
-  const { t } = useTranslation()
-  const [alle, setAlle] = useState([])
-  const qParam = (params.get('q') || '').trim()
-  const aktivQ = qParam || null                 // ?q= i adressen = viser resultater (delbar, F5-trygg, back-knappen virker)
-  const [q, setQ] = useState(qParam)            // inputfeltets tekst mens man skriver
-  const [resultater, setResultater] = useState({ items: [], direkte: false, laster: false })
-  const [teller, setTeller] = useState({ planer: null, hjul: null, fav: null })
-  const [nesteWebinar, setNesteWebinar] = useState(undefined) // undefined=laster, null=ingen
-  const [tlDans, setTlDans] = useState(null) // TL-dans-samlingen (migr 117) eller null → skjul boksen
-  const [manedslek, setManedslek] = useState(null) // { lek, kilde } (migr 120) eller null → skjul kortet
-  const sokRef = useRef(0) // race-vakt: kun ferskeste søkesvar teller
+export default function SkoleHjem() {
+  const { t, i18n } = useTranslation()
+  const [skole, setSkole] = useState({ id: null, navn: null })
+  const [seksjoner, setSeksjoner] = useState(null) // null=laster, [] = fallback
+  const [aktuelt, setAktuelt] = useState([])
+  const [mestKjopt, setMestKjopt] = useState({ maaned: null, leker: [] })
+  const [ra, setRa] = useState(null)
+  const [manedslek, setManedslek] = useState(null)
+  const [manedsAktiv, setManedsAktiv] = useState(null)
+  const [tellere, setTellere] = useState({ planer: null, hjul: null, favLek: null, favDok: null })
+  const [nesteWebinar, setNesteWebinar] = useState(undefined)
+  const [samlinger, setSamlinger] = useState({ tldans: null, laginndeling: null, nominasjon: null, kursmodul: null })
+  const [tipslister, setTipslister] = useState([])
 
   useEffect(() => {
-    hentKommendeWebinarer().then((liste) => setNesteWebinar(liste[0] || null)).catch(() => setNesteWebinar(null))
-    hentLeker().then((r) => setAlle(r.map(visLek))).catch(() => {})
-    // TL-dans-boksen vises kun når migr 117 har satt nøkkelen; ellers null → boksen skjules stille.
-    hentSamlingPaaNokkel('tl-dans').then(setTlDans).catch(() => setTlDans(null))
-    // Månedens lek (migr 120): { lek, kilde } eller null (kilde 'ingen'/feil) → kortet skjules stille.
+    // Skole-kontekst → RA-oppslag når id finnes.
+    hentMinSkole().then((id) => {
+      setSkole((s) => ({ ...s, id }))
+      if (id) hentRegionansvarlig(id).then(setRa).catch(() => setRa(null))
+    }).catch(() => {})
+    hentMinSkoleNavn().then((navn) => setSkole((s) => ({ ...s, navn }))).catch(() => {})
+
+    hentMinsideSeksjoner(false).then(setSeksjoner).catch(() => setSeksjoner([]))
+    hentAktuelt().then(setAktuelt).catch(() => setAktuelt([]))
+    hentMestKjopt().then(setMestKjopt).catch(() => setMestKjopt({ maaned: null, leker: [] }))
     hentManedensLek().then(setManedslek).catch(() => setManedslek(null))
-    Promise.allSettled([hentPlaner(), hentHjul(), hentMineFavoritter()]).then(([p, h, f]) => {
-      setTeller({
+    hentManedensAktivLaering().then(setManedsAktiv).catch(() => setManedsAktiv(null))
+    hentKommendeWebinarer().then((l) => setNesteWebinar(l[0] || null)).catch(() => setNesteWebinar(null))
+    hentTipslister(i18n.language === 'sv' ? 'sv' : 'nb').then(setTipslister).catch(() => setTipslister([]))
+
+    // Nøkkelbaserte samlinger (låses opp av nøkkelmigrasjonen). Uteblir stille → «Kommer snart».
+    hentSamlingPaaNokkel('tl-dans').then((s) => setSamlinger((p) => ({ ...p, tldans: s }))).catch(() => {})
+    hentSamlingPaaNokkel('laginndeling').then((s) => setSamlinger((p) => ({ ...p, laginndeling: s }))).catch(() => {})
+    hentSamlingPaaNokkel('nominasjon').then((s) => setSamlinger((p) => ({ ...p, nominasjon: s }))).catch(() => {})
+    hentKursmodul().then((s) => setSamlinger((p) => ({ ...p, kursmodul: s }))).catch(() => {})
+
+    Promise.allSettled([hentPlaner(), hentHjul(), hentMineFavoritter(), hentMineDokumentFavoritter()]).then(
+      ([p, h, fl, fd]) => setTellere({
         planer: p.status === 'fulfilled' ? p.value.length : null,
         hjul: h.status === 'fulfilled' ? h.value.length : null,
-        fav: f.status === 'fulfilled' ? f.value.size : null,
-      })
-    })
-  }, [])
+        favLek: fl.status === 'fulfilled' ? fl.value.size : null,
+        favDok: fd.status === 'fulfilled' ? fd.value.size : null,
+      }))
+  }, [i18n.language])
 
-  // Hold inputfeltet i takt med adressen (back/forward, «Min side»-fanen, chip-klikk).
-  useEffect(() => { setQ(qParam) }, [qParam])
+  const maanedTekst = useMemo(() => {
+    const locale = i18n.language === 'sv' ? 'sv-SE' : 'nb-NO'
+    try { return new Date().toLocaleDateString(locale, { month: 'long', year: 'numeric' }) }
+    catch { return '' }
+  }, [i18n.language])
 
-  const parsed = useMemo(() => (aktivQ ? parseQ(aktivQ) : null), [aktivQ])
+  // Rekkefølge for radene 3–8. Faller tilbake til designets rekkefølge om tabellen er tom.
+  const raderIRekke = seksjoner && seksjoner.length
+    ? seksjoner.map((s) => s.seksjon)
+    : ['aktuelt', 'nominasjon', 'tldans', 'brukt_naa', 'klassetrivsel', 'mest_kjopt']
 
-  // Søk via basen (sok_leker, migr 089): den rangerer og skrivefeil-tolererer i
-  // Postgres. «Direkte treff» = RPC-en returnerte minst én rad — dvs. noe klarte
-  // relevansterskelen (eksakt/delstreng/fulltekst/trgm ≥ 0,30). Da slipper vi den
-  // gamle browser-utregningen som krevde eksakt delstreng i tittelen og derfor
-  // dumpet skrivefeil-treff («balfangeren» → «Ballfangeren») i forslagsbøtta.
-  // Ingen treff → behold forslagstilstanden og vis nærmeste alternativer.
-  useEffect(() => {
-    if (!aktivQ) { setResultater({ items: [], direkte: false, laster: false }); return }
-    const id = ++sokRef.current
-    setResultater((r) => ({ ...r, laster: true }))
-    const filtre = filtreFraParse(parsed || {})
-    const harFiltre = Object.keys(filtre).length > 0
-    const args = harFiltre ? { ...filtre, limit: 6 } : { sok: aktivQ, limit: 6 }
-    sokLeker(args)
-      .then(({ leker }) => {
-        if (id !== sokRef.current) return
-        const items = (leker || []).map(visLekRPC)
-        if (items.length) setResultater({ items, direkte: true, laster: false })
-        else setResultater({ items: alle.slice(0, 6), direkte: false, laster: false })
-      })
-      .catch(() => {
-        if (id !== sokRef.current) return
-        setResultater({ items: alle.slice(0, 6), direkte: false, laster: false })
-      })
-  }, [aktivQ, parsed, alle])
-
-  function run(tekst) {
-    const tekstQ = (tekst ?? q).trim()
-    if (!tekstQ) return
-    // Skriv søket til adressen: ny historikk-oppføring → nettleserens back virker,
-    // F5 beholder resultatet, og lenka kan deles. Samme mønster som Finn en lek.
-    setParams({ q: tekstQ })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-  // Tilbake til forsiden av Min side (fjerner ?q). Samme effekt som å klikke «Min side»-fanen.
-  function reset() { setParams({}) }
-
-  const pills = parsed
-    ? Object.entries(parsed).filter(([k]) => !k.startsWith('_')).map(([, v]) => v)
-    : []
+  const heiNavn = skole.navn || null
 
   return (
-    <div className="tlh">
+    <div className="ms">
       <style>{CSS}</style>
-
-      {/* Hero */}
-      <section className="tlh-hero">
-        <h1>Hva trenger du i dag{fornavn ? `, ${fornavn}` : ''}?</h1>
-        <p className="sub">Beskriv situasjonen din med egne ord — så finner vi lekene som passer.</p>
-        <div className="tlh-searchbox">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#FF7B31" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
-          <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') run() }}
-            type="text" aria-label="Beskriv situasjonen din" placeholder="F.eks. leker til SFO utendørs til 10 barn på 4. trinn" />
-          <button type="button" onClick={() => run()}>Vis leker</button>
-        </div>
-        <div className="tlh-chips">
-          <span className="lbl">Prøv:</span>
-          <button type="button" className="tlh-chip" onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}>SFO ute · 4. trinn</button>
-          <button type="button" className="tlh-chip" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}>Aktiv pause · inne</button>
-          <button type="button" className="tlh-chip" onClick={() => run('Kroppsøving oppvarming for hel klasse')}>Kroppsøving · oppvarming</button>
-          <button type="button" className="tlh-chip" onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}>Aktivitetsdag</button>
-          <button type="button" className="tlh-chip" onClick={() => run('Aktiv læring matematikk ute 5. trinn')}>Aktiv læring · matte</button>
+      <div className="ms-wrap">
+        {/* ── 1 HILSEN (kompakt) ── */}
+        <div className="ms-hei">
+          <h1>{heiNavn ? t('minSide.hjem.hei', { skole: heiNavn }) : t('minSide.hjem.heiUtenNavn')}</h1>
+          {maanedTekst && <span className="mnd">{maanedTekst}</span>}
         </div>
 
-        {aktivQ && (
-          <div className="tlh-parse">
-            <div className="row"><span className="said">Vi forsto: <b>«{aktivQ}»</b></span></div>
-            <div className="row" style={{ marginTop: 10 }}>
-              {pills.length ? pills.map((v, i) => (
-                <span key={i} className="tlh-fchip">{v}</span>
-              )) : <span className="said">Fritekstsøk i hele biblioteket</span>}
-            </div>
-          </div>
-        )}
-        {aktivQ && (
-          <div className="tlh-backrow">
-            <button type="button" className="tlh-back" onClick={reset}>
-              <span aria-hidden="true">←</span> {t('minSide.tilbake')}
-            </button>
-          </div>
-        )}
-      </section>
+        <div className="ms-cols">
+          {/* ── 1 MINE VALG ── */}
+          <MineValg t={t} tellere={tellere} />
 
-      {/* Resultater (inline) */}
-      {aktivQ && (
-        <section className="tlh-results" style={{ marginTop: 26 }}>
-          <h2>
-            {resultater.laster && resultater.items.length === 0
-              ? t('minSide.sok.laster')
-              : resultater.direkte ? t('minSide.sok.treffTittel') : t('minSide.sok.ingenTittel')}
-          </h2>
-          {!(resultater.laster && resultater.items.length === 0) && (
-            <div className="cnt">
-              {resultater.direkte
-                ? t('minSide.sok.treffTeller', { antall: resultater.items.length })
-                : t('minSide.sok.forslagTeller')}
-            </div>
-          )}
-          <div className="tlh-grid">
-            {resultater.items.map((l) => (
-              <Link key={l.id} to={`/min-side/aktiviteter/${l.id}`} className="tlh-lek">
-                <div className="ph">{(l.n.split(' ')[0] || '').toUpperCase()}</div>
-                <div className="body">
-                  <h3>{l.n}</h3>
-                  <div className="meta">{[l.sted, l.trinn, l.antall, l.utstyr].filter(Boolean).join(' · ')}</div>
-                  <div className="tlh-tags">
-                    {l.egnet.slice(0, 3).map((e, i) => <span key={i} className="tlh-tag o">{e}</span>)}
-                    {l.m && <span className="tlh-tag">{l.m}</span>}
-                  </div>
-                </div>
-              </Link>
-            ))}
-            {resultater.items.length === 0 && !resultater.laster && <p className="cnt">{t('minSide.sok.ingenMatchet')}</p>}
-          </div>
-        </section>
-      )}
+          {/* ── 2 VENTER PÅ SVAR (kun når det finnes noe) ── */}
+          {/* Datakilde ikke levert av migr 130–135; raden uteblir til den finnes (design 4b). */}
 
-      {/* Idle-blokker (skjules når resultater vises) */}
-      {!aktivQ && (
-        <div className="tlh-brow">
-          <div className="tlh-panel">
-            <h2>Søk i biblioteket</h2>
-            <p className="s">60 aktive minutter — én lek om gangen.</p>
-            <div className="tlh-ctx">
-              <button type="button" onClick={() => run('Friminuttleker for mellomtrinnet')}><span className="ic">🏃</span> Friminutt</button>
-              <button type="button" onClick={() => run('Kroppsøving oppvarming for hel klasse')}><span className="ic">🤸</span> Kroppsøving</button>
-              <button type="button" onClick={() => run('Leker til SFO utendørs til 10 barn på 4. trinn')}><span className="ic">🧩</span> SFO/AKS</button>
-              <Link to="/min-side/aktiv-laering"><span className="ic">📚</span> Aktiv læring</Link>
-              <button type="button" onClick={() => run('Aktiv pause i klasserommet, kort og rolig')}><span className="ic">⏸️</span> Move It</button>
-              <button type="button" onClick={() => run('FYSAK uteskole lavterskel')}><span className="ic">🌲</span> FYSAK</button>
-              <button type="button" onClick={() => run('Bli kjent og godt klassemiljø første skoledag')}><span className="ic">🤝</span> Bli kjent / klassemiljø</button>
-              <button type="button" onClick={() => run('Aktivitetsdag med stasjoner for hele skolen')}><span className="ic">🎪</span> Aktivitetsdager</button>
-              <button type="button" onClick={() => run('Sosial kompetanse og vennskap')}><span className="ic">🤗</span> Sosial kompetanse</button>
-              <button type="button" onClick={() => run('TL-Mester turnering')}><span className="ic">🏅</span> TL-Mester</button>
-              <button type="button" onClick={() => run('Leker for over 100 elever samtidig')}><span className="ic">👥</span> Leker for 100+ elever</button>
-              <button type="button" onClick={() => run('Leker for barnehage')}><span className="ic">🧸</span> Barnehage</button>
-              {/* TL-dans: egen samling (migr 117). Samme utseende som inngangene, men en ekte lenke.
-                  Skjules stille hvis nøkkelen mangler (117 ikke kjørt) — ingen død lenke. */}
-              {harSamling(tlDans) && (
-                <Link to={`/min-side/samlinger/${tlDans.id}`}><span className="ic">💃</span> {t('samling.tlDans')}</Link>
-              )}
-            </div>
-          </div>
-          <div className="tlh-panel">
-            {/* Månedens lek (migr 120): drives av hent_manedens_lek. Skjules stille når
-                kilde='ingen' / feil (manedslek === null). «Mine ting» står uansett. */}
-            {manedslek && (
-              <>
-                <h2>{t('minSide.manedensLek.tittel')}</h2>
-                <Link
-                  className="tlh-month"
-                  to={`/min-side/aktiviteter/${manedslek.lek.id}`}
-                  aria-label={t('minSide.manedensLek.aapne', { tittel: manedslek.lek.tittel })}
-                >
-                  <div className="thumb" aria-hidden="true">
-                    {(manedslek.lek.tittel?.split(' ')[0] || '').toUpperCase()}
-                    {manedslek.lek.harVideo && <span> ▶</span>}
-                  </div>
-                  <div>
-                    <h3>{manedslek.lek.tittel}</h3>
-                    <div
-                      className="why"
-                      style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                    >
-                      {manedslek.lek.tekst?.formaal || manedslek.lek.egnet.slice(0, 2).join(' · ')}
-                    </div>
-                  </div>
-                </Link>
-                <div style={{ height: 30 }} />
-              </>
-            )}
-            <h2>Mine ting</h2>
-            <div className="tlh-mine">
-              <Link to="/min-side/periodeplaner">Planer<small>{teller.planer != null ? `${teller.planer} periodeplaner` : 'periodeplaner'}</small></Link>
-              <Link to="/min-side/tl-hjulet">TL-hjul<small>{teller.hjul != null ? `${teller.hjul} hjul` : 'hjul'}</small></Link>
-              <Link to="/min-side/aktiviteter?fav=1">Favoritter<small>{teller.fav != null ? `${teller.fav} leker` : 'leker'}</small></Link>
-            </div>
-          </div>
+          {/* ── 3–8: styrt av minside_seksjon ── */}
+          {raderIRekke.map((key) => (
+            <Seksjon
+              key={key} navn={key} t={t}
+              aktuelt={aktuelt} mestKjopt={mestKjopt} ra={ra}
+              manedslek={manedslek} manedsAktiv={manedsAktiv} nesteWebinar={nesteWebinar}
+              samlinger={samlinger} tipslister={tipslister}
+            />
+          ))}
         </div>
-      )}
-
-      {/* Webinar-boks — alltid synlig i idle, viser nærmeste eller rolig tomtilstand */}
-      {!aktivQ && nesteWebinar !== undefined && (
-        <WebinarBoks webinar={nesteWebinar} />
-      )}
+      </div>
     </div>
   )
 }
 
-// Boks på Min side: nærmeste webinar (m/ nedtelling) eller tomtilstand. Klikk → /min-side/webinarer.
-function WebinarBoks({ webinar }) {
-  const n = useNedtelling(webinar?.starter_at || new Date().toISOString(), webinar?.varighet_min)
-  if (!webinar) {
-    return (
-      <Link to="/min-side/webinarer" className="block mt-5 rounded-2xl border border-gray-200 bg-white p-5 hover:border-orange/40 transition-colors">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl" aria-hidden="true">🎥</span>
-          <div>
-            <h2 className="font-bold text-gray-900">Webinarer</h2>
-            <p className="text-sm text-gray-500">Ingen planlagte akkurat nå — du får e-post når neste nettverksmøte er klart.</p>
-          </div>
+// Prøver kursmodulnøklene i tur (nøkkelmigrasjonen setter én av disse). Uteblir stille.
+async function hentKursmodul() {
+  for (const nokkel of ['kursmodul-host-2026', 'kursmodul-host', 'kursmodul-vinter-2026', 'kursmodul']) {
+    const s = await hentSamlingPaaNokkel(nokkel).catch(() => null)
+    if (harSamling(s)) return s
+  }
+  return null
+}
+
+function MineValg({ t, tellere }) {
+  const tall = (n, nokkel) => (n != null ? t(nokkel, { antall: n }) : '')
+  return (
+    <section className="ms-sec" aria-labelledby="ms-mine">
+      <h2 id="ms-mine" className="ms-h2">{t('minSide.hjem.mineValg')}</h2>
+      <div className="ms-grid5">
+        <Link to="/min-side/periodeplaner" className="ms-tile">
+          <span className="t">{t('minSide.hjem.periodeplaner')}</span>
+          <span className="n">{tall(tellere.planer, 'minSide.hjem.planerTeller')}</span>
+        </Link>
+        <Link to="/min-side/tl-hjulet" className="ms-tile">
+          <span className="t">{t('minSide.hjem.tlhjul')}</span>
+          <span className="n">{tall(tellere.hjul, 'minSide.hjem.hjulTeller')}</span>
+        </Link>
+        <Link to="/min-side/aktiviteter?fav=1" className="ms-tile">
+          <span className="t">{t('minSide.hjem.favorittleker')}</span>
+          <span className="n">{tall(tellere.favLek, 'minSide.hjem.merketTeller')}</span>
+        </Link>
+        <Link to="/min-side/dokumenter?fav=1" className="ms-tile">
+          <span className="t">{t('minSide.hjem.favorittdokumenter')}</span>
+          <span className={`n${tellere.favDok ? '' : ' tom'}`}>
+            {tellere.favDok != null && tellere.favDok > 0
+              ? t('minSide.hjem.merketTeller', { antall: tellere.favDok })
+              : t('minSide.hjem.ingenEnna')}
+          </span>
+        </Link>
+        {/* «Send inn forslag» — funksjonen kommer etter lansering (Kjartans beslutning). */}
+        <div className="ms-tile soft" role="group" aria-label={t('minSide.hjem.sendForslag')}>
+          <span className="ms-tile-lbl">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="currentColor" style={{ color: '#8C9095' }} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M16 22V6m0 0l-6 6m6-6l6 6M6 22v3a2 2 0 002 2h16a2 2 0 002-2v-3" /></svg>
+            {t('minSide.hjem.sendForslag')}
+          </span>
+          <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
         </div>
+      </div>
+    </section>
+  )
+}
+
+// Én av radene 3–8. Returnerer null når raden ikke har noe å vise (design: da uteblir den).
+function Seksjon({ navn, t, aktuelt, mestKjopt, ra, manedslek, manedsAktiv, nesteWebinar, samlinger, tipslister }) {
+  if (navn === 'aktuelt') return <AktueltSeksjon t={t} aktuelt={aktuelt} />
+  if (navn === 'nominasjon') return <NominasjonKurs t={t} samlinger={samlinger} />
+  if (navn === 'tldans') return <DansLag t={t} samlinger={samlinger} />
+  if (navn === 'brukt_naa') return <BruktNaa t={t} manedslek={manedslek} manedsAktiv={manedsAktiv} />
+  if (navn === 'klassetrivsel') return <KlasseTips t={t} tipslister={tipslister} />
+  if (navn === 'mest_kjopt') return <MestKjoptWebinar t={t} mestKjopt={mestKjopt} ra={ra} nesteWebinar={nesteWebinar} />
+  return null
+}
+
+function AktueltSeksjon({ t, aktuelt }) {
+  const blokk = aktuelt[0]
+  if (!blokk) return null
+  return (
+    <section className="ms-sec ms-card ms-aktuelt" aria-labelledby="ms-aktuelt">
+      {blokk.bilde_url
+        ? <img src={blokk.bilde_url} alt={blokk.bilde_beskrivelse || ''} />
+        : <div className="ph" role="presentation" />}
+      <div>
+        <p className="ms-kicker">{t('minSide.hjem.aktuelt')}</p>
+        <h2 id="ms-aktuelt">{blokk.overskrift}</h2>
+        {blokk.tekst && <p className="tx">{blokk.tekst}</p>}
+        {blokk.knapp_tekst && blokk.knapp_lenke && (
+          <a className="ms-btn" href={blokk.knapp_lenke} target="_blank" rel="noopener noreferrer">
+            {blokk.knapp_tekst}
+          </a>
+        )}
+      </div>
+    </section>
+  )
+}
+
+// Kort som enten lenker til en samling, eller viser «Kommer snart» til nøkkelen finnes.
+function SamlingKnapp({ t, samling, label }) {
+  if (harSamling(samling)) {
+    return (
+      <Link className="ms-btn" to={`/min-side/samlinger/${samling.id}`}>
+        {samling.tittel || label}
       </Link>
     )
   }
-  const b = datoBlokk(webinar.starter_at)
+  return <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
+}
+
+function NominasjonKurs({ t, samlinger }) {
   return (
-    <Link to="/min-side/webinarer" className="block mt-5 rounded-2xl border border-petrol/30 bg-petrol/5 p-5 hover:border-petrol/60 transition-colors">
-      <div className="flex items-center gap-4">
-        <div className="shrink-0 w-16 text-center rounded-xl overflow-hidden border border-gray-200 bg-white">
-          <div className="bg-orange text-gray-900 text-[11px] font-bold uppercase py-0.5">{b.maaned}</div>
-          <div className="py-1.5"><div className="text-2xl font-extrabold leading-none text-gray-900">{b.dag}</div><div className="text-[11px] text-gray-500 capitalize">{b.ukedag}</div></div>
+    <div className="ms-grid2">
+      <section className="ms-card" aria-labelledby="ms-nom">
+        <h2 id="ms-nom" className="ms-h2 ms-h2ic"><Ikon navn="dok" />{t('minSide.hjem.nominasjon')}</h2>
+        <p className="ms-sub">{t('minSide.hjem.nominasjonSub')}</p>
+        <div className="ms-btnrow">
+          <SamlingKnapp t={t} samling={samlinger.nominasjon} label={t('minSide.hjem.aapneNominasjon')} />
         </div>
-        <div className="min-w-0 flex-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-teal">Neste webinar</span>
-          <h2 className="font-bold text-gray-900 leading-snug truncate">{webinar.tittel}</h2>
-          <p className="text-sm text-gray-600">kl. {klokkeslett(webinar.starter_at)} · <span className={n.bliMedNaa ? 'text-petrol font-semibold' : ''}>{n.tekst}</span></p>
+      </section>
+      <section className="ms-card" aria-labelledby="ms-kurs">
+        <h2 id="ms-kurs" className="ms-h2">{t('minSide.hjem.lekekurs')}</h2>
+        <div className="ms-mediarow" style={{ marginTop: 6 }}>
+          <div className="ms-thumb" role="img" aria-label={t('minSide.hjem.lekekurs')}><Play /></div>
+          <p className="ms-sub" style={{ margin: 0 }}>{t('minSide.hjem.lekekursSub')}</p>
         </div>
-        <span className="shrink-0 text-sm font-semibold text-gray-900 bg-orange px-4 py-1.5 rounded-full">Meld på</span>
-      </div>
+        <div className="ms-btnrow" style={{ marginTop: 14 }}>
+          <SamlingKnapp t={t} samling={samlinger.kursmodul} label={t('minSide.hjem.aapneKurs')} />
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function DansLag({ t, samlinger }) {
+  return (
+    <div className="ms-grid2">
+      <section className="ms-card" aria-labelledby="ms-dans">
+        <h2 id="ms-dans" className="ms-h2">{t('minSide.hjem.tldans')}</h2>
+        <div className="ms-thumb petrol" role="img" aria-label={t('minSide.hjem.tldans')} style={{ width: '100%', height: 112, marginTop: 6, marginBottom: 12 }}><Play /></div>
+        <div className="ms-btnrow">
+          <SamlingKnapp t={t} samling={samlinger.tldans} label={t('minSide.hjem.aapneDans')} />
+        </div>
+      </section>
+      <section className="ms-card" aria-labelledby="ms-lag">
+        <h2 id="ms-lag" className="ms-h2 ms-h2ic"><Ikon navn="lag" />{t('minSide.hjem.laginndeling')}</h2>
+        <p className="ms-sub">{t('minSide.hjem.laginndelingSub')}</p>
+        <div className="ms-btnrow">
+          <SamlingKnapp t={t} samling={samlinger.laginndeling} label={t('minSide.hjem.aapneLaginndeling')} />
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function BruktKort({ to, kicker, navn, meta, label }) {
+  return (
+    <Link to={to} className="ms-usecard" aria-label={`${kicker}: ${navn}`}>
+      <span>
+        <span className="k">{kicker}</span>
+        <span className="v">{navn}</span>
+        {meta && <span style={{ display: 'block', fontSize: 16, color: '#5C6066', marginTop: 2 }}>{meta}</span>}
+      </span>
+      <Spark label={label} />
     </Link>
+  )
+}
+
+function BruktNaa({ t, manedslek, manedsAktiv }) {
+  if (!manedslek && !manedsAktiv) return null
+  return (
+    <section className="ms-card" aria-labelledby="ms-bruk">
+      <div className="ms-sechead">
+        <h2 id="ms-bruk" className="ms-h2" style={{ margin: 0 }}>{t('minSide.hjem.bruktNaa')}</h2>
+      </div>
+      <div className="ms-grid2">
+        {manedslek && (
+          <BruktKort to={`/min-side/aktiviteter/${manedslek.lek.id}`} kicker={t('minSide.hjem.manedensLek')}
+            navn={manedslek.lek.tittel} label={t('minSide.hjem.brukSpark')} />
+        )}
+        {manedsAktiv && (
+          <BruktKort to={`/min-side/aktiviteter/${manedsAktiv.lek.id}`} kicker={t('minSide.hjem.manedensAktiv')}
+            navn={manedsAktiv.lek.tittel} label={t('minSide.hjem.brukSpark')} />
+        )}
+      </div>
+    </section>
+  )
+}
+
+function KlasseTips({ t, tipslister }) {
+  return (
+    <div className="ms-grid2">
+      <section className="ms-card" aria-labelledby="ms-klasse">
+        <h2 id="ms-klasse" className="ms-h2">{t('minSide.hjem.klassetrivsel')}</h2>
+        {/* «Kjetil og Kjartans tips» — venter på plassering/kilde; vises som Kommer snart. */}
+        <div className="ms-klassekort" aria-label={t('minSide.hjem.kjetilKjartan')} role="group">
+          <span className="navn">{t('minSide.hjem.kjetilKjartan')}</span>
+          <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
+        </div>
+        <div className="ms-trivsel">
+          <svg width="72" height="72" viewBox="0 0 100 100" role="img" aria-label={t('minSide.hjem.trivselsaaret')} style={{ flex: 'none' }}>
+            <g stroke="#fff" strokeWidth="1.5">
+              <path d="M50 50 L50 6 A44 44 0 0 1 74.8 13.8 Z" fill="#FF7B31" />
+              <path d="M50 50 L74.8 13.8 A44 44 0 0 1 90.9 33.2 Z" fill="#FFA766" />
+              <path d="M50 50 L90.9 33.2 A44 44 0 0 1 92.2 57.5 Z" fill="#F0C14B" />
+              <path d="M50 50 L92.2 57.5 A44 44 0 0 1 79.2 78.6 Z" fill="#9CBF5A" />
+              <path d="M50 50 L79.2 78.6 A44 44 0 0 1 57.5 92.2 Z" fill="#54A1AB" />
+              <path d="M50 50 L57.5 92.2 A44 44 0 0 1 33.2 90.9 Z" fill="#3D8C97" />
+              <path d="M50 50 L33.2 90.9 A44 44 0 0 1 14.6 76.6 Z" fill="#106C75" />
+              <path d="M50 50 L14.6 76.6 A44 44 0 0 1 6.6 57.9 Z" fill="#2F6E86" />
+              <path d="M50 50 L6.6 57.9 A44 44 0 0 1 9.6 33.6 Z" fill="#7E7CA8" />
+              <path d="M50 50 L9.6 33.6 A44 44 0 0 1 24.1 15.1 Z" fill="#CF442F" />
+              <path d="M50 50 L24.1 15.1 A44 44 0 0 1 50 6 Z" fill="#E86A4B" />
+            </g>
+            <circle cx="50" cy="50" r="15" fill="#fff" />
+          </svg>
+          <div>
+            <p className="navn">{t('minSide.hjem.trivselsaaret')}
+              <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
+            </p>
+            <p>{t('minSide.hjem.trivselsaaretSub')}</p>
+          </div>
+        </div>
+      </section>
+      <section className="ms-card" aria-labelledby="ms-tips">
+        <h2 id="ms-tips" className="ms-h2">{t('minSide.hjem.tipslister')}</h2>
+        {tipslister.length ? (
+          <div className="ms-btnrow">
+            {tipslister.map((s) => (
+              <Link key={s.id} className="ms-btn" to={`/min-side/samlinger/${s.id}`}>{s.tittel}</Link>
+            ))}
+          </div>
+        ) : (
+          <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
+        )}
+      </section>
+    </div>
+  )
+}
+
+function kr(n) {
+  if (n == null) return ''
+  const tall = Number(n)
+  return `${tall % 1 === 0 ? tall.toFixed(0) : tall.toFixed(2).replace('.', ',')} kr`
+}
+
+function MestKjoptWebinar({ t, mestKjopt, ra, nesteWebinar }) {
+  return (
+    <div className="ms-grid2">
+      <section className="ms-card" aria-labelledby="ms-klubb">
+        <h2 id="ms-klubb" className="ms-h2">{t('minSide.hjem.mestKjopt')}</h2>
+        {mestKjopt.leker.length > 0 && (
+          <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {mestKjopt.leker.map((k) => (
+              <li key={k.id}>
+                <a
+                  className="ms-klubbrow" href={k.lenke} target="_blank" rel="noopener noreferrer"
+                  onClick={() => loggBrukHendelse('klubb_klikk')}
+                  aria-label={t('minSide.hjem.mestKjoptAria', {
+                    navn: k.navn,
+                    pris: kr(k.pris),
+                    nyfane: t('minSide.hjem.aapnesNyFane'),
+                  })}
+                >
+                  {k.bilde_url
+                    ? <img src={k.bilde_url} alt={k.navn} />
+                    : <span className="ph" aria-hidden="true" />}
+                  <span className="navn">{k.navn}</span>
+                  <span className="pris" aria-hidden="true">
+                    {k.forpris != null && <span className="forpris">{kr(k.forpris)}</span>}
+                    <span className="npris">{kr(k.pris)}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        )}
+        {mestKjopt.leker.length === 0 && <p className="ms-sub" style={{ margin: 0 }}>{t('minSide.hjem.mestKjoptTom')}</p>}
+        {/* RA-linja står ALLTID under Mest kjøpte. */}
+        <p className="ms-ra">
+          {t('minSide.hjem.raSporsmaal')}{' '}
+          {ra && (
+            <>
+              <br />
+              <span>{ra.navn}</span>
+              {ra.epost && <> — <a href={`mailto:${ra.epost}`}>{ra.epost}</a></>}
+            </>
+          )}
+        </p>
+      </section>
+      <WebinarKort t={t} webinar={nesteWebinar} />
+    </div>
+  )
+}
+
+function WebinarKort({ t, webinar }) {
+  const n = useNedtelling(webinar?.starter_at || new Date().toISOString(), webinar?.varighet_min)
+  return (
+    <section className="ms-card ms-webinar" aria-labelledby="ms-web">
+      <h2 id="ms-web" className="ms-h2">{t('minSide.hjem.webinarer')}</h2>
+      {webinar ? (
+        <div className="rad">
+          <p className="tittel">{webinar.tittel}</p>
+          <p className="meta">{datoBlokk(webinar.starter_at).dag}. {datoBlokk(webinar.starter_at).maaned} · kl. {klokkeslett(webinar.starter_at)} · <span>{n.tekst}</span></p>
+          <Link className="ms-btn" to="/min-side/webinarer">{t('minSide.hjem.meldPaa')}</Link>
+        </div>
+      ) : (
+        <p className="tom">{t('minSide.hjem.ingenWebinar')}</p>
+      )}
+    </section>
   )
 }

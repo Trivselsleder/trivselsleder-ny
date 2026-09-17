@@ -90,6 +90,13 @@ const adminSider = [
     til: '/admin/brukere',
     roller: ['superadmin'],
   },
+  {
+    tittel: 'Min side (skolenes forside)',
+    beskrivelse: 'Rediger Aktuelt, Mest kjøpte leker og rekkefølgen på seksjonene skolene ser.',
+    ikon: '🏠',
+    til: '/admin/minside',
+    roller: ['superadmin', 'ansatt'],
+  },
 ]
 
 export default function Admin() {

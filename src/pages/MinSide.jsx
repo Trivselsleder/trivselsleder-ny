@@ -514,13 +514,8 @@ export default function MinSide() {
 
   const erSkole = ['skoleadmin', 'skoleansatt', 'feide'].includes(rolle)
   if (erSkole) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <SkoleHjem fornavn={profil?.navn ? profil.navn.split(' ')[0] : null} />
-        </div>
-      </div>
-    )
+    // SkoleHjem styrer egen bakgrunn/bredde (design runde 7) — ingen constraining wrapper.
+    return <SkoleHjem />
   }
 
   return (
