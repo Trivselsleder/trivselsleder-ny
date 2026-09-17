@@ -80,7 +80,7 @@ export default function SkoleLayout() {
   return (
     <div>
       <div className="border-b border-gray-200 bg-white sticky top-16 z-40">
-        <nav className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 overflow-x-auto">
+        <nav aria-label="Min side-meny" className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 overflow-x-auto">
           <div className="flex gap-1 min-w-max items-center">
             {alleFaner.map((f) => (
               <NavLink

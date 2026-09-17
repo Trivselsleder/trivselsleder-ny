@@ -36,7 +36,7 @@ const CSS = `
 .ms-card{background:#fff;border-radius:20px;box-shadow:0 2px 12px rgba(20,24,40,.07);padding:22px}
 .ms-grid5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
 .ms-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.ms-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.ms-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
 .ms-tile{text-decoration:none;background:#fff;border-radius:18px;box-shadow:0 2px 12px rgba(20,24,40,.07);
   padding:18px;min-height:96px;display:flex;flex-direction:column;justify-content:center;gap:4px}
 .ms-tile:hover{box-shadow:0 4px 16px rgba(20,24,40,.12)}
@@ -78,7 +78,7 @@ const CSS = `
   background:linear-gradient(140deg,#FDEEE2,#FBE9C7)}
 .ms-klubbrow .navn{flex:1;font-size:17px;font-weight:600;color:var(--dark)}
 .ms-klubbrow .pris{display:flex;align-items:baseline;gap:8px;flex:none}
-.ms-klubbrow .forpris{font-size:16px;color:#8C9095;text-decoration:line-through}
+.ms-klubbrow .forpris{font-size:16px;color:#6E7377;text-decoration:line-through}
 .ms-klubbrow .npris{font-size:17px;font-weight:700;color:var(--dark)}
 .ms-ra{margin-top:14px;padding-top:14px;border-top:1px solid #F1EDE9;font-size:16px;line-height:1.5;color:var(--grey2)}
 .ms-ra a{font-weight:700;color:var(--ink)}
@@ -87,9 +87,13 @@ const CSS = `
 .ms-klassekort:hover{box-shadow:0 2px 10px rgba(20,24,40,.08)}
 .ms-klassekort .navn{font-size:17px;font-weight:700;color:var(--dark)}
 .ms-klassekort .les{flex:none;display:inline-flex;align-items:center;min-height:44px;font-size:16px;font-weight:700;color:var(--ink)}
-.ms-trivsel{display:flex;gap:16px;align-items:flex-start;margin-top:16px;padding-top:16px;border-top:1px solid #F1EDE9}
-.ms-trivsel .navn{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;color:var(--dark);margin:0 0 6px}
+.ms-trivsel{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid #F1EDE9}
+.ms-trivsel>div{flex:1;min-width:180px}
+.ms-trivsel .navn{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:18px;font-weight:700;color:var(--dark);margin:0 0 6px}
 .ms-trivsel p{font-size:16px;line-height:1.5;color:var(--grey);margin:0}
+.ms-tipsgruppe{margin-top:10px}
+.ms-tipsgruppe .lbl{display:block;font-size:16px;font-weight:700;color:var(--grey2);margin:0 0 8px}
+.ms-tipsgruppe .lbl .lett{font-weight:400;color:var(--grey)}
 .ms-details{background:var(--soft);border-radius:16px;padding:12px 16px;margin-top:10px}
 .ms-details summary{display:flex;align-items:center;gap:8px;min-height:44px;font-size:17px;font-weight:700;color:var(--dark);cursor:pointer;list-style:none}
 .ms-details summary::-webkit-details-marker{display:none}
@@ -398,6 +402,50 @@ function BruktNaa({ t, manedslek, manedsAktiv }) {
   )
 }
 
+// De tre KRØ-tipslistene vises som ÉN «Kroppsøving»-oppføring med tre trinn-knapper
+// (design runde 7 + retterunde 17. sep). Nøkkel → trinn-etikett (i18n).
+const KRO_TRINN = {
+  'tips-kro-1-2': 'minSide.hjem.tipsTrinn12',
+  'tips-kro-3-4': 'minSide.hjem.tipsTrinn34',
+  'tips-kro-5-7': 'minSide.hjem.tipsTrinn57',
+}
+
+function TipslisteInnhold({ t, tipslister }) {
+  const andre = tipslister.filter((s) => !KRO_TRINN[s.nokkel])
+  const kro = tipslister
+    .filter((s) => KRO_TRINN[s.nokkel])
+    .sort((a, b) => a.nokkel.localeCompare(b.nokkel))
+  return (
+    <>
+      {andre.length > 0 && (
+        <div className="ms-btnrow">
+          {andre.map((s) => (
+            <Link key={s.id} className="ms-btn" to={`/min-side/samlinger/${s.id}`}>{s.tittel}</Link>
+          ))}
+        </div>
+      )}
+      {kro.length > 0 && (
+        <div className="ms-tipsgruppe" role="group" aria-label={t('minSide.hjem.tipsKroppsoving')}>
+          <span className="lbl">
+            {t('minSide.hjem.tipsKroppsoving')}{' '}
+            <span className="lett">— {t('minSide.hjem.tipsKroppsovingSub')}</span>
+          </span>
+          <div className="ms-btnrow">
+            {kro.map((s) => (
+              <Link
+                key={s.id} className="ms-btn" to={`/min-side/samlinger/${s.id}`}
+                aria-label={`${t('minSide.hjem.tipsKroppsoving')} ${t(KRO_TRINN[s.nokkel])}`}
+              >
+                {t(KRO_TRINN[s.nokkel])}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 function KlasseTips({ t, tipslister }) {
   return (
     <div className="ms-grid2">
@@ -436,11 +484,7 @@ function KlasseTips({ t, tipslister }) {
       <section className="ms-card" aria-labelledby="ms-tips">
         <h2 id="ms-tips" className="ms-h2">{t('minSide.hjem.tipslister')}</h2>
         {tipslister.length ? (
-          <div className="ms-btnrow">
-            {tipslister.map((s) => (
-              <Link key={s.id} className="ms-btn" to={`/min-side/samlinger/${s.id}`}>{s.tittel}</Link>
-            ))}
-          </div>
+          <TipslisteInnhold t={t} tipslister={tipslister} />
         ) : (
           <span className="ms-pill">{t('minSide.hjem.kommerSnart')}</span>
         )}

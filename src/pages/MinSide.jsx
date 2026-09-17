@@ -519,8 +519,8 @@ export default function MinSide() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-2xl mx-auto space-y-6 px-4">
 
         {/* Velkomstkort */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -580,15 +580,6 @@ export default function MinSide() {
           </div>
         )}
 
-        {visForhandsvis && ['superadmin', 'ansatt'].includes(rolle) && (
-          <div className="space-y-4">
-            <div className="rounded-xl bg-petrol/5 border border-petrol/20 px-4 py-3 text-sm text-petrol">
-              👁️ Slik ser «Min side» ut for en skole. Kun synlig for deg som superadmin.
-            </div>
-            <SkoleHjem fornavn={null} />
-          </div>
-        )}
-
         {/* Skoleadmin: min skole + ansatte */}
         {rolle === 'skoleadmin' && brukerId && (
           <SkoleadminSeksjon brukerId={brukerId} />
@@ -607,6 +598,20 @@ export default function MinSide() {
         </button>
 
       </div>
+
+      {/* Forhåndsvisning i FULL bredde (utenfor max-w-2xl) — slik skolen faktisk ser siden.
+          SkoleHjem er bygget for 1180 px og bruker media-queries mot vindusbredden; klemt inn
+          i den smale admin-kolonnen ble den avkuttet (retterunde 17. sep, punkt 1). */}
+      {visForhandsvis && ['superadmin', 'ansatt'].includes(rolle) && (
+        <div className="mt-8">
+          <div className="max-w-2xl mx-auto px-4 mb-3">
+            <div className="rounded-xl bg-petrol/5 border border-petrol/20 px-4 py-3 text-sm text-petrol">
+              👁️ Slik ser «Min side» ut for en skole, i full bredde. Kun synlig for deg som er superadmin/ansatt.
+            </div>
+          </div>
+          <SkoleHjem />
+        </div>
+      )}
     </div>
   )
 }
