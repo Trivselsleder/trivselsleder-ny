@@ -102,6 +102,29 @@ export async function hentSamlingPaaNokkel(nokkel, sprak = 'nb') {
   }
 }
 
+// TL-praten (foredraget med Kjartan) er leken med kilde_nid 8917 — IKKE en del av
+// nominasjon-samlingen (den ble laget «uten video», migr 136 §4.4). Kortet på Min side (design
+// 8d) viser den som et videoelement med Bunny-førstebilde og lenker til lek-siden. Returnerer
+// { id, tittel, bunny_video_id } eller null (uten guid faller kortet til petrol-flaten, design 5g).
+// Publiserte ressurser er lesbare for authenticated (fase3 publisert-RLS). Feiler stille (null).
+export async function hentTLPraten(sprak = 'nb') {
+  try {
+    const { data, error } = await supabase
+      .from('ressurser')
+      .select('id, status, ressurs_innhold ( sprak, tittel ), medier ( type, bunny_video_id )')
+      .eq('kilde_nid', '8917')
+      .eq('status', 'publisert')
+      .maybeSingle()
+    if (error) throw error
+    if (!data) return null
+    const innhold = velgInnhold(data.ressurs_innhold, sprak)
+    const video = (data.medier || []).find((m) => m.type === 'video' && m.bunny_video_id) || null
+    return { id: data.id, tittel: innhold.tittel ?? null, bunny_video_id: video?.bunny_video_id ?? null }
+  } catch {
+    return null
+  }
+}
+
 // Slå opp en samling på nøkkel MED innhold til «Min side»-kortene (retterunde 2): kortet viser
 // én knapp per lek/dokument i samlingen, ikke bare én lenke til samlingssiden. Returnerer
 //   { id, nokkel, tittel, leker: [{ id, tittel, formaal }], dokumenter: [{ id, tittel, url, kilde_nid, sprak }] }
@@ -116,25 +139,32 @@ export async function hentSamlingKort(nokkel, sprak = 'nb') {
       .select(`
         id, nokkel,
         samling_innhold ( sprak, tittel ),
-        samling_ressurs ( rekkefolge, ressurser ( id, status, ressurs_innhold ( sprak, tittel, formaal ) ) ),
-        samling_dokument ( rekkefolge, dokumenter ( id, tittel, status, storage_sti, kilde_nid, dokument_sprak ( sprak ) ) )
+        samling_medie ( type, bunny_video_id ),
+        samling_ressurs ( rekkefolge, ressurser ( id, status, ressurs_innhold ( sprak, tittel, formaal ), medier ( type, bunny_video_id ) ) ),
+        samling_dokument ( rekkefolge, dokumenter ( id, tittel, type, status, storage_sti, kilde_nid, dokument_sprak ( sprak ) ) )
       `)
       .eq('nokkel', nokkel)
       .maybeSingle()
     if (error) throw error
     if (!data) return null
     const innhold = velgInnhold(data.samling_innhold, sprak)
+    // Samle-video (kursmodulens «samlevideo» ligger på samling_medie, ikke på en lek). Førstebildet
+    // hentes fra Bunny-guiden; mangler den, faller videokortet tilbake til petrol-flaten (design 5g).
+    const samleVideo = (data.samling_medie || []).find((m) => m.type === 'video' && m.bunny_video_id) || null
     return {
       id: data.id,
       nokkel: data.nokkel,
       tittel: innhold.tittel ?? null,
+      bunny_video_id: samleVideo?.bunny_video_id ?? null,
       leker: synligeLeker(data.samling_ressurs).map((r) => {
         const ri = velgInnhold(r.ressurs_innhold, sprak)
-        return { id: r.id, tittel: ri.tittel ?? null, formaal: ri.formaal ?? null }
+        const video = (r.medier || []).find((m) => m.type === 'video' && m.bunny_video_id) || null
+        return { id: r.id, tittel: ri.tittel ?? null, formaal: ri.formaal ?? null, bunny_video_id: video?.bunny_video_id ?? null }
       }),
       dokumenter: synligeDokumenter(data.samling_dokument).map((d) => ({
         id: d.id,
         tittel: d.tittel || 'Uten tittel',
+        filtype: d.type ?? null,
         url: dokumentUrl(d.storage_sti),
         kilde_nid: d.kilde_nid ?? null,
         sprak: (d.dokument_sprak || []).map((x) => x.sprak),

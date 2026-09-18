@@ -2,6 +2,38 @@
 // Skoler LESER; TL-ansatte (get_min_rolle in ('ansatt','superadmin')) SKRIVER.
 // RLS/rettigheter styres i basen — her gjør vi kun trygge kall og degraderer stille.
 import { supabase } from './supabase'
+import { hentDokumentsideData } from './leker'
+import { byggTypeTre, etterkommerIder } from './dokumentTre'
+
+// ── Nominasjon-presentasjoner (design 8d) ─────────────────────────────────────
+// Nominasjonskortet viser tre nedtrekk. Nominasjonsregler + Nominasjonslapper kommer fra
+// nominasjon-SAMLINGEN (kilde_tid 1232, jf. NominasjonKurs). Oppstartsmøte og Elevpresentasjoner
+// finnes IKKE i samlingen — de hentes fra DOKUMENTBIBLIOTEKET under «Drift av TL → Presentasjoner»
+// (kilde_tid 901→27), som Kjartan pekte på (ruta /min-side/dokumenter?hoved=901&under=27). De to
+// gruppene er 27s barn:  Oppstartsmøte = 1236,  Elevpresentasjoner = 1235 (målt i prod-eksporten,
+// counts 3 og 8 = designets tall). Samme filtreringslogikk som SkoleDokumenter (etterkommerIder på
+// kilde_tid). Hvert dokument: { id, tittel, url, filtype }. Antallet TELLES herfra, hardkodes ikke.
+// Feiler stille ({oppstart:[],elevpres:[]}) → kortet viser da bare samlingsdelen.
+const KT_OPPSTART = 1236
+const KT_ELEVPRES = 1235
+
+export async function hentNominasjonPresentasjoner() {
+  try {
+    const { dokumenter, typer } = await hentDokumentsideData()
+    const { byId } = byggTypeTre(typer)
+    const oppstartIder = etterkommerIder(byId, KT_OPPSTART)
+    const elevpresIder = etterkommerIder(byId, KT_ELEVPRES)
+    const iKat = (dok, ider) => (dok.typeIds || []).some((id) => ider.has(id))
+    const form = (d) => ({ id: d.id, tittel: d.tittel, url: d.url, filtype: d.filtype })
+    const sorter = (a, b) => String(a.tittel || '').localeCompare(String(b.tittel || ''), 'no')
+    return {
+      oppstart: dokumenter.filter((d) => iKat(d, oppstartIder)).map(form).sort(sorter),
+      elevpres: dokumenter.filter((d) => iKat(d, elevpresIder)).map(form).sort(sorter),
+    }
+  } catch {
+    return { oppstart: [], elevpres: [] }
+  }
+}
 
 // ── Seksjonsrekkefølge (minside_seksjon, migr 130) ────────────────────────────
 // Radene 3–8 kan TL-ansatte flytte opp/ned og skjule. Innstillingen er GLOBAL.

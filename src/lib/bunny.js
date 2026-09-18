@@ -1,5 +1,15 @@
 import { supabase } from './supabase'
 
+// CDN-vertsnavn (pull zone) for Bunny-biblioteket, kilde: Bunny-dashbordet 13. sep 2026.
+// Samme verdi som i LekVisning.jsx. Hotlink-beskyttet (Referer-allowlist) og «Embed view token
+// authentication» er AV → thumbnailene (default-filnavnet thumbnail.jpg) hentes direkte uten
+// signering. bunnyThumbUrl gir førstebildet for en video-guid, eller null uten guid — kalleren
+// faller da tilbake til petrol-flaten (samme mønster som Min side-videokortene, design 8d/5g).
+export const BUNNY_CDN = 'vz-ace6fd97-c27.b-cdn.net'
+export function bunnyThumbUrl(guid) {
+  return guid ? `https://${BUNNY_CDN}/${guid}/thumbnail.jpg` : null
+}
+
 // Kall til /api/bunny/* MÅ ta med den innloggede sesjonen — endepunktene bruker
 // service-nøkkelen og sjekker rollen selv (krevAnsatt). Samme mønster som adminFetch.
 async function medToken(url, options = {}) {

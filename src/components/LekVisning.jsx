@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { trinnKort, formaterAntall } from '../lib/leker'
 import { beskrivelseTilReact, splittMetaBlokk } from '../lib/beskrivelse'
+import { bunnyThumbUrl } from '../lib/bunny'
 
 // Gjenbrukbar lek-INNHOLDSVISNING: tittel + merkelapper, mediefelt + faktaboks, tips, «Om leken»
 // og tekstseksjonene slik læreren faktisk ser dem. Brukes av SkoleLek (den ekte siden) OG som
@@ -19,18 +20,11 @@ const PUNKTER = [
 ]
 
 const BUNNY_LIB = '727245'
-// CDN-vertsnavn (pull zone) for Bunny-biblioteket, kilde: Bunny-dashbordet 13. sep 2026.
-// Ligger her sammen med BUNNY_LIB, ikke spredt i koden. Hotlink-beskyttet (Referer-allowlist):
-// nettleseren sender Referer fra vårt domene og får bildet. «Embed view token authentication»
-// er AV, så thumbnailene hentes direkte uten signering.
-const BUNNY_CDN = 'vz-ace6fd97-c27.b-cdn.net'
-
-// Rene hjelpere for video-flaten (modul-lokale — ikke eksportert, jf. react-refresh-regelen):
-//   thumbnailUrl: Bunnys forhåndsvisningsbilde for en video-guid (default-filnavnet thumbnail.jpg).
-//   visVideoThumbnail: vis bildet KUN når vi har en guid OG det ikke har feilet å laste.
-//     Feiler bildet (manglende/404) → false → flaten faller tilbake til petrol-boksen (aldri
-//     et brutt bildeikon). Dette er selve fallback-beslutningen.
-const thumbnailUrl = (guid) => (guid ? `https://${BUNNY_CDN}/${guid}/thumbnail.jpg` : null)
+// Bunny-førstebildet hentes via den DELTE hjelperen bunnyThumbUrl (lib/bunny.js) — samme
+// funksjon som Min side-videokortene bruker, så URL-mønsteret er delt på ekte, ikke kopiert.
+// visVideoThumbnail: vis bildet KUN når vi har en guid OG det ikke har feilet å laste. Feiler
+// bildet (manglende/404) → false → flaten faller tilbake til petrol-boksen (aldri et brutt
+// bildeikon). Dette er selve fallback-beslutningen.
 const visVideoThumbnail = (guid, imgFeilet) => !!guid && !imgFeilet
 
 // onVideoSpilt: valgfri callback som kalles ÉN gang når brukeren faktisk starter videoen.
@@ -76,7 +70,7 @@ export default function LekVisning({ lek, handlinger = null, onVideoSpilt = null
         >
           {visThumb && (
             <img
-              src={thumbnailUrl(guid)}
+              src={bunnyThumbUrl(guid)}
               alt=""
               aria-hidden="true"
               loading="lazy"

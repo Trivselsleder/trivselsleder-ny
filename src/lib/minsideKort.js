@@ -58,6 +58,25 @@ export function grupperNominasjonDok(dokumenter) {
   return ut.filter((x) => x.type !== 'sprakgruppe' || x.varianter.length > 0)
 }
 
+// ── Nominasjon (design 8d): del samlingens 4 dokumenter i «regler» + «lapper» ──
+// Nominasjon-samlingen (migr 136 §4.4) har fire dokumenter: Nominasjonsregler (17740) som egen
+// knapp, og de tre Nominasjonslappene (15970/57/933) som ETT nedtrekk «Nominasjonslapper». Design
+// 8d viser dem slik. Identifiseres på kilde_nid (aldri tittel). Dokumenter uten url slippes
+// (unngår død lenke). Lappene sorteres bm→nn→en. Returnerer { regler: dok|null, lapper: [dok] }.
+export const NOMINASJON_REGLER_NID = '17740'
+export function delNominasjonSamling(dokumenter) {
+  let regler = null
+  const lapper = []
+  for (const d of dokumenter || []) {
+    const knid = d.kilde_nid != null ? String(d.kilde_nid) : null
+    if (knid === NOMINASJON_REGLER_NID) { if (d.url) regler = d; continue }
+    const sprak = knid ? NOMINASJONSLAPP_SPRAK[knid] : null
+    if (sprak) { if (d.url) lapper.push({ ...d, sprak }); continue }
+  }
+  lapper.sort((a, b) => (SPRAK_REKKE[a.sprak] ?? 9) - (SPRAK_REKKE[b.sprak] ?? 9))
+  return { regler, lapper }
+}
+
 // ── Tipslister: kort visningsnavn (strip «Tipsliste»/«Tipsliste til»-prefiks) ──
 // Titlene i basen røres IKKE (retterunde 2, punkt 6) — vi bare korter dem i visningen:
 //   «Tipsliste favorittleker»          → «Favorittleker»
