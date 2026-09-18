@@ -383,7 +383,7 @@ function Modal({ p, onLukk, onOppdaterStatus }) {
           </div>
 
           <KontaktBlokk tittel="Rektor" navn={p.rektor_navn} epost={p.rektor_epost} telefon={p.rektor_telefon} />
-          <KontaktBlokk tittel="Hoved-TL-ansvarlig (HTLA)" navn={p.htla_navn} epost={p.htla_epost} telefon={p.htla_telefon} />
+          <KontaktBlokk tittel="Hovedkontakt TL" navn={p.htla_navn} epost={p.htla_epost} telefon={p.htla_telefon} />
           <KontaktBlokk tittel="TL-ansvarlig (TLA)" navn={p.tla_navn} epost={p.tla_epost} telefon={p.tla_telefon} />
 
           {p.merknader && (

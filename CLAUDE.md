@@ -22,6 +22,68 @@ så han ikke svarer "suksess" på flere på en gang. Kommuniser på norsk.
 - Kjartan vil ALDRI ha valgbokser eller knapper med svaralternativer — alltid direkte
   diskusjon i klartekst.
 
+## ØKTER OG ARBEIDSFORM (fra 17. september 2026)
+
+### De fem øktene
+- **Hovedchat (claude.ai, prosjektet «Ny hjemmeside trivselsleder.no»)** — hodet. Planlegger,
+  tar tekniske avgjørelser, fordeler arbeidet og skriver oppdrag til de andre øktene. Har IKKE
+  tilgang til Mac-en. Skal aldri gi Kjartan cat-blokker, filflytting eller manuell opplasting
+  for å lagre noe — er noe klart til lagring, gis ferdig tekst som limes i Cowork.
+- **Cowork A, B og flere (Claude Desktop)** — analyse, filspeiling, SQL, lagring. Skriver til
+  Mac OG prosjektet. Bokser limes i COWORK, aldri i en vanlig claude.ai-chat. Ny oppgave = tom
+  økt; hovedchatten sier ALLTID om mappa må kobles til.
+- **Claude Code** — bygger. Pusher aldri, rører aldri prod. Avslutter ALLTID med
+  «=== TIL CLAUDE ===» med filnavn, md5 og mtime for hver leverte fil.
+- **Fable** — uavhengig kontroll. Fersk økt per kontrollsak. Skriver rapporten til PROSJEKTET
+  med project_write og sier eksplisitt fra i chatten når det er gjort. Rapporten limes ALDRI
+  inn i chat for manuell kopiering — Kjartan skal ikke være mellomledd mellom økter.
+- **Claude Design** — tegner. Min side og ikoner.
+
+### Skriving og lesing i ~/trivselsleder-ny/
+Kun ÉN økt SKRIVER om gangen. LESING kan skje parallelt, ubegrenset antall økter. Lesende git
+skal bruke `git --no-optional-locks`.
+
+### Slik gis instrukser til Kjartan
+- ÉN boks per melding, som limes inn med én gang. Aldri «denne bruker du senere».
+- Over hver boks: hvilken økt · lim inn NÅ eller vent · behold historikk eller clear.
+- Alt Kjartan trenger å vite står OVER eller INNE I boksen. Aldri etter.
+- Merking: → TERMINALEN / → COWORK / → SUPABASE / → NETTLESER / → CODE. Si alltid eksplisitt
+  hva som skjer med resultatet.
+- SQL: alltid `cat <fil> | pbcopy`, så Cmd+A og Cmd+V i editoren. Alltid klikkbar direktelenke
+  merket **(PROD)** eller **(ØVINGSKOPI)**.
+- Spørsmål til Kjartan kommer som ÉN linje han kan kopiere og endre, med anbefalt svar ferdig
+  utfylt. Aldri valgbokser eller knapper med svaralternativer.
+- Kjartan skal ha øktoversikt fortløpende — hvilken Cowork, hvilken Fable, hva som ligger i
+  Code. Han skal ikke måtte minne om at en økt er ute på oppdrag.
+- Skal han finne en mappe: minn om Cmd+Shift+G i Finder, og gi hele stien (særlig skjulte
+  mapper som starter med _).
+
+### Beslutningsgrensen
+Claude tar tekniske avgjørelser selv. Men beslutninger om hva systemet GJØR, hva vi KAN SE og
+hva som FJERNES er Kjartans — uansett hvor teknisk innpakningen er. Et nøytralt framlegg fra
+Claude er i praksis en anbefaling: si hva du mener og hvorfor.
+
+### Arbeidsdisiplin
+- Søk i prosjektfilene FØR du spør Kjartan. Avgjorte spørsmål gjenåpnes ikke.
+- Les kolonnenavn i basen før du skriver SQL — aldri gjett.
+- Byggeren kontrollerer aldri eget arbeid.
+- Pushet ≠ bygget ≠ kjørt ≠ verifisert. Etter push: sjekk Vercel Deployments = Ready. Etter
+  hver migrasjon: egen lesespørring.
+- En kvittering skrevet inne i transaksjonen er ikke bevis.
+
+### Risiko og personvern
+Utenom Trivselsundersøkelsen og barnenavn er innholdet ikke sensitivt. Personvern skal beskytte
+barn og lærere, ikke gjøre systemet ubrukelig for dem som driver det. WCAG 2.1 AA er lovpålagt
+for skolesektoren — minn Kjartan proaktivt om universell utforming.
+
+## LÅSTE BESLUTNINGER — ALDRI TA OPP IGJEN (Kjartan har måttet gjenta disse mange ganger)
+- **Trivselsboten kommer ETTER lansering.** Ikke planlegg, anbefal eller spør om den som del av lanseringen.
+- **Feide er på plass.** Trivselsleder AS har allerede Feide-avtale, og mange skoler bruker Feide i dag.
+  Avtalen flyttes til ny plattform — ingen ny søknad hos Sikt. Innlogging på ny side: skolene velger
+  selv **Feide** eller **e-post + passord** (som brukeren lager selv). Eneste gjenstående er teknisk
+  omlegging av Feide-tjenesten til nytt domene ved domeneflytten.
+- Når en eldre STATUS-blokk, fremdriftsplan eller notat sier noe annet, er det UTGÅTT. Nyeste beslutning gjelder.
+
 ## Teknisk stack
 - Frontend: React + Vite + Tailwind CSS
 - Hosting: Vercel (auto-deploy ved push til main)
@@ -364,7 +426,8 @@ Det finnes INGEN automatisk synk/speiling mellom Mac-mappa ~/trivselsleder-ny/ o
   Cowork gjør begge steg (skriv til ~/trivselsleder-ny/ + project_write) og beviser Mac-steget
   med ls. Tekstfiler krever ikke manuell opplasting; kun binær docx/pdf dras inn manuelt av Kjartan.
 - claude_-filer holdes UTENFOR git (kun kode og migrasjoner committes).
-- KUN EN Cowork/Code-okt mot ~/trivselsleder-ny om gangen (ellers git-laasefeil).
+- Kun ÉN økt SKRIVER i ~/trivselsleder-ny/ om gangen (ellers git-låsefeil). LESING kan skje
+  parallelt, ubegrenset antall økter — se «ØKTER OG ARBEIDSFORM».
 
 ## FAST REGEL: innspill fra ansatte/kunder — bygg nå eller bare fang (fra 30. aug 2026)
 - Når Kjartan limer inn et innspill (mail/tilbakemelding/idé), spør ALLTID om det skal

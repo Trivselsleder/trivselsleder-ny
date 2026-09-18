@@ -75,6 +75,18 @@ export default async function handler(req, res) {
   const { epost, navn, rolle, skoleId, stilling, tl_rolle } = req.body
   if (!epost || !navn || !rolle) return res.status(400).json({ error: 'Mangler påkrevde felt.' })
 
+  // F7 (17. sep) — HVITELISTE + eskaleringsvakt. `rolle` kommer fra klienten og settes rett
+  // på profilen; uten kontroll kunne en ansatt sende rolle='superadmin' og eskalere. Kun de
+  // fire kjente rollene godtas, og de interne TL-rollene (superadmin/ansatt) kan KUN opprettes
+  // av en superadmin. (Skoleadmin er dessuten låst til skoleadmin/skoleansatt lenger nede.)
+  const GYLDIGE_ROLLER = ['superadmin', 'ansatt', 'skoleadmin', 'skoleansatt']
+  if (!GYLDIGE_ROLLER.includes(rolle)) {
+    return res.status(400).json({ error: 'Ukjent rolle.' })
+  }
+  if (['superadmin', 'ansatt'].includes(rolle) && callerRolle !== 'superadmin') {
+    return res.status(403).json({ error: 'Bare superadmin kan invitere superadmin eller ansatt.' })
+  }
+
   // Valgfrie beskrivende felt: stilling ved skolen + rolle i TL-programmet.
   // Ukjente/tomme verdier normaliseres til null (aldri stol på klienten).
   const STILLINGER = ['rektor', 'inspektor', 'styrer', 'ansatt']

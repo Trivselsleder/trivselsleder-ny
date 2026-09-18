@@ -159,6 +159,8 @@ function InviterModal({ skoler, onLukk, onInvitert }) {
 
 export default function AdminBrukere() {
   const { t } = useTranslation()
+  const { session } = useAuth()
+  const egenId = session?.user?.id
   const [brukere, setBrukere] = useState([])
   const [skoler, setSkoler] = useState([])
   const [laster, setLaster] = useState(true)
@@ -189,19 +191,30 @@ export default function AdminBrukere() {
       .then(({ data }) => setSkoler(data ?? []))
   }, [])
 
-  async function oppdaterRolle(id, nyRolle) {
+  // F2 (migr 143): rolle/aktiv kan ikke lenger skrives fra nettleseren (authenticated
+  // har ikke UPDATE på de kolonnene). Endringen går via api/admin/sett-bruker-rolle.js
+  // (service_role, superadmin-only). Ved feil rulles den optimistiske visningen tilbake.
+  async function settBruker(id, endring) {
     const forrige = brukere
-    setBrukere(prev => prev.map(b => b.id === id ? { ...b, rolle: nyRolle } : b))
-    const { error } = await supabase.from('profiles').update({ rolle: nyRolle }).eq('id', id)
-    if (error) { setBrukere(forrige); console.error('Rolleendring feilet:', error.message) }
+    setBrukere(prev => prev.map(b => b.id === id ? { ...b, ...endring } : b))
+    try {
+      const res = await fetch('/api/admin/sett-bruker-rolle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ brukerId: id, ...endring }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setBrukere(forrige); console.error('Brukerendring feilet:', data.error) }
+    } catch (e) {
+      setBrukere(forrige); console.error('Brukerendring feilet:', e?.message)
+    }
   }
 
-  async function toggleAktiv(id, gjeldende) {
-    const forrige = brukere
-    setBrukere(prev => prev.map(b => b.id === id ? { ...b, aktiv: !gjeldende } : b))
-    const { error } = await supabase.from('profiles').update({ aktiv: !gjeldende }).eq('id', id)
-    if (error) { setBrukere(forrige); console.error('Aktiv-toggle feilet:', error.message) }
-  }
+  function oppdaterRolle(id, nyRolle) { return settBruker(id, { rolle: nyRolle }) }
+  function toggleAktiv(id, gjeldende) { return settBruker(id, { aktiv: !gjeldende }) }
 
   // Fjern ÉN skolekobling for én bruker. Irreversibel → krev bekreftelse først.
   // Ved siste kobling vises en tydeligere advarsel. Etter vellykket fjerning
@@ -315,6 +328,9 @@ export default function AdminBrukere() {
                     const bskoler = (b.bruker_skole ?? [])
                       .map(bs => bs.skoler)
                       .filter(s => s?.id)
+                    // En superadmin kan ikke degradere/deaktivere sin EGEN rad (server
+                    // avviser det uansett, migr 143/sett-bruker-rolle). Vis den som låst.
+                    const erMeg = b.id === egenId
                     return (
                       <tr key={b.id} className="hover:bg-gray-50/70 transition-colors">
                         <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
@@ -324,15 +340,24 @@ export default function AdminBrukere() {
                           {b.epost ?? '–'}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <select
-                            value={b.rolle}
-                            onChange={e => oppdaterRolle(b.id, e.target.value)}
-                            className={`text-xs font-semibold px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 ${ROLLE_STIL[b.rolle] ?? 'bg-gray-100 text-gray-600'}`}
-                          >
-                            {ROLLE_VALG.map(r => (
-                              <option key={r} value={r}>{ROLLE_LABEL[r]}</option>
-                            ))}
-                          </select>
+                          {erMeg ? (
+                            <span
+                              title="Du kan ikke endre din egen rolle."
+                              className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${ROLLE_STIL[b.rolle] ?? 'bg-gray-100 text-gray-600'}`}
+                            >
+                              {ROLLE_LABEL[b.rolle] ?? b.rolle}
+                            </span>
+                          ) : (
+                            <select
+                              value={b.rolle}
+                              onChange={e => oppdaterRolle(b.id, e.target.value)}
+                              className={`text-xs font-semibold px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 ${ROLLE_STIL[b.rolle] ?? 'bg-gray-100 text-gray-600'}`}
+                            >
+                              {ROLLE_VALG.map(r => (
+                                <option key={r} value={r}>{ROLLE_LABEL[r]}</option>
+                              ))}
+                            </select>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-gray-500 text-xs max-w-64">
                           {bskoler.length === 0 ? (
@@ -374,16 +399,27 @@ export default function AdminBrukere() {
                           {formaterDato(b.created_at)}
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <button
-                            onClick={() => toggleAktiv(b.id, b.aktiv !== false)}
-                            className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
-                              b.aktiv !== false
-                                ? 'bg-green-100 text-green-700 hover:bg-red-50 hover:text-red-500'
-                                : 'bg-red-100 text-red-600 hover:bg-green-50 hover:text-green-600'
-                            }`}
-                          >
-                            {b.aktiv !== false ? 'Aktiv' : 'Inaktiv'}
-                          </button>
+                          {erMeg ? (
+                            <span
+                              title="Du kan ikke deaktivere din egen konto."
+                              className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                b.aktiv !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+                              }`}
+                            >
+                              {b.aktiv !== false ? 'Aktiv' : 'Inaktiv'}
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => toggleAktiv(b.id, b.aktiv !== false)}
+                              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+                                b.aktiv !== false
+                                  ? 'bg-green-100 text-green-700 hover:bg-red-50 hover:text-red-500'
+                                  : 'bg-red-100 text-red-600 hover:bg-green-50 hover:text-green-600'
+                              }`}
+                            >
+                              {b.aktiv !== false ? 'Aktiv' : 'Inaktiv'}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     )

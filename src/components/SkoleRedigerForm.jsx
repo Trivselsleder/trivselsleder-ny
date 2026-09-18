@@ -1,3 +1,39 @@
+// DEL 2b (17. sep): skoletype er nedtrekksliste med samme koder som påmeldingen, så verdien
+// kan mappes til HubSpots avkrysningsnavn (api/_hubspot.js hubspotSkoletype). Barnehage og SFO
+// er med (Kjartan legger dem til i HubSpot manuelt). Verdien som lagres er koden (ikke label).
+const TYPE_VALG = [
+  ['barnehage',    'Barnehage'],
+  ['barnetrinn',   'Barnetrinn'],
+  ['ungdomstrinn', 'Ungdomstrinn'],
+  ['kombinert',    'Kombinertskole'],
+  ['SFO',          'SFO'],
+]
+
+// F3 (17. sep, migr 138): de åtte lovlige skolestatusene. Verdien er DB-strengen
+// ordrett — den sendes videre til HubSpot med nøyaktig samme skrivemåte. «Inaktiv»
+// er intern (avviste påmeldinger) og synkes aldri til HubSpot (api/_hubspot.js).
+// Feltet vises KUN for ansatt/superadmin (visStatus-prop) — server validerer i tillegg.
+const STATUS_VALG = [
+  'Påmeldt', 'Aktiv', 'Aktiv, sagt opp', 'Pause',
+  'Tidligere', 'Potensielle', 'Nedlagt', 'Inaktiv',
+]
+
+function RedigerSelect({ label, value, onChange, valg }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
+      <select
+        value={value ?? ''}
+        onChange={e => onChange(e.target.value)}
+        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
+      >
+        <option value="">–</option>
+        {valg.map(([kode, tekst]) => <option key={kode} value={kode}>{tekst}</option>)}
+      </select>
+    </div>
+  )
+}
+
 export function RedigerInput({ label, type = 'text', value, onChange, placeholder = '' }) {
   return (
     <div>
@@ -13,10 +49,22 @@ export function RedigerInput({ label, type = 'text', value, onChange, placeholde
   )
 }
 
-export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, onSubmit, onAvbryt, lagrer, lagreFeil }) {
+export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, onSubmit, onAvbryt, lagrer, lagreFeil, visStatus = false }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <RedigerInput label="Skolenavn" value={form.navn} onChange={v => felt('navn', v)} />
+      {visStatus && (
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <select
+            value={form.status ?? ''}
+            onChange={e => felt('status', e.target.value)}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7B31]/30 focus:border-[#FF7B31]"
+          >
+            {STATUS_VALG.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <RedigerInput label="Gateadresse" value={form.gateadresse} onChange={v => felt('gateadresse', v)} />
         <RedigerInput label="Telefon" type="tel" value={form.telefon} onChange={v => felt('telefon', v)} />
@@ -27,7 +75,7 @@ export function SkoleRedigerForm({ form, felt, settTla, fjernTla, leggTilTla, on
       </div>
       <div className="grid grid-cols-2 gap-3">
         <RedigerInput label="Antall elever" type="number" value={form.antall_elever} onChange={v => felt('antall_elever', v)} />
-        <RedigerInput label="Type skole" value={form.type} onChange={v => felt('type', v)} placeholder="f.eks. Barneskole" />
+        <RedigerSelect label="Type skole" value={form.type} onChange={v => felt('type', v)} valg={TYPE_VALG} />
       </div>
       <RedigerInput label="Nettverk" value={form.nettverk} onChange={v => felt('nettverk', v)} placeholder="f.eks. Oslo øst" />
 

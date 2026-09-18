@@ -242,10 +242,11 @@ export default function SkoleTrivselsundersokelsen() {
                   </p>
                 )}
 
-                {/* 4.5 Manuell tidlig-lukk — kun åpne runder. DB (tu_lukk_runde)
-                    autoriserer HTLA/skoleadmin/superadmin; skoleansatt uten
-                    htla-rolle får «Ingen tilgang» og ser feilmeldingen. */}
-                {r.status === 'apen' && (
+                {/* 4.5 Manuell tidlig-lukk — kun åpne runder, og KUN skoleadmin/superadmin
+                    (kanOpprette). F8 (17. sep): HTLA kan IKKE lenger lukke en runde — DB-en
+                    (tu_lukk_runde, migr 142) slipper kun tu_har_tilgang_skole, og frontend
+                    speiler den ved å skjule knappen for HTLA. */}
+                {r.status === 'apen' && kontekst.kanOpprette && (
                   <div className="mt-3 pt-3 border-t border-gray-100">
                     {bekreftLukk === r.id ? (
                       <div>

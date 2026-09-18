@@ -14,7 +14,21 @@ const PAKREVDE_FELT = [
   ['organisasjonsnummer', 'Organisasjonsnummer'],
   ['rektor_navn', 'Rektor: navn'],
   ['rektor_epost', 'Rektor: e-post'],
+  // F10/#3 (17.–18. sep): Hovedkontakt TL (htla_*) blir skolens hovedkontakt ved
+  // godkjenning (skoler.hktl_*), så navn + e-post er påkrevd. Telefon er OGSÅ påkrevd
+  // (Kjartans beslutning 18. sep): dette er personen RA ringer — regionansvarlig
+  // trenger et nummer. htla er derfor det ENESTE kontaktfeltet der telefon kreves.
+  ['htla_navn', 'Hovedkontakt TL: navn'],
+  ['htla_epost', 'Hovedkontakt TL: e-post'],
+  ['htla_telefon', 'Hovedkontakt TL: telefon'],
   ['tla_navn', 'TL-ansvarlig (TLA): navn'],
+  ['tla_epost', 'TL-ansvarlig (TLA): e-post'],
+]
+
+// Felter der en UTFYLT verdi i tillegg må ha gyldig e-postform.
+const EPOST_FELT = [
+  ['rektor_epost', 'Rektor: e-post'],
+  ['htla_epost', 'Hovedkontakt TL: e-post'],
   ['tla_epost', 'TL-ansvarlig (TLA): e-post'],
 ]
 
@@ -30,22 +44,33 @@ const TOM_FORM = {
   merknader: '',
 }
 
-function Felt({ label, name, type = 'text', required, value, onChange, placeholder, hint }) {
+function Felt({ label, name, type = 'text', required, value, onChange, placeholder, hint, feilmelding }) {
+  // WCAG: feil knyttes programmatisk til feltet (aria-invalid + aria-describedby),
+  // ikke bare med rød farge; påkrevd markeres med `required`/`aria-required` på selve
+  // input-elementet, ikke bare med en stjerne i etiketten (stjernen er aria-hidden).
+  const feilId = feilmelding ? `${name}-feil` : undefined
+  const hintId = hint ? `${name}-hint` : undefined
+  const describedBy = [feilId, hintId].filter(Boolean).join(' ') || undefined
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+        {label}{required && <span className="text-red-400 ml-0.5" aria-hidden="true">*</span>}
       </label>
       <input
+        id={name}
         type={type}
         name={name}
         value={value}
         onChange={onChange}
         required={required}
+        aria-required={required || undefined}
+        aria-invalid={feilmelding ? 'true' : undefined}
+        aria-describedby={describedBy}
         placeholder={placeholder}
-        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31]"
+        className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31] ${feilmelding ? 'border-red-400' : 'border-gray-300'}`}
       />
-      {hint && <p className="text-xs text-gray-400 mt-1">{hint}</p>}
+      {feilmelding && <p id={feilId} className="text-xs text-red-600 mt-1">{feilmelding}</p>}
+      {hint && <p id={hintId} className="text-xs text-gray-400 mt-1">{hint}</p>}
     </div>
   )
 }
@@ -61,7 +86,7 @@ function Seksjon({ tittel, children }) {
   )
 }
 
-function KontaktSeksjon({ tittel, prefix, form, onChange, required, beskrivelse }) {
+function KontaktSeksjon({ tittel, prefix, form, onChange, required, telefonPaakrevd, beskrivelse, feilFelter = {} }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="bg-gray-50 border-b border-gray-100 px-6 py-4">
@@ -69,9 +94,10 @@ function KontaktSeksjon({ tittel, prefix, form, onChange, required, beskrivelse 
         {beskrivelse && <p className="text-xs text-gray-500 mt-1">{beskrivelse}</p>}
       </div>
       <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Felt label="Navn" name={`${prefix}_navn`} value={form[`${prefix}_navn`]} onChange={onChange} required={required} />
-        <Felt label="E-post" name={`${prefix}_epost`} type="email" value={form[`${prefix}_epost`]} onChange={onChange} required={required} />
-        <Felt label="Telefon" name={`${prefix}_telefon`} type="tel" value={form[`${prefix}_telefon`]} onChange={onChange} />
+        <Felt label="Navn" name={`${prefix}_navn`} value={form[`${prefix}_navn`]} onChange={onChange} required={required} feilmelding={feilFelter[`${prefix}_navn`]} />
+        <Felt label="E-post" name={`${prefix}_epost`} type="email" value={form[`${prefix}_epost`]} onChange={onChange} required={required} feilmelding={feilFelter[`${prefix}_epost`]} />
+        {/* telefonPaakrevd settes kun for htla (RA-kontakt) — ellers valgfritt. */}
+        <Felt label="Telefon" name={`${prefix}_telefon`} type="tel" value={form[`${prefix}_telefon`]} onChange={onChange} required={telefonPaakrevd} feilmelding={feilFelter[`${prefix}_telefon`]} />
       </div>
     </div>
   )
@@ -81,51 +107,55 @@ export default function Paamelding() {
   const [form, setForm] = useState(TOM_FORM)
   const [laster, setLaster] = useState(false)
   const [feil, setFeil] = useState('')
+  const [feilFelter, setFeilFelter] = useState({})
   const [sendt, setSendt] = useState(false)
 
   function onChange(e) {
     const { name, value } = e.target
     setForm(f => ({ ...f, [name]: value }))
     setFeil('')
+    // Fjern feilmarkeringen på feltet som rettes.
+    setFeilFelter(prev => {
+      if (!prev[name]) return prev
+      const neste = { ...prev }; delete neste[name]; return neste
+    })
   }
 
+  // Returnerer { feilFelter: {navn: melding}, labels: [etiketter i rekkefølge] }.
   function validerSkjema() {
-    const mangler = PAKREVDE_FELT
-      .filter(([felt]) => !String(form[felt] ?? '').trim())
-      .map(([, etikett]) => etikett)
-
-    const manglerBareTla = mangler.length > 0 && mangler.every(e => e.startsWith('TL-ansvarlig'))
-    const manglerTla = mangler.some(e => e.startsWith('TL-ansvarlig'))
-
-    // TLA blir HKTL (hovedkontakt) på skolekortet ved godkjenning — navn og
-    // e-post må derfor alltid fylles ut (feil D, del 2).
-    const tlaMelding = 'TL-ansvarlig (TLA) må fylles ut med både navn og e-post. TLA blir skolens hovedkontakt for Trivselsleder-programmet.'
-    if (manglerBareTla) return tlaMelding
-    if (mangler.length > 0) {
-      return 'Følgende påkrevde felt mangler: ' + mangler.join(', ') + '.'
-        + (manglerTla ? ' ' + tlaMelding : '')
-    }
-
-    for (const [felt, etikett] of [
-      ['rektor_epost', 'Rektor: e-post'],
-      ['htla_epost', 'Hoved-TL-ansvarlig (HTLA): e-post'],
-      ['tla_epost', 'TL-ansvarlig (TLA): e-post'],
-    ]) {
-      const verdi = String(form[felt] ?? '').trim()
-      if (verdi && !EPOST_MONSTER.test(verdi)) {
-        return 'Feltet «' + etikett + '» må være en gyldig e-postadresse (f.eks. navn@skole.no).'
+    const nyeFeil = {}
+    const labels = []
+    for (const [felt, etikett] of PAKREVDE_FELT) {
+      if (!String(form[felt] ?? '').trim()) {
+        nyeFeil[felt] = 'Må fylles ut.'
+        labels.push(etikett)
       }
     }
-    return ''
+    for (const [felt, etikett] of EPOST_FELT) {
+      const verdi = String(form[felt] ?? '').trim()
+      if (verdi && !EPOST_MONSTER.test(verdi) && !nyeFeil[felt]) {
+        nyeFeil[felt] = 'Må være en gyldig e-postadresse (f.eks. navn@skole.no).'
+        if (!labels.includes(etikett)) labels.push(etikett)
+      }
+    }
+    return { feilFelter: nyeFeil, labels }
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const valideringsfeil = validerSkjema()
-    if (valideringsfeil) {
-      setFeil(valideringsfeil)
+    const { feilFelter: nyeFeil, labels } = validerSkjema()
+    if (labels.length > 0) {
+      setFeilFelter(nyeFeil)
+      setFeil('Følgende påkrevde felt mangler eller er ugyldige: ' + labels.join(', ') + '. Se de markerte feltene under.')
+      // WCAG: flytt fokus til FØRSTE felt med feil (rekkefølge = skjemaets rekkefølge).
+      const rekkefolge = [...PAKREVDE_FELT.map(f => f[0]), ...EPOST_FELT.map(f => f[0])]
+      const forste = rekkefolge.find(n => nyeFeil[n]) ?? Object.keys(nyeFeil)[0]
+      const el = forste && document.getElementById(forste)
+      if (el) el.focus()
+      else window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
+    setFeilFelter({})
     setLaster(true)
     setFeil('')
     try {
@@ -185,18 +215,22 @@ export default function Paamelding() {
             </div>
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <Felt label="Skolenavn" name="skolenavn" value={form.skolenavn} onChange={onChange} required />
+                <Felt label="Skolenavn" name="skolenavn" value={form.skolenavn} onChange={onChange} required feilmelding={feilFelter.skolenavn} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type<span className="text-red-400 ml-0.5">*</span>
+                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                  Type<span className="text-red-400 ml-0.5" aria-hidden="true">*</span>
                 </label>
                 <select
+                  id="type"
                   name="type"
                   value={form.type}
                   onChange={onChange}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31] bg-white"
+                  aria-required="true"
+                  aria-invalid={feilFelter.type ? 'true' : undefined}
+                  aria-describedby={feilFelter.type ? 'type-feil' : undefined}
+                  className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7B31] bg-white ${feilFelter.type ? 'border-red-400' : 'border-gray-300'}`}
                 >
                   <option value="">Velg type</option>
                   <option value="barnehage">Barnehage</option>
@@ -205,6 +239,7 @@ export default function Paamelding() {
                   <option value="kombinert">Kombinert skole</option>
                   <option value="SFO">SFO</option>
                 </select>
+                {feilFelter.type && <p id="type-feil" className="text-xs text-red-600 mt-1">Må velges.</p>}
               </div>
               <Felt label="Antall elever" name="antall_elever" type="number" value={form.antall_elever} onChange={onChange} placeholder="f.eks. 250" />
               <Felt label="Hjemmeside" name="hjemmeside" type="url" value={form.hjemmeside} onChange={onChange} placeholder="https://" />
@@ -214,12 +249,12 @@ export default function Paamelding() {
           {/* Adresse */}
           <Seksjon tittel="Adresse">
             <div className="sm:col-span-2">
-              <Felt label="Gateadresse" name="gateadresse" value={form.gateadresse} onChange={onChange} required />
+              <Felt label="Gateadresse" name="gateadresse" value={form.gateadresse} onChange={onChange} required feilmelding={feilFelter.gateadresse} />
             </div>
-            <Felt label="Postnummer" name="postnummer" value={form.postnummer} onChange={onChange} required />
-            <Felt label="Poststed" name="poststed" value={form.poststed} onChange={onChange} required />
-            <Felt label="Kommune" name="kommune" value={form.kommune} onChange={onChange} required />
-            <Felt label="Fylke" name="fylke" value={form.fylke} onChange={onChange} required />
+            <Felt label="Postnummer" name="postnummer" value={form.postnummer} onChange={onChange} required feilmelding={feilFelter.postnummer} />
+            <Felt label="Poststed" name="poststed" value={form.poststed} onChange={onChange} required feilmelding={feilFelter.poststed} />
+            <Felt label="Kommune" name="kommune" value={form.kommune} onChange={onChange} required feilmelding={feilFelter.kommune} />
+            <Felt label="Fylke" name="fylke" value={form.fylke} onChange={onChange} required feilmelding={feilFelter.fylke} />
           </Seksjon>
 
           {/* Faktura */}
@@ -232,6 +267,7 @@ export default function Paamelding() {
               required
               placeholder="9 siffer"
               hint="Brukes for fakturering"
+              feilmelding={feilFelter.organisasjonsnummer}
             />
             <Felt label="Kontortelefon" name="kontortelefon" type="tel" value={form.kontortelefon} onChange={onChange} />
             <div className="sm:col-span-2">
@@ -247,15 +283,28 @@ export default function Paamelding() {
           </Seksjon>
 
           {/* Kontaktpersoner */}
-          <KontaktSeksjon tittel="Rektor" prefix="rektor" form={form} onChange={onChange} required />
-          <KontaktSeksjon tittel="Hoved-TL-ansvarlig (HTLA)" prefix="htla" form={form} onChange={onChange} required={false} />
+          <KontaktSeksjon tittel="Rektor" prefix="rektor" form={form} onChange={onChange} required feilFelter={feilFelter} />
+          {/* F10/#3: Hovedkontakt TL (htla_*) blir skolens faste hovedkontakt ved
+              godkjenning (skoler.hktl_*) — derfor påkrevd (navn + e-post). Kolonnenavnene
+              i basen er uendret. */}
+          <KontaktSeksjon
+            tittel="Hovedkontakt TL"
+            prefix="htla"
+            form={form}
+            onChange={onChange}
+            required
+            telefonPaakrevd
+            beskrivelse="Hovedkontakt TL blir skolens faste kontaktperson for Trivselsleder-programmet."
+            feilFelter={feilFelter}
+          />
           <KontaktSeksjon
             tittel="TL-ansvarlig (TLA)"
             prefix="tla"
             form={form}
             onChange={onChange}
             required
-            beskrivelse="TL-ansvarlig blir skolens hovedkontakt for Trivselsleder-programmet."
+            beskrivelse="TL-ansvarlig er skolens Trivselsleder-ansvarlige og får tilgang som skoleansatt."
+            feilFelter={feilFelter}
           />
 
           {/* Merknader */}
@@ -276,7 +325,7 @@ export default function Paamelding() {
           </div>
 
           {feil && (
-            <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-3 text-red-600 text-sm">{feil}</div>
+            <div role="alert" aria-live="assertive" className="bg-red-50 border border-red-200 rounded-xl px-5 py-3 text-red-600 text-sm">{feil}</div>
           )}
 
           <div className="flex items-center justify-between">

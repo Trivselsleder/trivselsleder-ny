@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { ALLE_FYLKER, FYLKER_KOMMUNER, ALLE_KOMMUNER } from '../data/norgeKommuner'
 import { SkoleRedigerForm } from '../components/SkoleRedigerForm'
 import { adminFetch } from '../lib/adminFetch'
+import { useAuth } from '../contexts/AuthContext'
 
 const TYPE_LABEL = {
   barnehage:    'Barnehage',
@@ -13,15 +14,18 @@ const TYPE_LABEL = {
 }
 const TYPE_VALG = ['barnehage', 'barnetrinn', 'ungdomstrinn', 'kombinert', 'SFO']
 
-const STATUS_VALG = ['Påmeldt', 'Aktiv', 'Aktiv sagt opp', 'Pause', 'Tidligere', 'Potensielle']
+// Statuslista er lik ny side og HubSpot (migr 138): «Aktiv, sagt opp» med komma, og «Nedlagt»
+// lagt til. «Inaktiv» er intern (avviste påmeldinger) og velges ikke manuelt her.
+const STATUS_VALG = ['Påmeldt', 'Aktiv', 'Aktiv, sagt opp', 'Pause', 'Tidligere', 'Potensielle', 'Nedlagt']
 
 const STATUS_STIL = {
-  'Påmeldt':        'bg-yellow-100 text-yellow-700',
-  'Aktiv':          'bg-green-100 text-green-700',
-  'Aktiv sagt opp': 'bg-orange-100 text-orange-700',
-  'Pause':          'bg-blue-100 text-blue-700',
-  'Tidligere':      'bg-gray-100 text-gray-600',
-  'Potensielle':    'bg-purple-100 text-purple-700',
+  'Påmeldt':         'bg-yellow-100 text-yellow-700',
+  'Aktiv':           'bg-green-100 text-green-700',
+  'Aktiv, sagt opp': 'bg-orange-100 text-orange-700',
+  'Pause':           'bg-blue-100 text-blue-700',
+  'Tidligere':       'bg-gray-100 text-gray-600',
+  'Potensielle':     'bg-purple-100 text-purple-700',
+  'Nedlagt':         'bg-red-100 text-red-700',
 }
 
 function eksporterCSV(skoler) {
@@ -480,8 +484,13 @@ function OpprettSkoleModal({ onLukk, onOpprettet }) {
 }
 
 function RedigerSkoleModal({ skole, onLukk, onLagret }) {
+  const { bruker } = useAuth()
+  // F3: statusfeltet er kun for Trivselsleder-ansatte (route-vakten sikrer at bare
+  // ansatt/superadmin når denne siden; server validerer i tillegg).
+  const kanEndreStatus = ['ansatt', 'superadmin'].includes(bruker?.rolle)
   const [form, setForm] = useState({
     navn:           skole.navn           ?? '',
+    status:         skole.status         ?? '',
     gateadresse:    skole.gateadresse    ?? '',
     postnummer:     skole.postnummer     ?? '',
     poststed:       skole.poststed       ?? '',
@@ -568,6 +577,7 @@ function RedigerSkoleModal({ skole, onLukk, onLagret }) {
             onAvbryt={onLukk}
             lagrer={lagrer}
             lagreFeil={lagreFeil}
+            visStatus={kanEndreStatus}
           />
         </div>
       </div>

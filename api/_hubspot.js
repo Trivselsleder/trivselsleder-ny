@@ -7,15 +7,70 @@ function headers() {
   }
 }
 
-// RETTING 4 — school_type i HubSpot er et avkrysningsboks-felt med nøyaktig disse gyldige
+// school_type i HubSpot er et avkrysningsboks-felt med nøyaktig disse gyldige
 // alternativene (internt navn = label). Skjemaets koder mappes til korrekt bokstavform.
-// barnehage og SFO har INGEN gyldig alternativ (Kjartans beslutning 14. sep) → school_type
-// utelates for dem; skolen opprettes/oppdateres som normalt uten feltet.
+// ENDRING 17. sep (DEL 2b): «Barnehage» og «SFO» sendes nå — Kjartan legger dem til som
+// avkrysningsvalg i HubSpot manuelt. En kode uten treff her (skulle det oppstå) utelates,
+// slik at skolen fortsatt opprettes/oppdateres uten feltet i stedet for å bli avvist.
 const SKOLETYPE_HUBSPOT = {
+  barnehage:    'Barnehage',
   barnetrinn:   'Barnetrinn',
   ungdomstrinn: 'Ungdomstrinn',
   kombinert:    'Kombinert',
-  // barnehage, SFO: bevisst utelatt — ingen tilsvarende HubSpot-verdi.
+  SFO:          'SFO',
+}
+// Deles med api/skole/oppdater-skole.js så redigeringsskjemaet mapper skoletype
+// på nøyaktig samme måte som påmeldingen.
+export function hubspotSkoletype(kode) {
+  return SKOLETYPE_HUBSPOT[kode]
+}
+
+// DEL 2a (17. sep) — Fylke skal til det EGENDEFINERTE avkrysningsfeltet `fylke` (det som
+// vises på skolekortet og brukes i lister/filtre), IKKE til det innebygde `state`
+// («Stat/region», 0 % reell bruk). Fordi `fylke` er en avkrysningsliste, må verdien
+// mappes til HubSpots valgnavn (samme mønster som SKOLETYPE_HUBSPOT). Nedenfor er de 15
+// norske fylkene (2024-inndelingen) som identitets-mapping.
+// ⚠️ MÅ STEMMES AV MOT HUBSPOT: bekreft at valgnavnene i HubSpots «Fylke»-felt staves
+// nøyaktig slik. Avvik → juster verdien (høyre side) her. En verdi uten treff utelates.
+const FYLKE_HUBSPOT = {
+  'Østfold':          'Østfold',
+  'Akershus':         'Akershus',
+  'Oslo':             'Oslo',
+  'Innlandet':        'Innlandet',
+  'Buskerud':         'Buskerud',
+  'Vestfold':         'Vestfold',
+  'Telemark':         'Telemark',
+  'Agder':            'Agder',
+  'Rogaland':         'Rogaland',
+  'Vestland':         'Vestland',
+  'Møre og Romsdal':  'Møre og Romsdal',
+  'Trøndelag':        'Trøndelag',
+  'Nordland':         'Nordland',
+  'Troms':            'Troms',
+  'Finnmark':         'Finnmark',
+}
+function hubspotFylke(verdi) {
+  return FYLKE_HUBSPOT[String(verdi ?? '').trim()]
+}
+
+// DEL 1 (17. sep) — Statusfeltet `kategori` skal følge ALLE statusovergangene på ny side,
+// ikke bare Påmeldt/Aktiv. Ny side og HubSpot har samme statusliste (Kjartans beslutning),
+// så mappingen er identitet — MED to unntak:
+//   * «Inaktiv» er en intern verdi (avviste påmeldinger) → sendes ALDRI til HubSpot (null).
+//   * «Tidligere» legges til som valg i HubSpot manuelt av Kjartan; koden oppretter ikke valg.
+// En ukjent verdi returnerer null (utelates) i stedet for å bli avvist av HubSpot.
+const STATUS_HUBSPOT = {
+  'Påmeldt':          'Påmeldt',
+  'Aktiv':            'Aktiv',
+  'Aktiv, sagt opp':  'Aktiv, sagt opp',
+  'Pause':            'Pause',
+  'Tidligere':        'Tidligere',
+  'Potensielle':      'Potensielle',
+  'Nedlagt':          'Nedlagt',
+  // 'Inaktiv': bevisst utelatt — intern verdi, synkes ikke.
+}
+export function hubspotKategori(status) {
+  return STATUS_HUBSPOT[String(status ?? '').trim()] ?? null
 }
 
 // HubSpots statusfelt heter internt `kategori` (label «Status»), med verdiene Aktiv · Aktiv, sagt
@@ -61,25 +116,29 @@ function soekeToken(navn) {
   return ord.slice().sort((a, b) => b.length - a.length)[0] ?? ''
 }
 
-// Bygger egenskaps-objektet for et Company (RETTING 2, 3, 4, 5).
+// Bygger egenskaps-objektet for et Company (RETTING 2, 3, 4, 5 + DEL 1/2a 17. sep).
 function byggSelskapsEgenskaper(p) {
-  const skoletype = SKOLETYPE_HUBSPOT[p.type] // undefined for barnehage/SFO → utelates
+  const skoletype = SKOLETYPE_HUBSPOT[p.type]        // undefined for ukjent kode → utelates
+  const fylke = hubspotFylke(p.fylke)                // DEL 2a: mappet til «Fylke»-valgnavn, ikke state
+  // DEL 1: følg statusen som settes. Uten status (ren påmelding) → 'Påmeldt'.
+  // 'Inaktiv'/ukjent → null (utelates), håndteres av hubspotKategori.
+  const kategori = p.status ? hubspotKategori(p.status) : PAAMELDING_KATEGORI
   return {
     name:    p.skolenavn,
     address: p.gateadresse,
     zip:     p.postnummer,
     city:    p.poststed,
-    state:   p.fylke,
     country: 'Norge',
+    ...(fylke           ? { fylke:            fylke }                    : {}), // DEL 2a: egendefinert felt, ikke state
     ...(p.telefon       ? { phone:            p.telefon }                : {}),
     ...(p.kontortelefon ? { phone:            p.kontortelefon }          : {}),
     ...(p.hjemmeside    ? { website:          p.hjemmeside }             : {}),
     ...(p.kommune       ? { municipality:     p.kommune }                : {}), // RETTING 2: d.kommune (ikke d.kommunenavn)
     ...(p.antall_elever ? { number_of_pupils: String(p.antall_elever) }  : {}),
-    ...(skoletype       ? { school_type:      skoletype }                : {}), // RETTING 4
+    ...(skoletype       ? { school_type:      skoletype }                : {}), // RETTING 4 (+ barnehage/SFO DEL 2b)
     ...(p.nettverk      ? { nettverk:         p.nettverk }               : {}),
     ...(p.organisasjonsnummer ? { org__number: p.organisasjonsnummer }   : {}), // RETTING 3: org__number (ikke organisasjonsnummer)
-    ...(PAAMELDING_KATEGORI   ? { kategori:    PAAMELDING_KATEGORI }      : {}), // RETTING 5: venter på verdi
+    ...(kategori        ? { kategori:         kategori }                 : {}), // DEL 1: følger statusen (Inaktiv utelates)
   }
 }
 
@@ -146,18 +205,25 @@ export async function opprettEllerOppdaterSelskap(p) {
   return (await res.json()).id
 }
 
-// Oppdaterer statusfeltet (`kategori`) på et eksisterende Company. Kalleren sender en gyldig
-// kategori-verdi (f.eks. 'Aktiv' ved godkjenning). Tidligere skrev denne til det ikke-
+// Oppdaterer statusfeltet (`kategori`) på et eksisterende Company. Kalleren sender ny-side-
+// statusen (f.eks. 'Aktiv' ved godkjenning, eller 'Pause'/'Nedlagt' fra admin) — den mappes
+// til HubSpots kategori-valgnavn via hubspotKategori. Tidligere skrev denne til det ikke-
 // eksisterende feltet `trivselsleder_status` — rettet til `kategori` (label «Status»).
+// DEL 1 (17. sep): 'Inaktiv'/ukjent → null → INGEN skriving (intern verdi, synkes ikke).
 export async function oppdaterStatus(hubspotId, status) {
+  const kategori = hubspotKategori(status)
+  if (!kategori) {
+    console.log(`[HubSpot] oppdaterStatus: status «${status}» synkes ikke (intern/ukjent) — hopper over.`)
+    return
+  }
   const res = await fetch(`${BASE_URL}/crm/v3/objects/companies/${hubspotId}`, {
     method: 'PATCH',
     headers: headers(),
-    body: JSON.stringify({ properties: { kategori: status } }),
+    body: JSON.stringify({ properties: { kategori } }),
   })
   if (!res.ok) {
     const feil = await res.json()
-    loggKategoriAvvist(feil, status)
+    loggKategoriAvvist(feil, kategori)
     throw new Error(feil.message ?? 'HubSpot PATCH-feil')
   }
 }
@@ -266,9 +332,17 @@ export async function knyttKontaktTilSelskap(selskapId, kontaktId) {
   )
 }
 
-// Fjerner tilknytningen til alle kontakter med gitt tittel på et Company, unntatt de i nyeKontaktIder
-export async function fjernGamleKoblinger(selskapId, tittel, nyeKontaktIder) {
-  const iderABeholde = Array.isArray(nyeKontaktIder) ? nyeKontaktIder : [nyeKontaktIder]
+// Fjerner koblingen til kontakter som bærer et gitt TILKNYTNINGSMERKE (association label:
+// «Rektor», «Hovedkontakt TL», «TL ansvarlig») på et Company, unntatt de i nyeKontaktIder.
+// DEL 2c (17. sep): avgjør på tilknytningsmerket, IKKE på jobbtittel-tekst. Merket er
+// konsekvent i HubSpot; jobbtittel er fri tekst («Rektor ved Asak skole» ≠ «Rektor»), så den
+// gamle jobbtittel-sammenligningen traff aldri virkelige titler (feltkart 17. sep).
+// Merket leses fra v4-assosiasjonens associationTypes[].label (case-/mellomrom-tolerant).
+export async function fjernGamleKoblinger(selskapId, tilknytningsmerke, nyeKontaktIder) {
+  const iderABeholde = (Array.isArray(nyeKontaktIder) ? nyeKontaktIder : [nyeKontaktIder])
+    .filter(Boolean).map(String)
+  const merke = String(tilknytningsmerke ?? '').trim().toLowerCase()
+
   const assocRes = await fetch(
     `${BASE_URL}/crm/v4/objects/companies/${selskapId}/associations/contacts`,
     { headers: headers() }
@@ -278,29 +352,20 @@ export async function fjernGamleKoblinger(selskapId, tittel, nyeKontaktIder) {
     return
   }
   const assocData = await assocRes.json()
-  const kontaktIder = assocData.results?.map(r => r.toObjectId) ?? []
-  if (kontaktIder.length === 0) return
 
-  const batchRes = await fetch(`${BASE_URL}/crm/v3/objects/contacts/batch/read`, {
-    method: 'POST',
-    headers: headers(),
-    body: JSON.stringify({
-      inputs: kontaktIder.map(id => ({ id })),
-      properties: ['jobtitle', 'firstname', 'lastname'],
-    }),
+  // Behold kun koblinger som HAR det aktuelle merket og som ikke er blant de nye.
+  const gamle = (assocData.results ?? []).filter(r => {
+    const harMerke = (r.associationTypes ?? []).some(
+      t => String(t.label ?? '').trim().toLowerCase() === merke
+    )
+    return harMerke && !iderABeholde.includes(String(r.toObjectId))
   })
-  if (!batchRes.ok) return
-  const batchData = await batchRes.json()
 
-  const gamle = (batchData.results ?? []).filter(
-    k => k.properties?.jobtitle === tittel && !iderABeholde.includes(k.id)
-  )
-
-  for (const kontakt of gamle) {
-    // Personvern: logg kun rolle + kontakt-ID, aldri kontaktpersonens navn.
-    console.log(`[HubSpot] Fjerner gammel ${tittel}-kobling (kontakt-ID: ${kontakt.id})`)
+  for (const rad of gamle) {
+    // Personvern: logg kun merke + kontakt-ID, aldri kontaktpersonens navn.
+    console.log(`[HubSpot] Fjerner gammel «${tilknytningsmerke}»-kobling (kontakt-ID: ${rad.toObjectId})`)
     await fetch(
-      `${BASE_URL}/crm/v4/objects/companies/${selskapId}/associations/contacts/${kontakt.id}`,
+      `${BASE_URL}/crm/v4/objects/companies/${selskapId}/associations/contacts/${rad.toObjectId}`,
       { method: 'DELETE', headers: headers() }
     )
   }

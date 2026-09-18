@@ -135,10 +135,11 @@ export async function hentTuFolgMed(rundeId) {
 }
 
 // --- 4.5 Manuell tidlig-lukk ------------------------------------------------
-// Lukker en åpen runde før frist. DB-en (tu_lukk_runde, migr 045/068) arkiverer
+// Lukker en åpen runde før frist. DB-en (tu_lukk_runde, migr 045/068/142) arkiverer
 // skjermet resultat, sletter kodene og re-stempler svarene (kollapser xmin →
-// anonymitet-ved-konstruksjon). Autorisasjon i DB: skoleadmin/superadmin eller
-// aktiv HTLA på egen skole. Returnerer void; kaster ved feil/uten tilgang.
+// anonymitet-ved-konstruksjon). Autorisasjon i DB (F8, 17. sep): KUN skoleadmin/
+// superadmin (tu_har_tilgang_skole). HTLA kan IKKE lenger lukke — får «Ingen tilgang».
+// Frontend gater knappen på kanOpprette. Returnerer void; kaster ved feil/uten tilgang.
 export async function lukkTuRunde(rundeId) {
   const { error } = await supabase.rpc('tu_lukk_runde', { p_runde: rundeId })
   if (error) {

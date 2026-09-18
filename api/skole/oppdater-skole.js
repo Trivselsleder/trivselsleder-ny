@@ -5,7 +5,16 @@ import {
   oppdaterEllerOpprettKontakt,
   knyttKontaktTilSelskap,
   fjernGamleKoblinger,
+  hubspotSkoletype,
+  oppdaterStatus,
 } from '../_hubspot.js'
+
+// F3 (17. sep, migr 138): de åtte lovlige skolestatusene. KUN ansatt/superadmin kan
+// sette status (server er den reelle vakten — skjult UI-felt er ikke nok).
+const GYLDIGE_STATUS = [
+  'Påmeldt', 'Aktiv', 'Aktiv, sagt opp', 'Pause',
+  'Tidligere', 'Potensielle', 'Nedlagt', 'Inaktiv',
+]
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -39,10 +48,22 @@ export default async function handler(req, res) {
     telefon, antall_elever, type, nettverk,
     rektor_navn, rektor_epost, rektor_telefon,
     hktl_navn, hktl_epost, hktl_telefon,
-    tla_kontakter,
+    tla_kontakter, status,
   } = req.body
 
   if (!skoleId) return res.status(400).json({ error: 'Mangler skoleId.' })
+
+  // F3: status er kun for ansatt/superadmin. En skoleadmin som sender status i
+  // kroppen avvises EKSPLISITT (403) — ikke stille ignorering. Server er vakten.
+  const settStatus = status !== undefined && status !== null
+  if (settStatus) {
+    if (!['ansatt', 'superadmin'].includes(profil.rolle)) {
+      return res.status(403).json({ error: 'Kun Trivselsleder-ansatte kan endre skolens status.' })
+    }
+    if (!GYLDIGE_STATUS.includes(status)) {
+      return res.status(400).json({ error: 'Ugyldig status.' })
+    }
+  }
   // Personvern: logg ALDRI request-body (navn/e-post/telefon havner ellers i kjøretidsloggen,
   // som lagres i USA). skoleId er en UUID og trygg å logge.
   console.log('[oppdater-skole] mottok oppdatering for skole', skoleId)
@@ -82,6 +103,7 @@ export default async function handler(req, res) {
     ...(hktl_epost     != null ? { hktl_epost }      : {}),
     ...(hktl_telefon   != null ? { hktl_telefon }    : {}),
     ...(tla_kontakter  != null ? { tla_kontakter }   : {}),
+    ...(settStatus     ? { status }                  : {}),
   }
 
   const { error: dbFeil } = await supabase
@@ -132,11 +154,20 @@ export default async function handler(req, res) {
           ...(poststed      ? { city:             poststed }                  : {}),
           ...(telefon       ? { phone:            telefon }                   : {}),
           ...(antall_elever != null ? { number_of_pupils: String(antall_elever) } : {}),
-          ...(type          ? { school_type:      type }                      : {}),
+          // DEL 2b: skoletype-koden mappes til HubSpots avkrysningsnavn (samme mapping som
+          // påmeldingen) — ikke lenger rå fritekst. Ukjent kode → feltet utelates.
+          ...(hubspotSkoletype(type) ? { school_type: hubspotSkoletype(type) } : {}),
           ...(nettverk      ? { nettverk:         nettverk }                  : {}),
         }
         console.log('[HubSpot] Oppdaterer selskapsfelter')
         await oppdaterSelskapFelter(selskapId, selskapFelter)
+
+        // F3: synk status med NØYAKTIG samme skrivemåte som i basen. oppdaterStatus
+        // mapper via hubspotKategori — «Inaktiv»/ukjent → hoppes over (intern verdi).
+        if (settStatus) {
+          console.log('[HubSpot] Synker skolestatus')
+          await oppdaterStatus(selskapId, status)
+        }
 
         // Rektor
         console.log('[HubSpot] Synker rektor-kontakt')
@@ -185,7 +216,9 @@ export default async function handler(req, res) {
             console.log('[HubSpot] TL-ansvarlig hoppes over (mangler navn eller e-post)')
           }
         }
-        await fjernGamleKoblinger(selskapId, 'TL-ansvarlig', nyeTlaIder)
+        // DEL 2c: opprydding avgjør på tilknytningsMERKET «TL ansvarlig» (uten bindestrek —
+        // slik HubSpot faktisk merker koblingen), ikke på jobbtittel-teksten «TL-ansvarlig».
+        await fjernGamleKoblinger(selskapId, 'TL ansvarlig', nyeTlaIder)
       }
     } catch (e) {
       console.error('[HubSpot] Feil ved skole-oppdatering:', e.message)

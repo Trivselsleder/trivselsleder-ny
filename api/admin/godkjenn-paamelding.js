@@ -176,9 +176,16 @@ export default async function handler(req, res) {
     rektor_telefon: p.rektor_telefon,
     htla_navn:     p.htla_navn,
     htla_epost:    p.htla_epost,
-    hktl_navn:     p.tla_navn,
-    hktl_epost:    p.tla_epost,
-    hktl_telefon:  p.tla_telefon,
+    // F10 (17. sep) — HTLA→«Hovedkontakt TL»: personen som på påmeldingsskjemaet fylles
+    // inn under «Hovedkontakt TL» (htla_*) blir skolens løpende hovedkontakt (hktl_*, vist
+    // som «Hovedkontakt TL» og synket med tilknytningsmerket «Hovedkontakt TL» i HubSpot).
+    // Tidligere ble TLA-kontakten (tla_*) lagret som hktl_* — da så skolen ett navn på
+    // skjemaet og et annet i CRM. Nå er de samme personen. htla_* inviteres FORTSATT som
+    // skoleadmin (under), og tla_* inviteres fortsatt som skoleansatt; tla_* lagres ikke
+    // lenger på skolekortet. Kolonnenavnene (htla_*/hktl_*) i basen er uendret.
+    hktl_navn:     p.htla_navn,
+    hktl_epost:    p.htla_epost,
+    hktl_telefon:  p.htla_telefon,
     hubspot_company_id: p.hubspot_company_id,
   }
 

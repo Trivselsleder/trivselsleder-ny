@@ -100,8 +100,18 @@ export default async function handler(req, res) {
 
   const d = req.body
 
-  const påkrevde = ['skolenavn', 'type', 'gateadresse', 'postnummer', 'poststed', 'kommune', 'fylke', 'organisasjonsnummer', 'rektor_navn', 'rektor_epost']
-  const mangler = påkrevde.filter(f => !d[f])
+  // Server er den reelle vakten — klientvalidering alene er ikke nok. htla_* (Hovedkontakt
+  // TL) er påkrevd fordi den blir skolens hovedkontakt (skoler.hktl_*) ved godkjenning (F10).
+  const PAKREVDE = [
+    ['skolenavn', 'Skolenavn'], ['type', 'Type'], ['gateadresse', 'Gateadresse'],
+    ['postnummer', 'Postnummer'], ['poststed', 'Poststed'], ['kommune', 'Kommune'],
+    ['fylke', 'Fylke'], ['organisasjonsnummer', 'Organisasjonsnummer'],
+    ['rektor_navn', 'Rektor: navn'], ['rektor_epost', 'Rektor: e-post'],
+    // htla_telefon påkrevd (Kjartans beslutning 18. sep): hovedkontakten er den RA ringer.
+    ['htla_navn', 'Hovedkontakt TL: navn'], ['htla_epost', 'Hovedkontakt TL: e-post'],
+    ['htla_telefon', 'Hovedkontakt TL: telefon'],
+  ]
+  const mangler = PAKREVDE.filter(([f]) => !String(d[f] ?? '').trim()).map(([, label]) => label)
   if (mangler.length) return res.status(400).json({ error: `Mangler påkrevde felter: ${mangler.join(', ')}` })
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL

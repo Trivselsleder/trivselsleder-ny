@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { trygFallbackOrigin, krevAnsatt } from '../_vakt.js'
 import { epostMal } from '../_epost-mal.js'
 import { krevMotorAktiv, loggEpost } from '../_epost.js'
+import { opprettEllerOppdaterSelskap } from '../_hubspot.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -153,6 +154,28 @@ export default async function handler(req, res) {
       .single()
     if (error) return res.status(500).json({ error: 'Kunne ikke opprette skole: ' + error.message })
     skole = data
+  }
+
+  // HubSpot (ikke-kritisk): opprett/oppdater Company og SYNK den valgte statusen (DEL 1).
+  // opprettEllerOppdaterSelskap gjør duplikatsjekk på navn+kommune, så admin-opprettelse
+  // ikke lager en dublett av en skole som alt finnes i HubSpot. 'Inaktiv'/ukjent status
+  // utelates av byggSelskapsEgenskaper. Lagrer hubspot_company_id for fremtidige kall.
+  if (process.env.HUBSPOT_API_KEY) {
+    try {
+      const hubspotId = await opprettEllerOppdaterSelskap({
+        skolenavn:           navn,
+        type,
+        fylke,
+        kommune:             kommunenavn,
+        organisasjonsnummer: orgNr,
+        status,
+      })
+      if (hubspotId) {
+        await supabase.from('skoler').update({ hubspot_company_id: hubspotId }).eq('id', skole.id)
+      }
+    } catch (e) {
+      console.error('HubSpot-feil ved admin-opprettelse:', e.message)
+    }
   }
 
   // Kun kjente adresser godtas — se trygtOrigin i api/_vakt.js.
