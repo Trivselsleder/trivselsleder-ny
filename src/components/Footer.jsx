@@ -40,7 +40,10 @@ export default function Footer() {
           <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
           <div className="flex gap-4">
             <Link to="/personvern" className="hover:text-orange transition-colors">{t('footer.personvern')}</Link>
-            <Link to="/vilkar" className="hover:text-orange transition-colors">{t('footer.vilkar')}</Link>
+            {/* Ingen /vilkar-lenke. Beslutning 19. sep 2026: Trivselsleder skal IKKE ha egne
+                brukervilkår — kundeforholdet reguleres av kontrakter, og databehandleravtale
+                mot kommunene. Lenken skal ikke inn igjen; dette er et bevisst valg, ikke en
+                manglende side. */}
           </div>
         </div>
       </div>

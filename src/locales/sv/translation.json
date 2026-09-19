@@ -13,7 +13,6 @@
     "kontakt": "Kontakt",
     "loggInn": "Logga in",
     "personvern": "Integritetspolicy",
-    "vilkar": "Villkor",
     "copyright": "© {{year}} Trivselsleder AS. Alla rättigheter förbehållna."
   },
   "home": {
@@ -89,7 +88,15 @@
     "meldingPlaceholder": "Hur kan vi hjälpa dig?",
     "sendKnapp": "Skicka meddelande",
     "takkTitle": "Tack för ditt meddelande!",
-    "takkIngress": "Vi svarar dig inom en arbetsdag."
+    "takkIngress": "Vi svarar dig inom en arbetsdag.",
+    "feilNavn": "Fyll i ditt namn.",
+    "feilEpostMangler": "Fyll i din e-postadress.",
+    "feilEpostUgyldig": "Ange en giltig e-postadress.",
+    "feilMelding": "Skriv ett meddelande.",
+    "feilOppsummeringTittel": "Rätta följande innan du skickar:",
+    "sender": "Skickar …",
+    "sendFeil": "Meddelandet kunde inte skickas. Försök igen senare.",
+    "nettverksfeil": "Nätverksfel. Kontrollera anslutningen och försök igen."
   },
   "kulturkort": {
     "title": "Kulturkortet",
@@ -1148,5 +1155,10 @@
     "favoritter": "Favoriter",
     "utenTittel": "Utan titel",
     "aapneSamling": "Öppna samlingen {{tittel}}"
+  },
+  "personvern": {
+    "tittel": "Integritetspolicy för trivselsleder.no",
+    "undertittel": "Gäller från 2026",
+    "svVarsel": "Den svenska versionen av integritetspolicyn förbereds. Nedan visas den norska versionen, som tills vidare är den gällande."
   }
 }

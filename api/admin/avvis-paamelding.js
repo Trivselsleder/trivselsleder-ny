@@ -1,10 +1,22 @@
 import { createClient } from '@supabase/supabase-js'
+import { krevAnsatt } from '../_vakt.js'
+
+// AVVISNING AV PÅMELDING. Setter KUN status = 'avvist' på selve påmeldings-raden.
+//
+// VARSLING BEVISST FJERNET (19. sep 2026, Kjartans beslutning): et e-postvarsel til rektor
+// ved avvisning ble bygget 18. sep, men rullet tilbake dagen etter. På sytten år er ingen
+// skole noen gang blitt avvist ved påmelding — funksjonen brukes ikke. En ubrukt knapp som
+// sender e-post til en rektor er verre enn ingen knapp. Derfor ingen Resend, ingen
+// krevMotorAktiv, ingen epostMal, ingen loggEpost her. Blir avvisning en reell arbeidsflyt
+// senere, tas varslingen opp igjen som egen beslutning.
+//
+// De tekniske forbedringene fra 18. sep beholdes fordi de er riktige uansett:
+//  - krevAnsatt: sjekker hvem som ringer på (service-nøkkelen går utenom alle sperrer) og
+//    fanger deaktiverte kontoer (aktiv = false).
+//  - atomisk claim: hindrer at to samtidige klikk/faner dobbeltregistrerer avvisningen.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-
-  const { paameldinId } = req.body
-  if (!paameldinId) return res.status(400).json({ error: 'Mangler paameldinId' })
 
   const supabase = createClient(
     process.env.VITE_SUPABASE_URL,
@@ -12,22 +24,13 @@ export default async function handler(req, res) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
-  // ---- HVEM RINGER PÅ? ----
-  // Dette endepunktet bruker service-nøkkelen og går utenom alle sperrer. Da
-  // MÅ det selv sjekke hvem som kaller — ellers står det åpent for hele
-  // internett. Manglet fram til 4. aug (funnet av agenttest 3).
-  // Samme mønster som api/auth/inviter-bruker.js.
-  const authHeader = req.headers.authorization
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Ikke autentisert.' })
-  }
-  const { data: { user: caller } } = await supabase.auth.getUser(authHeader.slice(7))
-  if (!caller) return res.status(401).json({ error: 'Ugyldig sesjon — last inn siden på nytt.' })
-  const { data: callerProfil } = await supabase
-    .from('profiles').select('rolle').eq('id', caller.id).single()
-  if (!['superadmin', 'ansatt'].includes(callerProfil?.rolle)) {
-    return res.status(403).json({ error: 'Ingen tilgang.' })
-  }
+  // ---- HVEM RINGER PÅ? (FØR vi rører kroppen) ----
+  // Samme rekkefølge som godkjenn-paamelding: en fremmed får 401, ikke 400.
+  const vakt = await krevAnsatt(req, supabase)
+  if (vakt) return res.status(vakt.status).json({ error: vakt.error })
+
+  const { paameldinId } = req.body || {}
+  if (!paameldinId) return res.status(400).json({ error: 'Mangler paameldinId' })
 
   const { error: hentFeil } = await supabase
     .from('paameldinger')
@@ -36,17 +39,20 @@ export default async function handler(req, res) {
     .single()
   if (hentFeil) return res.status(404).json({ error: 'Påmelding ikke funnet' })
 
-  // Avvisning markerer KUN selve påmeldings-raden som avvist. Skoleregisteret
-  // røres aldri — det finnes ingen «Inaktiv»-status. Problem-påmeldinger
-  // håndteres manuelt.
-  const { error: statusFeil } = await supabase
+  // ATOMISK CLAIM (dobbeltregistrering): bare den FØRSTE kjøringen som flipper status til
+  // 'avvist' lykkes. To samtidige klikk (eller to admin-faner) → den andre får 0 rader og
+  // stoppes her (409). Skoleregisteret røres aldri — avvisning markerer KUN påmeldings-raden.
+  const { data: claim, error: statusFeil } = await supabase
     .from('paameldinger')
     .update({ status: 'avvist' })
     .eq('id', paameldinId)
+    .neq('status', 'avvist')
+    .select('id')
   if (statusFeil) {
-    return res.status(500).json({
-      error: 'Kunne ikke avvise påmelding: ' + statusFeil.message,
-    })
+    return res.status(500).json({ error: 'Kunne ikke avvise påmelding: ' + statusFeil.message })
+  }
+  if (!claim || claim.length === 0) {
+    return res.status(409).json({ error: 'Denne påmeldingen er allerede avvist.' })
   }
 
   return res.status(200).json({ ok: true })

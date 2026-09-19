@@ -13,7 +13,6 @@
     "kontakt": "Kontakt",
     "loggInn": "Logg inn",
     "personvern": "Personvern",
-    "vilkar": "Vilkår",
     "copyright": "© {{year}} Trivselsleder AS. Alle rettigheter forbeholdt."
   },
   "home": {
@@ -89,7 +88,15 @@
     "meldingPlaceholder": "Hva kan vi hjelpe deg med?",
     "sendKnapp": "Send melding",
     "takkTitle": "Takk for meldingen!",
-    "takkIngress": "Vi svarer deg innen én virkedag."
+    "takkIngress": "Vi svarer deg innen én virkedag.",
+    "feilNavn": "Fyll inn navnet ditt.",
+    "feilEpostMangler": "Fyll inn e-postadressen din.",
+    "feilEpostUgyldig": "Skriv inn en gyldig e-postadresse.",
+    "feilMelding": "Skriv en melding.",
+    "feilOppsummeringTittel": "Rett opp følgende før du sender:",
+    "sender": "Sender …",
+    "sendFeil": "Kunne ikke sende meldingen. Prøv igjen senere.",
+    "nettverksfeil": "Nettverksfeil. Sjekk tilkoblingen og prøv igjen."
   },
   "kulturkort": {
     "title": "Kulturkortet",
@@ -1148,5 +1155,620 @@
     "favoritter": "Favoritter",
     "utenTittel": "Uten tittel",
     "aapneSamling": "Åpne samlingen {{tittel}}"
+  },
+  "personvern": {
+    "tittel": "Personvernerklæring for trivselsleder.no",
+    "undertittel": "Gjeldende fra 2026",
+    "svVarsel": "",
+    "seksjoner": [
+      {
+        "h2": "1. Hvem er ansvarlig",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Trivselsleder AS, org.nr. 995 914 859, Vestbygata 10 C, 2003 Lillestrøm, er behandlingsansvarlig for personopplysningene som beskrives i denne erklæringen."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Spørsmål om personvern kan sendes til "
+              },
+              {
+                "a": "post@trivselsleder.no",
+                "url": "mailto:post@trivselsleder.no"
+              },
+              {
+                "t": ". Merk henvendelsen «FAO Personvernkontakt»."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "2. Hvem denne erklæringen gjelder for",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Erklæringen gjelder deg som bruker trivselsleder.no: ansatte ved skoler som deltar i Trivselsprogrammet, kontaktpersoner ved skoler som er i dialog med oss, kursdeltakere og mottakere av nyhetsbrev. Den forklarer også hva som skjer med opplysninger om elever i plattformen, slik at foresatte og skoleledelse kan lese det samme som vi har lovet skoleeier."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "3. To roller — hvem som bestemmer",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "For noe av det som skjer på plattformen er skoleeier (kommunen, fylkeskommunen eller eieren av en privat skole) ansvarlig, og vi behandler opplysningene på deres vegne etter en databehandleravtale. Det gjelder brukerkontoene til skolens ansatte, skolens egne periodeplaner og Trivselsundersøkelsen. Har du spørsmål om disse, kan du henvende deg til skolen eller til oss — vi hjelper uansett."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "For resten er vi selv ansvarlige: kunde- og kontaktregisteret vårt, nyhetsbrev, kurs, vår egen evalueringsundersøkelse til skolens kontaktperson, avtaleinngåelse og vårt eget undervisningsmateriell."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "4. Hva vi behandler, og hvorfor",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Brukerkonto for deg som er ansatt ved en skole."
+              },
+              {
+                "t": " Navn, e-postadresse, rolle og hvilken skole du tilhører, samt tidspunkt for innlogging. Logger du inn med Feide, får vi navn, e-post og Feide-ID fra skoleeiers Feide-tilknytning. Formålet er at du skal kunne logge inn og bruke plattformen. Grunnlag: avtalen med skoleeier."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Kontaktopplysninger på skolen."
+              },
+              {
+                "t": " Skolens navn, adresse, organisasjonsnummer og elevtall, og navn, e-post, telefon og stilling på skolens kontaktpersoner (rektor, hovedtrivselsleder, TL-ansvarlig). Formålet er å besvare henvendelser, følge opp samarbeid og tilbud, sende kursinformasjon, fakturere og sikre kontinuitet i dialogen med skolen. Grunnlag: vår berettigede interesse etter personvernforordningen artikkel 6 nr. 1 bokstav f. Vi henter også opplysninger fra offentlig tilgjengelige kilder, som skolens nettside og offentlige skoleregistre, når vi kontakter skoler som ikke er med i programmet."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Barn i periodeplaner."
+              },
+              {
+                "t": " Skolen kan skrive inn hvilke elever som er trivselsledere i sin periodeplan — normalt fornavn og klasse, som «Ole 4B». Dette er de eneste navngitte barna i plattformen. Skolen ser bare sin egen plan. Planen kan vises for andre gjennom en delingslenke som skolen selv gir ut, og skolen kan når som helst stoppe lenken slik at den slutter å virke."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Trivselsundersøkelsen."
+              },
+              {
+                "t": " En kort undersøkelse der elever på 5.–10. trinn svarer på 13 spørsmål om trivsel, vennskap, aktivitet i friminuttene og mobbing. Elevene svarer uten å logge inn og uten å oppgi navn eller noe annet som identifiserer dem. Skolen deler ut engangskoder, og koblingen mellom kode og svar brytes — samme grunnmodell som Utdanningsdirektoratets Elevundersøkelse. Det eneste som lagres sammen med svarene, er trinn og kjønn. Ingen fritekst, og ingen spørsmål lar en elev navngi en annen."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Resultatene vises alltid som samlede tall for en gruppe. Er en gruppe så liten at et enkelt barns svar kunne gjenkjennes, viser vi ikke tall for den. Beskyttelsen tar også høyde for at skjulte tall ikke skal kunne regnes ut fra andre tall som vises. Bare skolens ledelse ser skolens resultater. Vi selv kan ikke se enkeltsvar — heller ikke våre egne ansatte. Deltakelse er frivillig, og eleven kan hoppe over spørsmål. Skoleeier er ansvarlig for undersøkelsen; vi er databehandler."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Brukslogg."
+              },
+              {
+                "t": " Plattformen registrerer hvilke leker, dokumenter og opplegg som åpnes, med tidspunkt og hvilken skole det gjelder. Formålet er å vite hva skolene faktisk bruker, så vi kan forbedre innholdet. Loggen kobles fra person etter fristen i punkt 7 og brukes ikke til å følge opp enkeltpersoner."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "E-post fra plattformen."
+              },
+              {
+                "t": " Invitasjoner, kursbekreftelser, påminnelser og tilbakestilling av passord. Vi logger hvem som fikk hvilken e-post og om den kom fram, for å kunne feilsøke. Dette er en teknisk driftslogg, ikke korrespondanse."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Nyhetsbrev."
+              },
+              {
+                "t": " Bare til deg som selv har meldt deg på. Du kan melde deg av i hver utsending."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Bilder."
+              },
+              {
+                "t": " Bilder og filmer på plattformen er vårt eget undervisningsmateriell. Der personer kan gjenkjennes, har vi innhentet tillatelse fra dem det gjelder. Skolens ansatte kan ikke laste opp bilder av elever."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Plattformen behandler ikke fødselsnummer, og elever logger aldri inn."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "5. Hvem vi deler opplysninger med",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Vi selger aldri personopplysninger. Vi bruker disse leverandørene til å drive plattformen:"
+              }
+            ]
+          },
+          {
+            "type": "tabell",
+            "kolonner": [
+              "Leverandør",
+              "Hva de gjør for oss",
+              "Hvor opplysningene behandles"
+            ],
+            "rader": [
+              [
+                [
+                  {
+                    "t": "Supabase (Singapore-selskap)"
+                  }
+                ],
+                [
+                  {
+                    "t": "Database, innlogging, filer og sikkerhetskopier"
+                  }
+                ],
+                [
+                  {
+                    "t": "Stockholm, Sverige. Support kan skje fra Singapore og USA"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Vercel (USA)"
+                  }
+                ],
+                [
+                  {
+                    "t": "Drift av nettsiden og serverfunksjonene"
+                  }
+                ],
+                [
+                  {
+                    "t": "Serverfunksjoner i Stockholm. Kjøretidslogger (IP-adresse, feilmeldinger) lagres i USA"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Bunny.net (Slovenia)"
+                  }
+                ],
+                [
+                  {
+                    "t": "Videoavspilling"
+                  }
+                ],
+                [
+                  {
+                    "t": "EU"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Resend (USA)"
+                  }
+                ],
+                [
+                  {
+                    "t": "Utsending av e-post"
+                  }
+                ],
+                [
+                  {
+                    "t": "E-post sendes fra Irland. Selskapets primære behandling (drift, support) skjer i USA"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "HubSpot (USA)"
+                  }
+                ],
+                [
+                  {
+                    "t": "Kunde- og kontaktregister"
+                  }
+                ],
+                [
+                  {
+                    "t": "Tyskland. Support kan gå via USA"
+                  }
+                ]
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "I tillegg får regnskapsbyrået vårt fakturaopplysninger. Feide/Sikt er skoleeiers egen innloggingsleverandør, ikke vår."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Planlagt, ikke i bruk:"
+              },
+              {
+                "t": " Vi arbeider med en AI-assistent som hjelper ansatte å finne leker ved å skrive et spørsmål. Den vil bruke Anthropic (språkmodell) og Voyage AI/MongoDB (søk), begge USA-selskaper. Spørsmålet vaskes for navn før det sendes, og elevdata sendes aldri dit. Erklæringen oppdateres før assistenten tas i bruk."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "6. Hvor opplysningene behandles",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Databasen, innloggingen, filene, sikkerhetskopiene og serverfunksjonene våre kjører i Stockholm. E-post sendes fra Irland. Video leveres fra EU."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Noe behandling skjer likevel i USA: Vercels kjøretidslogger lagres der, Resend driver sin virksomhet derfra, og support fra Supabase, Vercel, Resend og HubSpot kan innebære tilgang fra land utenfor EU/EØS. For alle disse er overføringen sikret med EU-kommisjonens standardpersonvernbestemmelser (SCC). HubSpot er i tillegg sertifisert under EU–US Data Privacy Framework."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "7. Hvor lenge vi lagrer opplysningene",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Kontaktopplysninger og kontakthistorikk om skolens ansatte."
+              },
+              {
+                "t": " Ved løpende samarbeid beholder vi opplysninger som er nødvendige for oppfølgingen, og gjennomgår kontakthistorikken minst årlig."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "For potensielle kundeskoler slettes personopplysningene senest tre år etter siste reelle, toveis dialog om mulig samarbeid, eller etter innsamlingen dersom slik dialog ikke har funnet sted. For tidligere kundeskoler regnes fristen fra avtalens opphør eller senere slik dialog. Ubesvarte henvendelser fra oss forlenger ikke fristen. Opplysninger slettes tidligere dersom behovet faller bort."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Enkelte opplysninger kan oppbevares separat dersom det er nødvendig for å oppfylle lovpålagte plikter eller håndtere konkrete rettskrav. De brukes da ikke til salgsoppfølging. Regnskapsbilag oppbevares etter bokføringsloven."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "b": "Øvrige frister:"
+              }
+            ]
+          },
+          {
+            "type": "tabell",
+            "kolonner": [
+              "Opplysning",
+              "Frist"
+            ],
+            "rader": [
+              [
+                [
+                  {
+                    "t": "Brukerkonto for ansatt"
+                  }
+                ],
+                [
+                  {
+                    "t": "Så lenge du har en rolle ved en skole i programmet; slettes når skolen fjerner tilgangen eller avtalen med skoleeier opphører"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Periodeplan som skolen har slettet"
+                  }
+                ],
+                [
+                  {
+                    "t": "30 dager i papirkurv, deretter automatisk og endelig sletting"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Trivselsundersøkelsen — rå elevsvar"
+                  }
+                ],
+                [
+                  {
+                    "t": "Slettes automatisk 90 dager etter at runden er lukket. Skolens skjermede resultater beholdes så lenge avtalen løper"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Trivselsundersøkelsen — engangskoder"
+                  }
+                ],
+                [
+                  {
+                    "t": "Slettes når runden lukkes"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Brukslogg"
+                  }
+                ],
+                [
+                  {
+                    "t": "Kobles fra person etter 12 måneder. Hvilken skole bruken gjelder, beholdes"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Søkelogg"
+                  }
+                ],
+                [
+                  {
+                    "t": "Kobles fra person etter 30 dager; søketekst slettes etter 24 måneder"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "E-postlogg (teknisk driftslogg)"
+                  }
+                ],
+                [
+                  {
+                    "t": "Navn og e-post fjernes etter 12 måneder"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Endringslogg (hvem av våre ansatte endret hva i innholdsbiblioteket)"
+                  }
+                ],
+                [
+                  {
+                    "t": "Kobles fra person etter 12 måneder"
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    "t": "Nyhetsbrev"
+                  }
+                ],
+                [
+                  {
+                    "t": "Til du melder deg av"
+                  }
+                ]
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Ved opphør av avtalen med en skoleeier slettes eller tilbakeleveres senest 90 dager etter opphør de opplysningene vi behandler på skoleeiers vegne. Vårt eget kontaktregister følger fristene over."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "8. Dine rettigheter",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Du har rett til:"
+              }
+            ]
+          },
+          {
+            "type": "liste",
+            "punkter": [
+              {
+                "runs": [
+                  {
+                    "b": "Innsyn"
+                  },
+                  {
+                    "t": " — å få vite hvilke opplysninger vi har om deg, og få en kopi."
+                  }
+                ]
+              },
+              {
+                "runs": [
+                  {
+                    "b": "Retting"
+                  },
+                  {
+                    "t": " — å få rettet opplysninger som er feil eller ufullstendige."
+                  }
+                ]
+              },
+              {
+                "runs": [
+                  {
+                    "b": "Sletting"
+                  },
+                  {
+                    "t": " — å få slettet opplysninger vi ikke lenger har grunnlag for å beholde."
+                  }
+                ]
+              },
+              {
+                "runs": [
+                  {
+                    "b": "Begrensning"
+                  },
+                  {
+                    "t": " — å kreve at vi stanser behandlingen mens en uenighet avklares."
+                  }
+                ]
+              },
+              {
+                "runs": [
+                  {
+                    "b": "Protest"
+                  },
+                  {
+                    "t": " — å protestere mot behandling som bygger på vår berettigede interesse, og alltid mot direkte markedsføring. Ved protest mot direkte markedsføring stanser vi bruken av opplysningene til dette formålet."
+                  }
+                ]
+              },
+              {
+                "runs": [
+                  {
+                    "b": "Dataportabilitet"
+                  },
+                  {
+                    "t": " — å få utlevert opplysninger du selv har gitt oss, i et maskinlesbart format."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Send henvendelsen til post@trivselsleder.no. Vi svarer normalt innen 30 dager. Gjelder henvendelsen brukerkonto, periodeplan eller Trivselsundersøkelsen, er skoleeier ansvarlig, og vi hjelper dem med å svare. Merk at svar i Trivselsundersøkelsen ikke kan knyttes til en enkelt elev, og innsyn i eller sletting av et enkelt svar er derfor ikke mulig."
+              }
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Mener du at vi behandler opplysninger i strid med regelverket, kan du klage til Datatilsynet: "
+              },
+              {
+                "a": "https://www.datatilsynet.no",
+                "url": "https://www.datatilsynet.no"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "9. Sikkerhet",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Opplysningene er kryptert under overføring og ved lagring. Tilgangen styres i databasen, slik at ansatte ved en skole bare ser sin egen skole, og bare våre ansatte med tjenstlig behov har tilgang på tvers av skoler. Rå svar i Trivselsundersøkelsen er stengt for alle, også for oss. Sikkerhetskritiske endringer kontrolleres uavhengig før de settes i drift. Oppdager vi et sikkerhetsbrudd som gjelder skoledata, varsler vi skoleeier innen 24 timer."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "h2": "10. Endringer",
+        "blokker": [
+          {
+            "type": "p",
+            "runs": [
+              {
+                "t": "Vi oppdaterer denne erklæringen når plattformen endres, blant annet når vi tar i bruk nye leverandører. Vesentlige endringer varsles til skolens kontaktperson."
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 }
